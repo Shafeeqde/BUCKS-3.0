@@ -1,0 +1,685 @@
+import React, { useState, useEffect } from 'react';
+
+// MapScreen Component: Displays the full-screen map and search bar
+const MapScreen = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false); // New state for input focus
+  const [recentSearches, setRecentSearches] = useState([
+    'Plumbing', 'Biryani', 'Carpentry', 'Solids Gym',
+    'Skin Doctor', 'Lawyer', 'Belgium Waffle',
+    'Indian Oil Petrol Pump', 'Samsung Electronics'
+  ]);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleRecentSearchClick = (search) => {
+    setSearchTerm(search);
+    setIsSearchFocused(false); // Hide suggestions after clicking a recent search
+    // In a real app, you might trigger a search here
+  };
+
+  return (
+    <main className="flex-grow relative overflow-hidden">
+      {/* Google Map iframe */}
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15551.924874452586!2d77.56708455!3d12.9715987!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1670c9b44167%3A0xf8df77c050a12e21!2sBangalore%2C%20Karnataka%2C%20India!5e0!3m2!1sen!2sus!4v1678234567890!5m2!1sen!2sus"
+        className="absolute inset-0 w-full h-full"
+        style={{ border: 0 }}
+        allowFullScreen=""
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        title="Interactive Map of Bangalore"
+        aria-label="Interactive map showing the city of Bangalore"
+      ></iframe>
+
+      {/* Search Bar and Suggestions Overlay */}
+      <div className="absolute bottom-4 left-0 right-0 px-4 z-20">
+        <div className="bg-white rounded-full shadow-lg flex items-center p-3">
+          {/* Search icon */}
+          <svg className="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input
+            type="text"
+            placeholder="Search"
+            className="flex-grow outline-none text-lg text-gray-700 bg-transparent"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setTimeout(() => setIsSearchFocused(false), 150)}
+          />
+        </div>
+
+        {/* Recent Searches / Suggestions Section - only visible when focused or typing */}
+        {(isSearchFocused || searchTerm !== '') && recentSearches.length > 0 && (
+          <div className="mt-4 bg-white rounded-lg shadow-lg p-4 max-h-48 overflow-y-auto">
+            <h3 className="font-semibold text-gray-800 mb-3">
+              {searchTerm === '' ? 'Recent Searches' : 'Suggestions'}
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {recentSearches
+                .filter(search => searchTerm === '' || search.toLowerCase().includes(searchTerm.toLowerCase()))
+                .map((search, index) => (
+                <button
+                  key={index}
+                  className="flex items-center bg-gray-100 text-gray-700 text-sm px-3 py-1 rounded-full hover:bg-gray-200 transition-colors duration-200"
+                  onClick={() => handleRecentSearchClick(search)}
+                >
+                  <svg className="w-4 h-4 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                  {search}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+  );
+};
+
+// FeedsScreen Component: Displays various content feeds
+const FeedsScreen = () => {
+  // Mock data for top categories/stories with dummy images and viewed status
+  const [categories, setCategories] = useState([
+    // "Your Moments" button
+    { id: 'moments-0', name: 'Your Moments', icon: 'M12 4v16m8-8H4', type: 'moments', viewed: false, color: 'bg-purple-100' },
+    // New user profiles added
+    { id: 'feed-deepthi', name: 'Deepthi', image: 'https://placehold.co/100x100/6A5ACD/ffffff?text=DE', viewed: false },
+    { id: 'feed-maanisha', name: 'Maanisha', image: 'https://placehold.co/100x100/FF6347/ffffff?text=MA', viewed: false },
+    { id: 'feed-subhesh', name: 'Subhesh', image: 'https://placehold.co/100x100/3CB371/ffffff?text=SU', viewed: true },
+    { id: 'feed-seena', name: 'Seena', image: 'https://placehold.co/100x100/FF4500/ffffff?text=SE', viewed: false },
+    { id: 'feed-1', name: 'Shafeeq', image: 'https://placehold.co/100x100/A020F0/ffffff?text=SH', viewed: false },
+    { id: 'feed-2', name: 'Senthil', image: 'https://placehold.co/100x100/FFD700/ffffff?text=SE', viewed: false },
+    { id: 'feed-3', name: 'Mikado', image: 'https://placehold.co/100x100/4169E1/ffffff?text=MI', viewed: true },
+    { id: 'feed-4', name: 'TVS Synergy', image: 'https://placehold.co/100x100/32CD32/ffffff?text=TV', viewed: false },
+    { id: 'feed-5', name: 'Friends', image: 'https://placehold.co/100x100/8A2BE2/ffffff?text=FR', viewed: true },
+    { id: 'feed-6', name: 'Family', image: 'https://placehold.co/100x100/FF69B4/ffffff?text=FA', viewed: false },
+    { id: 'feed-7', name: 'News', image: 'https://placehold.co/100x100/DC143C/ffffff?text=NW', viewed: true },
+  ]);
+
+  // State for feed items, including recommendation counts and comment box visibility
+  const [feedItems, setFeedItems] = useState([
+    {
+      id: 1,
+      type: 'post',
+      user: 'Shafeeq',
+      userImage: 'https://placehold.co/40x40/9a4ee6/ffffff?text=S',
+      timestamp: 'Wishing you a joyful and prosperous Diwali',
+      content: 'May this festival of lights bring happiness, success, and warmth to your lives.',
+      postImage: 'https://placehold.co/300x180/e5e7eb/374151?text=Diwali+Celebration',
+      comments: 7,
+      recommendations: 10,
+      notRecommendations: 2,
+      showCommentBox: false,
+      currentComment: ''
+    },
+    {
+      id: 2,
+      type: 'post',
+      user: 'Senthil Devaraj',
+      userImage: 'https://placehold.co/40x40/f5a700/ffffff?text=T',
+      timestamp: 'Hi Guys, I have been Unemployed for 12 months now, please help by reviewing my resume and please help if there are any opportunities.',
+      content: 'Senthil Devaraj Resume',
+      comments: 12,
+      recommendations: 5,
+      notRecommendations: 1,
+      showCommentBox: false,
+      currentComment: ''
+    },
+    {
+      id: 3,
+      type: 'job',
+      user: 'Mikado UX UI',
+      userImage: 'https://placehold.co/40x40/4e88e6/ffffff?text=M',
+      timestamp: 'Hi Design Enthusiast , we are in search of the graphic Designer with Illustrative and sketching skills , check out your Job portal and share you resume and please suggest you known persons if you know someone as we expected',
+      comments: 20,
+      recommendations: 25,
+      notRecommendations: 3,
+      showCommentBox: false,
+      currentComment: ''
+    },
+    {
+      id: 4,
+      type: 'ad',
+      user: 'TVS Synergy',
+      userImage: 'https://placehold.co/40x40/00bf8a/ffffff?text=T',
+      postImage: 'https://placehold.co/300x180/d1d5db/4b5563?text=TVS+Ntorq+125',
+      content: 'TVS Ntore 125 Price : Check On-Road & Ex-Showroom Prices of All Variants -',
+      recommendations: 15,
+      notRecommendations: 0,
+      showCommentBox: false,
+      currentComment: ''
+    }
+  ]);
+
+  // Function to toggle comment box and update recommendation counts
+  const handleInteraction = (id, type) => {
+    setFeedItems(prevItems =>
+      prevItems.map(item => {
+        if (item.id === id) {
+          // Toggle comment box
+          const updatedShowCommentBox = !item.showCommentBox;
+
+          // Update recommendation counts only if the box is being opened
+          let updatedRecommendations = item.recommendations;
+          let updatedNotRecommendations = item.notRecommendations;
+
+          if (!item.showCommentBox) { // Only increment if the box is being opened
+            if (type === 'recommend') {
+              updatedRecommendations += 1;
+            } else if (type === 'notRecommend') {
+              updatedNotRecommendations += 1;
+            }
+          }
+          return {
+            ...item,
+            recommendations: updatedRecommendations,
+            notRecommendations: updatedNotRecommendations,
+            showCommentBox: updatedShowCommentBox,
+            currentComment: '' // Clear comment when toggling
+          };
+        }
+        return item;
+      })
+    );
+  };
+
+  // Function to handle comment input change
+  const handleCommentChange = (id, value) => {
+    setFeedItems(prevItems =>
+      prevItems.map(item =>
+        item.id === id ? { ...item, currentComment: value } : item
+      )
+    );
+  };
+
+  // Function to post comment (for MVP, just clears the input)
+  const handlePostComment = (id) => {
+    setFeedItems(prevItems =>
+      prevItems.map(item =>
+        item.id === id ? { ...item, currentComment: '', showCommentBox: false } : item
+      )
+    );
+    // In a real app, you'd send the comment to a backend here
+    console.log(`Comment posted for item ${id}: ${feedItems.find(i => i.id === id).currentComment}`);
+  };
+
+  // Function to mark a category as viewed when clicked
+  const handleCategoryClick = (id) => {
+    setCategories(prevCategories =>
+      prevCategories.map(category =>
+        category.id === id ? { ...category, viewed: true } : category
+      )
+    );
+    // Here you would typically navigate to the stories for that category
+    console.log(`Category ${id} clicked. Marked as viewed.`);
+  };
+
+
+  return (
+    <main className="flex-grow bg-white overflow-y-auto">
+      {/* Top categories/stories section */}
+      <div className="flex py-3 border-b border-gray-200 overflow-x-auto custom-scrollbar px-4 space-x-4">
+        {categories.map((category) => (
+          <div key={category.id} className="flex-shrink-0 flex flex-col items-center cursor-pointer" onClick={() => handleCategoryClick(category.id)}>
+            {/* Conditional rendering for image or icon based on category type */}
+            {category.type === 'moments' ? (
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center text-purple-600 border-2 border-purple-300 bg-purple-100`}>
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+              </div>
+            ) : category.image ? (
+              <div className={`w-14 h-14 rounded-full border-2 ${category.viewed ? 'border-gray-300' : 'border-purple-600'} overflow-hidden flex items-center justify-center`}>
+                 <img src={category.image} alt={category.name} className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white border-2 ${category.viewed ? 'border-gray-300' : 'border-purple-600'} ${category.color}`}>
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={category.icon}></path>
+                </svg>
+              </div>
+            )}
+            <span className="text-xs mt-1 text-gray-700 font-medium">{category.name}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Feed items list */}
+      <div className="p-4 space-y-4">
+        {feedItems.map((item) => (
+          <div key={item.id} className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+            <div className="flex items-center mb-3">
+              <img src={item.userImage} alt={item.user} className="w-10 h-10 rounded-full mr-3" />
+              <div className="flex-grow">
+                <p className="font-semibold text-gray-900">{item.user}</p>
+                <p className="text-sm text-gray-500">{item.timestamp}</p>
+              </div>
+            </div>
+            <p className="text-gray-800 mb-3">{item.content}</p>
+            {item.postImage && (
+              <img src={item.postImage} alt="Feed content" className="w-full h-auto rounded-lg mb-3" />
+            )}
+            <div className="flex items-center text-gray-500 text-sm mb-3">
+              <span className="mr-4">💬 {item.comments}</span>
+              {/* Display recommendation counts */}
+              <span className="mr-4">👍 {item.recommendations}</span>
+              <span className="mr-4">👎 {item.notRecommendations}</span>
+            </div>
+
+            {/* Recommendation/Interaction Buttons */}
+            <div className="flex justify-around border-t border-gray-200 pt-3">
+              <button
+                className="flex items-center text-purple-600 font-medium px-4 py-2 rounded-full hover:bg-purple-50 focus:outline-none transition-colors duration-200"
+                onClick={() => handleInteraction(item.id, 'recommend')}
+              >
+                {/* Custom Recommend icon (Up Arrow) */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                  <path d="M12 5V19M19 12L12 5L5 12"/>
+                </svg>
+                Recommend
+              </button>
+              <button
+                className="flex items-center text-red-600 font-medium px-4 py-2 rounded-full hover:bg-red-50 focus:outline-none transition-colors duration-200"
+                onClick={() => handleInteraction(item.id, 'notRecommend')}
+              >
+                {/* Custom Not Recommend icon (Down Arrow) */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                  <path d="M12 19V5M5 12L12 19L19 12"/>
+                </svg>
+                Not Recommend
+              </button>
+            </div>
+
+            {/* Comment Box */}
+            {item.showCommentBox && (
+              <div className="mt-4 flex flex-col space-y-2">
+                <textarea
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-200"
+                  rows="3"
+                  placeholder="Write your comment..."
+                  value={item.currentComment}
+                  onChange={(e) => handleCommentChange(item.id, e.target.value)}
+                ></textarea>
+                <button
+                  className="self-end bg-purple-600 text-white px-4 py-2 rounded-full shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-colors duration-200"
+                  onClick={() => handlePostComment(item.id)}
+                >
+                  Post Comment
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </main>
+  );
+};
+
+
+// ServicesScreen Component: Displays a grid of available services
+const ServicesScreen = ({ setActiveTab }) => { // Receive setActiveTab as prop
+  const services = [
+    { name: 'Taxi', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-car"><path d="M19 17H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2Z"/><circle cx="7" cy="13" r="1"/><circle cx="17" cy="13" r="1"/></svg>`, locked: false, targetTab: 'taxi' }, // Taxi is not locked, links to 'taxi'
+    { name: 'Jobs', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-briefcase"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`, locked: true },
+    { name: 'Foods', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-utensils"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M15 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><line x1="7" x2="7" y1="2" y2="22"/><line x1="17" x2="17" y1="2" y2="22"/></svg>`, locked: true },
+    { name: 'Shopping', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`, locked: true },
+    { name: 'Pay', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-credit-card"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>`, locked: true },
+    { name: 'Book Tickets', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-ticket"><path d="M2 9a3 3 0 0 1 0 6v-6Z"/><path d="M22 9a3 3 0 0 0 0 6v-6Z"/><path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h7"/><path d="M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7"/><path d="M13 11H7"/><path d="M13 15H7"/></svg>`, locked: true },
+    { name: 'Delivery', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-truck"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M10 18H7"/><path d="M17 18h2a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-7.5L14 14z"/><circle cx="18" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>`, locked: true },
+    { name: 'Banking', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-banknote"><rect width="20" height="12" x="2" y="6" rx="2"/><path d="M12 12V6"/><path d="M10 12h4"/><path d="M10 18h4"/><path d="M16 12V6"/><path d="M16 18V12"/><path d="M8 18V12"/><path d="M8 12V6"/></svg>`, locked: true },
+    { name: 'Networks', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-network"><rect x="16" y="2" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><path d="M18 8v4c0 1.7-1.3 3-3 3h-4"/><rect x="2" y="2" width="6" height="6" rx="1"/><rect x="16" y="16" width="6" height="6" rx="1"/><path d="M18 16v-4c0-1.7-1.3-3-3-3h-4c-1.7 0-3-1.3-3-3V8"/></svg>`, locked: true },
+    { name: 'Community', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`, locked: true },
+  ];
+
+  return (
+    <main className="flex-grow bg-white overflow-y-auto p-4">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">Services we Offer</h2>
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+        {services.map((service) => (
+          <div
+            key={service.name}
+            className="flex flex-col items-center p-3 bg-gray-50 rounded-lg shadow-sm hover:bg-purple-50 cursor-pointer transition-colors duration-200 relative"
+            onClick={() => service.targetTab && setActiveTab(service.targetTab)}
+          >
+            {/* Directly render SVG using dangerouslySetInnerHTML */}
+            <div
+              className="w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-md text-purple-600"
+              dangerouslySetInnerHTML={{ __html: service.icon }}
+            />
+            <span className="text-xs sm:text-sm font-medium text-gray-700 mt-2 text-center">{service.name}</span>
+            {service.locked && (
+              <div className="absolute top-0 right-0 -mt-1 -mr-1 bg-gray-800 rounded-full p-1 shadow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lock text-white">
+                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </main>
+  );
+};
+
+
+// RecommendedScreen Component: Displays recommended content
+const RecommendedScreen = () => {
+  const recommendedPosts = [
+    {
+      id: 1,
+      recommendedBy: 'Shafeeq',
+      userImage: 'https://placehold.co/40x40/9a4ee6/ffffff?text=S',
+      title: 'Top 5 Productivity Hacks',
+      content: 'Boost your daily efficiency with these simple yet effective tips.',
+      thumbnail: 'https://placehold.co/600x350/ADD8E6/000000?text=Productivity',
+      type: 'image',
+    },
+    {
+      id: 2,
+      recommendedBy: 'Senthil',
+      userImage: 'https://placehold.co/40x40/f5a700/ffffff?text=T',
+      title: 'Exploring Hidden Gems in Bangalore',
+      content: 'A travel vlog discovering lesser-known spots in the city.',
+      thumbnail: 'https://placehold.co/600x350/90EE90/000000?text=Travel+Vlog',
+      type: 'video',
+    },
+    {
+      id: 3,
+      recommendedBy: 'Deepthi',
+      userImage: 'https://placehold.co/40x40/6A5ACD/ffffff?text=DE',
+      title: 'Healthy Meal Prep Ideas for Busy Weeks',
+      content: 'Quick and nutritious recipes to keep you energized.',
+      thumbnail: 'https://placehold.co/600x350/FFB6C1/000000?text=Meal+Prep',
+      type: 'image',
+    },
+    {
+      id: 4,
+      recommendedBy: 'Maanisha',
+      userImage: 'https://placehold.co/40x40/FF6347/ffffff?text=MA',
+      title: 'Beginner\'s Guide to Investing',
+      content: 'Understanding the basics of stock market and mutual funds.',
+      thumbnail: 'https://placehold.co/600x350/87CEFA/000000?text=Investing',
+      type: 'video',
+    },
+    {
+      id: 5,
+      recommendedBy: 'Subhesh',
+      userImage: 'https://placehold.co/40x40/3CB371/ffffff?text=SU',
+      title: 'DIY Home Decor Projects',
+      content: 'Transform your living space with these creative and easy projects.',
+      thumbnail: 'https://placehold.co/600x350/DDA0DD/000000?text=DIY+Decor',
+      type: 'image',
+    },
+    {
+      id: 6,
+      recommendedBy: 'Seena',
+      userImage: 'https://placehold.co/40x40/FF4500/ffffff?text=SE',
+      title: 'Fitness Routines for Small Spaces',
+      content: 'Stay active even with limited room and equipment.',
+      thumbnail: 'https://placehold.co/600x350/B0E0E6/000000?text=Fitness',
+      type: 'video',
+    },
+    {
+      id: 7,
+      recommendedBy: 'Shafeeq',
+      userImage: 'https://placehold.co/40x40/9a4ee6/ffffff?text=S',
+      title: 'Understanding Artificial Intelligence',
+      content: 'A simple explanation of AI concepts and its impact.',
+      thumbnail: 'https://placehold.co/600x350/F0F8FF/000000?text=AI+Explained',
+      type: 'image',
+    },
+    {
+      id: 8,
+      recommendedBy: 'Senthil',
+      userImage: 'https://placehold.co/40x40/f5a700/ffffff?text=T',
+      title: 'Mastering Digital Photography',
+      content: 'Tips and tricks for capturing stunning photos with your smartphone.',
+      thumbnail: 'https://placehold.co/600x350/FFFACD/000000?text=Photography',
+      type: 'image',
+    },
+    {
+      id: 9,
+      recommendedBy: 'Deepthi',
+      userImage: 'https://placehold.co/40x40/6A5ACD/ffffff?text=DE',
+      title: 'The Future of Sustainable Living',
+      content: 'Innovative ideas for an eco-friendly lifestyle.',
+      thumbnail: 'https://placehold.co/600x350/C1FFC1/000000?text=Sustainable',
+      type: 'video',
+    },
+    {
+      id: 10,
+      recommendedBy: 'Maanisha',
+      userImage: 'https://placehold.co/40x40/FF6347/ffffff?text=MA',
+      title: 'Learn to Code in 30 Days',
+      content: 'A structured plan to kickstart your programming journey.',
+      thumbnail: 'https://placehold.co/600x350/E6E6FA/000000?text=Coding+Challenge',
+      type: 'image',
+    },
+  ];
+
+  return (
+    <main className="flex-grow bg-white overflow-y-auto p-4">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">Recommended for You</h2>
+      <div className="space-y-4">
+        {recommendedPosts.map((post) => (
+          <div key={post.id} className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+            <div className="flex items-center mb-3">
+              <img src={post.userImage} alt={post.recommendedBy} className="w-8 h-8 rounded-full mr-2" />
+              <p className="font-semibold text-gray-900">Recommended by {post.recommendedBy}</p>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">{post.title}</h3>
+            <p className="text-gray-700 mb-3">{post.content}</p>
+            {post.thumbnail && (
+              <div className="relative w-full rounded-lg overflow-hidden flex items-center justify-center mb-3">
+                <img src={post.thumbnail} alt={post.title} className="w-full h-auto object-cover" />
+                {post.type === 'video' && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40">
+                    <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M8 5v14l11-7z"></path>
+                    </svg>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </main>
+  );
+};
+
+// TaxiScreen Component: Displays map with animated vehicles
+const TaxiScreen = () => {
+  // State to manage vehicle positions for animation
+  const [vehiclePositions, setVehiclePositions] = useState([
+    { id: 1, type: 'car', top: '10%', left: '10%', animationDelay: '0s' },
+    { id: 2, type: 'bike', top: '30%', left: '80%', animationDelay: '2s' },
+    { id: 3, type: 'auto', top: '50%', left: '20%', animationDelay: '4s' },
+    { id: 4, type: 'car', top: '70%', left: '60%', animationDelay: '6s' },
+    { id: 5, type: 'bike', top: '20%', left: '50%', animationDelay: '1s' },
+  ]);
+
+  // SVG icons for different vehicle types with improved quality and clarity
+  const vehicleIcons = {
+    car: `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="#6B46C1" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-car"><path d="M19 17H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2Z"/><circle cx="7" cy="13" r="1"/><circle cx="17" cy="13" r="1"/></svg>`,
+    bike: `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="#D53F8C" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-bike"><circle cx="10" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M2 17h5l1-4h14l-1 4h-2"/><path d="M16 17h1"/><path d="M14 5l1 4h5l1-4h-7z"/></svg>`,
+    auto: `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="#38A169" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-truck"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M10 18H7"/><path d="M17 18h2a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-7.5L14 14z"/><circle cx="18" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>`,
+  };
+
+  // Basic animation for vehicles (moving slightly back and forth)
+  const vehicleAnimation = `
+    @keyframes moveVehicle {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(10px, 10px); }
+      50% { transform: translate(-10px, 0); }
+      75% { transform: translate(0, -10px); }
+      100% { transform: translate(0, 0); }
+    }
+  `;
+
+  return (
+    <main className="flex-grow relative overflow-hidden">
+      <style>{vehicleAnimation}</style> {/* Inject animation keyframes */}
+      {/* Google Map iframe */}
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15551.924874452586!2d77.56708455!3d12.9715987!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1670c9b44167%3A0xf8df77c050a12e21!2sBangalore%2C%20Karnataka%2C%20India!5e0!3m2!1sen!2sus!4v1678234567890!5m2!1sen!2sus"
+        className="absolute inset-0 w-full h-full"
+        style={{ border: 0 }}
+        allowFullScreen=""
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        title="Interactive Map of Bangalore for Taxi Service"
+        aria-label="Interactive map showing vehicles for taxi service"
+      ></iframe>
+
+      {/* Animated Vehicle Icons */}
+      {vehiclePositions.map(vehicle => (
+        <div
+          key={vehicle.id}
+          className="absolute z-10 p-1 rounded-full bg-white shadow-md"
+          style={{
+            top: vehicle.top,
+            left: vehicle.left,
+            animation: `moveVehicle 8s infinite ease-in-out ${vehicle.animationDelay}`,
+          }}
+          dangerouslySetInnerHTML={{ __html: vehicleIcons[vehicle.type] }}
+        />
+      ))}
+
+      {/* Search Bar at the bottom */}
+      <div className="absolute bottom-4 left-0 right-0 px-4 z-20">
+        <div className="bg-white rounded-full shadow-lg flex items-center p-3">
+          <svg className="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input
+            type="text"
+            placeholder="Where are you going?"
+            className="flex-grow outline-none text-lg text-gray-700 bg-transparent"
+          />
+        </div>
+      </div>
+    </main>
+  );
+};
+
+// Main App Component
+const App = () => {
+  // State to manage the currently active tab
+  const [activeTab, setActiveTab] = useState('home');
+
+  // Function to render the content based on the active tab
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'home':
+        return <MapScreen />;
+      case 'feeds':
+        return <FeedsScreen />;
+      case 'menu':
+        return <ServicesScreen setActiveTab={setActiveTab} />;
+      case 'recommended':
+        return <RecommendedScreen />;
+      case 'account':
+        return <div className="flex-grow flex items-center justify-center text-gray-600">Account Settings Coming Soon</div>;
+      case 'taxi':
+        return <TaxiScreen />;
+      default:
+        return <MapScreen />;
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-screen font-sans bg-gray-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm p-4 flex items-center justify-between z-10">
+        <div className="flex items-center">
+          {/* Hamburger Menu Icon */}
+          <svg className="w-6 h-6 text-gray-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          {/* App Logo/Name */}
+          <span className="text-2xl font-bold text-purple-700">bucks</span>
+        </div>
+        {/* Message Icon with Badge */}
+        <div className="relative">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-square">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1 py-0.5 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">10</span>
+        </div>
+      </header>
+
+      {/* Main Content Area (dynamic based on activeTab) */}
+      {renderContent()}
+
+      {/* Bottom Navigation */}
+      <nav className="bg-white border-t border-gray-200 p-4 flex justify-around items-center">
+        {/* Home Tab */}
+        <button
+          className={`flex flex-col items-center p-2 rounded-lg transition-colors duration-200 ${activeTab === 'home' ? 'text-purple-600 bg-purple-50' : 'text-gray-500 hover:text-purple-600'}`}
+          onClick={() => setActiveTab('home')}
+          aria-label="Home"
+        >
+          {/* Updated Home icon */}
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-home"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span className="text-xs font-medium mt-1">Home</span>
+        </button>
+
+        {/* Feeds Tab */}
+        <button
+          className={`flex flex-col items-center p-2 rounded-lg transition-colors duration-200 ${activeTab === 'feeds' ? 'text-purple-600 bg-purple-50' : 'text-gray-500 hover:text-purple-600'}`}
+          onClick={() => setActiveTab('feeds')}
+          aria-label="Feeds"
+        >
+          {/* Updated Feeds icon */}
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+          <span className="text-xs font-medium mt-1">Feeds</span>
+        </button>
+
+        {/* Menu/Services Tab */}
+        <button
+          className={`flex flex-col items-center p-2 rounded-lg transition-colors duration-200 ${activeTab === 'menu' ? 'text-purple-600 bg-purple-50' : 'text-gray-500 hover:text-purple-600'}`}
+          onClick={() => setActiveTab('menu')}
+          aria-label="Menu"
+        >
+          {/* Menu icon (grid) - kept as is, as it's appropriate */}
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+          </svg>
+          <span className="text-xs font-medium mt-1">Menu</span>
+        </button>
+
+        {/* Recommended Tab */}
+        <button
+          className={`flex flex-col items-center p-2 rounded-lg transition-colors duration-200 ${activeTab === 'recommended' ? 'text-purple-600 bg-purple-50' : 'text-gray-500 hover:text-purple-600'}`}
+          onClick={() => setActiveTab('recommended')}
+          aria-label="Recommended"
+        >
+          {/* Updated Recommended icon */}
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span className="text-xs font-medium mt-1">Recommended</span>
+        </button>
+
+        {/* Account Tab */}
+        <button
+          className={`flex flex-col items-center p-2 rounded-lg transition-colors duration-200 ${activeTab === 'account' ? 'text-purple-600 bg-purple-50' : 'text-gray-500 hover:text-purple-600'}`}
+          onClick={() => setActiveTab('account')}
+          aria-label="Account"
+        >
+          {/* Account icon - kept as is */}
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+          <span className="text-xs font-medium mt-1">Account</span>
+        </button>
+      </nav>
+    </div>
+  );
+};
+
+export default App;
