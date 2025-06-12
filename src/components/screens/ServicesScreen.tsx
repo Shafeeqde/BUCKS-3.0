@@ -65,14 +65,14 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab }) => {
   return (
     <main className="flex-grow bg-background overflow-y-auto p-4 h-full custom-scrollbar">
  <button onClick={() => setIsTaxiBookingActive(false)} className={`mb-4 text-foreground ${isTaxiBookingActive ? '' : 'hidden'}`}>
- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+ <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
  </button>
       {isTaxiBookingActive ? (
         // Placeholder for the taxi booking UI
         <div className="space-y-6">
  <h2 className="text-2xl font-bold text-foreground mb-6 font-headline">Book a Ride</h2>
  <div className="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-search absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-search absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
  <Input
  className="pl-10"
               placeholder="Where are you going?"
