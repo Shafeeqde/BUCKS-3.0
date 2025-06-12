@@ -1,3 +1,4 @@
+
 "use client";
 import { useEffect, useState } from 'react';
 import React from 'react';
@@ -44,7 +45,8 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen bg-background">
       <Header />
-      <div className="flex-grow overflow-hidden">
+      {/* Ensure this flex-grow container is relative for proper absolute positioning of children */}
+      <div className="flex-grow overflow-hidden relative">
         {renderScreenContent()}
       </div>
       <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
