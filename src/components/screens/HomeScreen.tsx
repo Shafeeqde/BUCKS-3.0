@@ -1,10 +1,14 @@
+
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import SearchSuggestions from '@/components/home/SearchSuggestions';
 import { suggestSearchTerms, type SuggestSearchTermsInput } from '@/ai/flows/suggest-search-terms';
+import { answerGeneralQuery, type GeneralQueryInput } from '@/ai/flows/answer-general-query-flow';
+import { useToast } from "@/hooks/use-toast";
 
 const HomeScreen = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,17 +20,20 @@ const HomeScreen = () => {
   ]);
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [isLoadingAiSuggestions, setIsLoadingAiSuggestions] = useState(false);
+  const [isAnsweringQuery, setIsAnsweringQuery] = useState(false);
+  const { toast } = useToast();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
 
-  const handleRecentSearchClick = (search: string) => {
+  const handleSuggestionClick = (search: string) => {
     setSearchTerm(search);
-    setIsSearchFocused(false); 
     // Add to recent searches if not already present, and move to front
     setRecentSearches(prev => [search, ...prev.filter(s => s !== search)].slice(0, 10));
-    // In a real app, trigger a search here
+    setIsSearchFocused(true); // Keep focus to allow immediate submission or further typing
+    // Optionally, trigger search immediately:
+    // handleQuerySubmit(search); 
   };
 
   const fetchAiSuggestions = useCallback(async (currentSearchTerm: string) => {
@@ -41,35 +48,77 @@ const HomeScreen = () => {
         recentSearches: recentSearches,
       };
       const result = await suggestSearchTerms(input);
-      // Filter AI suggestions based on current search term for better relevance,
-      // or use them as is. For this example, let's assume the AI provides relevant terms
-      // that may or may not include the search term.
       const filteredSuggestions = result.suggestedTerms.filter(term =>
         term.toLowerCase().includes(currentSearchTerm.toLowerCase()) && term.toLowerCase() !== currentSearchTerm.toLowerCase()
       );
-      setAiSuggestions(filteredSuggestions.slice(0, 5)); // Limit to 5 suggestions
+      setAiSuggestions(filteredSuggestions.slice(0, 5));
     } catch (error) {
       console.error("Error fetching AI suggestions:", error);
       setAiSuggestions([]);
+      toast({
+        title: "Suggestion Error",
+        description: "Could not fetch search suggestions.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoadingAiSuggestions(false);
     }
-  }, [recentSearches]);
+  }, [recentSearches, toast]);
 
   useEffect(() => {
-    if (isSearchFocused && searchTerm.trim() !== '') {
+    if (isSearchFocused && searchTerm.trim() !== '' && !isAnsweringQuery) {
       const debounceTimer = setTimeout(() => {
         fetchAiSuggestions(searchTerm);
-      }, 300); // Debounce API calls
+      }, 300);
       return () => clearTimeout(debounceTimer);
     } else if (!isSearchFocused || searchTerm.trim() === '') {
-      setAiSuggestions([]); // Clear AI suggestions if not focused or search term is empty
+      setAiSuggestions([]);
     }
-  }, [searchTerm, isSearchFocused, fetchAiSuggestions]);
+  }, [searchTerm, isSearchFocused, fetchAiSuggestions, isAnsweringQuery]);
 
-  const displaySuggestions = isSearchFocused || searchTerm !== '';
+  const handleQuerySubmit = async (event?: React.FormEvent<HTMLFormElement>) => {
+    if (event) event.preventDefault();
+    const query = searchTerm.trim();
+    if (!query) {
+      toast({
+        title: "Empty Search",
+        description: "Please enter a query to search.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAnsweringQuery(true);
+    setIsSearchFocused(false); 
+    setAiSuggestions([]); 
+
+    setRecentSearches(prev => [query, ...prev.filter(s => s !== query)].slice(0, 10));
+
+    try {
+      const input: GeneralQueryInput = { query };
+      const result = await answerGeneralQuery(input);
+      toast({
+        title: `Answer for "${query}"`,
+        description: result.answer,
+        duration: 8000, 
+      });
+      setSearchTerm(''); 
+    } catch (error) {
+      console.error("Error answering query:", error);
+      toast({
+        title: "AI Error",
+        description: "Sorry, I couldn't get an answer for that. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnsweringQuery(false);
+    }
+  };
+
+
+  const displaySuggestions = isSearchFocused && !isAnsweringQuery;
   const suggestionsToShow = searchTerm === '' ? recentSearches : aiSuggestions;
-  const suggestionTitle = searchTerm === '' ? 'Recent Searches' : (isLoadingAiSuggestions ? 'Loading suggestions...' : 'Suggestions');
+  const suggestionTitle = searchTerm === '' ? 'Recent Searches' : (isLoadingAiSuggestions ? 'Loading suggestions...' : 'AI Suggestions');
 
   return (
     <main className="flex-grow relative overflow-hidden h-full">
@@ -84,23 +133,33 @@ const HomeScreen = () => {
       ></iframe>
 
       <div className="absolute bottom-4 left-0 right-0 px-4 z-20">
-        <div className="bg-card rounded-full shadow-lg flex items-center p-3">
-          <Search className="w-5 h-5 text-muted-foreground mr-2" />
+        <form onSubmit={handleQuerySubmit} className="bg-card rounded-full shadow-lg flex items-center p-2 pr-3">
           <Input
             type="text"
-            placeholder="Search Locality Hub"
-            className="flex-grow outline-none text-lg text-foreground bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-auto p-0"
+            placeholder="Ask Locality Hub AI..."
+            className="flex-grow outline-none text-lg text-foreground bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-auto p-2"
             value={searchTerm}
             onChange={handleSearchChange}
             onFocus={() => setIsSearchFocused(true)}
-            onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)} // Delay to allow click on suggestions
+            onBlur={() => setTimeout(() => { if (!document.activeElement?.closest('form')) setIsSearchFocused(false); }, 200)}
+            disabled={isAnsweringQuery}
           />
-        </div>
+          <Button
+            type="submit"
+            variant="ghost"
+            size="icon"
+            className="p-1 rounded-full text-muted-foreground hover:text-primary disabled:opacity-50"
+            disabled={isAnsweringQuery || !searchTerm.trim()}
+            aria-label="Submit search query"
+          >
+            <Search className="w-5 h-5" />
+          </Button>
+        </form>
 
         {displaySuggestions && (
           <SearchSuggestions
             suggestions={suggestionsToShow}
-            onSuggestionClick={handleRecentSearchClick} // Also handles AI suggestion click
+            onSuggestionClick={handleSuggestionClick}
             title={suggestionTitle}
           />
         )}
