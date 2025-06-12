@@ -1,6 +1,6 @@
 "use client";
-
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
+import React from 'react';
 import Header from '@/components/layout/Header';
 import BottomNavigation from '@/components/layout/BottomNavigation';
 import HomeScreen from '@/components/screens/HomeScreen';
@@ -13,7 +13,18 @@ import type { TabName } from '@/types';
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabName>('home');
 
+  // State to track if the component has mounted on the client side
+  const [isClient, setIsClient] = useState(false);
+
+  // Set isClient to true after the component mounts on the client
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const renderContent = () => {
+    // Only render content if on the client side
+    if (!isClient) return null; // Or a loading state
+
     switch (activeTab) {
       case 'home':
         return <HomeScreen />;
@@ -29,6 +40,9 @@ export default function App() {
         return <HomeScreen />;
     }
   };
+
+  // Only render the full app structure on the client side
+  if (!isClient) return null; // Or a loading state for the initial server render
 
   return (
     <div className="flex flex-col h-screen bg-background">
