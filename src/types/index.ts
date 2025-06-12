@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from 'lucide-react';
 
 export type TabName = 'home' | 'feeds' | 'menu' | 'recommended' | 'account';
@@ -48,4 +49,29 @@ export interface RecommendedPost {
   thumbnail: string;
   thumbnailAiHint?: string;
   type: 'image' | 'video';
+}
+
+// Added for Home Screen location search results
+export interface LocationResult {
+  name: string;
+  address: string;
+  // latitude?: number; // Future enhancement
+  // longitude?: number; // Future enhancement
+}
+
+// Added for AI flow output structure
+export interface GeneralQueryOutput {
+  answer: string;
+  locations?: LocationResult[];
+  queryType: 'general' | 'location_search';
+}
+
+// VehicleOption type from ServicesScreen for completeness
+export interface VehicleOption {
+  name: string;
+  eta: string;
+  priceRange: string;
+  minRide: string;
+  pricePerKm: string;
+  icon: string; // SVG string
 }
