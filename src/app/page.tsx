@@ -12,18 +12,18 @@ import type { TabName } from '@/types';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabName>('home');
-
-  // State to track if the component has mounted on the client side
   const [isClient, setIsClient] = useState(false);
 
-  // Set isClient to true after the component mounts on the client
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const renderContent = () => {
-    // Only render content if on the client side
-    if (!isClient) return null; // Or a loading state
+  const renderScreenContent = () => {
+    // Only render dynamic screen content if on the client side
+    if (!isClient) {
+      // You could return a loading skeleton specific to the content area here if desired
+      return null;
+    }
 
     switch (activeTab) {
       case 'home':
@@ -41,14 +41,11 @@ export default function App() {
     }
   };
 
-  // Only render the full app structure on the client side
-  if (!isClient) return null; // Or a loading state for the initial server render
-
   return (
     <div className="flex flex-col h-screen bg-background">
       <Header />
       <div className="flex-grow overflow-hidden">
-        {renderContent()}
+        {renderScreenContent()}
       </div>
       <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
