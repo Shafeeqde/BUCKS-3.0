@@ -14,7 +14,8 @@ import { cn } from '@/lib/utils';
 
 const HomeScreen = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [isSearchMode, setIsSearchMode] = useState(false);
+  const [isSearchMode, setIsSearchMode] = useState(false); // True when results/answer should be shown (bar at top)
+  const [showSuggestions, setShowSuggestions] = useState(false); // Controls visibility of suggestions popup
   const [searchResult, setSearchResult] = useState<string | null>(null);
   const [isAnsweringQuery, setIsAnsweringQuery] = useState(false);
   
@@ -30,16 +31,12 @@ const HomeScreen = () => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     if (e.target.value.trim() === '' && isSearchMode) {
-      setSearchResult(null); // Clear results if search term is cleared
+      // If in top search mode and input is cleared, don't immediately revert, wait for blur or new search
     }
   };
 
   const handleFocus = () => {
-    setIsSearchMode(true);
-    if (!searchTerm.trim()) {
-      // Consider showing recent searches if input is empty on focus
-      setAiSuggestions([]); 
-    }
+    setShowSuggestions(true);
   };
 
   const handleBlur = () => {
@@ -47,13 +44,13 @@ const HomeScreen = () => {
       const activeFormElement = document.activeElement?.closest('form');
       const activeSuggestionButton = document.activeElement?.closest('button[data-suggestion-item="true"]');
 
-      if (!searchTerm.trim() && !activeFormElement && !activeSuggestionButton && !isAnsweringQuery) {
-        setIsSearchMode(false);
-        setSearchResult(null);
-        setAiSuggestions([]);
-      } else if (!activeFormElement && !activeSuggestionButton && !isAnsweringQuery) {
-        // If blurred and not onto a suggestion or submit, and not currently answering, clear AI suggestions
-         // setAiSuggestions([]); // This might be too aggressive, let's test
+      if (!activeFormElement && !activeSuggestionButton) {
+        setShowSuggestions(false);
+        // If in top search mode, input is now empty, and not focusing on suggestions/form, revert to map
+        if (searchTerm.trim() === '' && isSearchMode && !isAnsweringQuery) {
+          setIsSearchMode(false);
+          setSearchResult(null);
+        }
       }
     }, 200);
   };
@@ -77,22 +74,21 @@ const HomeScreen = () => {
     } catch (error) {
       console.error("Error fetching AI suggestions:", error);
       setAiSuggestions([]);
-      // Toast for suggestion error might be too noisy, consider logging or a subtle indicator
     } finally {
       setIsLoadingAiSuggestions(false);
     }
   }, [recentSearches]);
 
   useEffect(() => {
-    if (isSearchMode && searchTerm.trim() !== '' && !isAnsweringQuery && !searchResult) {
+    if (showSuggestions && searchTerm.trim() !== '' && !isAnsweringQuery && !searchResult) {
       const debounceTimer = setTimeout(() => {
         fetchAiSuggestions(searchTerm);
       }, 300);
       return () => clearTimeout(debounceTimer);
-    } else if (!isSearchMode || searchTerm.trim() === '' || searchResult) {
+    } else if (!showSuggestions || searchTerm.trim() === '' || searchResult) {
       if(!isLoadingAiSuggestions) setAiSuggestions([]);
     }
-  }, [searchTerm, isSearchMode, fetchAiSuggestions, isAnsweringQuery, searchResult, isLoadingAiSuggestions]);
+  }, [searchTerm, showSuggestions, fetchAiSuggestions, isAnsweringQuery, searchResult, isLoadingAiSuggestions]);
 
   const handleQuerySubmit = async (event?: React.FormEvent<HTMLFormElement>, queryOverride?: string) => {
     if (event) event.preventDefault();
@@ -107,12 +103,12 @@ const HomeScreen = () => {
       return;
     }
 
-    setIsSearchMode(true);
-    setAiSuggestions([]); 
-    setSearchResult(null); // Clear previous results
+    setIsSearchMode(true); // Activate top search bar mode
+    setShowSuggestions(false); // Hide suggestions when submitting
+    setSearchResult(null); 
     setIsAnsweringQuery(true);
 
-    if (!queryOverride) { // Only add to recent searches if it's not from a suggestion click that already did it
+    if (!queryOverride) {
         setRecentSearches(prev => [queryToSubmit, ...prev.filter(s => s !== queryToSubmit)].slice(0, 10));
     }
     
@@ -120,11 +116,9 @@ const HomeScreen = () => {
       const input: GeneralQueryInput = { query: queryToSubmit };
       const result = await answerGeneralQuery(input);
       setSearchResult(result.answer);
-      // setSearchTerm(''); // Optional: clear search term after displaying answer
     } catch (error) {
       console.error("Error answering query:", error);
       setSearchResult("Sorry, I couldn't get an answer for that. Please try again.");
-      // No toast here, message displayed in results area
     } finally {
       setIsAnsweringQuery(false);
     }
@@ -133,25 +127,57 @@ const HomeScreen = () => {
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
     setRecentSearches(prev => [suggestion, ...prev.filter(s => s !== suggestion)].slice(0, 10));
+    // setShowSuggestions(false); // Will be handled by handleQuerySubmit
     handleQuerySubmit(undefined, suggestion);
   };
 
-  const suggestionsToShow = searchTerm.trim() === '' && isSearchMode && !searchResult ? recentSearches : aiSuggestions;
-  const suggestionTitle = searchTerm.trim() === '' && isSearchMode && !searchResult 
-    ? 'Recent Searches' 
-    : (isLoadingAiSuggestions ? 'Loading suggestions...' : (aiSuggestions.length > 0 ? 'AI Suggestions' : ''));
+  let currentSuggestions: string[] = [];
+  let currentSuggestionTitle: string = '';
+  // Determine if the suggestions container should be attempted to be shown
+  const shouldTryShowSuggestionsContainer = showSuggestions && 
+                                          (!isSearchMode || (isSearchMode && !searchResult && !isAnsweringQuery));
 
+  if (shouldTryShowSuggestionsContainer) {
+    if (searchTerm.trim() === '') {
+      // Show recent searches if input is empty and focused (and not in result/loading state if top bar)
+      currentSuggestions = recentSearches.slice(0,5);
+      if (currentSuggestions.length > 0) currentSuggestionTitle = 'Recent Searches';
+    } else {
+      // Show AI suggestions if input has text and focused
+      currentSuggestions = aiSuggestions; // aiSuggestions is already sliced to 5
+      if (isLoadingAiSuggestions) {
+          currentSuggestionTitle = 'Loading suggestions...';
+      } else if (aiSuggestions.length > 0) {
+          currentSuggestionTitle = 'AI Suggestions';
+      }
+    }
+  }
+
+  const renderSuggestions = currentSuggestions.length > 0 && currentSuggestionTitle;
 
   return (
     <div className="flex flex-col h-full bg-background">
+      {/* --- Search Bar and (conditionally) Suggestions Area --- */}
       <div
         className={cn(
           "transition-all duration-300 ease-in-out z-30",
           isSearchMode
-            ? "bg-card shadow-md sticky top-0"
-            : "absolute bottom-4 left-0 right-0 px-4"
+            ? "bg-card shadow-md sticky top-0" // Top mode: search bar + suggestions below form
+            : "absolute bottom-0 left-0 right-0 px-4 pb-4 pt-2" // Bottom mode: suggestions above form + form
         )}
       >
+        {/* Suggestions when bar is at BOTTOM (rendered before form) */}
+        {!isSearchMode && renderSuggestions && (
+          <div className="pb-2">
+            <SearchSuggestions
+              suggestions={currentSuggestions}
+              onSuggestionClick={handleSuggestionClick}
+              title={currentSuggestionTitle}
+            />
+          </div>
+        )}
+
+        {/* Search Form (always present in this container) */}
         <div className={cn(isSearchMode ? "p-4" : "")}>
           <form onSubmit={handleQuerySubmit} className={cn(
               "flex items-center p-2 pr-3",
@@ -167,7 +193,7 @@ const HomeScreen = () => {
               onChange={handleSearchChange}
               onFocus={handleFocus}
               onBlur={handleBlur}
-              disabled={isAnsweringQuery && isSearchMode} // Disable input when answering in top mode
+              disabled={isAnsweringQuery && isSearchMode}
             />
             <Button
               type="submit"
@@ -181,17 +207,20 @@ const HomeScreen = () => {
             </Button>
           </form>
         </div>
-        {isSearchMode && suggestionsToShow.length > 0 && suggestionTitle && !searchResult && !isAnsweringQuery && (
-          <div className="px-4 pb-2 bg-card sm:bg-transparent"> {/* Ensure suggestions have a background in sticky mode if needed */}
+
+        {/* Suggestions when bar is at TOP (rendered after form) */}
+        {isSearchMode && renderSuggestions && (
+          <div className="px-4 pb-2 bg-card sm:bg-transparent">
              <SearchSuggestions
-              suggestions={suggestionsToShow}
+              suggestions={currentSuggestions}
               onSuggestionClick={handleSuggestionClick}
-              title={suggestionTitle}
+              title={currentSuggestionTitle}
             />
           </div>
         )}
       </div>
 
+      {/* --- Main Content Area: Map or Search Results --- */}
       <div className={cn(
           "flex-grow overflow-y-auto",
           isSearchMode ? "p-4" : "relative" 
@@ -217,16 +246,9 @@ const HomeScreen = () => {
                 </CardContent>
               </Card>
             )}
-            {!searchResult && !isAnsweringQuery && searchTerm && !isSearchMode && ( 
-              // This case should ideally not be hit if isSearchMode logic is correct
-              // Or, this is for after a search fails and user has cleared input to exit search mode
-              <div className="text-center mt-8">
-                  <p className="text-muted-foreground">Enter a query to get started.</p>
-              </div>
-            )}
-             {!searchResult && !isAnsweringQuery && !searchTerm && isSearchMode && (
+             {!searchResult && !isAnsweringQuery && (
               <div className="text-center mt-8 text-muted-foreground">
-                <p>Ask a question or search for places, services, and more.</p>
+                <p>Ask a question or search for places, services, and more to see results here.</p>
               </div>
             )}
           </>
@@ -247,5 +269,3 @@ const HomeScreen = () => {
 };
 
 export default HomeScreen;
-
-    
