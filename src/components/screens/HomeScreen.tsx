@@ -327,7 +327,7 @@ const HomeScreen = () => {
               <Card className="mb-4 shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-xl font-headline">
-                    {currentQueryType === 'location_search' ? "AI Summary:" : "Locality Hub AI Says:"}
+                    {currentQueryType === 'location_search' ? "AI Summary:" : "Here is what we found for you:"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
