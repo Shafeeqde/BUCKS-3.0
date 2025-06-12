@@ -93,7 +93,7 @@ export default function App() {
       setIsActivityViewVisibleSim(true);
       toast({ title: "Ride Requested", description: "Searching for drivers." });
       
-      // Simulate driver found after 6 seconds
+      // Sim`ulate driver found after 6 seconds
        setTimeout(() => {
          if (userRoleSim === 'rider' && activityDetailsSim?.status === 'Looking for driver...') {
             setActivityDetailsSim(prev => ({
