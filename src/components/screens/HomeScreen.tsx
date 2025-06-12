@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, MapPin } from 'lucide-react';
+import { Search, MapPin, X } from 'lucide-react'; // Added X icon
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,13 +14,13 @@ import { cn } from '@/lib/utils';
 
 const HomeScreen = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [isSearchMode, setIsSearchMode] = useState(false); 
-  const [showSuggestions, setShowSuggestions] = useState(false); 
+  const [isSearchMode, setIsSearchMode] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [aiTextAnswer, setAiTextAnswer] = useState<string | null>(null);
   const [foundLocations, setFoundLocations] = useState<LocationResult[]>([]);
   const [currentQueryType, setCurrentQueryType] = useState<'general' | 'location_search' | null>(null);
   const [isAnsweringQuery, setIsAnsweringQuery] = useState(false);
-  
+
   const [recentSearches, setRecentSearches] = useState<string[]>([
     'Plumbing', 'Biryani', 'Carpentry', 'Solids Gym',
     'Skin Doctor', 'Lawyer', 'Belgium Waffle',
@@ -32,10 +32,6 @@ const HomeScreen = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    if (e.target.value.trim() === '' && isSearchMode && !isAnsweringQuery) {
-      // If in top search mode, input is now empty, and not focusing on suggestions/form, revert to map
-      // This behavior is currently handled by onBlur if input is empty.
-    }
   };
 
   const handleFocus = () => {
@@ -46,20 +42,16 @@ const HomeScreen = () => {
     setTimeout(() => {
       const activeFormElement = document.activeElement?.closest('form');
       const activeSuggestionButton = document.activeElement?.closest('button[data-suggestion-item="true"]');
+      const activeCloseButton = document.activeElement?.closest('button[data-close-search="true"]');
 
-      if (!activeFormElement && !activeSuggestionButton) {
+      if (!activeFormElement && !activeSuggestionButton && !activeCloseButton) {
         setShowSuggestions(false);
-        if (searchTerm.trim() === '' && isSearchMode && !isAnsweringQuery) {
-          // Revert to map view if search bar is at top, empty, and focus is lost
-          setIsSearchMode(false);
-          setAiTextAnswer(null);
-          setFoundLocations([]);
-          setCurrentQueryType(null);
-        }
+        // Removed automatic revert to map on blur when input is empty if in search mode,
+        // now relies on explicit close button.
       }
     }, 200);
   };
-  
+
   const fetchAiSuggestions = useCallback(async (currentSearchTerm: string) => {
     if (currentSearchTerm.trim() === '') {
       setAiSuggestions([]);
@@ -93,7 +85,7 @@ const HomeScreen = () => {
     if (showSuggestions && searchTerm.trim() !== '' && !isAnsweringQuery && currentQueryType === null) {
       const debounceTimer = setTimeout(() => {
         fetchAiSuggestions(searchTerm);
-      }, 750); 
+      }, 750);
       return () => clearTimeout(debounceTimer);
     } else if (!showSuggestions || searchTerm.trim() === '' || currentQueryType !== null) {
       if(!isLoadingAiSuggestions) setAiSuggestions([]);
@@ -113,21 +105,22 @@ const HomeScreen = () => {
       return;
     }
 
-    setIsSearchMode(true); 
-    setShowSuggestions(false); 
-    setAiTextAnswer(null); 
+    setIsSearchMode(true);
+    setShowSuggestions(false);
+    setAiTextAnswer(null);
     setFoundLocations([]);
     setCurrentQueryType(null);
     setIsAnsweringQuery(true);
+    setAiSuggestions([]); // Clear suggestions when query is submitted
 
     if (!queryOverride) {
         setRecentSearches(prev => [queryToSubmit, ...prev.filter(s => s !== queryToSubmit)].slice(0, 10));
     }
-    
+
     try {
       const input: GeneralQueryInput = { query: queryToSubmit };
       const result: GeneralQueryOutput = await answerGeneralQuery(input);
-      
+
       setAiTextAnswer(result.answer);
       setCurrentQueryType(result.queryType);
       if (result.queryType === 'location_search' && result.locations) {
@@ -139,7 +132,7 @@ const HomeScreen = () => {
     } catch (error) {
       console.error("Error answering query:", error);
       setAiTextAnswer("Sorry, I couldn't get an answer for that. Please try again.");
-      setCurrentQueryType('general'); // Fallback to general display for error
+      setCurrentQueryType('general');
       setFoundLocations([]);
       toast({
         title: "AI Query Error",
@@ -161,13 +154,22 @@ const HomeScreen = () => {
         title: `Details for ${location.name}`,
         description: "Map navigation and more details would be shown here in a full implementation.",
     });
-    // Potentially set this location as a 'selectedLocation' in state for more UI changes
+  };
+
+  const handleCloseSearchResults = () => {
+    setIsSearchMode(false);
+    setSearchTerm('');
+    setAiTextAnswer(null);
+    setFoundLocations([]);
+    setCurrentQueryType(null);
+    setShowSuggestions(false);
+    setAiSuggestions([]);
   };
 
   let currentSuggestions: string[] = [];
   let currentSuggestionTitle: string = '';
-  
-  const shouldTryShowSuggestionsContainer = showSuggestions && 
+
+  const shouldTryShowSuggestionsContainer = showSuggestions &&
                                           (!isSearchMode || (isSearchMode && !aiTextAnswer && !isAnsweringQuery && foundLocations.length === 0));
 
   if (shouldTryShowSuggestionsContainer) {
@@ -195,8 +197,8 @@ const HomeScreen = () => {
         className={cn(
           "transition-all duration-300 ease-in-out z-30",
           isSearchMode
-            ? "bg-card shadow-md sticky top-0" 
-            : "absolute bottom-0 left-0 right-0 px-4 pb-4 pt-2" 
+            ? "bg-card shadow-md sticky top-0"
+            : "absolute bottom-0 left-0 right-0 px-4 pb-4 pt-2"
         )}
       >
         {!isSearchMode && renderSuggestions && (
@@ -209,9 +211,21 @@ const HomeScreen = () => {
           </div>
         )}
 
-        <div className={cn(isSearchMode ? "p-4" : "")}>
+        <div className={cn("flex items-center", isSearchMode ? "p-4 space-x-2" : "")}>
+          {isSearchMode && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleCloseSearchResults}
+              className="p-1 rounded-full text-muted-foreground hover:text-primary"
+              aria-label="Close search results"
+              data-close-search="true"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          )}
           <form onSubmit={handleQuerySubmit} className={cn(
-              "flex items-center p-2 pr-3",
+              "flex items-center p-2 pr-3 flex-grow", // flex-grow makes form take available space
               isSearchMode ? "bg-background rounded-md border" : "bg-card rounded-full shadow-lg"
           )}>
             <Input
@@ -253,7 +267,7 @@ const HomeScreen = () => {
       {/* --- Main Content Area: Map or Search Results --- */}
       <div className={cn(
           "flex-grow overflow-y-auto custom-scrollbar",
-           showResultsArea ? "p-4" : "relative" 
+           showResultsArea ? "p-4" : "relative"
       )}>
         {showMap && (
           <iframe
@@ -296,8 +310,8 @@ const HomeScreen = () => {
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-foreground font-headline">Places Found:</h3>
                 {foundLocations.map((location, index) => (
-                  <Card 
-                    key={index} 
+                  <Card
+                    key={index}
                     className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                     onClick={() => handleLocationItemClick(location)}
                     tabIndex={0}
@@ -316,7 +330,7 @@ const HomeScreen = () => {
                 ))}
               </div>
             )}
-            
+
             {!isAnsweringQuery && !aiTextAnswer && foundLocations.length === 0 && (
               <div className="text-center mt-8 text-muted-foreground">
                 <p>Ask a question or search for places, services, and more to see results here.</p>
@@ -330,3 +344,5 @@ const HomeScreen = () => {
 };
 
 export default HomeScreen;
+
+    
