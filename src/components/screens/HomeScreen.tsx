@@ -30,8 +30,10 @@ const HomeScreen = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    if (e.target.value.trim() === '' && isSearchMode) {
-      // If in top search mode and input is cleared, don't immediately revert, wait for blur or new search
+    if (e.target.value.trim() === '' && isSearchMode && !isAnsweringQuery) {
+      // If in top search mode, input is now empty, and not focusing on suggestions/form, revert to map
+      // setIsSearchMode(false); 
+      // setSearchResult(null);
     }
   };
 
@@ -73,17 +75,22 @@ const HomeScreen = () => {
       setAiSuggestions(filteredSuggestions.slice(0, 5));
     } catch (error) {
       console.error("Error fetching AI suggestions:", error);
+      toast({
+        title: "Suggestion Error",
+        description: "Could not fetch AI suggestions at this time. You might be exceeding API rate limits.",
+        variant: "destructive",
+      });
       setAiSuggestions([]);
     } finally {
       setIsLoadingAiSuggestions(false);
     }
-  }, [recentSearches]);
+  }, [recentSearches, toast]);
 
   useEffect(() => {
     if (showSuggestions && searchTerm.trim() !== '' && !isAnsweringQuery && !searchResult) {
       const debounceTimer = setTimeout(() => {
         fetchAiSuggestions(searchTerm);
-      }, 300);
+      }, 750); // Increased debounce time
       return () => clearTimeout(debounceTimer);
     } else if (!showSuggestions || searchTerm.trim() === '' || searchResult) {
       if(!isLoadingAiSuggestions) setAiSuggestions([]);
@@ -103,8 +110,8 @@ const HomeScreen = () => {
       return;
     }
 
-    setIsSearchMode(true); // Activate top search bar mode
-    setShowSuggestions(false); // Hide suggestions when submitting
+    setIsSearchMode(true); 
+    setShowSuggestions(false); 
     setSearchResult(null); 
     setIsAnsweringQuery(true);
 
@@ -119,6 +126,11 @@ const HomeScreen = () => {
     } catch (error) {
       console.error("Error answering query:", error);
       setSearchResult("Sorry, I couldn't get an answer for that. Please try again.");
+      toast({
+        title: "AI Query Error",
+        description: "There was an issue getting a response from the AI. You might be exceeding API rate limits or there was a network problem.",
+        variant: "destructive",
+      });
     } finally {
       setIsAnsweringQuery(false);
     }
@@ -126,25 +138,22 @@ const HomeScreen = () => {
 
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
-    setRecentSearches(prev => [suggestion, ...prev.filter(s => s !== suggestion)].slice(0, 10));
     // setShowSuggestions(false); // Will be handled by handleQuerySubmit
     handleQuerySubmit(undefined, suggestion);
   };
 
   let currentSuggestions: string[] = [];
   let currentSuggestionTitle: string = '';
-  // Determine if the suggestions container should be attempted to be shown
+  
   const shouldTryShowSuggestionsContainer = showSuggestions && 
                                           (!isSearchMode || (isSearchMode && !searchResult && !isAnsweringQuery));
 
   if (shouldTryShowSuggestionsContainer) {
     if (searchTerm.trim() === '') {
-      // Show recent searches if input is empty and focused (and not in result/loading state if top bar)
       currentSuggestions = recentSearches.slice(0,5);
       if (currentSuggestions.length > 0) currentSuggestionTitle = 'Recent Searches';
     } else {
-      // Show AI suggestions if input has text and focused
-      currentSuggestions = aiSuggestions; // aiSuggestions is already sliced to 5
+      currentSuggestions = aiSuggestions;
       if (isLoadingAiSuggestions) {
           currentSuggestionTitle = 'Loading suggestions...';
       } else if (aiSuggestions.length > 0) {
@@ -269,3 +278,5 @@ const HomeScreen = () => {
 };
 
 export default HomeScreen;
+
+    
