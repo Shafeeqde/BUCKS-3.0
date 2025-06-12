@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, MapPin, X } from 'lucide-react'; // Added X icon
+import { Search, MapPin, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +12,14 @@ import { answerGeneralQuery, type GeneralQueryInput, type GeneralQueryOutput, ty
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
 
+const initialPlaceholders = [
+  "What are you looking for?",
+  "Where are you going today?",
+  "Would you like to order something?",
+  "Search for local services...",
+  "Find nearby attractions...",
+];
+
 const HomeScreen = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchMode, setIsSearchMode] = useState(false);
@@ -20,6 +28,8 @@ const HomeScreen = () => {
   const [foundLocations, setFoundLocations] = useState<LocationResult[]>([]);
   const [currentQueryType, setCurrentQueryType] = useState<'general' | 'location_search' | null>(null);
   const [isAnsweringQuery, setIsAnsweringQuery] = useState(false);
+  const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
+  const [currentPlaceholder, setCurrentPlaceholder] = useState(initialPlaceholders[0]);
 
   const [recentSearches, setRecentSearches] = useState<string[]>([
     'Plumbing', 'Biryani', 'Carpentry', 'Solids Gym',
@@ -29,6 +39,27 @@ const HomeScreen = () => {
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
   const [isLoadingAiSuggestions, setIsLoadingAiSuggestions] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (!isSearchMode) {
+      setCurrentPlaceholder(initialPlaceholders[currentPlaceholderIndex]); // Set initial immediately
+      intervalId = setInterval(() => {
+        setCurrentPlaceholderIndex(prevIndex => (prevIndex + 1) % initialPlaceholders.length);
+      }, 3000); // Change placeholder every 3 seconds
+    } else {
+      setCurrentPlaceholder("Ask or search again...");
+    }
+
+    return () => clearInterval(intervalId);
+  }, [isSearchMode, currentPlaceholderIndex]);
+
+  useEffect(() => {
+    if (!isSearchMode) {
+        setCurrentPlaceholder(initialPlaceholders[currentPlaceholderIndex]);
+    }
+  }, [currentPlaceholderIndex, isSearchMode]);
+
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -46,8 +77,6 @@ const HomeScreen = () => {
 
       if (!activeFormElement && !activeSuggestionButton && !activeCloseButton) {
         setShowSuggestions(false);
-        // Removed automatic revert to map on blur when input is empty if in search mode,
-        // now relies on explicit close button.
       }
     }, 200);
   };
@@ -111,7 +140,7 @@ const HomeScreen = () => {
     setFoundLocations([]);
     setCurrentQueryType(null);
     setIsAnsweringQuery(true);
-    setAiSuggestions([]); // Clear suggestions when query is submitted
+    setAiSuggestions([]);
 
     if (!queryOverride) {
         setRecentSearches(prev => [queryToSubmit, ...prev.filter(s => s !== queryToSubmit)].slice(0, 10));
@@ -164,6 +193,7 @@ const HomeScreen = () => {
     setCurrentQueryType(null);
     setShowSuggestions(false);
     setAiSuggestions([]);
+    setCurrentPlaceholderIndex(0); // Reset placeholder cycle
   };
 
   let currentSuggestions: string[] = [];
@@ -225,12 +255,12 @@ const HomeScreen = () => {
             </Button>
           )}
           <form onSubmit={handleQuerySubmit} className={cn(
-              "flex items-center p-2 pr-3 flex-grow", // flex-grow makes form take available space
+              "flex items-center p-2 pr-3 flex-grow",
               isSearchMode ? "bg-background rounded-md border" : "bg-card rounded-full shadow-lg"
           )}>
             <Input
               type="text"
-              placeholder={isSearchMode ? "Ask or search again..." : "Ask Locality Hub AI..."}
+              placeholder={currentPlaceholder}
               className={cn(
                 "flex-grow outline-none text-lg text-foreground bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-auto p-2",
               )}
@@ -344,5 +374,4 @@ const HomeScreen = () => {
 };
 
 export default HomeScreen;
-
     
