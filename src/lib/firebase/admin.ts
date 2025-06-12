@@ -1,4 +1,5 @@
 
+import 'server-only';
 import admin from 'firebase-admin';
 
 // Ensure this path is correct if your service account key is elsewhere.
