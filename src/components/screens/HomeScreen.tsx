@@ -228,7 +228,7 @@ const HomeScreen = () => {
           "transition-all duration-300 ease-in-out z-30",
           isSearchMode
             ? "bg-card shadow-md sticky top-0"
-            : "absolute bottom-0 left-0 right-0 px-4 pb-4 pt-2"
+            : "absolute bottom-0 left-0 right-0 px-4 py-2"
         )}
       >
         {!isSearchMode && renderSuggestions && (
