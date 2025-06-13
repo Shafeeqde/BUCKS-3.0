@@ -4,15 +4,17 @@ import type { LucideIcon } from 'lucide-react';
 // Updated TabName to include new navigation destinations
 export type TabName =
   | 'login'
+  | 'registration' // Added for registration flow
   | 'home'
   | 'feeds'
-  | 'menu'
+  | 'menu' // Corresponds to ServicesScreen
   | 'recommended'
-  | 'account' // Professional Profile editing
+  | 'account' // User's own profile/account settings
   | 'skillsets' // User's own skillsets management/view
   | 'vehicles' // User's own vehicle management/view
   | 'business-profiles' // Listing of user's business profiles
   | 'business-detail'; // Viewing a specific business profile
+  // 'messages-notifications' is usually a modal/overlay, not a main tab
 
 export interface Category {
   id: string;
@@ -87,33 +89,34 @@ export interface UserProfile {
   name: string;
   email: string;
   phone: string;
-  address?: string; // Added from user's example
-  // Potentially other fields like profilePictureUrl, bio, etc.
+  address?: string;
 }
 
 // User Skillset Data
 export interface UserSkill {
-  id: string; // Or number
+  id: string;
   name: string;
-  level?: string; // e.g., Advanced, Intermediate
+  level?: string;
   description: string;
-  media?: string; // URL to image, PDF, video
+  media?: string;
+  mediaAiHint?: string;
   isActive?: boolean;
 }
 
-// User Vehicle Data
+// User Vehicle Data - Updated to match UserVehiclesScreen.tsx logic
 export interface UserVehicle {
-  id: string; // Or number
-  brand: string; // e.g., Toyota
-  model: string; // e.g., Camry
-  year?: number | string;
-  regNumber: string; // License Plate
-  color?: string;
-  documents?: File[]; // For uploads, or string[] for URLs
-  isActive?: boolean;
+  id: string;
+  vehicleType: string; // e.g., Car, Bike, Auto
+  licensePlate: string;
+  isActive: boolean;
+  // Optional: brand, model, year, color can be added back if needed for other features
+  // brand?: string;
+  // model?: string;
+  // year?: number | string;
+  // color?: string;
 }
 
-// Business Profile Product (simplified from user's example)
+// Business Profile Product
 export interface BusinessProduct {
   id: string | number;
   name: string;
@@ -123,7 +126,7 @@ export interface BusinessProduct {
   imageAiHint?: string;
 }
 
-// Business Profile Job Opening (simplified)
+// Business Profile Job Opening
 export interface BusinessJob {
   id: string | number;
   title: string;
@@ -133,7 +136,7 @@ export interface BusinessJob {
   postedDate?: string;
 }
 
-// Business Profile Feed Item (simplified)
+// Business Profile Feed Item
 export interface BusinessFeedItem {
   id: string | number;
   content: string;
@@ -156,12 +159,12 @@ export interface UserBusinessProfile {
   website?: string;
   phone?: string;
   licenseNumber?: string;
-  documentUrl?: string; // URL to registration, permit
+  documentUrl?: string;
   followers?: number;
   following?: number;
   specialties?: string[];
   products?: BusinessProduct[];
-  services?: string[]; // List of service names
+  services?: string[];
   feed?: BusinessFeedItem[];
   jobs?: BusinessJob[];
   isActive?: boolean;
@@ -182,10 +185,22 @@ export interface MessageItem {
 // Notification Item for MessagesNotificationsScreen
 export interface NotificationItem {
   id: string | number;
-  type: string; // e.g., 'Like', 'Comment', 'Follow', 'Update'
-  icon?: LucideIcon; // Optional: Icon for the notification type
+  type: string;
+  icon?: LucideIcon;
   content: string;
   timestamp: string;
   read: boolean;
-  link?: string; // Optional: link to navigate to
+  link?: string;
 }
+
+// Active Activity Details for FAB and Activity View
+export type ActivityDetails = {
+    type?: 'ride' | 'request' | 'driver_status'; // 'driver_status' for when driver is online but no request/ride
+    status?: string; // e.g., 'Looking for driver...', 'Driver Assigned', 'en_route', 'arrived', 'Online, awaiting requests...'
+    pickup?: string;
+    dropoff?: string;
+    driverName?: string; // For rider view
+    riderName?: string;  // For driver view (request or active ride)
+    vehicle?: string; // For rider view
+    fare?: string; // For driver view (request)
+} | null;

@@ -5,7 +5,7 @@ import Header from '@/components/layout/Header';
 import BottomNavigation from '@/components/layout/BottomNavigation';
 import SideMenu from '@/components/layout/SideMenu';
 import LoginScreen from '@/components/screens/LoginScreen';
-import RegistrationScreen from '@/components/screens/RegistrationScreen'; // Ensure this import is correct
+import RegistrationScreen from '@/components/screens/RegistrationScreen';
 import HomeScreen from '@/components/screens/HomeScreen';
 import FeedsScreen from '@/components/screens/FeedsScreen';
 import ServicesScreen from '@/components/screens/ServicesScreen';
@@ -75,19 +75,16 @@ export default function AppRoot() {
   const [showSideMenu, setShowSideMenu] = useState(false);
   const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
 
-  // Authentication State
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<any>(null); // Replace 'any' with a proper User type
+  const [userData, setUserData] = useState<any>(null);
 
-  // Business Profile State (simplified for main page)
   const [businessProfiles, setBusinessProfiles] = useState<UserBusinessProfile[]>(initialBusinessProfiles);
   const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | number | null>(null);
 
-  // FAB and Active Activity View State
   const [isFabVisible, setIsFabVisible] = useState(false);
   const [isActiveActivityViewVisible, setIsActiveActivityViewVisible] = useState(false);
   const [activityDetails, setActivityDetails] = useState<ActivityDetails>(null);
-  const [isDriverOnlineSim, setIsDriverOnlineSim] = useState(false); // For driver auto-request simulation
+  const [isDriverOnlineSim, setIsDriverOnlineSim] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -101,10 +98,8 @@ export default function AppRoot() {
   };
 
   const handleRegistrationSuccess = (user: any) => {
-    // For now, registration success leads to login screen.
-    // Could also auto-login: handleLoginSuccess(user);
-    setActiveTab('login');
-    toast({ title: "Registration Complete!", description: "Please log in with your new account." });
+    setActiveTab('login'); // Navigate to login after registration
+    toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in.` });
   };
 
   const handleLogout = () => {
@@ -122,7 +117,7 @@ export default function AppRoot() {
   const handleTabSelection = (tab: TabName) => {
     setActiveTab(tab);
     setShowSideMenu(false);
-    if (tab !== 'business-detail') { // Clear selection if not going to detail view
+    if (tab !== 'business-detail') {
         setSelectedBusinessProfileId(null);
     }
   };
@@ -138,13 +133,12 @@ export default function AppRoot() {
     setSelectedBusinessProfileId(null);
   };
 
-  // FAB and Activity View Logic
   useEffect(() => {
     if (isLoggedIn) {
       setIsFabVisible(true);
     } else {
       setIsFabVisible(false);
-      setIsActiveActivityViewVisible(false); // Hide activity view on logout
+      setIsActiveActivityViewVisible(false);
       setActivityDetails(null);
     }
   }, [isLoggedIn]);
@@ -152,16 +146,15 @@ export default function AppRoot() {
   const handleFabClick = () => {
     if (!isLoggedIn) return;
 
-    if (isDriverOnlineSim && !activityDetails?.type) { // If driver is online and no active request/ride
-      setIsActiveActivityViewVisible(true); // Show current driver status or wait for request
-      setActivityDetails({ // Default "online" state for driver if no specific request
+    if (isDriverOnlineSim && !activityDetails?.type) {
+      setIsActiveActivityViewVisible(true);
+      setActivityDetails({
         type: 'driver_status',
         status: 'Online, awaiting requests...',
       });
       return;
     }
     
-    // Default FAB click action: Rider requests a ride
     setActivityDetails({
       type: 'ride',
       status: 'Looking for driver...',
@@ -187,11 +180,13 @@ export default function AppRoot() {
   
   useEffect(() => {
     let requestTimeout: NodeJS.Timeout;
+    // This simulation for driver going online and getting a request will eventually
+    // be triggered by actions within UserVehiclesScreen (e.g., activating a vehicle)
     if (isLoggedIn && !isDriverOnlineSim && !activityDetails && !isActiveActivityViewVisible) {
       const onlineTimer = setTimeout(() => {
         if(isLoggedIn && !activityDetails && !isActiveActivityViewVisible) {
-            setIsDriverOnlineSim(true);
-            toast({ title: "You are Online (Driver Sim)", description: "Waiting for ride requests." });
+            setIsDriverOnlineSim(true); // Simulate driver going online
+            toast({ title: "You are Online (Driver Sim)", description: "Waiting for ride requests. This will be triggered by vehicle activation later." });
 
             requestTimeout = setTimeout(() => {
                 if (isDriverOnlineSim && !activityDetails?.type && isLoggedIn) {
@@ -219,18 +214,17 @@ export default function AppRoot() {
   const handleCloseActivityView = () => {
     setIsActiveActivityViewVisible(false);
     if (activityDetails?.type === 'request' || activityDetails?.type === 'driver_status') {
-      setActivityDetails(null); // Clear driver-specific views when closed by driver
+      setActivityDetails(null);
     }
-    // Rider cancelling or ride ending would be handled by buttons inside the view (future)
   };
 
   useEffect(() => {
     if (isActiveActivityViewVisible && activityDetails?.type === 'request') {
       const timer = setTimeout(() => {
-        if (activityDetails?.type === 'request' && isLoggedIn) { // Check login status
+        if (activityDetails?.type === 'request' && isLoggedIn) {
             setActivityDetails({
-              type: 'ride', // Becomes an active ride for the driver
-              status: 'en_route',
+              type: 'ride',
+              status: 'en_route', // Driver accepts and is en_route to rider
               riderName: activityDetails.riderName,
               pickup: activityDetails.pickup,
               dropoff: activityDetails.dropoff,
@@ -245,7 +239,7 @@ export default function AppRoot() {
 
 
   const renderScreenContent = () => {
-    if (!isClient) return null; // Or a global loading spinner
+    if (!isClient) return null;
 
     if (!isLoggedIn) {
       if (activeTab === 'registration') {
@@ -261,7 +255,7 @@ export default function AppRoot() {
       case 'recommended': return <RecommendedScreen />;
       case 'account': return <AccountScreen onLogout={handleLogout} />;
       case 'skillsets': return <UserSkillsetsScreen />;
-      case 'vehicles': return <UserVehiclesScreen />;
+      case 'vehicles': return <UserVehiclesScreen setActiveTab={handleTabSelection} />;
       case 'business-profiles': return (
         <UserBusinessProfilesScreen
           businessProfiles={businessProfiles}
@@ -276,7 +270,7 @@ export default function AppRoot() {
   };
   
   if (!isClient) {
-    return ( // Basic loading state for SSR/initial load
+    return (
       <div className="flex flex-col h-screen bg-background items-center justify-center">
         <p>Loading App...</p>
       </div>
@@ -285,13 +279,11 @@ export default function AppRoot() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      {isLoggedIn && (
-        <Header
-          onMenuClick={() => setShowSideMenu(true)}
-          onMessagesClick={() => setShowMessagesNotifications(true)}
-          unreadCount={5} // Example
-        />
-      )}
+      <Header
+        onMenuClick={() => setShowSideMenu(true)}
+        onMessagesClick={() => setShowMessagesNotifications(true)}
+        unreadCount={isLoggedIn ? 5 : 0} 
+      />
 
       {isLoggedIn && (
         <SideMenu
@@ -299,7 +291,7 @@ export default function AppRoot() {
           onClose={() => setShowSideMenu(false)}
           activeTab={activeTab}
           setActiveTab={handleTabSelection}
-          businessProfiles={businessProfiles} // Pass profiles for display in menu
+          businessProfiles={businessProfiles}
           onSelectBusinessProfile={handleSelectBusinessProfile}
           onLogout={handleLogout}
         />
