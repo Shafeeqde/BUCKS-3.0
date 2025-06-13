@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { X, Bell, MessageCircle, CheckCheck, Mail, AlertTriangle, Gift } from 'lucide-react';
+import { X, Bell, MessageCircle, CheckCheck, Mail, AlertTriangle, Gift, User } from 'lucide-react'; // Added User import
 import type { MessageItem, NotificationItem } from '@/types';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -127,3 +127,5 @@ const MessagesNotificationsScreen: React.FC<MessagesNotificationsScreenProps> = 
 };
 
 export default MessagesNotificationsScreen;
+
+    
