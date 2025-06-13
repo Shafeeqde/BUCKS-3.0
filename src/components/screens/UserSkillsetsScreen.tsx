@@ -11,11 +11,12 @@ import { Switch } from '@/components/ui/switch';
 import { PlusCircle, Edit3, Trash2, XCircle, Rocket, Search } from 'lucide-react';
 import type { UserSkill } from '@/types';
 import { useToast } from "@/hooks/use-toast";
+import { cn } from '@/lib/utils'; // Added import
 
 const initialSkills: UserSkill[] = [
-  { id: '1', name: 'React Development', level: 'Advanced', description: 'Building complex UIs and managing state with React.', media: 'https://placehold.co/100x100.png', isActive: true },
-  { id: '2', name: 'Tailwind CSS', level: 'Expert', description: 'Rapidly styling applications with utility-first CSS.', isActive: true },
-  { id: '3', name: 'Node.js Backend', level: 'Intermediate', description: 'Developing REST APIs and server-side logic.', isActive: false },
+  { id: '1', name: 'React Development', level: 'Advanced', description: 'Building complex UIs and managing state with React.', media: 'https://placehold.co/100x100.png', mediaAiHint: 'react logo', isActive: true },
+  { id: '2', name: 'Tailwind CSS', level: 'Expert', description: 'Rapidly styling applications with utility-first CSS.', mediaAiHint: 'tailwind logo', isActive: true },
+  { id: '3', name: 'Node.js Backend', level: 'Intermediate', description: 'Developing REST APIs and server-side logic.', mediaAiHint: 'nodejs logo', isActive: false },
 ];
 
 const UserSkillsetsScreen = () => {
@@ -59,6 +60,7 @@ const UserSkillsetsScreen = () => {
         description: currentSkill.description,
         level: currentSkill.level,
         media: currentSkill.media,
+        mediaAiHint: currentSkill.mediaAiHint || 'skill related',
         isActive: currentSkill.isActive === undefined ? true : currentSkill.isActive,
       };
       setSkills([...skills, newSkillToAdd]);
@@ -135,11 +137,10 @@ const UserSkillsetsScreen = () => {
               <div className="space-y-2">
                 <Label htmlFor="skillMedia">Media URL / Placeholder</Label>
                 <Input id="skillMedia" name="media" value={currentSkill.media || ''} onChange={handleInputChange} placeholder="e.g., link to portfolio, certificate, or image URL" />
-                {/* For actual file upload, you'd use type="file" and handle it differently */}
-                {/* <Input id="skillMediaFile" type="file" onChange={handleFileChange} /> */}
-                {currentSkill.media && currentSkill.media.startsWith('https://placehold.co') && (
-                  <img src={currentSkill.media} alt="Media preview" className="mt-2 w-20 h-20 object-cover rounded border" data-ai-hint="skill media" />
-                )}
+              </div>
+               <div className="space-y-2">
+                <Label htmlFor="skillMediaAiHint">Media AI Hint (for placeholders)</Label>
+                <Input id="skillMediaAiHint" name="mediaAiHint" value={currentSkill.mediaAiHint || ''} onChange={handleInputChange} placeholder="e.g., programming logo, certificate design" />
               </div>
               <div className="flex items-center space-x-2 pt-2">
                 <Switch id="skillIsActive" name="isActive" checked={currentSkill.isActive === undefined ? true : currentSkill.isActive} onCheckedChange={(checked) => setCurrentSkill(prev => ({...prev, isActive: checked}))} />
@@ -183,7 +184,7 @@ const UserSkillsetsScreen = () => {
                       <div className="mt-2">
                         {skill.media.startsWith('http') ? (
                           skill.media.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-                            <img src={skill.media} alt="Skill media" className="w-24 h-24 object-cover rounded border" data-ai-hint="skill demonstration" />
+                            <img src={skill.media} alt="Skill media" className="w-24 h-24 object-cover rounded border" data-ai-hint={skill.mediaAiHint || "skill demonstration"} />
                           ) : (
                             <a href={skill.media} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">View Media/Certificate</a>
                           )
