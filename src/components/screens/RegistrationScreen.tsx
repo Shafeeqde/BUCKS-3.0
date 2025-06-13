@@ -7,11 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
-import type { TabName } from '@/types'; // Assuming TabName is defined in types
+import type { TabName } from '@/types';
+import { Loader2 } from 'lucide-react';
 
 interface RegistrationScreenProps {
   setActiveTab: (tab: TabName) => void;
-  onRegistrationSuccess: (user: any) => void; // User data can be any for now
+  onRegistrationSuccess: (user: any) => void;
 }
 
 const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, onRegistrationSuccess }) => {
@@ -20,49 +21,47 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, o
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async () => {
-    setError(''); // Clear previous errors
-
     if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-      setError('Please fill in all fields.');
       toast({ title: "Registration Error", description: "Please fill in all fields.", variant: "destructive" });
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
       toast({ title: "Registration Error", description: "Passwords do not match.", variant: "destructive" });
       return;
     }
-
-    // Simulate API call for registration
+    
+    setIsLoading(true);
     try {
-      // In a real app, you would make an API call here:
-      // const response = await fetch('/api/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ name, email, password }),
-      // });
-      // const data = await response.json();
-      // if (!response.ok) throw new Error(data.message || 'Registration failed');
-
-      // Simulate success
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
-      const simulatedUser = { id: Date.now().toString(), name, email };
-
-      toast({
-        title: "Registration Successful!",
-        description: `Welcome, ${name}! Please log in.`,
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
       });
-      onRegistrationSuccess(simulatedUser); // Notify parent about successful registration
-      // Optionally, navigate to login or auto-login (handled by onRegistrationSuccess in page.tsx)
+      const result = await response.json();
 
+      if (response.ok && result.success) {
+        toast({
+          title: "Registration Successful!",
+          description: `Welcome, ${result.user.name}! Please log in.`, // API returns the user object now
+        });
+        onRegistrationSuccess(result.user); // Notify parent about successful registration
+      } else {
+        toast({
+          title: "Registration Failed",
+          description: result.message || "An error occurred.",
+          variant: "destructive",
+        });
+      }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
-      setError(errorMessage);
+      console.error("Registration error:", err);
+      const errorMessage = err instanceof Error ? err.message : "Could not connect to the server.";
       toast({ title: "Registration Failed", description: errorMessage, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -74,11 +73,6 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, o
           <CardDescription>Join Locality Hub today!</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {error && (
-            <div className="bg-destructive/10 border border-destructive text-destructive p-3 rounded-md text-sm" role="alert">
-              {error}
-            </div>
-          )}
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
             <Input
@@ -88,6 +82,7 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, o
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="text-base"
+              disabled={isLoading}
             />
           </div>
           <div className="space-y-2">
@@ -99,6 +94,7 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, o
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="text-base"
+              disabled={isLoading}
             />
           </div>
           <div className="space-y-2">
@@ -110,6 +106,7 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, o
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="text-base"
+              disabled={isLoading}
             />
           </div>
           <div className="space-y-2">
@@ -121,14 +118,16 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, o
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="text-base"
+              disabled={isLoading}
             />
           </div>
         </CardContent>
         <CardFooter className="flex flex-col space-y-3">
-          <Button className="w-full text-lg py-6" onClick={handleRegister}>
-            Register
+          <Button className="w-full text-lg py-6" onClick={handleRegister} disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+            {isLoading ? 'Registering...' : 'Register'}
           </Button>
-          <Button variant="link" onClick={() => setActiveTab('login')} className="text-sm text-primary">
+          <Button variant="link" onClick={() => setActiveTab('login')} className="text-sm text-primary" disabled={isLoading}>
             Already have an account? Sign In
           </Button>
         </CardFooter>
