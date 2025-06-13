@@ -13,10 +13,10 @@ import type { UserProfile } from '@/types';
 
 interface AccountScreenProps {
   onLogout: () => void;
-  userRole: 'rider' | 'driver' | null; // To display role information
+  // userRole prop removed
 }
 
-const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userRole }) => {
+const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout }) => {
   const { toast } = useToast();
   const [profile, setProfile] = useState<UserProfile>({ name: 'Demo User', email: 'demo@example.com', phone: '9876543210', address: '123 Main St, Anytown' });
   const [isEditing, setIsEditing] = useState(false);
@@ -74,7 +74,8 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userRole }) => 
             <User className="w-12 h-12 text-primary" />
           </div>
           <CardTitle className="text-2xl font-headline">{isEditing ? "Edit Profile" : profile.name}</CardTitle>
-          <CardDescription>{profile.email} {userRole && `(${userRole.charAt(0).toUpperCase() + userRole.slice(1)})`}</CardDescription>
+          {/* Removed userRole display from CardDescription */}
+          <CardDescription>{profile.email}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {!isEditing ? (

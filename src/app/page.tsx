@@ -17,10 +17,10 @@ import UserBusinessProfileDetailScreen from '@/components/screens/UserBusinessPr
 import MessagesNotificationsScreen from '@/components/screens/MessagesNotificationsScreen';
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
 import ActiveActivityView from '@/components/activity/ActiveActivityView';
-import type { TabName, UserProfile, UserBusinessProfile, UserSkill, UserVehicle } from '@/types';
+import type { TabName, UserBusinessProfile, UserSkill, UserVehicle } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { User, UserCog } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+// Removed User, UserCog imports as SimRole button is removed
+// import { Button } from '@/components/ui/button'; // No longer needed for SimRole button
 
 type ActivityDetails = {
   type?: 'ride' | 'request';
@@ -33,7 +33,6 @@ type ActivityDetails = {
   fare?: string;
 } | null;
 
-// Mock Data from user's App.js (simplified for this context)
 const initialBusinessProfiles: UserBusinessProfile[] = [
   {
     id: 1,
@@ -90,40 +89,40 @@ export default function AppRoot() {
 
   const { toast } = useToast();
 
-  // Simulated state for FAB and ActiveActivityView (copied from previous version of page.tsx)
-  const [userRoleSim, setUserRoleSim] = useState<'rider' | 'driver' | null>(null); // Default to null, set after login
+  // Removed userRoleSim state
   const [isFabVisibleSim, setIsFabVisibleSim] = useState(false);
   const [isActivityViewVisibleSim, setIsActivityViewVisibleSim] = useState(false);
   const [activityDetailsSim, setActivityDetailsSim] = useState<ActivityDetails>(null);
-  const [isDriverOnlineSim, setIsDriverOnlineSim] = useState(false);
+  const [isDriverOnlineSim, setIsDriverOnlineSim] = useState(false); // This state remains for driver auto-request simulation
 
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const handleLogin = (simulatedRole: 'rider' | 'driver' = 'rider') => {
+  const handleLogin = () => { // Removed simulatedRole parameter
     setIsLoggedIn(true);
-    setUserRoleSim(simulatedRole); // Set user role on login
+    // setUserRoleSim(simulatedRole); // Removed
     setActiveTab('home');
-    toast({ title: "Login Successful", description: `Welcome! You are logged in as a ${simulatedRole}.` });
+    toast({ title: "Login Successful", description: "Welcome!" }); // Simplified message
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setUserRoleSim(null);
+    // setUserRoleSim(null); // Removed
     setActiveTab('login');
     setShowSideMenu(false);
     setIsFabVisibleSim(false);
     setIsActivityViewVisibleSim(false);
     setActivityDetailsSim(null);
+    setIsDriverOnlineSim(false); // Reset driver online status
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   };
 
   const handleTabSelection = (tab: TabName) => {
     setActiveTab(tab);
     setShowSideMenu(false);
-    setSelectedBusinessProfileId(null); // Clear selected business profile when changing main tabs
+    setSelectedBusinessProfileId(null); 
   };
 
   const handleSelectBusinessProfile = (profileId: string | number) => {
@@ -137,110 +136,122 @@ export default function AppRoot() {
     setSelectedBusinessProfileId(null);
   };
 
-  // FAB and ActivityView Simulation Logic (copied and adapted from previous page.tsx)
+  // FAB visibility logic updated
   useEffect(() => {
-    if (!isLoggedIn) {
-      setIsFabVisibleSim(false);
-      return;
-    }
-    if (userRoleSim === 'driver' || userRoleSim === 'rider') {
-      setIsFabVisibleSim(true);
+    if (isLoggedIn) {
+      setIsFabVisibleSim(true); // FAB visible if logged in
     } else {
       setIsFabVisibleSim(false);
     }
-  }, [userRoleSim, isLoggedIn]);
+  }, [isLoggedIn]);
 
   const handleFabClick = () => {
     if (!isLoggedIn) return;
-    if (userRoleSim === 'driver') {
-      if (!isDriverOnlineSim) {
-        setIsDriverOnlineSim(true);
-        setActivityDetailsSim(null);
-        setIsActivityViewVisibleSim(true);
-        toast({ title: "You are now Online", description: "Waiting for ride requests." });
-        setTimeout(() => {
-          if (userRoleSim === 'driver' && isDriverOnlineSim && !activityDetailsSim?.type) {
-            setActivityDetailsSim({
-              type: 'request',
-              riderName: 'Simulated User',
-              pickup: '123 Frontend St',
-              dropoff: '456 Backend Ave',
-              fare: '₹180',
-            });
-            setIsActivityViewVisibleSim(true);
-            toast({ title: "New Ride Request!", description: "A user needs a ride." });
-          }
-        }, 5000);
-      } else {
-        setIsActivityViewVisibleSim(true);
-      }
-    } else if (userRoleSim === 'rider') {
-      setActivityDetailsSim({
-        type: 'ride',
-        status: 'Looking for driver...',
-        pickup: 'Rider Pickup Point',
-        dropoff: 'Rider Destination Point',
-      });
-      setIsActivityViewVisibleSim(true);
-      toast({ title: "Ride Requested", description: "Searching for drivers." });
-      setTimeout(() => {
-        if (userRoleSim === 'rider' && activityDetailsSim?.status === 'Looking for driver...') {
-          setActivityDetailsSim(prev => ({
-            ...prev,
-            status: 'Driver Assigned',
-            driverName: 'Sim Driver',
-            vehicle: 'Cool Car - XX00YZ0000',
-          }));
-          toast({ title: "Driver Found!", description: "Your ride is on the way." });
-        }
-      }, 6000);
+
+    // If driver is online (simulated background state), show current activity
+    if (isDriverOnlineSim) {
+        setIsActivityViewVisibleSim(true); // Show current status or request
+        return;
     }
+
+    // Default FAB click action: Rider requests a ride
+    setActivityDetailsSim({
+      type: 'ride',
+      status: 'Looking for driver...',
+      pickup: 'Rider Pickup Point',
+      dropoff: 'Rider Destination Point',
+    });
+    setIsActivityViewVisibleSim(true);
+    toast({ title: "Ride Requested", description: "Searching for drivers." });
+
+    // Simulate finding a driver
+    setTimeout(() => {
+      // Check if still in rider requesting mode
+      if (activityDetailsSim?.type === 'ride' && activityDetailsSim?.status === 'Looking for driver...') {
+        setActivityDetailsSim(prev => ({
+          ...prev,
+          type: 'ride', // ensure type remains 'ride'
+          status: 'Driver Assigned',
+          driverName: 'Sim Driver',
+          vehicle: 'Cool Car - XX00YZ0000',
+        }));
+        toast({ title: "Driver Found!", description: "Your ride is on the way." });
+      }
+    }, 6000);
   };
+
+  // Simulate Driver going online and receiving a request (can be moved to Vehicle activation later)
+  useEffect(() => {
+    let requestTimeout: NodeJS.Timeout;
+    // This effect simulates a driver "going online" implicitly after login for now
+    // and then receiving a request. This can be tied to vehicle activation later.
+    if (isLoggedIn && !isDriverOnlineSim && !activityDetailsSim) { // Simulate driver coming online if not already and no activity
+      const onlineTimer = setTimeout(() => {
+        if(isLoggedIn && !activityDetailsSim) { // Check again before setting driver online
+            setIsDriverOnlineSim(true);
+            setActivityDetailsSim(null); // No specific ride yet, just online
+            setIsActivityViewVisibleSim(false); // Don't show modal just for being online, unless FAB is clicked
+            toast({ title: "You are Online (Driver Sim)", description: "Waiting for ride requests." });
+
+            // Then simulate receiving a request
+            requestTimeout = setTimeout(() => {
+                if (isDriverOnlineSim && !activityDetailsSim?.type) { // If still online and no active ride/request
+                setActivityDetailsSim({
+                    type: 'request',
+                    riderName: 'Simulated User',
+                    pickup: '123 Frontend St',
+                    dropoff: '456 Backend Ave',
+                    fare: '₹180',
+                });
+                setIsActivityViewVisibleSim(true);
+                toast({ title: "New Ride Request! (Driver Sim)", description: "A user needs a ride." });
+                }
+            }, 8000); // Increased delay for request after going online
+        }
+      }, 5000); // Delay for "going online"
+      return () => {
+        clearTimeout(onlineTimer);
+        clearTimeout(requestTimeout);
+      };
+    }
+  }, [isLoggedIn, isDriverOnlineSim, activityDetailsSim]);
+
 
   const handleCloseActivityView = () => {
     setIsActivityViewVisibleSim(false);
+    // If a driver request was showing, closing it means they didn't accept/reject, so clear it
     if (activityDetailsSim?.type === 'request') {
-      setActivityDetailsSim(null);
+      setActivityDetailsSim(null); 
+      // setIsDriverOnlineSim(true); // Driver remains online
     }
+    // Rider cancelling or ride ending would be handled by buttons inside the view
   };
 
+  // Simulate driver "accepting" a request automatically
   useEffect(() => {
-    if (isActivityViewVisibleSim && activityDetailsSim?.type === 'request' && userRoleSim === 'driver') {
+    if (isActivityViewVisibleSim && activityDetailsSim?.type === 'request') {
       const timer = setTimeout(() => {
-        setActivityDetailsSim({
-          type: 'ride',
-          status: 'en_route',
-          riderName: activityDetailsSim.riderName,
-          pickup: activityDetailsSim.pickup,
-          dropoff: activityDetailsSim.dropoff,
-          fare: activityDetailsSim.fare,
-        });
-        toast({ title: "Ride Accepted (Auto-Simulated)", description: "Proceed to pickup location." });
+         // Check if still a request, meaning it wasn't closed/handled
+        if (activityDetailsSim?.type === 'request') {
+            setActivityDetailsSim({
+            type: 'ride', // Change type to 'ride' as it's now an active ride for the driver
+            status: 'en_route',
+            riderName: activityDetailsSim.riderName,
+            pickup: activityDetailsSim.pickup,
+            dropoff: activityDetailsSim.dropoff,
+            fare: activityDetailsSim.fare,
+            });
+            toast({ title: "Ride Accepted (Auto-Simulated)", description: "Proceed to pickup location." });
+        }
       }, 7000);
       return () => clearTimeout(timer);
     }
-  }, [isActivityViewVisibleSim, activityDetailsSim, userRoleSim]);
+  }, [isActivityViewVisibleSim, activityDetailsSim]);
 
-  const toggleUserRoleAndRelogin = () => { // More explicit name
-    const newRole = userRoleSim === 'rider' ? 'driver' : 'rider';
-    // Simulate logout then login with new role
-    setIsLoggedIn(false); // Trigger logout effects
-    setUserRoleSim(null);
-    setIsFabVisibleSim(false);
-    setIsActivityViewVisibleSim(false);
-    setActivityDetailsSim(null);
-    setIsDriverOnlineSim(false);
-    
-    // Simulate re-login with new role
-    setTimeout(() => {
-        handleLogin(newRole);
-        setActiveTab('home'); // Reset tab
-    }, 100); // Short delay to ensure state resets
-  };
-
+  // Removed toggleUserRoleAndRelogin function
 
   const renderScreenContent = () => {
-    if (!isClient) return null; // Or a global loading skeleton
+    if (!isClient) return null;
     if (!isLoggedIn) return <LoginScreen onLogin={handleLogin} />;
 
     switch (activeTab) {
@@ -248,7 +259,7 @@ export default function AppRoot() {
       case 'feeds': return <FeedsScreen />;
       case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} />;
       case 'recommended': return <RecommendedScreen />;
-      case 'account': return <AccountScreen onLogout={handleLogout} userRole={userRoleSim}/>; // Pass userRole
+      case 'account': return <AccountScreen onLogout={handleLogout} />; // Removed userRole prop
       case 'skillsets': return <UserSkillsetsScreen />;
       case 'vehicles': return <UserVehiclesScreen />;
       case 'business-profiles': return (
@@ -265,7 +276,6 @@ export default function AppRoot() {
   };
 
   if (!isClient) {
-    // You might want a basic page skeleton here if needed before client hydration
     return (
       <div className="flex flex-col h-screen bg-background items-center justify-center">
         <p>Loading App...</p>
@@ -279,7 +289,7 @@ export default function AppRoot() {
         <Header
           onMenuClick={() => setShowSideMenu(true)}
           onMessagesClick={() => setShowMessagesNotifications(true)}
-          unreadCount={(userRoleSim === 'driver' ? 5 : 2)} // Example unread count
+          unreadCount={5} // Simplified example unread count
         />
       )}
 
@@ -311,23 +321,13 @@ export default function AppRoot() {
         <ActiveActivityView
           isVisible={isActivityViewVisibleSim}
           onClose={handleCloseActivityView}
-          userRole={userRoleSim}
+          // Determine userRole for view based on activity type
+          userRole={activityDetailsSim?.type === 'request' ? 'driver' : (activityDetailsSim?.type === 'ride' ? (activityDetailsSim?.driverName ? 'rider' : 'driver') : null)}
           activeActivityDetails={activityDetailsSim}
         />
       )}
       
-      {isClient && isLoggedIn && ( // Button to simulate role toggle for testing
-         <Button 
-            variant="outline" 
-            size="sm"
-            onClick={toggleUserRoleAndRelogin} 
-            className="fixed bottom-20 left-5 z-50 bg-card shadow-lg" // Adjusted bottom to avoid FAB overlap
-            aria-label="Toggle user role for simulation"
-          >
-            {userRoleSim === 'driver' ? <UserCog className="mr-2 h-4 w-4" /> : <User className="mr-2 h-4 w-4" />}
-            SimRole: {userRoleSim || 'None'}
-          </Button>
-      )}
+      {/* Removed SimRole button */}
 
       {isClient && showMessagesNotifications && (
         <MessagesNotificationsScreen onClose={() => setShowMessagesNotifications(false)} />

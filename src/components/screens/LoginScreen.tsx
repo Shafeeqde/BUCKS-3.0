@@ -6,27 +6,25 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+// Removed RadioGroup imports as they are no longer used
 
 interface LoginScreenProps {
-  onLogin: (role: 'rider' | 'driver') => void;
+  onLogin: () => void; // Simplified onLogin prop
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [username, setUsername] = useState('testuser'); // Default for quicker testing
   const [password, setPassword] = useState('password123'); // Default for quicker testing
-  const [role, setRole] = useState<'rider' | 'driver'>('rider');
   const [error, setError] = useState('');
+  // Removed role state
 
   const handleLoginAttempt = () => {
-    // Basic validation for demo purposes
     if (username.trim() === '' || password.trim() === '') {
       setError('Please enter username and password.');
       return;
     }
-    // Simulate successful login
     setError('');
-    onLogin(role);
+    onLogin(); // Call onLogin without role
   };
 
   return (
@@ -64,19 +62,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
               className="text-base"
             />
           </div>
-           <div className="space-y-3">
-            <Label>Login as</Label>
-            <RadioGroup defaultValue="rider" value={role} onValueChange={(value: 'rider' | 'driver') => setRole(value)} className="flex space-x-4">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="rider" id="role-rider" />
-                <Label htmlFor="role-rider" className="font-normal">Rider</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="driver" id="role-driver" />
-                <Label htmlFor="role-driver" className="font-normal">Driver</Label>
-              </div>
-            </RadioGroup>
-          </div>
+          {/* Removed RadioGroup for role selection */}
         </CardContent>
         <CardFooter className="flex flex-col">
           <Button className="w-full text-lg py-6" onClick={handleLoginAttempt}>
