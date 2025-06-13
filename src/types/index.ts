@@ -1,29 +1,28 @@
 
 import type { LucideIcon } from 'lucide-react';
 
-// Updated TabName to include new navigation destinations
 export type TabName =
   | 'login'
-  | 'registration' // Added for registration flow
+  | 'registration'
   | 'home'
   | 'feeds'
   | 'menu' // Corresponds to ServicesScreen
   | 'recommended'
-  | 'account' // User's own profile/account settings
-  | 'skillsets' // User's own skillsets management/view
-  | 'vehicles' // User's own vehicle management/view
-  | 'business-profiles' // Listing of user's business profiles
-  | 'business-detail'; // Viewing a specific business profile
-  // 'messages-notifications' is usually a modal/overlay, not a main tab
+  | 'account'
+  | 'skillsets'
+  | 'vehicles'
+  | 'business-profiles'
+  | 'business-detail'
+  | 'messages-notifications'; // This is usually a modal/overlay
 
 export interface Category {
   id: string;
   name?: string;
-  icon?: string | LucideIcon; // SVG string or Lucide component
+  icon?: string | LucideIcon; // Can be SVG string or Lucide component
   image?: string;
   type?: 'moments' | 'profile' | 'default';
   viewed: boolean;
-  color?: string; // e.g. 'bg-purple-100'
+  color?: string;
   dataAiHint?: string;
 }
 
@@ -45,10 +44,10 @@ export interface FeedItem {
 }
 
 export interface Service {
+  id: string; // Added id for key prop
   name: string;
   icon: string; // SVG string
   locked: boolean;
-  targetTab?: TabName;
   dataAiHint?: string;
 }
 
@@ -75,16 +74,19 @@ export interface GeneralQueryOutput {
   queryType: 'general' | 'location_search';
 }
 
+// Updated VehicleOption for ServicesScreen taxi booking
 export interface VehicleOption {
+  id: string;
   name: string;
-  eta: string;
+  icon: LucideIcon; // Changed to LucideIcon for direct usage
   priceRange: string;
-  minRide: string;
-  pricePerKm: string;
-  icon: string;
+  estimatedETA: string;
+  dataAiHint?: string;
+  // minRide and pricePerKm can be added if needed for detailed display
+  // minRide?: string; 
+  // pricePerKm?: string;
 }
 
-// User Profile Data (for AccountScreen)
 export interface UserProfile {
   name: string;
   email: string;
@@ -92,7 +94,6 @@ export interface UserProfile {
   address?: string;
 }
 
-// User Skillset Data
 export interface UserSkill {
   id: string;
   name: string;
@@ -103,20 +104,13 @@ export interface UserSkill {
   isActive?: boolean;
 }
 
-// User Vehicle Data - Updated to match UserVehiclesScreen.tsx logic
 export interface UserVehicle {
   id: string;
-  vehicleType: string; // e.g., Car, Bike, Auto
+  vehicleType: string;
   licensePlate: string;
   isActive: boolean;
-  // Optional: brand, model, year, color can be added back if needed for other features
-  // brand?: string;
-  // model?: string;
-  // year?: number | string;
-  // color?: string;
 }
 
-// Business Profile Product
 export interface BusinessProduct {
   id: string | number;
   name: string;
@@ -126,17 +120,15 @@ export interface BusinessProduct {
   imageAiHint?: string;
 }
 
-// Business Profile Job Opening
 export interface BusinessJob {
   id: string | number;
   title: string;
   location?: string;
-  type?: string; // Full-time, Part-time
+  type?: string;
   description?: string;
   postedDate?: string;
 }
 
-// Business Profile Feed Item
 export interface BusinessFeedItem {
   id: string | number;
   content: string;
@@ -145,8 +137,6 @@ export interface BusinessFeedItem {
   timestamp: string;
 }
 
-
-// User Business Profile Data
 export interface UserBusinessProfile {
   id: string | number;
   name: string;
@@ -170,7 +160,6 @@ export interface UserBusinessProfile {
   isActive?: boolean;
 }
 
-// Message Item for MessagesNotificationsScreen
 export interface MessageItem {
   id: string | number;
   sender: string;
@@ -182,7 +171,6 @@ export interface MessageItem {
   read: boolean;
 }
 
-// Notification Item for MessagesNotificationsScreen
 export interface NotificationItem {
   id: string | number;
   type: string;
@@ -193,14 +181,16 @@ export interface NotificationItem {
   link?: string;
 }
 
-// Active Activity Details for FAB and Activity View
 export type ActivityDetails = {
-    type?: 'ride' | 'request' | 'driver_status'; // 'driver_status' for when driver is online but no request/ride
-    status?: string; // e.g., 'Looking for driver...', 'Driver Assigned', 'en_route', 'arrived', 'Online, awaiting requests...'
+    type?: 'ride' | 'request' | 'driver_status';
+    status?: string;
     pickup?: string;
     dropoff?: string;
-    driverName?: string; // For rider view
-    riderName?: string;  // For driver view (request or active ride)
-    vehicle?: string; // For rider view
-    fare?: string; // For driver view (request)
+    driverName?: string;
+    riderName?: string;
+    vehicle?: string;
+    fare?: string;
 } | null;
+
+
+    
