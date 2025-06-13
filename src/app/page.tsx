@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Header from '@/components/layout/Header';
 import BottomNavigation from '@/components/layout/BottomNavigation';
 import SideMenu from '@/components/layout/SideMenu';
@@ -98,7 +98,7 @@ export default function AppRoot() {
   };
 
   const handleRegistrationSuccess = (user: any) => {
-    setActiveTab('login'); // Navigate to login after registration
+    setActiveTab('login'); 
     toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in.` });
   };
 
@@ -133,82 +133,97 @@ export default function AppRoot() {
     setSelectedBusinessProfileId(null);
   };
 
+  const handleRideRequest = useCallback((rideData: { pickup: string; dropoff: string; vehicleId: string }) => {
+      console.log('Ride request received in page.tsx:', rideData);
+      setActivityDetails({
+          type: 'ride',
+          status: 'Looking for driver...',
+          pickup: rideData.pickup,
+          dropoff: rideData.dropoff,
+          // vehicleId: rideData.vehicleId, // Store if needed for rider view
+      });
+      setIsActiveActivityViewVisible(true);
+      toast({ title: "Ride Requested", description: "Searching for drivers." });
+
+      setTimeout(() => {
+          setActivityDetails(prev => {
+            if (prev?.type === 'ride' && prev?.status === 'Looking for driver...') {
+              console.log("Simulating driver found for rider");
+              return {
+                ...prev,
+                status: 'Driver Assigned',
+                driverName: 'Sim Driver',
+                vehicle: 'Cool Car - XX00YZ0000',
+              };
+            }
+            return prev;
+          });
+           toast({ title: "Driver Found!", description: "Your ride is on the way." });
+      }, 6000);
+  }, [toast]); // Removed activityDetails from deps to avoid stale closure issues with the timeout check
+
   useEffect(() => {
-    if (isLoggedIn) {
-      setIsFabVisible(true);
+    if (isLoggedIn && (isDriverOnlineSim || activityDetails)) {
+        setIsFabVisible(true);
     } else {
-      setIsFabVisible(false);
-      setIsActiveActivityViewVisible(false);
-      setActivityDetails(null);
+        setIsFabVisible(false);
+        if (!activityDetails) {
+             setIsActiveActivityViewVisible(false);
+        }
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, isDriverOnlineSim, activityDetails]);
 
   const handleFabClick = () => {
     if (!isLoggedIn) return;
 
-    if (isDriverOnlineSim && !activityDetails?.type) {
-      setIsActiveActivityViewVisible(true);
-      setActivityDetails({
-        type: 'driver_status',
-        status: 'Online, awaiting requests...',
-      });
-      return;
+    if (isDriverOnlineSim && !activityDetails) {
+         setIsActiveActivityViewVisible(true);
+         setActivityDetails({
+            type: 'driver_status',
+            status: 'Online, awaiting requests...',
+         });
+         return;
     }
     
-    setActivityDetails({
-      type: 'ride',
-      status: 'Looking for driver...',
-      pickup: 'Rider Pickup Point',
-      dropoff: 'Rider Destination Point',
-    });
-    setIsActiveActivityViewVisible(true);
-    toast({ title: "Ride Requested", description: "Searching for drivers." });
-
-    setTimeout(() => {
-      if (activityDetails?.type === 'ride' && activityDetails?.status === 'Looking for driver...') {
-        setActivityDetails(prev => ({
-          ...prev,
-          type: 'ride',
-          status: 'Driver Assigned',
-          driverName: 'Sim Driver',
-          vehicle: 'Cool Car - XX00YZ0000',
-        }));
-        toast({ title: "Driver Found!", description: "Your ride is on the way." });
-      }
-    }, 6000);
+     if (activityDetails) {
+         setIsActiveActivityViewVisible(true);
+     }
   };
   
+  // Simulate driver going online and receiving a request
   useEffect(() => {
+    let onlineTimer: NodeJS.Timeout;
     let requestTimeout: NodeJS.Timeout;
-    // This simulation for driver going online and getting a request will eventually
-    // be triggered by actions within UserVehiclesScreen (e.g., activating a vehicle)
     if (isLoggedIn && !isDriverOnlineSim && !activityDetails && !isActiveActivityViewVisible) {
-      const onlineTimer = setTimeout(() => {
-        if(isLoggedIn && !activityDetails && !isActiveActivityViewVisible) {
-            setIsDriverOnlineSim(true); // Simulate driver going online
-            toast({ title: "You are Online (Driver Sim)", description: "Waiting for ride requests. This will be triggered by vehicle activation later." });
+      onlineTimer = setTimeout(() => {
+        if(isLoggedIn && !isDriverOnlineSim && !activityDetails && !isActiveActivityViewVisible) {
+            console.log("Simulating driver going online");
+            setIsDriverOnlineSim(true);
+            toast({ title: "You are Online (Driver Sim)", description: "Waiting for ride requests." });
 
             requestTimeout = setTimeout(() => {
                 if (isDriverOnlineSim && !activityDetails?.type && isLoggedIn) {
+                  console.log("Simulating driver receiving request");
                   setActivityDetails({
                       type: 'request',
                       riderName: 'Simulated User',
                       pickup: '123 Frontend St',
                       dropoff: '456 Backend Ave',
                       fare: '₹180',
+                      vehicleType: 'Car (Mini)', // Rider's preferred vehicle type for the request
+                      distance: '5 km',      // Estimated distance for the request
                   });
-                  setIsActiveActivityViewVisible(true);
                   toast({ title: "New Ride Request! (Driver Sim)", description: "A user needs a ride." });
                 }
-            }, 8000);
+            }, 8000); // 8 seconds after going online
         }
-      }, 5000);
+      }, 5000); // 5 seconds after login (if conditions met)
       return () => {
         clearTimeout(onlineTimer);
         clearTimeout(requestTimeout);
       };
     }
-  }, [isLoggedIn, isDriverOnlineSim, activityDetails, isActiveActivityViewVisible]);
+  }, [isLoggedIn, isDriverOnlineSim, activityDetails, isActiveActivityViewVisible, toast]);
 
 
   const handleCloseActivityView = () => {
@@ -218,24 +233,101 @@ export default function AppRoot() {
     }
   };
 
+  // Auto-open Active Activity View for Driver Requests
   useEffect(() => {
-    if (isActiveActivityViewVisible && activityDetails?.type === 'request') {
-      const timer = setTimeout(() => {
-        if (activityDetails?.type === 'request' && isLoggedIn) {
-            setActivityDetails({
-              type: 'ride',
-              status: 'en_route', // Driver accepts and is en_route to rider
-              riderName: activityDetails.riderName,
-              pickup: activityDetails.pickup,
-              dropoff: activityDetails.dropoff,
-              fare: activityDetails.fare,
-            });
-            toast({ title: "Ride Accepted (Auto-Simulated)", description: "Proceed to pickup location." });
-        }
-      }, 7000);
-      return () => clearTimeout(timer);
+    if (isLoggedIn && activityDetails?.type === 'request' && !isActiveActivityViewVisible) {
+        setIsActiveActivityViewVisible(true);
     }
-  }, [isActiveActivityViewVisible, activityDetails, isLoggedIn]);
+  }, [isLoggedIn, activityDetails, isActiveActivityViewVisible]);
+
+  // --- Action Handlers for ActiveActivityView ---
+  const handleAcceptRequest = useCallback(() => {
+      console.log("Driver accepted request (Simulated)");
+      if (activityDetails?.type === 'request') {
+          setActivityDetails(prevDetails => ({
+              ...prevDetails,
+              type: 'ride', 
+              status: 'en_route', 
+              vehicle: `Driver's ${prevDetails.vehicleType || 'Car'} - DRV123`, // Use requested type or default
+          }));
+          toast({ title: "Ride Accepted", description: "Proceed to pickup location." });
+      }
+  }, [activityDetails, toast]);
+
+  const handleRejectRequest = useCallback(() => {
+      console.log("Driver rejected request (Simulated)");
+      setActivityDetails(null);
+      setIsActiveActivityViewVisible(false);
+      toast({ title: "Request Rejected", description: "You rejected the ride request." });
+  }, [toast]);
+
+  const handleArrivedAtPickup = useCallback(() => {
+      console.log("Driver arrived at pickup (Simulated)");
+      if (activityDetails?.type === 'ride' && (activityDetails.driverName || activityDetails.status === 'en_route')) { // Check if it's a driver's ride
+          setActivityDetails(prev => prev ? ({ ...prev, status: 'arrived' }) : null);
+          toast({ title: "Arrived", description: "You have arrived at the pickup location." });
+      }
+  }, [activityDetails, toast]);
+
+  const handleStartRide = useCallback(() => {
+      console.log("Driver started ride (Simulated)");
+      if (activityDetails?.type === 'ride' && (activityDetails.driverName || activityDetails.status === 'arrived')) {
+          setActivityDetails(prev => prev ? ({ ...prev, status: 'on_the_way' }) : null);
+          toast({ title: "Ride Started", description: "Ride in progress." });
+      }
+  }, [activityDetails, toast]);
+
+  const handleEndRide = useCallback(() => {
+      console.log("Driver/Rider ended ride (Simulated)");
+      if (activityDetails?.type === 'ride') {
+          setActivityDetails(prev => prev ? ({ ...prev, status: 'completed' }) : null);
+          toast({ title: "Ride Completed", description: "Ride has ended." });
+          setTimeout(() => {
+              setActivityDetails(null);
+              setIsActiveActivityViewVisible(false);
+          }, 3000);
+      }
+  }, [activityDetails, toast]);
+  
+  const handleCancelRide = useCallback(() => {
+      console.log("Ride cancelled (Simulated)");
+      if (activityDetails?.type === 'ride' || activityDetails?.type === 'request') {
+        setActivityDetails(prev => prev ? ({ ...prev, status: 'cancelled' }) : null);
+        toast({ title: "Ride Cancelled", description: "The ride has been cancelled." });
+        setTimeout(() => {
+            setActivityDetails(null);
+            setIsActiveActivityViewVisible(false);
+        }, 3000);
+      }
+  }, [activityDetails, toast]);
+
+  const handleContactDriver = useCallback(() => {
+      console.log("Contact Driver (Simulated)");
+      toast({ title: "Contacting Driver", description: "Simulating contact..." });
+  }, [toast]);
+
+  const handleGoOffline = useCallback(() => {
+      console.log("Driver going offline (Simulated)");
+      setIsDriverOnlineSim(false);
+      setActivityDetails(null);
+      setIsActiveActivityViewVisible(false);
+      toast({ title: "Offline", description: "You are now offline." });
+  }, [toast]);
+
+  // Simulate Driver Auto-Accepting Request
+  useEffect(() => {
+    let autoAcceptTimer: NodeJS.Timeout;
+    if (isActiveActivityViewVisible && activityDetails?.type === 'request' && isLoggedIn) {
+      autoAcceptTimer = setTimeout(() => {
+        // Ensure it's still a request and user is logged in before auto-accepting
+        if (activityDetails?.type === 'request' && isLoggedIn) {
+            console.log("Simulating driver auto-accept");
+            handleAcceptRequest();
+        }
+      }, 7000); 
+      return () => clearTimeout(autoAcceptTimer);
+    }
+  }, [isActiveActivityViewVisible, activityDetails, isLoggedIn, handleAcceptRequest]);
 
 
   const renderScreenContent = () => {
@@ -251,7 +343,8 @@ export default function AppRoot() {
     switch (activeTab) {
       case 'home': return <HomeScreen />;
       case 'feeds': return <FeedsScreen />;
-      case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} />;
+      case 'menu': 
+        return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen />;
       case 'account': return <AccountScreen onLogout={handleLogout} />;
       case 'skillsets': return <UserSkillsetsScreen />;
@@ -319,6 +412,14 @@ export default function AppRoot() {
             (activityDetails?.type === 'driver_status' ? 'driver' : null))
           }
           activeActivityDetails={activityDetails}
+          onAcceptRequest={handleAcceptRequest}
+          onRejectRequest={handleRejectRequest}
+          onArrivedAtPickup={handleArrivedAtPickup}
+          onStartRide={handleStartRide}
+          onEndRide={handleEndRide}
+          onCancelRide={handleCancelRide}
+          onContactDriver={handleContactDriver}
+          onGoOffline={handleGoOffline}
         />
       )}
       
@@ -328,3 +429,4 @@ export default function AppRoot() {
     </div>
   );
 }
+
