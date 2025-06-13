@@ -4,26 +4,25 @@
 import React from 'react';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from 'lucide-react';
+import { Loader2, User, Edit3, LogOut } from 'lucide-react';
+import type { UserProfile } from '@/types';
 
-const AccountScreen = () => {
+interface AccountScreenProps {
+  onLogout: () => void;
+  userRole: 'rider' | 'driver' | null; // To display role information
+}
+
+const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userRole }) => {
   const { toast } = useToast();
-  const [profile, setProfile] = useState({ name: '', email: '', phone: '' });
+  const [profile, setProfile] = useState<UserProfile>({ name: 'Demo User', email: 'demo@example.com', phone: '9876543210', address: '123 Main St, Anytown' });
+  const [isEditing, setIsEditing] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
-  const [vehicle, setVehicle] = useState({ brand: '', model: '', regNumber: '', documents: [] as File[] });
-  const [skills, setSkills] = useState([{ name: '', description: '', media: '' }]);
-  const [businessCreated, setBusinessCreated] = useState(false);
-  const [products, setProducts] = useState<{ title: string; price: string; image: string }[]>([]);
-  const [productForm, setProductForm] = useState({ title: '', price: '', image: '' });
-  const [businessInfo, setBusinessInfo] = useState({ name: '', description: '', website: '' });
-
-  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setProfile(prev => ({ ...prev, [name]: value }));
   };
@@ -39,29 +38,27 @@ const AccountScreen = () => {
     }
     setIsSavingProfile(true);
     try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       const response = await fetch('/api/profile', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(profile),
       });
 
       const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to save profile.');
-      }
+      if (!response.ok) throw new Error(result.error || 'Failed to save profile.');
 
       toast({
         title: "Profile Saved!",
         description: "Your profile information has been updated.",
       });
+      setIsEditing(false);
     } catch (error) {
       console.error("Error saving profile:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Could not save profile. Please try again.",
+        description: error instanceof Error ? error.message : "Could not save profile.",
         variant: "destructive",
       });
     } finally {
@@ -69,151 +66,83 @@ const AccountScreen = () => {
     }
   };
 
-  const updateSkill = (index: number, field: string, value: string) => {
-    const updated = [...skills];
-    updated[index] = { ...updated[index], [field]: value };
-    setSkills(updated);
-  };
-
-  const addSkill = () => setSkills([...skills, { name: '', description: '', media: '' }]);
-
-  const handleAddProduct = () => {
-    if (productForm.title && productForm.price) {
-      setProducts(prev => [...prev, productForm]);
-      setProductForm({ title: '', price: '', image: '' }); // Reset form
-       toast({ title: "Product Added", description: `${productForm.title} has been added.` });
-    } else {
-      toast({ title: "Missing Product Info", description: "Please enter product name and price.", variant: "destructive" });
-    }
-  };
-
-
   return (
-    <div className="max-w-4xl mx-auto p-6 overflow-y-auto h-full custom-scrollbar">
-      <h1 className="text-3xl font-bold mb-6 font-headline">User Dashboard</h1>
-
-      <Tabs defaultValue="profile">
-        <TabsList className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-4">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="vehicle">Vehicle</TabsTrigger>
-          <TabsTrigger value="skills">Skillsets</TabsTrigger>
-          <TabsTrigger value="business">Business</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="profile">
-          <Card><CardContent className="space-y-4 pt-4">
-            <Input name="name" placeholder="Full Name" value={profile.name} onChange={handleProfileChange} />
-            <Input name="email" type="email" placeholder="Email" value={profile.email} onChange={handleProfileChange} />
-            <Input name="phone" type="tel" placeholder="Phone (Optional)" value={profile.phone} onChange={handleProfileChange} />
-            <Button onClick={handleSaveProfile} disabled={isSavingProfile}>
-              {isSavingProfile && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSavingProfile ? 'Saving...' : 'Save Profile'}
-            </Button>
-          </CardContent></Card>
-        </TabsContent>
-
-        <TabsContent value="vehicle">
-          <Card><CardContent className="space-y-4 pt-4">
-            <Input placeholder="Vehicle Brand" value={vehicle.brand} onChange={e => setVehicle({ ...vehicle, brand: e.target.value })} />
-            <Input placeholder="Model" value={vehicle.model} onChange={e => setVehicle({ ...vehicle, model: e.target.value })} />
-            <Input placeholder="Registration Number" value={vehicle.regNumber} onChange={e => setVehicle({ ...vehicle, regNumber: e.target.value })} />
-            <Input 
-              type="file" 
-              multiple 
-              onChange={(e) => {
-                const files = e.target.files ? Array.from(e.target.files) : [];
-                setVehicle({ ...vehicle, documents: files });
-              }} 
-              className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-            />
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {vehicle.documents.map((file, index) => (
-                <p key={index} className="text-sm truncate bg-muted p-2 rounded-md">{file.name}</p>
-              ))}
-            </div>
-            <Button>Save Vehicle</Button>
-          </CardContent></Card>
-        </TabsContent>
-
-        <TabsContent value="skills">
-          <Card><CardContent className="pt-4">
-            {skills.map((skill, index) => (
-              <div key={index} className="space-y-3 mb-6 p-4 border rounded-lg">
-                <Input placeholder="Skill Name" value={skill.name} onChange={e => updateSkill(index, 'name', e.target.value)} />
-                <Textarea placeholder="Description" value={skill.description} onChange={e => updateSkill(index, 'description', e.target.value)} />
-                <Input 
-                  placeholder="Media URL (PDF, Image, Video, etc.)" 
-                  value={skill.media} 
-                  onChange={e => updateSkill(index, 'media', e.target.value)} 
-                />
-                {skill.media && (
-                  <div className="border rounded-md p-2 max-w-xs">
-                    {skill.media.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-                      <img src={skill.media} alt="media preview" className="w-24 h-24 object-cover rounded" data-ai-hint="skill media" />
-                    ) : skill.media.match(/\.pdf$/i) ? (
-                      <a href={skill.media} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View PDF</a>
-                    ) : (
-                      <a href={skill.media} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View Media</a>
-                    )}
-                  </div>
-                )}
+    <div className="max-w-2xl mx-auto p-4 sm:p-6 overflow-y-auto h-full custom-scrollbar">
+      <Card className="shadow-lg">
+        <CardHeader className="text-center">
+          <div className="mx-auto w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-4 border-2 border-primary">
+            <User className="w-12 h-12 text-primary" />
+          </div>
+          <CardTitle className="text-2xl font-headline">{isEditing ? "Edit Profile" : profile.name}</CardTitle>
+          <CardDescription>{profile.email} {userRole && `(${userRole.charAt(0).toUpperCase() + userRole.slice(1)})`}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {!isEditing ? (
+            <>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Full Name</Label>
+                <p className="text-lg text-foreground">{profile.name}</p>
               </div>
-            ))}
-            <Button variant="outline" onClick={addSkill}>Add Another Skill</Button>
-             <Button className="ml-2">Save Skills</Button>
-          </CardContent></Card>
-        </TabsContent>
-
-        <TabsContent value="business">
-          <Card><CardContent className="space-y-4 pt-4">
-            {!businessCreated ? (
-              <>
-                <Input placeholder="Business Name" value={businessInfo.name} onChange={e => setBusinessInfo({ ...businessInfo, name: e.target.value })} />
-                <Textarea placeholder="Description" value={businessInfo.description} onChange={e => setBusinessInfo({ ...businessInfo, description: e.target.value })} />
-                <Input placeholder="Website URL (optional)" value={businessInfo.website} onChange={e => setBusinessInfo({ ...businessInfo, website: e.target.value })} />
-                <Button onClick={() => {
-                  if(businessInfo.name && businessInfo.description) {
-                    setBusinessCreated(true);
-                    toast({ title: "Business Created!", description: `${businessInfo.name} is now set up.` });
-                  } else {
-                    toast({ title: "Missing Information", description: "Please enter business name and description.", variant: "destructive" });
-                  }
-                }}>Create Business</Button>
-              </>
-            ) : (
-              <>
-                <h3 className="text-lg font-semibold text-foreground">{businessInfo.name} - Add Products</h3>
-                <Input placeholder="Product Name" value={productForm.title} onChange={e => setProductForm({ ...productForm, title: e.target.value })} />
-                <Input placeholder="Price" type="number" value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} />
-                <Input 
-                  placeholder="Image URL" 
-                  value={productForm.image} 
-                  onChange={e => setProductForm({ ...productForm, image: e.target.value })} 
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Email Address</Label>
+                <p className="text-lg text-foreground">{profile.email}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Phone Number</Label>
+                <p className="text-lg text-foreground">{profile.phone || 'Not provided'}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Address</Label>
+                <p className="text-lg text-foreground whitespace-pre-line">{profile.address || 'Not provided'}</p>
+              </div>
+              <Button className="w-full mt-6" onClick={() => setIsEditing(true)}>
+                <Edit3 className="mr-2 h-4 w-4" /> Edit Profile
+              </Button>
+            </>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <Input id="name" name="name" placeholder="Full Name" value={profile.name} onChange={handleProfileChange} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <Input id="email" name="email" type="email" placeholder="Email" value={profile.email} onChange={handleProfileChange} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input id="phone" name="phone" type="tel" placeholder="Phone (Optional)" value={profile.phone} onChange={handleProfileChange} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="address">Address</Label>
+                <textarea
+                  id="address"
+                  name="address"
+                  rows={3}
+                  placeholder="Your address"
+                  value={profile.address || ''}
+                  onChange={handleProfileChange}
+                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                 />
-                {productForm.image && (
-                  <img src={productForm.image} alt="Product Preview" className="w-24 h-24 object-cover rounded" data-ai-hint="product image" />
-                )}
-                <Button onClick={handleAddProduct}>Add Product</Button>
-                {products.length > 0 && <h4 className="text-md font-semibold pt-4 border-t mt-4">Your Products:</h4>}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
-                  {products.map((p, i) => (
-                    <div key={i} className="text-center p-2 border rounded-lg shadow-sm">
-                      <img 
-                        src={p.image || 'https://placehold.co/100x100.png'} 
-                        alt={p.title} 
-                        className="w-20 h-20 mx-auto rounded object-cover mb-2" 
-                        data-ai-hint="product item"
-                      />
-                      <div className="font-semibold text-sm truncate">{p.title}</div>
-                      <div className="text-xs text-muted-foreground">₹{p.price}</div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </CardContent></Card>
-        </TabsContent>
-      </Tabs>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 mt-6">
+                <Button variant="outline" className="w-full sm:w-auto" onClick={() => setIsEditing(false)} disabled={isSavingProfile}>
+                  Cancel
+                </Button>
+                <Button className="w-full sm:flex-1" onClick={handleSaveProfile} disabled={isSavingProfile}>
+                  {isSavingProfile && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isSavingProfile ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </>
+          )}
+        </CardContent>
+        <CardFooter>
+           <Button variant="destructive" className="w-full mt-4" onClick={onLogout}>
+            <LogOut className="mr-2 h-4 w-4" /> Logout
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 };

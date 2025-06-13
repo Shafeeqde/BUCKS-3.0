@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -14,12 +15,9 @@ const initialCategories: Category[] = [
   { id: 'feed-subhesh', name: 'Subhesh', image: 'https://placehold.co/100x100.png', dataAiHint: 'man office', viewed: true },
   { id: 'feed-seena', name: 'Seena', image: 'https://placehold.co/100x100.png', dataAiHint: 'person outdoor', viewed: false },
   { id: 'feed-1', name: 'Shafeeq', image: 'https://placehold.co/100x100.png', dataAiHint: 'man casual', viewed: false },
-  { id: 'feed-2', name: 'Senthil', image: 'https://placehold.co/100x100.png', dataAiHint: 'person tech', viewed: false },
-  { id: 'feed-3', name: 'Mikado', image: 'https://placehold.co/100x100.png', dataAiHint: 'logo brand', viewed: true },
-  { id: 'feed-4', name: 'TVS Synergy', image: 'https://placehold.co/100x100.png', dataAiHint: 'vehicle company', viewed: false },
-  { id: 'feed-5', name: 'Friends', image: 'https://placehold.co/100x100.png', dataAiHint: 'group people', viewed: true },
-  { id: 'feed-6', name: 'Family', image: 'https://placehold.co/100x100.png', dataAiHint: 'family photo', viewed: false },
-  { id: 'feed-7', name: 'News', image: 'https://placehold.co/100x100.png', dataAiHint: 'news article', viewed: true },
+  { id: 'feed-2', name: 'Senthil', image: 'https://placehold.co/100x100.png', dataAiHint: 'person tech', viewed: true },
+  { id: 'feed-3', name: 'Mikado', image: 'https://placehold.co/100x100.png', dataAiHint: 'company logo', viewed: true },
+  { id: 'feed-4', name: 'TVS Synergy', image: 'https://placehold.co/100x100.png', dataAiHint: 'vehicle brand', viewed: false },
 ];
 
 const initialFeedItems: FeedItemType[] = [
@@ -27,7 +25,7 @@ const initialFeedItems: FeedItemType[] = [
     id: 1, type: 'post', user: 'Shafeeq', userImage: 'https://placehold.co/40x40.png', userImageAiHint: 'man casual',
     timestamp: 'Wishing you a joyful and prosperous Diwali',
     content: 'May this festival of lights bring happiness, success, and warmth to your lives.',
-    postImage: 'https://placehold.co/600x350.png', postImageAiHint: 'diwali celebration',
+    postImage: 'https://placehold.co/600x350.png', postImageAiHint: 'diwali festival',
     comments: 7, recommendations: 10, notRecommendations: 2, showCommentBox: false, currentComment: ''
   },
   {
@@ -37,13 +35,13 @@ const initialFeedItems: FeedItemType[] = [
     comments: 12, recommendations: 5, notRecommendations: 1, showCommentBox: false, currentComment: ''
   },
   {
-    id: 3, type: 'job', user: 'Mikado UX UI', userImage: 'https://placehold.co/40x40.png', userImageAiHint: 'company logo',
+    id: 3, type: 'job', user: 'Mikado UX UI', userImage: 'https://placehold.co/40x40.png', userImageAiHint: 'design studio logo',
     timestamp: 'Hiring Graphic Designer',
     content: 'Hi Design Enthusiast , we are in search of the graphic Designer with Illustrative and sketching skills , check out your Job portal and share you resume and please suggest you known persons if you know someone as we expected.',
     comments: 20, recommendations: 25, notRecommendations: 3, showCommentBox: false, currentComment: ''
   },
   {
-    id: 4, type: 'ad', user: 'TVS Synergy', userImage: 'https://placehold.co/40x40.png', userImageAiHint: 'brand logo',
+    id: 4, type: 'ad', user: 'TVS Synergy', userImage: 'https://placehold.co/40x40.png', userImageAiHint: 'automotive brand',
     postImage: 'https://placehold.co/600x350.png', postImageAiHint: 'scooter advertisement',
     content: 'TVS Ntorq 125 Price : Check On-Road & Ex-Showroom Prices of All Variants -',
     timestamp: 'Sponsored Ad', comments: 0, recommendations: 15, notRecommendations: 0, showCommentBox: false, currentComment: ''
@@ -63,7 +61,7 @@ const FeedsScreen = () => {
           let updatedRecommendations = item.recommendations;
           let updatedNotRecommendations = item.notRecommendations;
 
-          if (isOpeningCommentBox) { // Only increment if the box is being opened
+          if (isOpeningCommentBox) {
             if (type === 'recommend') updatedRecommendations += 1;
             else if (type === 'notRecommend') updatedNotRecommendations += 1;
           }
@@ -71,7 +69,7 @@ const FeedsScreen = () => {
             ...item,
             recommendations: updatedRecommendations,
             notRecommendations: updatedNotRecommendations,
-            showCommentBox: isOpeningCommentBox, // Toggle comment box
+            showCommentBox: isOpeningCommentBox, 
             currentComment: '' 
           };
         }
@@ -111,8 +109,8 @@ const FeedsScreen = () => {
     );
     const category = categories.find(c => c.id === id);
     toast({
-        title: `Navigating to ${category?.name || 'Category'}`,
-        description: "Content for this category would load here.",
+        title: `Viewing ${category?.name || 'Category'}`,
+        description: "Content for this category would load here in a full app.",
     });
   };
 
