@@ -160,7 +160,7 @@ export default function AppRoot() {
           });
            toast({ title: "Driver Found!", description: "Your ride is on the way." });
       }, 6000);
-  }, [toast]); 
+  }, [toast, activityDetails]); // Added activityDetails to dependency array for check inside setTimeout
 
   useEffect(() => {
     if (isLoggedIn && (isDriverOnlineSim || activityDetails)) {
@@ -192,44 +192,79 @@ export default function AppRoot() {
   
   // Simulate driver going online and receiving a request
   useEffect(() => {
+    console.log('[Driver Sim Effect] Running. State:', { isLoggedIn, isDriverOnlineSim, activityDetailsType: activityDetails?.type, isActiveActivityViewVisible });
     let onlineTimer: NodeJS.Timeout;
     let requestTimeout: NodeJS.Timeout;
+
     if (isLoggedIn && !isDriverOnlineSim && !activityDetails && !isActiveActivityViewVisible) {
+      console.log('[Driver Sim Effect] Condition 1 MET. Starting onlineTimer (5s).');
       onlineTimer = setTimeout(() => {
-        if(isLoggedIn && !isDriverOnlineSim && !activityDetails && !isActiveActivityViewVisible) {
-            console.log("Simulating driver going online");
+        console.log('[Driver Sim Effect] onlineTimer FIRED. Re-checking conditions. State:', { isLoggedIn, isDriverOnlineSim, activityDetailsType: activityDetails?.type, isActiveActivityViewVisible });
+        if(isLoggedIn && !isDriverOnlineSim && !activityDetails && !isActiveActivityViewVisible) { // Condition 2
+            console.log('[Driver Sim Effect] Condition 2 MET. Simulating driver going online.');
             setIsDriverOnlineSim(true);
             toast({ title: "You are Online (Driver Sim)", description: "Waiting for ride requests." });
 
+            console.log('[Driver Sim Effect] Starting requestTimeout (8s).');
             requestTimeout = setTimeout(() => {
-                if (isDriverOnlineSim && (!activityDetails?.type || activityDetails?.type === 'driver_status') && isLoggedIn) {
-                  console.log("Simulating driver receiving request");
+              console.log('[Driver Sim Effect] requestTimeout FIRED. Checking conditions for request. State:', { isLoggedIn, isDriverOnlineSim, activityDetailsType: activityDetails?.type });
+              if (isDriverOnlineSim && (!activityDetails?.type || activityDetails?.type === 'driver_status') && isLoggedIn) { // Condition 3
+                  console.log('[Driver Sim Effect] Condition 3 MET. Simulating driver receiving request.');
                   setActivityDetails({
                       type: 'request',
                       riderName: 'Simulated User',
                       pickup: '123 Frontend St',
                       dropoff: '456 Backend Ave',
                       fare: '₹180',
-                      vehicleType: 'Car (Mini)', 
-                      distance: '5 km',      
+                      vehicleType: 'Car (Mini)',
+                      distance: '5 km',
                   });
                   toast({ title: "New Ride Request! (Driver Sim)", description: "A user needs a ride." });
-                }
-            }, 8000); 
+              } else {
+                console.log('[Driver Sim Effect] Condition 3 FAILED for simulating request. Details:', {
+                    isDriverOnlineSim,
+                    isLoggedIn,
+                    activityDetailsType: activityDetails?.type,
+                    isCorrectActivityType: (!activityDetails?.type || activityDetails?.type === 'driver_status')
+                });
+              }
+            }, 8000);
+        } else {
+          console.log('[Driver Sim Effect] Condition 2 FAILED for going online. Details:', {
+            isLoggedIn,
+            isDriverOnlineSim,
+            activityDetailsPresent: !!activityDetails,
+            isActiveActivityViewVisible
+          });
         }
-      }, 5000); 
-      return () => {
-        clearTimeout(onlineTimer);
-        clearTimeout(requestTimeout);
-      };
+      }, 5000);
+    } else {
+      console.log('[Driver Sim Effect] Condition 1 FAILED. Not starting onlineTimer. Details:', {
+        isLoggedIn,
+        isDriverOnlineSim,
+        activityDetailsPresent: !!activityDetails,
+        isActiveActivityViewVisible
+      });
     }
+
+    return () => {
+      console.log('[Driver Sim Effect] Cleanup. Clearing timers.');
+      clearTimeout(onlineTimer);
+      clearTimeout(requestTimeout);
+    };
   }, [isLoggedIn, isDriverOnlineSim, activityDetails, isActiveActivityViewVisible, toast]);
 
 
   const handleCloseActivityView = () => {
     setIsActiveActivityViewVisible(false);
     if (activityDetails?.type === 'request' || activityDetails?.type === 'driver_status') {
-      setActivityDetails(null);
+      // Only nullify if it's a transient state like a request or just checking status.
+      // An active ride (rider or driver) should persist even if view is closed.
+      // The FAB click will bring it back.
+      // Rejection/Cancellation/Completion should explicitly set activityDetails to null.
+      if (activityDetails?.status !== 'en_route' && activityDetails?.status !== 'arrived' && activityDetails?.status !== 'on_the_way') {
+         setActivityDetails(null);
+      }
     }
   };
 
@@ -243,7 +278,7 @@ export default function AppRoot() {
       console.log("Driver accepted request (Simulated)");
       if (activityDetails?.type === 'request') {
           setActivityDetails(prevDetails => {
-            if (!prevDetails || prevDetails.type !== 'request') return prevDetails; // Type guard
+            if (!prevDetails || prevDetails.type !== 'request') return prevDetails; 
             return {
               type: 'ride', 
               status: 'en_route', 
@@ -267,7 +302,7 @@ export default function AppRoot() {
 
   const handleArrivedAtPickup = useCallback(() => {
       console.log("Driver arrived at pickup (Simulated)");
-      if (activityDetails?.type === 'ride' && (activityDetails.status === 'en_route' && !activityDetails.driverName)) { // Driver's active ride
+      if (activityDetails?.type === 'ride' && (activityDetails.status === 'en_route' && !activityDetails.driverName)) { 
           setActivityDetails(prev => prev ? ({ ...prev, status: 'arrived' }) : null);
           toast({ title: "Arrived", description: "You have arrived at the pickup location." });
       }
@@ -275,7 +310,7 @@ export default function AppRoot() {
 
   const handleStartRide = useCallback(() => {
       console.log("Driver started ride (Simulated)");
-      if (activityDetails?.type === 'ride' && (activityDetails.status === 'arrived' && !activityDetails.driverName)) { // Driver's active ride
+      if (activityDetails?.type === 'ride' && (activityDetails.status === 'arrived' && !activityDetails.driverName)) { 
           setActivityDetails(prev => prev ? ({ ...prev, status: 'on_the_way' }) : null);
           toast({ title: "Ride Started", description: "Ride in progress." });
       }
@@ -284,8 +319,9 @@ export default function AppRoot() {
   const handleEndRide = useCallback(() => {
       console.log("Driver/Rider ended ride (Simulated)");
       if (activityDetails?.type === 'ride') {
+          const currentRole = activityDetails.driverName ? 'rider' : 'driver';
+          toast({ title: "Ride Completed", description: `Ride has ended. (${currentRole} perspective)` });
           setActivityDetails(prev => prev ? ({ ...prev, status: 'completed' }) : null);
-          toast({ title: "Ride Completed", description: "Ride has ended." });
           setTimeout(() => {
               setActivityDetails(null);
               setIsActiveActivityViewVisible(false);
@@ -296,8 +332,9 @@ export default function AppRoot() {
   const handleCancelRide = useCallback(() => {
       console.log("Ride cancelled (Simulated)");
       if (activityDetails?.type === 'ride' || activityDetails?.type === 'request') {
+        const currentRole = activityDetails.driverName ? 'rider' : (activityDetails.type === 'ride' ? 'driver' : 'driver'); // a bit complex, but tries to get role
+        toast({ title: "Ride Cancelled", description: `The ride has been cancelled. (${currentRole} perspective)` });
         setActivityDetails(prev => prev ? ({ ...prev, status: 'cancelled' }) : null);
-        toast({ title: "Ride Cancelled", description: "The ride has been cancelled." });
         setTimeout(() => {
             setActivityDetails(null);
             setIsActiveActivityViewVisible(false);
