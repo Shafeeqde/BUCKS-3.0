@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header';
 import BottomNavigation from '@/components/layout/BottomNavigation';
 import SideMenu from '@/components/layout/SideMenu';
 import LoginScreen from '@/components/screens/LoginScreen';
+import RegistrationScreen from '@/components/screens/RegistrationScreen'; // Ensure this import is correct
 import HomeScreen from '@/components/screens/HomeScreen';
 import FeedsScreen from '@/components/screens/FeedsScreen';
 import ServicesScreen from '@/components/screens/ServicesScreen';
@@ -17,21 +18,9 @@ import UserBusinessProfileDetailScreen from '@/components/screens/UserBusinessPr
 import MessagesNotificationsScreen from '@/components/screens/MessagesNotificationsScreen';
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
 import ActiveActivityView from '@/components/activity/ActiveActivityView';
-import type { TabName, UserBusinessProfile, UserSkill, UserVehicle } from '@/types';
+import type { TabName, UserBusinessProfile, ActivityDetails } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-// Removed User, UserCog imports as SimRole button is removed
-// import { Button } from '@/components/ui/button'; // No longer needed for SimRole button
 
-type ActivityDetails = {
-  type?: 'ride' | 'request';
-  status?: string;
-  pickup?: string;
-  dropoff?: string;
-  driverName?: string;
-  riderName?: string;
-  vehicle?: string;
-  fare?: string;
-} | null;
 
 const initialBusinessProfiles: UserBusinessProfile[] = [
   {
@@ -52,8 +41,8 @@ const initialBusinessProfiles: UserBusinessProfile[] = [
       { id: 2, content: 'Happy Hour extended!', timestamp: '1 day ago' },
     ],
     products: [
-      { id: 101, name: 'Biryani', price: 250, imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'biryani dish' },
-      { id: 102, name: 'Pizza', price: 350, imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'pizza slice' },
+      { id: 101, name: 'Biryani', price: '250', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'biryani dish' },
+      { id: 102, name: 'Pizza', price: '350', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'pizza slice' },
     ],
     services: ['Dine-in', 'Takeaway', 'Catering', 'Home Delivery'],
     jobs: [
@@ -79,50 +68,63 @@ const initialBusinessProfiles: UserBusinessProfile[] = [
 
 
 export default function AppRoot() {
+  const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const [activeTab, setActiveTab] = useState<TabName>('login');
   const [showSideMenu, setShowSideMenu] = useState(false);
   const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
-  const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | number | null>(null);
+
+  // Authentication State
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState<any>(null); // Replace 'any' with a proper User type
+
+  // Business Profile State (simplified for main page)
   const [businessProfiles, setBusinessProfiles] = useState<UserBusinessProfile[]>(initialBusinessProfiles);
+  const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | number | null>(null);
 
-  const { toast } = useToast();
-
-  // Removed userRoleSim state
-  const [isFabVisibleSim, setIsFabVisibleSim] = useState(false);
-  const [isActivityViewVisibleSim, setIsActivityViewVisibleSim] = useState(false);
-  const [activityDetailsSim, setActivityDetailsSim] = useState<ActivityDetails>(null);
-  const [isDriverOnlineSim, setIsDriverOnlineSim] = useState(false); // This state remains for driver auto-request simulation
-
+  // FAB and Active Activity View State
+  const [isFabVisible, setIsFabVisible] = useState(false);
+  const [isActiveActivityViewVisible, setIsActiveActivityViewVisible] = useState(false);
+  const [activityDetails, setActivityDetails] = useState<ActivityDetails>(null);
+  const [isDriverOnlineSim, setIsDriverOnlineSim] = useState(false); // For driver auto-request simulation
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const handleLogin = () => { // Removed simulatedRole parameter
+  const handleLoginSuccess = (user: any) => {
     setIsLoggedIn(true);
-    // setUserRoleSim(simulatedRole); // Removed
+    setUserData(user);
     setActiveTab('home');
-    toast({ title: "Login Successful", description: "Welcome!" }); // Simplified message
+    toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
+  };
+
+  const handleRegistrationSuccess = (user: any) => {
+    // For now, registration success leads to login screen.
+    // Could also auto-login: handleLoginSuccess(user);
+    setActiveTab('login');
+    toast({ title: "Registration Complete!", description: "Please log in with your new account." });
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    // setUserRoleSim(null); // Removed
+    setUserData(null);
     setActiveTab('login');
     setShowSideMenu(false);
-    setIsFabVisibleSim(false);
-    setIsActivityViewVisibleSim(false);
-    setActivityDetailsSim(null);
-    setIsDriverOnlineSim(false); // Reset driver online status
+    setIsFabVisible(false);
+    setIsActiveActivityViewVisible(false);
+    setActivityDetails(null);
+    setIsDriverOnlineSim(false);
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   };
 
   const handleTabSelection = (tab: TabName) => {
     setActiveTab(tab);
     setShowSideMenu(false);
-    setSelectedBusinessProfileId(null); 
+    if (tab !== 'business-detail') { // Clear selection if not going to detail view
+        setSelectedBusinessProfileId(null);
+    }
   };
 
   const handleSelectBusinessProfile = (profileId: string | number) => {
@@ -136,41 +138,44 @@ export default function AppRoot() {
     setSelectedBusinessProfileId(null);
   };
 
-  // FAB visibility logic updated
+  // FAB and Activity View Logic
   useEffect(() => {
     if (isLoggedIn) {
-      setIsFabVisibleSim(true); // FAB visible if logged in
+      setIsFabVisible(true);
     } else {
-      setIsFabVisibleSim(false);
+      setIsFabVisible(false);
+      setIsActiveActivityViewVisible(false); // Hide activity view on logout
+      setActivityDetails(null);
     }
   }, [isLoggedIn]);
 
   const handleFabClick = () => {
     if (!isLoggedIn) return;
 
-    // If driver is online (simulated background state), show current activity
-    if (isDriverOnlineSim) {
-        setIsActivityViewVisibleSim(true); // Show current status or request
-        return;
+    if (isDriverOnlineSim && !activityDetails?.type) { // If driver is online and no active request/ride
+      setIsActiveActivityViewVisible(true); // Show current driver status or wait for request
+      setActivityDetails({ // Default "online" state for driver if no specific request
+        type: 'driver_status',
+        status: 'Online, awaiting requests...',
+      });
+      return;
     }
-
+    
     // Default FAB click action: Rider requests a ride
-    setActivityDetailsSim({
+    setActivityDetails({
       type: 'ride',
       status: 'Looking for driver...',
       pickup: 'Rider Pickup Point',
       dropoff: 'Rider Destination Point',
     });
-    setIsActivityViewVisibleSim(true);
+    setIsActiveActivityViewVisible(true);
     toast({ title: "Ride Requested", description: "Searching for drivers." });
 
-    // Simulate finding a driver
     setTimeout(() => {
-      // Check if still in rider requesting mode
-      if (activityDetailsSim?.type === 'ride' && activityDetailsSim?.status === 'Looking for driver...') {
-        setActivityDetailsSim(prev => ({
+      if (activityDetails?.type === 'ride' && activityDetails?.status === 'Looking for driver...') {
+        setActivityDetails(prev => ({
           ...prev,
-          type: 'ride', // ensure type remains 'ride'
+          type: 'ride',
           status: 'Driver Assigned',
           driverName: 'Sim Driver',
           vehicle: 'Cool Car - XX00YZ0000',
@@ -179,87 +184,82 @@ export default function AppRoot() {
       }
     }, 6000);
   };
-
-  // Simulate Driver going online and receiving a request (can be moved to Vehicle activation later)
+  
   useEffect(() => {
     let requestTimeout: NodeJS.Timeout;
-    // This effect simulates a driver "going online" implicitly after login for now
-    // and then receiving a request. This can be tied to vehicle activation later.
-    if (isLoggedIn && !isDriverOnlineSim && !activityDetailsSim) { // Simulate driver coming online if not already and no activity
+    if (isLoggedIn && !isDriverOnlineSim && !activityDetails && !isActiveActivityViewVisible) {
       const onlineTimer = setTimeout(() => {
-        if(isLoggedIn && !activityDetailsSim) { // Check again before setting driver online
+        if(isLoggedIn && !activityDetails && !isActiveActivityViewVisible) {
             setIsDriverOnlineSim(true);
-            setActivityDetailsSim(null); // No specific ride yet, just online
-            setIsActivityViewVisibleSim(false); // Don't show modal just for being online, unless FAB is clicked
             toast({ title: "You are Online (Driver Sim)", description: "Waiting for ride requests." });
 
-            // Then simulate receiving a request
             requestTimeout = setTimeout(() => {
-                if (isDriverOnlineSim && !activityDetailsSim?.type) { // If still online and no active ride/request
-                setActivityDetailsSim({
-                    type: 'request',
-                    riderName: 'Simulated User',
-                    pickup: '123 Frontend St',
-                    dropoff: '456 Backend Ave',
-                    fare: '₹180',
-                });
-                setIsActivityViewVisibleSim(true);
-                toast({ title: "New Ride Request! (Driver Sim)", description: "A user needs a ride." });
+                if (isDriverOnlineSim && !activityDetails?.type && isLoggedIn) {
+                  setActivityDetails({
+                      type: 'request',
+                      riderName: 'Simulated User',
+                      pickup: '123 Frontend St',
+                      dropoff: '456 Backend Ave',
+                      fare: '₹180',
+                  });
+                  setIsActiveActivityViewVisible(true);
+                  toast({ title: "New Ride Request! (Driver Sim)", description: "A user needs a ride." });
                 }
-            }, 8000); // Increased delay for request after going online
+            }, 8000);
         }
-      }, 5000); // Delay for "going online"
+      }, 5000);
       return () => {
         clearTimeout(onlineTimer);
         clearTimeout(requestTimeout);
       };
     }
-  }, [isLoggedIn, isDriverOnlineSim, activityDetailsSim]);
+  }, [isLoggedIn, isDriverOnlineSim, activityDetails, isActiveActivityViewVisible]);
 
 
   const handleCloseActivityView = () => {
-    setIsActivityViewVisibleSim(false);
-    // If a driver request was showing, closing it means they didn't accept/reject, so clear it
-    if (activityDetailsSim?.type === 'request') {
-      setActivityDetailsSim(null); 
-      // setIsDriverOnlineSim(true); // Driver remains online
+    setIsActiveActivityViewVisible(false);
+    if (activityDetails?.type === 'request' || activityDetails?.type === 'driver_status') {
+      setActivityDetails(null); // Clear driver-specific views when closed by driver
     }
-    // Rider cancelling or ride ending would be handled by buttons inside the view
+    // Rider cancelling or ride ending would be handled by buttons inside the view (future)
   };
 
-  // Simulate driver "accepting" a request automatically
   useEffect(() => {
-    if (isActivityViewVisibleSim && activityDetailsSim?.type === 'request') {
+    if (isActiveActivityViewVisible && activityDetails?.type === 'request') {
       const timer = setTimeout(() => {
-         // Check if still a request, meaning it wasn't closed/handled
-        if (activityDetailsSim?.type === 'request') {
-            setActivityDetailsSim({
-            type: 'ride', // Change type to 'ride' as it's now an active ride for the driver
-            status: 'en_route',
-            riderName: activityDetailsSim.riderName,
-            pickup: activityDetailsSim.pickup,
-            dropoff: activityDetailsSim.dropoff,
-            fare: activityDetailsSim.fare,
+        if (activityDetails?.type === 'request' && isLoggedIn) { // Check login status
+            setActivityDetails({
+              type: 'ride', // Becomes an active ride for the driver
+              status: 'en_route',
+              riderName: activityDetails.riderName,
+              pickup: activityDetails.pickup,
+              dropoff: activityDetails.dropoff,
+              fare: activityDetails.fare,
             });
             toast({ title: "Ride Accepted (Auto-Simulated)", description: "Proceed to pickup location." });
         }
       }, 7000);
       return () => clearTimeout(timer);
     }
-  }, [isActivityViewVisibleSim, activityDetailsSim]);
+  }, [isActiveActivityViewVisible, activityDetails, isLoggedIn]);
 
-  // Removed toggleUserRoleAndRelogin function
 
   const renderScreenContent = () => {
-    if (!isClient) return null;
-    if (!isLoggedIn) return <LoginScreen onLogin={handleLogin} />;
+    if (!isClient) return null; // Or a global loading spinner
+
+    if (!isLoggedIn) {
+      if (activeTab === 'registration') {
+        return <RegistrationScreen setActiveTab={setActiveTab} onRegistrationSuccess={handleRegistrationSuccess} />;
+      }
+      return <LoginScreen setActiveTab={setActiveTab} onLoginSuccess={handleLoginSuccess} />;
+    }
 
     switch (activeTab) {
       case 'home': return <HomeScreen />;
       case 'feeds': return <FeedsScreen />;
       case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} />;
       case 'recommended': return <RecommendedScreen />;
-      case 'account': return <AccountScreen onLogout={handleLogout} />; // Removed userRole prop
+      case 'account': return <AccountScreen onLogout={handleLogout} />;
       case 'skillsets': return <UserSkillsetsScreen />;
       case 'vehicles': return <UserVehiclesScreen />;
       case 'business-profiles': return (
@@ -274,22 +274,22 @@ export default function AppRoot() {
       default: return <HomeScreen />;
     }
   };
-
+  
   if (!isClient) {
-    return (
+    return ( // Basic loading state for SSR/initial load
       <div className="flex flex-col h-screen bg-background items-center justify-center">
         <p>Loading App...</p>
       </div>
     );
   }
-  
+
   return (
     <div className="flex flex-col h-screen bg-background">
       {isLoggedIn && (
         <Header
           onMenuClick={() => setShowSideMenu(true)}
           onMessagesClick={() => setShowMessagesNotifications(true)}
-          unreadCount={5} // Simplified example unread count
+          unreadCount={5} // Example
         />
       )}
 
@@ -299,7 +299,7 @@ export default function AppRoot() {
           onClose={() => setShowSideMenu(false)}
           activeTab={activeTab}
           setActiveTab={handleTabSelection}
-          businessProfiles={businessProfiles}
+          businessProfiles={businessProfiles} // Pass profiles for display in menu
           onSelectBusinessProfile={handleSelectBusinessProfile}
           onLogout={handleLogout}
         />
@@ -313,22 +313,23 @@ export default function AppRoot() {
         <BottomNavigation activeTab={activeTab} setActiveTab={handleTabSelection} />
       )}
 
-      {isClient && isLoggedIn && isFabVisibleSim && (
+      {isClient && isLoggedIn && isFabVisible && (
         <FloatingActionButton onClick={handleFabClick} />
       )}
 
-      {isClient && isLoggedIn && (
+      {isClient && isLoggedIn && isActiveActivityViewVisible && (
         <ActiveActivityView
-          isVisible={isActivityViewVisibleSim}
+          isVisible={isActiveActivityViewVisible}
           onClose={handleCloseActivityView}
-          // Determine userRole for view based on activity type
-          userRole={activityDetailsSim?.type === 'request' ? 'driver' : (activityDetailsSim?.type === 'ride' ? (activityDetailsSim?.driverName ? 'rider' : 'driver') : null)}
-          activeActivityDetails={activityDetailsSim}
+          userRole={
+            activityDetails?.type === 'request' ? 'driver' : 
+            (activityDetails?.type === 'ride' ? (activityDetails.driverName ? 'rider' : 'driver') : 
+            (activityDetails?.type === 'driver_status' ? 'driver' : null))
+          }
+          activeActivityDetails={activityDetails}
         />
       )}
       
-      {/* Removed SimRole button */}
-
       {isClient && showMessagesNotifications && (
         <MessagesNotificationsScreen onClose={() => setShowMessagesNotifications(false)} />
       )}
