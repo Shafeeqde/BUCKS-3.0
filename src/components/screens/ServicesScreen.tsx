@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Search as SearchIcon, Map } from 'lucide-react';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
+import { Card, CardContent } from '@/components/ui/card';
 
 
 const servicesData: Service[] = [
