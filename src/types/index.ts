@@ -13,7 +13,8 @@ export type TabName =
   | 'vehicles'
   | 'business-profiles'
   | 'business-detail'
-  | 'messages-notifications'; // This is usually a modal/overlay
+  | 'messages-notifications' // This is usually a modal/overlay
+  | 'individual-profile'; // Added for the new screen
 
 export interface Category {
   id: string;
@@ -44,7 +45,7 @@ export interface FeedItem {
 }
 
 export interface Service {
-  id: string; // Added id for key prop
+  id: string; 
   name: string;
   icon: string; // SVG string
   locked: boolean;
@@ -74,17 +75,15 @@ export interface GeneralQueryOutput {
   queryType: 'general' | 'location_search';
 }
 
-// Updated VehicleOption for ServicesScreen taxi booking
 export interface VehicleOption {
   id: string;
   name: string;
-  icon: LucideIcon; // Changed to LucideIcon for direct usage
+  icon: string; // SVG string for SvgRenderer
+  dataAiHint?: string;
   priceRange: string;
   estimatedETA: string;
-  dataAiHint?: string;
-  // minRide and pricePerKm can be added if needed for detailed display
-  // minRide?: string; 
-  // pricePerKm?: string;
+  minRide?: string;
+  pricePerKm?: string;
 }
 
 export interface UserProfile {
@@ -188,9 +187,35 @@ export type ActivityDetails = {
     dropoff?: string;
     driverName?: string;
     riderName?: string;
-    vehicle?: string;
+    vehicle?: string; // e.g., "Cool Car - XX00YZ0000"
     fare?: string;
+    distance?: string; // Added for request details (e.g. "5 km")
+    vehicleType?: string; // Added for request details (e.g. "Car (Mini)")
 } | null;
 
-
-    
+// Data structure for Individual Professional Profile Screen
+export interface IndividualProfileData {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  avatarAiHint?: string;
+  bio?: string;
+  contactInfo?: {
+    phone?: string;
+    email?: string;
+    website?: string;
+  };
+  skillsets: {
+    name: string;
+    level: string;
+    description?: string;
+    workExperience?: string;
+    portfolioUrls?: { url: string; title?: string; }[]; // Links to portfolio items for this skill
+  }[];
+  recommendationsCount: number;
+  averageRating: number;
+  totalReviews: number;
+  // In a real app, reviews would be an array of objects
+  // reviews: { reviewerName: string; rating: number; comment: string; date: string; }[];
+  // professionalFeed: any[]; // Placeholder for professional feed items
+}
