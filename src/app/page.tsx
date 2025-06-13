@@ -160,7 +160,7 @@ export default function AppRoot() {
           });
            toast({ title: "Driver Found!", description: "Your ride is on the way." });
       }, 6000);
-  }, [toast]); // Removed activityDetails from deps to avoid stale closure issues with the timeout check
+  }, [toast]); 
 
   useEffect(() => {
     if (isLoggedIn && (isDriverOnlineSim || activityDetails)) {
@@ -202,7 +202,7 @@ export default function AppRoot() {
             toast({ title: "You are Online (Driver Sim)", description: "Waiting for ride requests." });
 
             requestTimeout = setTimeout(() => {
-                if (isDriverOnlineSim && !activityDetails?.type && isLoggedIn) {
+                if (isDriverOnlineSim && (!activityDetails?.type || activityDetails?.type === 'driver_status') && isLoggedIn) {
                   console.log("Simulating driver receiving request");
                   setActivityDetails({
                       type: 'request',
@@ -210,14 +210,14 @@ export default function AppRoot() {
                       pickup: '123 Frontend St',
                       dropoff: '456 Backend Ave',
                       fare: '₹180',
-                      vehicleType: 'Car (Mini)', // Rider's preferred vehicle type for the request
-                      distance: '5 km',      // Estimated distance for the request
+                      vehicleType: 'Car (Mini)', 
+                      distance: '5 km',      
                   });
                   toast({ title: "New Ride Request! (Driver Sim)", description: "A user needs a ride." });
                 }
-            }, 8000); // 8 seconds after going online
+            }, 8000); 
         }
-      }, 5000); // 5 seconds after login (if conditions met)
+      }, 5000); 
       return () => {
         clearTimeout(onlineTimer);
         clearTimeout(requestTimeout);
@@ -233,23 +233,27 @@ export default function AppRoot() {
     }
   };
 
-  // Auto-open Active Activity View for Driver Requests
   useEffect(() => {
     if (isLoggedIn && activityDetails?.type === 'request' && !isActiveActivityViewVisible) {
         setIsActiveActivityViewVisible(true);
     }
   }, [isLoggedIn, activityDetails, isActiveActivityViewVisible]);
 
-  // --- Action Handlers for ActiveActivityView ---
   const handleAcceptRequest = useCallback(() => {
       console.log("Driver accepted request (Simulated)");
       if (activityDetails?.type === 'request') {
-          setActivityDetails(prevDetails => ({
-              ...prevDetails,
+          setActivityDetails(prevDetails => {
+            if (!prevDetails || prevDetails.type !== 'request') return prevDetails; // Type guard
+            return {
               type: 'ride', 
               status: 'en_route', 
-              vehicle: `Driver's ${prevDetails.vehicleType || 'Car'} - DRV123`, // Use requested type or default
-          }));
+              riderName: prevDetails.riderName,
+              pickup: prevDetails.pickup,
+              dropoff: prevDetails.dropoff,
+              fare: prevDetails.fare,
+              vehicle: `My ${prevDetails.vehicleType || 'Car'} - SIM123`, 
+            };
+          });
           toast({ title: "Ride Accepted", description: "Proceed to pickup location." });
       }
   }, [activityDetails, toast]);
@@ -263,7 +267,7 @@ export default function AppRoot() {
 
   const handleArrivedAtPickup = useCallback(() => {
       console.log("Driver arrived at pickup (Simulated)");
-      if (activityDetails?.type === 'ride' && (activityDetails.driverName || activityDetails.status === 'en_route')) { // Check if it's a driver's ride
+      if (activityDetails?.type === 'ride' && (activityDetails.status === 'en_route' && !activityDetails.driverName)) { // Driver's active ride
           setActivityDetails(prev => prev ? ({ ...prev, status: 'arrived' }) : null);
           toast({ title: "Arrived", description: "You have arrived at the pickup location." });
       }
@@ -271,7 +275,7 @@ export default function AppRoot() {
 
   const handleStartRide = useCallback(() => {
       console.log("Driver started ride (Simulated)");
-      if (activityDetails?.type === 'ride' && (activityDetails.driverName || activityDetails.status === 'arrived')) {
+      if (activityDetails?.type === 'ride' && (activityDetails.status === 'arrived' && !activityDetails.driverName)) { // Driver's active ride
           setActivityDetails(prev => prev ? ({ ...prev, status: 'on_the_way' }) : null);
           toast({ title: "Ride Started", description: "Ride in progress." });
       }
@@ -314,12 +318,10 @@ export default function AppRoot() {
       toast({ title: "Offline", description: "You are now offline." });
   }, [toast]);
 
-  // Simulate Driver Auto-Accepting Request
   useEffect(() => {
     let autoAcceptTimer: NodeJS.Timeout;
     if (isActiveActivityViewVisible && activityDetails?.type === 'request' && isLoggedIn) {
       autoAcceptTimer = setTimeout(() => {
-        // Ensure it's still a request and user is logged in before auto-accepting
         if (activityDetails?.type === 'request' && isLoggedIn) {
             console.log("Simulating driver auto-accept");
             handleAcceptRequest();
