@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { ArrowLeft, Briefcase, MessageSquare, ShoppingBag, Users, Info, ExternalLink, Phone, MapPin, Rss, ThumbsUp, MessageCircle as CommentIcon } from 'lucide-react';
+import { ArrowLeft, Briefcase, Building, MessageSquare, ShoppingBag, Users, Info, ExternalLink, Phone, MapPin, Rss, ThumbsUp, MessageCircle as CommentIcon } from 'lucide-react';
 import type { UserBusinessProfile, BusinessProduct, BusinessJob, BusinessFeedItem } from '@/types';
 import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
@@ -54,7 +54,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-4 left-4 bg-card/70 hover:bg-card text-card-foreground rounded-full"
+            className="absolute top-4 left-4 bg-card/70 hover:bg-card text-card-foreground rounded-full z-20" // Ensure back button is above cover
             onClick={onBack}
             aria-label="Go back"
           >
@@ -64,7 +64,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 
         {/* Profile Info Section */}
         <div className="p-4 md:p-6">
-          <div className="flex flex-col sm:flex-row items-start space-x-0 sm:space-x-6 -mt-16 sm:-mt-20">
+          <div className="relative z-10 flex flex-col sm:flex-row items-start space-x-0 sm:space-x-6 -mt-16 sm:-mt-20">
             <Image
               src={profile.logo || `https://placehold.co/120x120.png?text=${profile.name.substring(0,1)}`}
               alt={`${profile.name} Logo`}
