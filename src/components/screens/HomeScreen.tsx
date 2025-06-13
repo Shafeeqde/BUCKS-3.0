@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, MapPin, X } from 'lucide-react';
+import { Search, MapPin, X, User, Briefcase } from 'lucide-react'; // Added User and Briefcase
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,13 +11,15 @@ import { suggestSearchTerms, type SuggestSearchTermsInput } from '@/ai/flows/sug
 import { answerGeneralQuery, type GeneralQueryInput, type GeneralQueryOutput, type LocationResult } from '@/ai/flows/answer-general-query-flow';
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
+import IndividualProfessionalCard from '@/components/search/IndividualProfessionalCard'; // Import the new card
+import { dummyProfessionalProfiles } from '@/lib/dummy-data/professionals'; // Import dummy data
 
 const initialPlaceholders = [
   "What are you looking for?",
-  "Where are you going today?",
-  "Would you like to order something?",
-  "Search for local services...",
-  "Find nearby attractions...",
+  "Search professionals, services, or businesses...",
+  "e.g., Interior Designer, Plumber, Cafe",
+  "Find local experts...",
+  "Ask Locality Hub AI...",
 ];
 
 const HomeScreen = () => {
@@ -40,17 +42,25 @@ const HomeScreen = () => {
   const [isLoadingAiSuggestions, setIsLoadingAiSuggestions] = useState(false);
   const { toast } = useToast();
 
+  // For IndividualProfessionalCard actions (placeholders)
+  const handleProfileCardPress = (id: string) => toast({ title: `Card Pressed: ${id}`});
+  const handleEnquiryClick = (id: string) => toast({ title: `Enquiry for: ${id}` });
+  const handleCallClick = (id: string, phone?: string) => toast({ title: `Call ${id}`, description: phone ? `Dialing ${phone}` : "No phone number." });
+  const handleRecommendClick = (id: string) => toast({ title: `Recommend: ${id}` });
+  const handleShareClick = (id: string) => toast({ title: `Share: ${id}` });
+  const handleFollowClick = (id: string) => toast({ title: `Follow: ${id}` });
+
+
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
     if (!isSearchMode) {
-      setCurrentPlaceholder(initialPlaceholders[currentPlaceholderIndex]); // Set initial immediately
+      setCurrentPlaceholder(initialPlaceholders[currentPlaceholderIndex]);
       intervalId = setInterval(() => {
         setCurrentPlaceholderIndex(prevIndex => (prevIndex + 1) % initialPlaceholders.length);
-      }, 3000); // Change placeholder every 3 seconds
+      }, 3000);
     } else {
       setCurrentPlaceholder("Ask or search again...");
     }
-
     return () => clearInterval(intervalId);
   }, [isSearchMode, currentPlaceholderIndex]);
 
@@ -59,7 +69,6 @@ const HomeScreen = () => {
         setCurrentPlaceholder(initialPlaceholders[currentPlaceholderIndex]);
     }
   }, [currentPlaceholderIndex, isSearchMode]);
-
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -74,7 +83,6 @@ const HomeScreen = () => {
       const activeFormElement = document.activeElement?.closest('form');
       const activeSuggestionButton = document.activeElement?.closest('button[data-suggestion-item="true"]');
       const activeCloseButton = document.activeElement?.closest('button[data-close-search="true"]');
-
       if (!activeFormElement && !activeSuggestionButton && !activeCloseButton) {
         setShowSuggestions(false);
       }
@@ -193,7 +201,7 @@ const HomeScreen = () => {
     setCurrentQueryType(null);
     setShowSuggestions(false);
     setAiSuggestions([]);
-    setCurrentPlaceholderIndex(0); // Reset placeholder cycle
+    setCurrentPlaceholderIndex(0);
   };
 
   let currentSuggestions: string[] = [];
@@ -218,17 +226,17 @@ const HomeScreen = () => {
   const renderSuggestions = currentSuggestions.length > 0 && currentSuggestionTitle;
 
   const showMap = !isSearchMode;
-  const showResultsArea = isSearchMode && (isAnsweringQuery || aiTextAnswer || foundLocations.length > 0);
+  // Modified to show professional profiles in search mode
+  const showResultsArea = isSearchMode && (isAnsweringQuery || aiTextAnswer || foundLocations.length > 0 || dummyProfessionalProfiles.length > 0);
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* --- Search Bar and (conditionally) Suggestions Area --- */}
       <div
         className={cn(
           "transition-all duration-300 ease-in-out z-30",
           isSearchMode
             ? "bg-card shadow-md sticky top-0"
-            : "absolute bottom-0 left-0 right-0 px-4 pt-2 pb-0" // Changed py-2 to pt-2 pb-0
+            : "absolute bottom-0 left-0 right-0 px-4 pt-2 pb-0"
         )}
       >
         {!isSearchMode && renderSuggestions && (
@@ -294,7 +302,6 @@ const HomeScreen = () => {
         )}
       </div>
 
-      {/* --- Main Content Area: Map or Search Results --- */}
       <div className={cn(
           "flex-grow overflow-y-auto custom-scrollbar",
            showResultsArea ? "p-4" : "relative"
@@ -312,7 +319,7 @@ const HomeScreen = () => {
         )}
 
         {showResultsArea && (
-          <>
+          <div className="space-y-6">
             {isAnsweringQuery && (
                <div className="flex flex-col justify-center items-center h-full text-center">
                   <svg className="animate-spin h-8 w-8 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -324,10 +331,10 @@ const HomeScreen = () => {
             )}
 
             {!isAnsweringQuery && aiTextAnswer && (
-              <Card className="mb-4 shadow-lg">
+              <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-xl font-headline">
-                    {currentQueryType === 'location_search' ? "AI Summary:" : "Here is what we found for you:"}
+                    {currentQueryType === 'location_search' ? "AI Summary:" : "Here is what Locality Hub AI found:"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -337,36 +344,64 @@ const HomeScreen = () => {
             )}
 
             {!isAnsweringQuery && currentQueryType === 'location_search' && foundLocations.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-foreground font-headline">Places Found:</h3>
-                {foundLocations.map((location, index) => (
-                  <Card
-                    key={index}
-                    className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => handleLocationItemClick(location)}
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === 'Enter' && handleLocationItemClick(location)}
-                  >
-                    <CardContent className="pt-4">
-                      <div className="flex items-start space-x-3">
-                        <MapPin className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
-                        <div>
-                          <h4 className="font-semibold text-foreground">{location.name}</h4>
-                          <p className="text-sm text-muted-foreground">{location.address}</p>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground font-headline mb-3">Places Found:</h3>
+                <div className="space-y-3">
+                  {foundLocations.map((location, index) => (
+                    <Card
+                      key={index}
+                      className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => handleLocationItemClick(location)}
+                      tabIndex={0}
+                      onKeyDown={(e) => e.key === 'Enter' && handleLocationItemClick(location)}
+                    >
+                      <CardContent className="pt-4">
+                        <div className="flex items-start space-x-3">
+                          <MapPin className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                          <div>
+                            <h4 className="font-semibold text-foreground">{location.name}</h4>
+                            <p className="text-sm text-muted-foreground">{location.address}</p>
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             )}
 
-            {!isAnsweringQuery && !aiTextAnswer && foundLocations.length === 0 && (
-              <div className="text-center mt-8 text-muted-foreground">
-                <p>Ask a question or search for places, services, and more to see results here.</p>
+            {/* Display Individual Professional Cards */}
+            {!isAnsweringQuery && isSearchMode && dummyProfessionalProfiles.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-foreground font-headline mb-3 flex items-center">
+                  <User className="mr-2 h-5 w-5" /> Professionals Found:
+                </h3>
+                <div className="space-y-4">
+                  {dummyProfessionalProfiles.map((profile) => (
+                    <IndividualProfessionalCard
+                      key={profile.id}
+                      profile={profile}
+                      onPress={() => handleProfileCardPress(profile.id)}
+                      onEnquiryClick={() => handleEnquiryClick(profile.id)}
+                      onCallClick={() => handleCallClick(profile.id, profile.phone)}
+                      onRecommendClick={() => handleRecommendClick(profile.id)}
+                      onShareClick={() => handleShareClick(profile.id)}
+                      onFollowClick={() => handleFollowClick(profile.id)}
+                    />
+                  ))}
+                </div>
               </div>
             )}
-          </>
+            {/* TODO: Add BusinessProfileCard rendering here as well */}
+
+
+            {!isAnsweringQuery && !aiTextAnswer && foundLocations.length === 0 && currentQueryType!=='location_search' && (
+              <div className="text-center mt-8 text-muted-foreground">
+                <p>Ask a question or search for places, services, and more to see results here.</p>
+                 <p className="text-xs mt-2">(Currently showing dummy professional profiles for demonstration when search is active)</p>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>
@@ -374,4 +409,3 @@ const HomeScreen = () => {
 };
 
 export default HomeScreen;
-    
