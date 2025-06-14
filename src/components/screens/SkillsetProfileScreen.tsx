@@ -7,7 +7,21 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Star, ThumbsUp, MessageSquare as MessageSquareIcon, Mail, Phone, Globe, Briefcase, BookOpen, Rss, MapPin, ExternalLink, Link as LinkIcon, Info } from 'lucide-react';
+import { 
+    StarIcon, 
+    HandThumbUpIcon, 
+    ChatBubbleOvalLeftEllipsisIcon, 
+    EnvelopeIcon, 
+    PhoneIcon, 
+    GlobeAltIcon, 
+    BriefcaseIcon, 
+    BookOpenIcon, 
+    RssIcon, 
+    MapPinIcon, 
+    ArrowTopRightOnSquareIcon, 
+    LinkIcon, 
+    InformationCircleIcon 
+} from '@heroicons/react/24/outline';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, SkillsetProfileData, SkillsetSpecificWorkExperience, SkillsetSpecificPortfolioItem } from '@/types';
 import Image from 'next/image';
@@ -15,9 +29,7 @@ import { cn } from '@/lib/utils';
 
 interface SkillsetProfileScreenProps {
   setActiveTab: (tab: TabName) => void;
-  skillsetProfileId: string | null; // Can be null if no profile is selected yet
-  // Optional: Pass current user data if this screen can also show "My Skillset Profile"
-  // currentUserData?: any; 
+  skillsetProfileId: string | null; 
 }
 
 // --- Placeholder API Simulation Function ---
@@ -114,16 +126,16 @@ const simulateFetchSkillsetProfile = async (profileId: string): Promise<Skillset
   });
 };
 
-const StarRating: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 5, className = "h-5 w-5" }) => {
+const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 5, className = "h-5 w-5" }) => {
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5;
   const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
 
   return (
     <div className="flex items-center">
-      {[...Array(fullStars)].map((_, i) => <Star key={`full-${i}`} className={cn(className, "text-yellow-400 fill-yellow-400")} />)}
-      {halfStar && <Star key="half" className={cn(className, "text-yellow-400 fill-yellow-200")} />}
-      {[...Array(emptyStars)].map((_, i) => <Star key={`empty-${i}`} className={cn(className, "text-muted-foreground/50")} />)}
+      {[...Array(fullStars)].map((_, i) => <StarIcon key={`full-${i}`} className={cn(className, "text-yellow-400 fill-yellow-400")} />)}
+      {halfStar && <StarIcon key="half" className={cn(className, "text-yellow-400 fill-yellow-200")} />}
+      {[...Array(emptyStars)].map((_, i) => <StarIcon key={`empty-${i}`} className={cn(className, "text-muted-foreground/50")} />)}
     </div>
   );
 };
@@ -140,7 +152,6 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
     } else {
       setError("No skillset profile ID provided.");
       setLoading(false);
-      // Optionally, navigate away or show a different UI
     }
   }, [skillsetProfileId]);
 
@@ -167,7 +178,10 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4">
-        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <svg className="animate-spin h-12 w-12 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
         <p className="text-muted-foreground">Loading Skillset Profile...</p>
       </div>
     );
@@ -193,7 +207,6 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
   return (
     <ScrollArea className="h-full bg-background">
       <div className="max-w-5xl mx-auto p-4 sm:p-6 md:p-8">
-        {/* Profile Header */}
         <Card className="mb-6 shadow-lg">
           <CardContent className="pt-6 flex flex-col md:flex-row items-center md:items-start gap-6">
             <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-primary/20 flex-shrink-0">
@@ -211,58 +224,56 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
               <div className="flex flex-wrap justify-center md:justify-start items-center gap-x-4 gap-y-2 mb-4">
                 {profileData.averageRating > 0 && (
                   <div className="flex items-center gap-1">
-                    <StarRating rating={profileData.averageRating} />
+                    <StarRatingDisplay rating={profileData.averageRating} />
                     <span className="text-sm text-muted-foreground ml-1">({profileData.averageRating.toFixed(1)})</span>
                     <span className="text-sm text-muted-foreground hidden sm:inline"> ({profileData.totalReviews} reviews)</span>
                   </div>
                 )}
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <ThumbsUp className="h-4 w-4 text-green-500" />
+                  <HandThumbUpIcon className="h-4 w-4 text-green-500" />
                   <span>{profileData.recommendationsCount} Recommendations</span>
                 </div>
                 {profileData.averageRating > 0 && <span className="text-sm text-muted-foreground sm:hidden"> ({profileData.totalReviews} reviews)</span>}
               </div>
               <div className="flex flex-wrap justify-center md:justify-start gap-2">
                 <Button size="lg">
-                  <MessageSquareIcon className="mr-2 h-5 w-5" /> Enquire about {profileData.skillName.split(' ')[0]}
+                  <ChatBubbleOvalLeftEllipsisIcon className="mr-2 h-5 w-5" /> Enquire about {profileData.skillName.split(' ')[0]}
                 </Button>
-                {profileData.contactInfo?.phone && <Button size="lg" variant="outline"><Phone className="mr-2 h-5 w-5"/> Call</Button>}
+                {profileData.contactInfo?.phone && <Button size="lg" variant="outline"><PhoneIcon className="mr-2 h-5 w-5"/> Call</Button>}
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Main Content Grid */}
         <div className="grid md:grid-cols-3 gap-6">
-          {/* Left Column (Contact, etc.) */}
           <div className="md:col-span-1 space-y-6">
             {profileData.contactInfo && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center"><Mail className="mr-2 h-5 w-5 text-primary" />Contact Information</CardTitle>
+                  <CardTitle className="text-xl flex items-center"><EnvelopeIcon className="mr-2 h-5 w-5 text-primary" />Contact Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
                   {profileData.contactInfo.phone && (
                     <div className="flex items-center">
-                      <Phone className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
+                      <PhoneIcon className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
                       <a href={`tel:${profileData.contactInfo.phone}`} className="text-foreground hover:text-primary hover:underline">{profileData.contactInfo.phone}</a>
                     </div>
                   )}
                   {profileData.contactInfo.email && (
                     <div className="flex items-center">
-                      <Mail className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
+                      <EnvelopeIcon className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
                       <a href={`mailto:${profileData.contactInfo.email}`} className="text-foreground hover:text-primary hover:underline">{profileData.contactInfo.email}</a>
                     </div>
                   )}
                   {profileData.contactInfo.location && (
                     <div className="flex items-center">
-                      <MapPin className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
+                      <MapPinIcon className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
                       <span className="text-foreground">{profileData.contactInfo.location}</span>
                     </div>
                   )}
                   {profileData.contactInfo.website && (
                     <div className="flex items-center">
-                      <Globe className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
+                      <GlobeAltIcon className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
                       <a href={profileData.contactInfo.website} target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary hover:underline truncate">
                         {profileData.contactInfo.website.replace(/^https?:\/\//, '')}
                       </a>
@@ -273,18 +284,17 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
             )}
              {profileData.skillDescription && !profileData.skillSpecificBio && (
                 <Card>
-                    <CardHeader><CardTitle className="text-xl flex items-center"><Info className="mr-2 h-5 w-5 text-primary"/>Skill Description</CardTitle></CardHeader>
+                    <CardHeader><CardTitle className="text-xl flex items-center"><InformationCircleIcon className="mr-2 h-5 w-5 text-primary"/>Skill Description</CardTitle></CardHeader>
                     <CardContent><p className="text-sm text-muted-foreground">{profileData.skillDescription}</p></CardContent>
                 </Card>
             )}
           </div>
 
-          {/* Right Column (Work Experience, Portfolio, Feed, Reviews) */}
           <div className="md:col-span-2 space-y-6">
             {profileData.workExperienceEntries && profileData.workExperienceEntries.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center"><Briefcase className="mr-2 h-5 w-5 text-primary" />Work Experience</CardTitle>
+                  <CardTitle className="text-xl flex items-center"><BriefcaseIcon className="mr-2 h-5 w-5 text-primary" />Work Experience</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {profileData.workExperienceEntries.map((item) => (
@@ -301,7 +311,7 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
             {profileData.portfolioItems && profileData.portfolioItems.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center"><BookOpen className="mr-2 h-5 w-5 text-primary" />Portfolio</CardTitle>
+                  <CardTitle className="text-xl flex items-center"><BookOpenIcon className="mr-2 h-5 w-5 text-primary" />Portfolio</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {profileData.portfolioItems.map((item) => (
@@ -316,11 +326,10 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
                       {item.link && (
                         <Button variant="link" size="sm" asChild className="p-0 h-auto">
                           <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-xs">
-                            View Project <ExternalLink className="inline h-3 w-3 ml-1" />
+                            View Project <ArrowTopRightOnSquareIcon className="inline h-3 w-3 ml-1" />
                           </a>
                         </Button>
                       )}
-                      {/* TODO: Handle videoUrl */}
                     </div>
                   ))}
                 </CardContent>
@@ -330,7 +339,7 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
             {profileData.professionalFeed && profileData.professionalFeed.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center"><Rss className="mr-2 h-5 w-5 text-primary" />Professional Updates</CardTitle>
+                  <CardTitle className="text-xl flex items-center"><RssIcon className="mr-2 h-5 w-5 text-primary" />Professional Updates</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {profileData.professionalFeed.map((item) => (
@@ -361,7 +370,7 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
                     <div key={item.id} className="pb-4 border-b last:border-b-0">
                       <div className="flex justify-between items-center mb-1">
                         <h5 className="text-sm font-semibold text-foreground">{item.reviewerName}</h5>
-                        <StarRating rating={item.rating} size={4} className="h-4 w-4" />
+                        <StarRatingDisplay rating={item.rating} size={4} className="h-4 w-4" />
                       </div>
                       <p className="text-xs text-muted-foreground mb-1 italic">{item.comment}</p>
                       <p className="text-xs text-muted-foreground text-right">{item.date}</p>

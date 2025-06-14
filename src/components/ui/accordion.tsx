@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { ChevronDownIcon } from "@heroicons/react/24/outline" // Replaced ChevronDown
+import { ChevronDownIcon } from "@heroicons/react/24/outline"
 
 import { cn } from "@/lib/utils"
 

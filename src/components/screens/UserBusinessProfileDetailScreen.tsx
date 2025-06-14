@@ -9,9 +9,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { 
-    ArrowLeft, Briefcase, Building, MessageSquare, ShoppingBag, Users, Info, ExternalLink as ExternalLinkIcon, Phone, MapPin, Rss, ThumbsUp, 
-    MessageCircle as CommentIcon, Star, Video, CalendarDays, DollarSign, PlusCircle, MoreHorizontal, Settings, Edit, Trash2, UserPlus
-} from 'lucide-react';
+    ArrowLeftIcon, BriefcaseIcon, BuildingOfficeIcon, ChatBubbleOvalLeftEllipsisIcon, ShoppingBagIcon, UsersIcon, InformationCircleIcon, ArrowTopRightOnSquareIcon, PhoneIcon, MapPinIcon, RssIcon, HandThumbUpIcon, 
+    StarIcon, VideoCameraIcon, CalendarDaysIcon, CurrencyDollarIcon, PlusCircleIcon, EllipsisHorizontalIcon, Cog6ToothIcon, PencilSquareIcon, TrashIcon, UserPlusIcon 
+} from '@heroicons/react/24/outline';
 import type { UserBusinessProfile, BusinessProduct, BusinessJob, BusinessFeedItem, BusinessService, BusinessReview } from '@/types';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
@@ -31,9 +31,9 @@ const StarRating: React.FC<{ rating: number; size?: number; className?: string }
   const iconSizeClass = `w-${size} h-${size}`;
   return (
     <div className={cn("flex items-center", className)}>
-      {[...Array(fullStars)].map((_, i) => <Star key={`full-${i}`} className={cn(iconSizeClass, "text-yellow-400 fill-yellow-400")} />)}
-      {halfStar && <Star key="half" className={cn(iconSizeClass, "text-yellow-400 fill-yellow-200")} />}
-      {[...Array(emptyStars)].map((_, i) => <Star key={`empty-${i}`} className={cn(iconSizeClass, "text-muted-foreground/30")} />)}
+      {[...Array(fullStars)].map((_, i) => <StarIcon key={`full-${i}`} className={cn(iconSizeClass, "text-yellow-400 fill-yellow-400")} />)}
+      {halfStar && <StarIcon key="half" className={cn(iconSizeClass, "text-yellow-400 fill-yellow-200")} />}
+      {[...Array(emptyStars)].map((_, i) => <StarIcon key={`empty-${i}`} className={cn(iconSizeClass, "text-muted-foreground/30")} />)}
     </div>
   );
 };
@@ -48,11 +48,11 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
   if (!profile) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-        <Building className="w-16 h-16 text-muted-foreground mb-4" />
+        <BuildingOfficeIcon className="w-16 h-16 text-muted-foreground mb-4" />
         <h2 className="text-xl font-semibold text-muted-foreground">Profile Not Found</h2>
         <p className="text-muted-foreground mb-6">The business profile you are looking for does not exist or could not be loaded.</p>
         <Button onClick={onBack}>
-          <ArrowLeft className="mr-2 h-4 w-4" /> Go Back
+          <ArrowLeftIcon className="mr-2 h-4 w-4" /> Go Back
         </Button>
       </div>
     );
@@ -77,7 +77,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
             onClick={onBack}
             aria-label="Go back"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeftIcon className="h-5 w-5" />
           </Button>
           {profile.coverPhoto ? (
             <Image
@@ -91,12 +91,12 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
             />
           ) : (
             <div className="w-full h-48 md:h-60 bg-muted flex items-center justify-center">
-              <Building className="w-16 h-16 text-muted-foreground" />
+              <BuildingOfficeIcon className="w-16 h-16 text-muted-foreground" />
             </div>
           )}
           {profile.averageRating && profile.totalReviews ? (
             <Badge variant="secondary" className="absolute top-4 right-4 bg-black/50 text-white backdrop-blur-sm text-sm py-1.5 px-3 rounded-full shadow-md">
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1.5"/> {profile.averageRating.toFixed(1)} Ratings ({profile.totalReviews})
+                <StarIcon className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1.5"/> {profile.averageRating.toFixed(1)} Ratings ({profile.totalReviews})
             </Badge>
           ) : null}
         </div>
@@ -125,38 +125,38 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
           {profile.bio && <p className="text-sm text-foreground mt-4 whitespace-pre-line">{profile.bio}</p>}
           {profile.website && (
             <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline mt-2 flex items-center">
-              <ExternalLinkIcon className="h-4 w-4 mr-1.5"/> {profile.website.replace(/^https?:\/\//, '')}
+              <ArrowTopRightOnSquareIcon className="h-4 w-4 mr-1.5"/> {profile.website.replace(/^https?:\/\//, '')}
             </a>
           )}
         </div>
         
         <div className="px-4 md:px-6 pb-4 flex items-center gap-2">
             <Button onClick={handleFollow} className="flex-grow bg-primary hover:bg-primary/90 text-primary-foreground">
-                <UserPlus className="mr-2 h-4 w-4" /> Follow
+                <UserPlusIcon className="mr-2 h-4 w-4" /> Follow
             </Button>
             <Button variant="outline" onClick={handleMessage} className="flex-grow">
-                <MessageSquare className="mr-2 h-4 w-4" /> Message
+                <ChatBubbleOvalLeftEllipsisIcon className="mr-2 h-4 w-4" /> Message
             </Button>
             <Tooltip>
               <TooltipTrigger asChild>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" size="icon" aria-label="More options">
-                            <MoreHorizontal className="h-4 w-4" />
+                            <EllipsisHorizontalIcon className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => toast({title: "Share Profile (Simulated)"})}>
-                            <ExternalLinkIcon className="mr-2 h-4 w-4" /> Share Profile
+                            <ArrowTopRightOnSquareIcon className="mr-2 h-4 w-4" /> Share Profile
                         </DropdownMenuItem>
                          {profile.phone && 
                             <DropdownMenuItem onClick={() => toast({title: `Calling ${profile.phone} (Simulated)`})}>
-                                <Phone className="mr-2 h-4 w-4" /> Call Business
+                                <PhoneIcon className="mr-2 h-4 w-4" /> Call Business
                             </DropdownMenuItem>
                         }
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => toast({title: "Report Profile (Simulated)"})} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                            <Info className="mr-2 h-4 w-4" /> Report
+                            <InformationCircleIcon className="mr-2 h-4 w-4" /> Report
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -169,10 +169,10 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 
         <Tabs defaultValue="products" className="w-full px-2 sm:px-4 md:px-6 pb-6">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-4 h-auto bg-muted rounded-md">
-            <TabsTrigger value="products" className="py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm text-sm"><ShoppingBag className="mr-1.5 h-4 w-4 hidden sm:inline-flex"/>Products</TabsTrigger>
-            <TabsTrigger value="services" className="py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm text-sm"><Briefcase className="mr-1.5 h-4 w-4 hidden sm:inline-flex"/>Services</TabsTrigger>
-            <TabsTrigger value="posts" className="py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm text-sm"><Rss className="mr-1.5 h-4 w-4 hidden sm:inline-flex"/>Posts</TabsTrigger>
-            <TabsTrigger value="about" className="py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm text-sm"><Info className="mr-1.5 h-4 w-4 hidden sm:inline-flex"/>About Us</TabsTrigger>
+            <TabsTrigger value="products" className="py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm text-sm"><ShoppingBagIcon className="mr-1.5 h-4 w-4 hidden sm:inline-flex"/>Products</TabsTrigger>
+            <TabsTrigger value="services" className="py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm text-sm"><BriefcaseIcon className="mr-1.5 h-4 w-4 hidden sm:inline-flex"/>Services</TabsTrigger>
+            <TabsTrigger value="posts" className="py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm text-sm"><RssIcon className="mr-1.5 h-4 w-4 hidden sm:inline-flex"/>Posts</TabsTrigger>
+            <TabsTrigger value="about" className="py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm text-sm"><InformationCircleIcon className="mr-1.5 h-4 w-4 hidden sm:inline-flex"/>About Us</TabsTrigger>
           </TabsList>
 
           <TabsContent value="products">
@@ -218,13 +218,13 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
               <Card key={item.id} className="shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="pt-6">
                   {item.image && <div className="relative aspect-video w-full mb-3 rounded-md overflow-hidden"><Image src={item.image} alt="Feed image" layout="fill" objectFit="cover" data-ai-hint={item.imageAiHint || "social media post"}/></div>}
-                  {item.videoUrl && <div className="relative aspect-video w-full mb-3 rounded-md overflow-hidden bg-black flex items-center justify-center text-card-foreground"><Video className="w-12 h-12 opacity-70" /> <span className="ml-2">Video Placeholder</span></div> }
+                  {item.videoUrl && <div className="relative aspect-video w-full mb-3 rounded-md overflow-hidden bg-black flex items-center justify-center text-card-foreground"><VideoCameraIcon className="w-12 h-12 opacity-70" /> <span className="ml-2">Video Placeholder</span></div> }
                   <p className="text-foreground mb-2 whitespace-pre-line">{item.content}</p>
                   <p className="text-xs text-muted-foreground">{item.timestamp}</p>
                    <div className="flex items-center text-muted-foreground text-sm mt-3 pt-3 border-t">
-                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary"><ThumbsUp className="mr-1 h-4 w-4" /> Like</Button>
-                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary"><CommentIcon className="mr-1 h-4 w-4" /> Comment</Button>
-                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary ml-auto"><ExternalLinkIcon className="mr-1 h-4 w-4" /> Share</Button>
+                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary"><HandThumbUpIcon className="mr-1 h-4 w-4" /> Like</Button>
+                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary"><ChatBubbleOvalLeftEllipsisIcon className="mr-1 h-4 w-4" /> Comment</Button>
+                      <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary ml-auto"><ArrowTopRightOnSquareIcon className="mr-1 h-4 w-4" /> Share</Button>
                     </div>
                 </CardContent>
               </Card>
@@ -244,9 +244,9 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                             </div>
                             </div>
                         )}
-                         {profile.location && <p className="flex items-center pt-3 border-t mt-4"><MapPin className="h-4 w-4 mr-2 text-muted-foreground"/> {profile.location}</p>}
-                         {profile.phone && <p className="flex items-center pt-2 mt-2"><Phone className="h-4 w-4 mr-2 text-muted-foreground"/> {profile.phone}</p>}
-                         {profile.email && <p className="flex items-center pt-2 mt-2"><ExternalLinkIcon className="h-4 w-4 mr-2 text-muted-foreground"/> <a href={`mailto:${profile.email}`} className="hover:underline">{profile.email}</a></p>}
+                         {profile.location && <p className="flex items-center pt-3 border-t mt-4"><MapPinIcon className="h-4 w-4 mr-2 text-muted-foreground"/> {profile.location}</p>}
+                         {profile.phone && <p className="flex items-center pt-2 mt-2"><PhoneIcon className="h-4 w-4 mr-2 text-muted-foreground"/> {profile.phone}</p>}
+                         {profile.email && <p className="flex items-center pt-2 mt-2"><ArrowTopRightOnSquareIcon className="h-4 w-4 mr-2 text-muted-foreground"/> <a href={`mailto:${profile.email}`} className="hover:underline">{profile.email}</a></p>}
                     </CardContent>
                 </Card>
                 {profile.jobs && profile.jobs.length > 0 && (
@@ -257,12 +257,12 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                             <div key={job.id} className="pb-3 border-b last:border-b-0">
                                 <h4 className="text-md font-semibold text-foreground">{job.title}</h4>
                                 <div className="text-xs text-muted-foreground space-y-0.5 mt-1">
-                                    {job.location && <p className="flex items-center"><MapPin className="h-3.5 w-3.5 mr-1"/>{job.location}</p>}
-                                    {job.type && <p className="flex items-center"><Briefcase className="h-3.5 w-3.5 mr-1"/>{job.type}</p>}
-                                    {job.postedDate && <p className="flex items-center"><CalendarDays className="h-3.5 w-3.5 mr-1"/>Posted: {job.postedDate}</p>}
+                                    {job.location && <p className="flex items-center"><MapPinIcon className="h-3.5 w-3.5 mr-1"/>{job.location}</p>}
+                                    {job.type && <p className="flex items-center"><BriefcaseIcon className="h-3.5 w-3.5 mr-1"/>{job.type}</p>}
+                                    {job.postedDate && <p className="flex items-center"><CalendarDaysIcon className="h-3.5 w-3.5 mr-1"/>Posted: {job.postedDate}</p>}
                                 </div>
                                 {job.description && <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{job.description}</p>}
-                                <Button size="sm" className="mt-3" onClick={() => handleApplyJob(job)}><PlusCircle className="mr-2 h-4 w-4"/>Apply Now</Button>
+                                <Button size="sm" className="mt-3" onClick={() => handleApplyJob(job)}><PlusCircleIcon className="mr-2 h-4 w-4"/>Apply Now</Button>
                             </div>
                         ))}
                         </CardContent>
@@ -298,4 +298,6 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 };
 
 export default UserBusinessProfileDetailScreen;
+    
+
     
