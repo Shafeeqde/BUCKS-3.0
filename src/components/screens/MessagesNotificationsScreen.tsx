@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { X, Bell, MessageCircle, CheckCheck, Mail, AlertTriangle, Gift, User } from 'lucide-react'; // Added User import
+import { X, Bell, MessageCircle, CheckCheck, Mail, AlertTriangle, Gift, User } from 'lucide-react';
 import type { MessageItem, NotificationItem } from '@/types';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -16,9 +16,9 @@ interface MessagesNotificationsScreenProps {
 }
 
 const initialMessages: MessageItem[] = [
-  { id: 1, sender: 'Shafeeq', senderImage: 'https://source.unsplash.com/40x40/?man,portrait', senderImageAiHint: 'man portrait', subject: 'Regarding your recent post', content: 'Hi, I saw your post about Diwali celebrations and wanted to share some thoughts...', timestamp: '2 hours ago', read: false },
-  { id: 2, sender: 'Mikado UX UI', senderImage: 'https://source.unsplash.com/40x40/?company,logo', senderImageAiHint: 'company logo', subject: 'Job Application Follow-up', content: 'Dear applicant, thank you for your interest in the Graphic Designer position...', timestamp: '5 hours ago', read: false },
-  { id: 3, sender: 'Admin Support', senderImage: 'https://source.unsplash.com/40x40/?support,icon', senderImageAiHint: 'support icon', subject: 'Welcome to Bucks!', content: 'Welcome to our platform! We are excited to have you on board.', timestamp: '1 day ago', read: true },
+  { id: 1, sender: 'Shafeeq', senderImage: 'https://source.unsplash.com/random/40x40/?man,portrait', senderImageAiHint: 'man portrait', subject: 'Regarding your recent post', content: 'Hi, I saw your post about Diwali celebrations and wanted to share some thoughts...', timestamp: '2 hours ago', read: false },
+  { id: 2, sender: 'Mikado UX UI', senderImage: 'https://source.unsplash.com/random/40x40/?company,logo', senderImageAiHint: 'company logo', subject: 'Job Application Follow-up', content: 'Dear applicant, thank you for your interest in the Graphic Designer position...', timestamp: '5 hours ago', read: false },
+  { id: 3, sender: 'Admin Support', senderImage: 'https://source.unsplash.com/random/40x40/?support,icon', senderImageAiHint: 'support icon', subject: 'Welcome to Bucks!', content: 'Welcome to our platform! We are excited to have you on board.', timestamp: '1 day ago', read: true },
 ];
 
 const initialNotifications: NotificationItem[] = [

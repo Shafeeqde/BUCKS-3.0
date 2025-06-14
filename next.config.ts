@@ -21,10 +21,12 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'source.unsplash.com',
         port: '',
-        pathname: '/**',
+        pathname: '/**', // This will cover /random/ and direct paths
       },
     ],
   },
 };
 
 export default nextConfig;
+
+    

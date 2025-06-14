@@ -26,7 +26,7 @@ const simulateFetchIndividualProfile = async (profileId: string): Promise<Indivi
       const mockProfileData: IndividualProfileData = {
         id: profileId,
         name: 'Alice Wonderland',
-        avatarUrl: 'https://source.unsplash.com/120x120/?woman,smiling',
+        avatarUrl: 'https://source.unsplash.com/random/120x120/?woman,smiling',
         avatarAiHint: 'woman smiling',
         bio: 'Creative UX/UI designer and frontend developer with a passion for crafting intuitive and engaging digital experiences. Proficient in modern design tools and web technologies.',
         contactInfo: {
@@ -294,3 +294,4 @@ const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setAc
 };
 
 export default IndividualProfileScreen;
+    

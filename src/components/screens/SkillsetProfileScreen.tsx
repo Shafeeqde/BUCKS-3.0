@@ -32,7 +32,7 @@ const simulateFetchSkillsetProfile = async (profileId: string): Promise<Skillset
           skillLevel: 'Certified Professional',
           skillDescription: 'Providing reliable and efficient plumbing solutions for residential and commercial properties. Specializing in repairs, installations, and maintenance.',
           userName: 'John Doe',
-          userAvatarUrl: 'https://source.unsplash.com/120x120/?man,plumber',
+          userAvatarUrl: 'https://source.unsplash.com/random/120x120/?man,plumber',
           userAvatarAiHint: 'man plumber',
           professionalTitle: 'Master Plumber',
           skillSpecificBio: 'With over 10 years of dedicated experience in the plumbing industry, I offer comprehensive solutions tailored to your needs. Committed to quality workmanship and customer satisfaction.',
@@ -47,11 +47,11 @@ const simulateFetchSkillsetProfile = async (profileId: string): Promise<Skillset
             { id: 'pw2', title: 'Apprentice Plumber', company: 'Pro Plumb Apprent.', years: '2013 - 2015', description: 'Assisted senior plumbers on various projects, gaining hands-on experience in pipe fitting, fixture installation, and repair techniques.' },
           ],
           portfolioItems: [
-            { id: 'pp1', title: 'Bathroom Renovation Project', imageUrl: 'https://source.unsplash.com/600x400/?modern,bathroom,plumbing', imageAiHint: 'modern bathroom plumbing', description: 'Complete plumbing overhaul for a luxury bathroom remodel, including installation of new pipes, shower systems, and high-efficiency fixtures.', link: '#' },
-            { id: 'pp2', title: 'Commercial Kitchen Installation', imageUrl: 'https://source.unsplash.com/600x400/?commercial,kitchen,pipes', imageAiHint: 'commercial kitchen pipes', description: 'Designed and implemented the full plumbing system for a new restaurant kitchen, ensuring compliance with all health and safety codes.', link: '#' },
+            { id: 'pp1', title: 'Bathroom Renovation Project', imageUrl: 'https://source.unsplash.com/random/600x400/?modern,bathroom,plumbing', imageAiHint: 'modern bathroom plumbing', description: 'Complete plumbing overhaul for a luxury bathroom remodel, including installation of new pipes, shower systems, and high-efficiency fixtures.', link: '#' },
+            { id: 'pp2', title: 'Commercial Kitchen Installation', imageUrl: 'https://source.unsplash.com/random/600x400/?commercial,kitchen,pipes', imageAiHint: 'commercial kitchen pipes', description: 'Designed and implemented the full plumbing system for a new restaurant kitchen, ensuring compliance with all health and safety codes.', link: '#' },
           ],
           professionalFeed: [
-            { id: 'pf1', content: 'Just shared some quick tips for preventing common household leaks on my blog! #plumbingtips', imageUrl: 'https://source.unsplash.com/400x200/?water,tap', imageAiHint: 'water tap', timestamp: '1 week ago' },
+            { id: 'pf1', content: 'Just shared some quick tips for preventing common household leaks on my blog! #plumbingtips', imageUrl: 'https://source.unsplash.com/random/400x200/?water,tap', imageAiHint: 'water tap', timestamp: '1 week ago' },
             { id: 'pf2', content: 'Successfully completed a major repiping job for a historic building downtown. Challenging but rewarding!', timestamp: '3 days ago' },
           ],
           reviews: [
@@ -71,7 +71,7 @@ const simulateFetchSkillsetProfile = async (profileId: string): Promise<Skillset
           skillLevel: 'Lead Stylist & Consultant',
           skillDescription: 'Transforming spaces into beautiful, functional, and personalized environments. Specializing in modern, minimalist, and eclectic styles.',
           userName: 'Jenson Harris',
-          userAvatarUrl: 'https://source.unsplash.com/120x120/?man,interior,designer',
+          userAvatarUrl: 'https://source.unsplash.com/random/120x120/?man,interior,designer',
           userAvatarAiHint: 'man interior designer',
           professionalTitle: 'Interior Home Stylist',
           skillSpecificBio: 'A passionate interior stylist with a keen eye for detail and a commitment to creating spaces that inspire. My approach is collaborative, ensuring your vision is at the heart of every design.',
@@ -86,12 +86,12 @@ const simulateFetchSkillsetProfile = async (profileId: string): Promise<Skillset
             { id: 'jw2', title: 'Junior Interior Designer', company: 'Urban Aesthetics Inc.', years: '2016 - 2018', description: 'Assisted senior designers in material sourcing, mood board creation, and client presentations for diverse interior projects.' },
           ],
           portfolioItems: [
-            { id: 'jp1', title: 'Downtown Loft Transformation', imageUrl: 'https://source.unsplash.com/600x400/?modern,loft,apartment', imageAiHint: 'modern loft apartment', description: 'Complete styling of a 2-bedroom downtown loft, focusing on maximizing space and light with custom furniture and art.', link: '#' },
-            { id: 'jp2', title: 'Minimalist Scandinavian Home', imageUrl: 'https://source.unsplash.com/600x400/?scandinavian,interior,design', imageAiHint: 'scandinavian interior design', description: 'Styled a family home with a minimalist Scandinavian aesthetic, emphasizing natural materials and a serene color palette.', link: '#' },
-            { id: 'jp3', title: 'Eclectic Living Room Concept', imageUrl: 'https://source.unsplash.com/600x400/?eclectic,living,room', imageAiHint: 'eclectic living room', description: 'Designed an eclectic living space blending vintage finds with contemporary pieces to reflect the client\'s unique personality.', link: '#' },
+            { id: 'jp1', title: 'Downtown Loft Transformation', imageUrl: 'https://source.unsplash.com/random/600x400/?modern,loft,apartment', imageAiHint: 'modern loft apartment', description: 'Complete styling of a 2-bedroom downtown loft, focusing on maximizing space and light with custom furniture and art.', link: '#' },
+            { id: 'jp2', title: 'Minimalist Scandinavian Home', imageUrl: 'https://source.unsplash.com/random/600x400/?scandinavian,interior,design', imageAiHint: 'scandinavian interior design', description: 'Styled a family home with a minimalist Scandinavian aesthetic, emphasizing natural materials and a serene color palette.', link: '#' },
+            { id: 'jp3', title: 'Eclectic Living Room Concept', imageUrl: 'https://source.unsplash.com/random/600x400/?eclectic,living,room', imageAiHint: 'eclectic living room', description: 'Designed an eclectic living space blending vintage finds with contemporary pieces to reflect the client\'s unique personality.', link: '#' },
           ],
           professionalFeed: [
-            { id: 'jf1', content: 'New blog post: "Top 5 Color Trends for Interiors in 2024". Check it out!', imageUrl: 'https://source.unsplash.com/400x200/?color,swatches', imageAiHint: 'color swatches', timestamp: '2 days ago' },
+            { id: 'jf1', content: 'New blog post: "Top 5 Color Trends for Interiors in 2024". Check it out!', imageUrl: 'https://source.unsplash.com/random/400x200/?color,swatches', imageAiHint: 'color swatches', timestamp: '2 days ago' },
             { id: 'jf2', content: 'Thrilled to have a recent project featured in "Modern Home Digest"! #interiordesign', timestamp: '1 week ago' },
           ],
           reviews: [
@@ -381,4 +381,4 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
 };
 
 export default SkillsetProfileScreen;
-
+    

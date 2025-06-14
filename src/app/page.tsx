@@ -22,8 +22,8 @@ import ActiveActivityView from '@/components/activity/ActiveActivityView';
 import IndividualProfileScreen from '@/components/screens/IndividualProfileScreen';
 import SkillsetProfileScreen from '@/components/screens/SkillsetProfileScreen';
 import SkillsetProfileManagementScreen from '@/components/screens/SkillsetProfileManagementScreen';
-import JobBoardScreen from '@/components/screens/JobBoardScreen'; // New import
-import JobDetailScreen from '@/components/screens/JobDetailScreen'; // New import
+import JobBoardScreen from '@/components/screens/JobBoardScreen';
+import JobDetailScreen from '@/components/screens/JobDetailScreen';
 
 
 import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob } from '@/types';
@@ -34,8 +34,8 @@ export const initialBusinessProfiles: UserBusinessProfile[] = [
   {
     id: 1,
     name: 'Hot Griddle Restaurant',
-    logo: 'https://source.unsplash.com/80x80/?restaurant,logo', logoAiHint: 'restaurant logo',
-    coverPhoto: 'https://source.unsplash.com/1200x300/?restaurant,food,noodles', coverPhotoAiHint: 'restaurant food noodles',
+    logo: 'https://source.unsplash.com/random/80x80/?restaurant,logo', logoAiHint: 'restaurant logo',
+    coverPhoto: 'https://source.unsplash.com/random/1200x300/?restaurant,food,noodles', coverPhotoAiHint: 'restaurant food noodles',
     bio: 'International, locally sourced specialties, breakfast & mocktails offered in a relaxed restaurant. We pride ourselves on fresh ingredients and a vibrant atmosphere perfect for any occasion. Come taste the difference!',
     website: 'https://hotgriddle.in/',
     phone: '+91 9876543210',
@@ -46,17 +46,17 @@ export const initialBusinessProfiles: UserBusinessProfile[] = [
     following: 380,
     isActive: true,
     feed: [
-      { id: 'bf1', content: 'Exciting new menu items just dropped! Come try our new sizzlers and expanded mocktail selection. Photos coming soon!', image: 'https://source.unsplash.com/600x350/?menu,item,food', imageAiHint: 'menu item food', timestamp: '2 hours ago' },
+      { id: 'bf1', content: 'Exciting new menu items just dropped! Come try our new sizzlers and expanded mocktail selection. Photos coming soon!', image: 'https://source.unsplash.com/random/600x350/?menu,item,food', imageAiHint: 'menu item food', timestamp: '2 hours ago' },
       { id: 'bf2', content: 'Happy Hour extended! Enjoy 20% off on all beverages from 4 PM to 7 PM daily. Bring your friends!', timestamp: '1 day ago' },
-      { id: 'bf3', content: 'Weekend special: Live music every Friday and Saturday night! Experience great food with amazing tunes.', image: 'https://source.unsplash.com/600x350/?live,music,band', imageAiHint: 'live music band', timestamp: '3 days ago' },
+      { id: 'bf3', content: 'Weekend special: Live music every Friday and Saturday night! Experience great food with amazing tunes.', image: 'https://source.unsplash.com/random/600x350/?live,music,band', imageAiHint: 'live music band', timestamp: '3 days ago' },
     ],
     products: [
-      { id: 'prod-biryani-101', name: 'Biryani', price: '₹299', discountPrice: '₹229', discountPercentage: '23%', imageUrl: 'https://source.unsplash.com/100x100/?biryani,food', imageAiHint: 'biryani food', description: 'Aromatic basmati rice cooked with tender mutton pieces and exotic spices. A house specialty, perfect for a hearty meal.' },
-      { id: 'prod-pizza-102', name: 'Pizza', price: '₹350', imageUrl: 'https://source.unsplash.com/100x100/?pizza,slice', imageAiHint: 'pizza slice', description: 'Thin crust pizza topped with spicy chicken, bell peppers, onions, and mozzarella. Customizable toppings available.' },
-      { id: 'prod-burger-103', name: 'Burger', price: '₹180', imageUrl: 'https://source.unsplash.com/100x100/?burger,meal', imageAiHint: 'burger meal', description: 'A delicious veg patty (or chicken option) with fresh lettuce, tomatoes, onions, and our special sauce. Served with fries.' },
-      { id: 'prod-sandwich-104', name: 'Sandwich', price: '₹150', imageUrl: 'https://source.unsplash.com/100x100/?club,sandwich', imageAiHint: 'club sandwich', description: 'Classic grilled sandwich with your choice of filling - veg, chicken, or paneer. Perfect for a quick bite.' },
-      { id: 'prod-cakes-105', name: 'Cakes', price: '₹450', imageUrl: 'https://source.unsplash.com/100x100/?chocolate,cake', imageAiHint: 'chocolate cake', description: 'Delicious cakes for all occasions. Order in advance for custom designs. Slices also available.' },
-      { id: 'prod-rolls-106', name: 'Rolls', price: '₹120', imageUrl: 'https://source.unsplash.com/100x100/?spring,rolls', imageAiHint: 'spring rolls', description: 'Crispy and flavorful rolls with various fillings like veg, chicken, or paneer. Served with dipping sauce.' },
+      { id: 'prod-biryani-101', name: 'Biryani', price: '₹299', discountPrice: '₹229', discountPercentage: '23%', imageUrl: 'https://source.unsplash.com/random/100x100/?biryani,food', imageAiHint: 'biryani food', description: 'Aromatic basmati rice cooked with tender mutton pieces and exotic spices. A house specialty, perfect for a hearty meal.' },
+      { id: 'prod-pizza-102', name: 'Pizza', price: '₹350', imageUrl: 'https://source.unsplash.com/random/100x100/?pizza,slice', imageAiHint: 'pizza slice', description: 'Thin crust pizza topped with spicy chicken, bell peppers, onions, and mozzarella. Customizable toppings available.' },
+      { id: 'prod-burger-103', name: 'Burger', price: '₹180', imageUrl: 'https://source.unsplash.com/random/100x100/?burger,meal', imageAiHint: 'burger meal', description: 'A delicious veg patty (or chicken option) with fresh lettuce, tomatoes, onions, and our special sauce. Served with fries.' },
+      { id: 'prod-sandwich-104', name: 'Sandwich', price: '₹150', imageUrl: 'https://source.unsplash.com/random/100x100/?club,sandwich', imageAiHint: 'club sandwich', description: 'Classic grilled sandwich with your choice of filling - veg, chicken, or paneer. Perfect for a quick bite.' },
+      { id: 'prod-cakes-105', name: 'Cakes', price: '₹450', imageUrl: 'https://source.unsplash.com/random/100x100/?chocolate,cake', imageAiHint: 'chocolate cake', description: 'Delicious cakes for all occasions. Order in advance for custom designs. Slices also available.' },
+      { id: 'prod-rolls-106', name: 'Rolls', price: '₹120', imageUrl: 'https://source.unsplash.com/random/100x100/?spring,rolls', imageAiHint: 'spring rolls', description: 'Crispy and flavorful rolls with various fillings like veg, chicken, or paneer. Served with dipping sauce.' },
     ],
     services: [
         {id: 'serv1', name: 'Dine-in Experience', description: 'Enjoy our comfortable and vibrant restaurant ambiance for a delightful meal with family and friends.', price: 'Varies'},
@@ -65,8 +65,8 @@ export const initialBusinessProfiles: UserBusinessProfile[] = [
         {id: 'serv4', name: 'Home Delivery (Partnered)', description: 'Get your favorite meals delivered to your doorstep through our delivery partners (Swiggy, Zomato).', price: 'Varies'},
     ],
     jobs: [
-      { id: 'job-chef-1', businessId: 1, businessName: 'Hot Griddle Restaurant', businessLogoUrl: 'https://source.unsplash.com/80x80/?restaurant,logo', title: 'Head Chef', location: 'BTM Layout, Bangalore', type: 'Full-time', postedDate: '2024-05-20', salaryRange: '₹60,000 - ₹80,000 per month', description: 'Seeking an experienced Head Chef with expertise in multi-cuisine cooking and kitchen management. Must have a passion for creating innovative dishes and leading a team. Competitive salary and benefits package.', requirements: ['5+ years experience as Head Chef', 'Proven kitchen management skills', 'Degree in Culinary Arts preferred'] },
-      { id: 'job-waiter-2', businessId: 1, businessName: 'Hot Griddle Restaurant', businessLogoUrl: 'https://source.unsplash.com/80x80/?restaurant,logo', title: 'Service Staff / Waiter', location: 'BTM Layout, Bangalore', type: 'Part-time', postedDate: '2024-05-18', salaryRange: '₹12,000 - ₹15,000 per month (pro-rata)', description: 'Looking for energetic and customer-friendly service staff for weekend shifts. Good communication skills and ability to work in a fast-paced environment required.', requirements: ['Excellent communication skills', 'Previous F&B experience a plus', 'Ability to work evenings and weekends'] },
+      { id: 'job-chef-1', businessId: 1, businessName: 'Hot Griddle Restaurant', businessLogoUrl: 'https://source.unsplash.com/random/80x80/?restaurant,logo', title: 'Head Chef', location: 'BTM Layout, Bangalore', type: 'Full-time', postedDate: '2024-05-20', salaryRange: '₹60,000 - ₹80,000 per month', description: 'Seeking an experienced Head Chef with expertise in multi-cuisine cooking and kitchen management. Must have a passion for creating innovative dishes and leading a team. Competitive salary and benefits package.', requirements: ['5+ years experience as Head Chef', 'Proven kitchen management skills', 'Degree in Culinary Arts preferred'] },
+      { id: 'job-waiter-2', businessId: 1, businessName: 'Hot Griddle Restaurant', businessLogoUrl: 'https://source.unsplash.com/random/80x80/?restaurant,logo', title: 'Service Staff / Waiter', location: 'BTM Layout, Bangalore', type: 'Part-time', postedDate: '2024-05-18', salaryRange: '₹12,000 - ₹15,000 per month (pro-rata)', description: 'Looking for energetic and customer-friendly service staff for weekend shifts. Good communication skills and ability to work in a fast-paced environment required.', requirements: ['Excellent communication skills', 'Previous F&B experience a plus', 'Ability to work evenings and weekends'] },
     ],
     reviews: [
         { id: 'rev1', reviewerName: 'Aisha K.', rating: 5, comment: 'The biryani was absolutely fantastic! Best I have had in Bangalore. Ambiance is great too. Will visit again!', date: '2024-05-15'},
@@ -79,8 +79,8 @@ export const initialBusinessProfiles: UserBusinessProfile[] = [
   {
     id: 2,
     name: 'Mikado UX UI & Branding Studio',
-    logo: 'https://source.unsplash.com/80x80/?design,studio', logoAiHint: 'design studio',
-    coverPhoto: 'https://source.unsplash.com/1200x300/?modern,office,design', coverPhotoAiHint: 'modern office design',
+    logo: 'https://source.unsplash.com/random/80x80/?design,studio', logoAiHint: 'design studio',
+    coverPhoto: 'https://source.unsplash.com/random/1200x300/?modern,office,design', coverPhotoAiHint: 'modern office design',
     bio: 'Curating digital experiences that connect with people. Global branding and user experience design consultancy dedicated to innovation and quality. We partner with startups and enterprises to create impactful digital products.',
     website: 'http://www.mikado.biz',
     phone: '+91 8197278080',
@@ -91,7 +91,7 @@ export const initialBusinessProfiles: UserBusinessProfile[] = [
     following: 120,
     isActive: true,
     feed: [
-        {id: 'mfeed1', content: 'Excited to launch our new branding for a major e-commerce client! Check out the case study on our website for a deep dive into our process.', image: 'https://source.unsplash.com/600x350/?branding,design,project', imageAiHint: 'branding design project', timestamp: '1 week ago'},
+        {id: 'mfeed1', content: 'Excited to launch our new branding for a major e-commerce client! Check out the case study on our website for a deep dive into our process.', image: 'https://source.unsplash.com/random/600x350/?branding,design,project', imageAiHint: 'branding design project', timestamp: '1 week ago'},
         {id: 'mfeed2', content: 'We are hiring talented UX Designers! If you are passionate about creating user-centric solutions, visit our careers page for more details.', timestamp: '3 days ago'},
     ],
     products: [],
@@ -102,8 +102,8 @@ export const initialBusinessProfiles: UserBusinessProfile[] = [
         {id: 'mserv4', name: 'Mobile App Design (iOS & Android)', description: 'User-centric mobile application design for optimal engagement and usability, covering both iOS and Android platforms.'},
     ],
     jobs: [
-        {id: 'mjob1', businessId: 2, businessName: 'Mikado UX UI & Branding Studio', businessLogoUrl: 'https://source.unsplash.com/80x80/?design,studio', title: 'Senior UX Designer', location: 'Bengaluru (Remote option available)', type: 'Full-time', postedDate: '2024-05-15', salaryRange: '₹1,20,000 - ₹1,80,000 per month', description: 'Looking for a seasoned UX designer to lead projects and mentor junior designers. Strong portfolio showcasing complex problem-solving required.', requirements: ['5+ years UX design experience', 'Proficiency in Figma, Adobe XD', 'Strong communication skills'] },
-        {id: 'mjob2', businessId: 2, businessName: 'Mikado UX UI & Branding Studio', businessLogoUrl: 'https://source.unsplash.com/80x80/?design,studio', title: 'Graphic Design Intern', location: 'Bengaluru', type: 'Internship', postedDate: '2024-05-20', salaryRange: '₹20,000 per month stipend', description: 'Opportunity for aspiring graphic designers to learn and contribute to real-world projects. Paid internship with potential for full-time conversion.', requirements: ['Portfolio of design work', 'Familiarity with Adobe Creative Suite', 'Eagerness to learn'] },
+        {id: 'mjob1', businessId: 2, businessName: 'Mikado UX UI & Branding Studio', businessLogoUrl: 'https://source.unsplash.com/random/80x80/?design,studio', title: 'Senior UX Designer', location: 'Bengaluru (Remote option available)', type: 'Full-time', postedDate: '2024-05-15', salaryRange: '₹1,20,000 - ₹1,80,000 per month', description: 'Looking for a seasoned UX designer to lead projects and mentor junior designers. Strong portfolio showcasing complex problem-solving required.', requirements: ['5+ years UX design experience', 'Proficiency in Figma, Adobe XD', 'Strong communication skills'] },
+        {id: 'mjob2', businessId: 2, businessName: 'Mikado UX UI & Branding Studio', businessLogoUrl: 'https://source.unsplash.com/random/80x80/?design,studio', title: 'Graphic Design Intern', location: 'Bengaluru', type: 'Internship', postedDate: '2024-05-20', salaryRange: '₹20,000 per month stipend', description: 'Opportunity for aspiring graphic designers to learn and contribute to real-world projects. Paid internship with potential for full-time conversion.', requirements: ['Portfolio of design work', 'Familiarity with Adobe Creative Suite', 'Eagerness to learn'] },
     ],
     reviews: [
         {id: 'mrev1', reviewerName: 'Startup Founder X', rating: 5, comment: 'Mikado transformed our app! The new UX is intuitive and has significantly improved user engagement. Their team is top-notch.', date: '2024-04-30'},
@@ -134,7 +134,7 @@ export default function AppRoot() {
   const [selectedSkillsetProfileId, setSelectedSkillsetProfileId] = useState<string | null>(null);
   const [skillsetProfileToManageId, setSkillsetProfileToManageId] = useState<string | null>(null);
 
-  const [selectedJobId, setSelectedJobId] = useState<string | number | null>(null); // New state for Job Detail
+  const [selectedJobId, setSelectedJobId] = useState<string | number | null>(null);
 
   const [isFabVisible, setIsFabVisible] = useState(false);
   const [isActiveActivityViewVisible, setIsActiveActivityViewVisible] = useState(false);
@@ -171,7 +171,7 @@ export default function AppRoot() {
     setSelectedIndividualProfileId(null);
     setSelectedSkillsetProfileId(null);
     setSkillsetProfileToManageId(null);
-    setSelectedJobId(null); // Clear on logout
+    setSelectedJobId(null);
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   };
 
@@ -660,3 +660,5 @@ export default function AppRoot() {
     </div>
   );
 }
+
+    

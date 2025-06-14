@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Plus, Image as ImageIcon, Baseline, Loader2 } from 'lucide-react'; // Changed TextIcon to Baseline
+import { Plus, Image as ImageIcon, Baseline, Loader2 } from 'lucide-react';
 import CategoryItem from '@/components/feeds/CategoryItem';
 import FeedCard from '@/components/feeds/FeedCard';
 import type { Category, FeedItem as FeedItemType } from '@/types';
@@ -15,39 +15,39 @@ import { Label } from '@/components/ui/label';
 
 const initialCategories: Category[] = [
   { id: 'moments-0', name: 'Your Moments', icon: Plus, type: 'moments', viewed: false, color: 'bg-primary/10 text-primary' },
-  { id: 'feed-deepthi', name: 'Deepthi', image: 'https://source.unsplash.com/100x100/?woman,portrait', dataAiHint: 'woman portrait', viewed: false },
-  { id: 'feed-maanisha', name: 'Maanisha', image: 'https://source.unsplash.com/100x100/?woman,smiling', dataAiHint: 'woman smiling', viewed: false },
-  { id: 'feed-subhesh', name: 'Subhesh', image: 'https://source.unsplash.com/100x100/?man,office', dataAiHint: 'man office', viewed: true },
-  { id: 'feed-seena', name: 'Seena', image: 'https://source.unsplash.com/100x100/?person,outdoor', dataAiHint: 'person outdoor', viewed: false },
-  { id: 'feed-1', name: 'Shafeeq', image: 'https://source.unsplash.com/100x100/?man,casual', dataAiHint: 'man casual', viewed: false },
-  { id: 'feed-2', name: 'Senthil', image: 'https://source.unsplash.com/100x100/?person,tech', dataAiHint: 'person tech', viewed: true },
-  { id: 'feed-3', name: 'Mikado', image: 'https://source.unsplash.com/100x100/?company,logo', dataAiHint: 'company logo', viewed: true },
-  { id: 'feed-4', name: 'TVS Synergy', image: 'https://source.unsplash.com/100x100/?vehicle,brand', dataAiHint: 'vehicle brand', viewed: false },
+  { id: 'feed-deepthi', name: 'Deepthi', image: 'https://source.unsplash.com/random/100x100/?woman,portrait', dataAiHint: 'woman portrait', viewed: false },
+  { id: 'feed-maanisha', name: 'Maanisha', image: 'https://source.unsplash.com/random/100x100/?woman,smiling', dataAiHint: 'woman smiling', viewed: false },
+  { id: 'feed-subhesh', name: 'Subhesh', image: 'https://source.unsplash.com/random/100x100/?man,office', dataAiHint: 'man office', viewed: true },
+  { id: 'feed-seena', name: 'Seena', image: 'https://source.unsplash.com/random/100x100/?person,outdoor', dataAiHint: 'person outdoor', viewed: false },
+  { id: 'feed-1', name: 'Shafeeq', image: 'https://source.unsplash.com/random/100x100/?man,casual', dataAiHint: 'man casual', viewed: false },
+  { id: 'feed-2', name: 'Senthil', image: 'https://source.unsplash.com/random/100x100/?person,tech', dataAiHint: 'person tech', viewed: true },
+  { id: 'feed-3', name: 'Mikado', image: 'https://source.unsplash.com/random/100x100/?company,logo', dataAiHint: 'company logo', viewed: true },
+  { id: 'feed-4', name: 'TVS Synergy', image: 'https://source.unsplash.com/random/100x100/?vehicle,brand', dataAiHint: 'vehicle brand', viewed: false },
 ];
 
 const initialFeedItems: FeedItemType[] = [
   {
-    id: 1, type: 'post', user: 'Shafeeq', userImage: 'https://source.unsplash.com/40x40/?man,casual', userImageAiHint: 'man casual',
+    id: 1, type: 'post', user: 'Shafeeq', userImage: 'https://source.unsplash.com/random/40x40/?man,casual', userImageAiHint: 'man casual',
     timestamp: 'Wishing you a joyful and prosperous Diwali',
     content: 'May this festival of lights bring happiness, success, and warmth to your lives.',
-    postImage: 'https://source.unsplash.com/600x350/?diwali,festival', postImageAiHint: 'diwali festival',
+    postImage: 'https://source.unsplash.com/random/600x350/?diwali,festival', postImageAiHint: 'diwali festival',
     comments: 7, recommendations: 10, notRecommendations: 2, showCommentBox: false, currentComment: ''
   },
   {
-    id: 2, type: 'post', user: 'Senthil Devaraj', userImage: 'https://source.unsplash.com/40x40/?man,professional', userImageAiHint: 'man professional',
+    id: 2, type: 'post', user: 'Senthil Devaraj', userImage: 'https://source.unsplash.com/random/40x40/?man,professional', userImageAiHint: 'man professional',
     timestamp: 'Unemployed for 12 months, seeking opportunities.',
     content: 'Hi Guys, I have been Unemployed for 12 months now, please help by reviewing my resume and please help if there are any opportunities. Senthil Devaraj Resume.',
     comments: 12, recommendations: 5, notRecommendations: 1, showCommentBox: false, currentComment: ''
   },
   {
-    id: 3, type: 'job', user: 'Mikado UX UI', userImage: 'https://source.unsplash.com/40x40/?design,studio,logo', userImageAiHint: 'design studio logo',
+    id: 3, type: 'job', user: 'Mikado UX UI', userImage: 'https://source.unsplash.com/random/40x40/?design,studio,logo', userImageAiHint: 'design studio logo',
     timestamp: 'Hiring Graphic Designer',
     content: 'Hi Design Enthusiast , we are in search of the graphic Designer with Illustrative and sketching skills , check out your Job portal and share you resume and please suggest you known persons if you know someone as we expected.',
     comments: 20, recommendations: 25, notRecommendations: 3, showCommentBox: false, currentComment: ''
   },
   {
-    id: 4, type: 'ad', user: 'TVS Synergy', userImage: 'https://source.unsplash.com/40x40/?automotive,brand', userImageAiHint: 'automotive brand',
-    postImage: 'https://source.unsplash.com/600x350/?scooter,advertisement', postImageAiHint: 'scooter advertisement',
+    id: 4, type: 'ad', user: 'TVS Synergy', userImage: 'https://source.unsplash.com/random/40x40/?automotive,brand', userImageAiHint: 'automotive brand',
+    postImage: 'https://source.unsplash.com/random/600x350/?scooter,advertisement', postImageAiHint: 'scooter advertisement',
     content: 'TVS Ntorq 125 Price : Check On-Road & Ex-Showroom Prices of All Variants -',
     timestamp: 'Sponsored Ad', comments: 0, recommendations: 15, notRecommendations: 0, showCommentBox: false, currentComment: ''
   }
@@ -231,4 +231,4 @@ const FeedsScreen = () => {
 };
 
 export default FeedsScreen;
-
+    
