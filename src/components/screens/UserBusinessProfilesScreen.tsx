@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { PlusCircle, Edit3, Trash2, XCircle, Building, Search, ExternalLink } from 'lucide-react';
+import { PlusCircle, Edit3, Trash2, XCircle, Building, Search, ExternalLink, Loader2 } from 'lucide-react';
 import type { UserBusinessProfile } from '@/types'; 
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
@@ -22,12 +22,22 @@ interface UserBusinessProfilesScreenProps {
   onManageProfile: (id: string | number) => void; 
 }
 
+// Simulated fetch for initial data for demonstration of loading state
+const simulateFetchInitialProfiles = async (initialProfiles: UserBusinessProfile[]): Promise<UserBusinessProfile[]> => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(initialProfiles);
+    }, 700); // Simulate network delay
+  });
+};
+
 const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
-  businessProfiles: initialProfiles,
+  businessProfiles: initialProfilesProp, // Renamed to avoid conflict
   onSelectProfile,
   onManageProfile,
 }) => {
-  const [profiles, setProfiles] = useState<UserBusinessProfile[]>(initialProfiles);
+  const [profiles, setProfiles] = useState<UserBusinessProfile[]>([]);
+  const [loading, setLoading] = useState(true); // Added loading state
   const [showForm, setShowForm] = useState(false);
   const [editingProfile, setEditingProfile] = useState<UserBusinessProfile | null>(null);
   const [currentProfile, setCurrentProfile] = useState<Partial<UserBusinessProfile>>({
@@ -36,6 +46,17 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [profileToDelete, setProfileToDelete] = useState<UserBusinessProfile | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const loadProfiles = async () => {
+      setLoading(true);
+      const fetchedProfiles = await simulateFetchInitialProfiles(initialProfilesProp);
+      setProfiles(fetchedProfiles);
+      setLoading(false);
+    };
+    loadProfiles();
+  }, [initialProfilesProp]);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -213,63 +234,76 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
         )}
 
         {!showForm && (
-          <CardContent className={filteredProfiles.length > 0 ? "pt-6" : "pt-0"}>
-            {filteredProfiles.length === 0 && !searchTerm && (
-              <p className="text-center text-muted-foreground py-6">No business profiles created yet. Click "Create New Profile" to get started.</p>
-            )}
-            {filteredProfiles.length === 0 && searchTerm && (
-              <p className="text-center text-muted-foreground py-6">No profiles found matching your search.</p>
-            )}
-            <div className="space-y-4">
-              {filteredProfiles.map(profile => (
-                <Card 
-                  key={profile.id} 
-                  className={cn(
-                    "transition-all duration-200 ease-in-out hover:shadow-lg hover:border-primary/50", 
-                    !profile.isActive && "bg-muted/50 opacity-70"
-                  )}
-                >
-                  <div className="flex items-start p-4 space-x-4">
-                    <Image
-                      src={profile.logo || `https://placehold.co/60x60.png?text=${profile.name.substring(0,1)}`}
-                      alt={`${profile.name} Logo`}
-                      width={60}
-                      height={60}
-                      className="rounded-md object-cover border flex-shrink-0 cursor-pointer"
-                      data-ai-hint={profile.logoAiHint || "company logo"}
-                      onClick={() => onSelectProfile(profile.id)}
-                    />
-                    <div className="flex-grow cursor-pointer" onClick={() => onSelectProfile(profile.id)}>
-                      <CardTitle className="text-lg hover:text-primary">{profile.name}</CardTitle>
-                      {profile.location && <CardDescription>{profile.location}</CardDescription>}
-                      <p className="text-xs text-muted-foreground mt-1">Followers: {profile.followers || 0}</p>
-                    </div>
-                    <div className="flex flex-col items-end space-y-2">
-                      <Switch 
-                        checked={!!profile.isActive} 
-                        onCheckedChange={() => toggleActive(profile.id)} 
-                        aria-label={profile.isActive ? "Deactivate profile" : "Activate profile"} 
+          <CardContent className={filteredProfiles.length > 0 || loading ? "pt-6" : "pt-0"}>
+            {loading ? (
+              <div className="flex flex-col justify-center items-center py-10 min-h-[200px]">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="ml-2 mt-2 text-muted-foreground">Loading business profiles...</p>
+              </div>
+            ) : filteredProfiles.length === 0 && !searchTerm ? (
+              <div className="text-center py-10 min-h-[200px] flex flex-col items-center justify-center">
+                <Building className="h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-lg text-muted-foreground">No business profiles yet.</p>
+                <p className="text-sm text-muted-foreground">Click "Create New Profile" above to add your first business.</p>
+              </div>
+            ) : filteredProfiles.length === 0 && searchTerm ? (
+              <div className="text-center py-10 min-h-[200px] flex flex-col items-center justify-center">
+                <Search className="h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-lg text-muted-foreground">No profiles found matching "{searchTerm}".</p>
+                <p className="text-sm text-muted-foreground">Try a different search term.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredProfiles.map(profile => (
+                  <Card 
+                    key={profile.id} 
+                    className={cn(
+                      "transition-all duration-200 ease-in-out hover:shadow-lg hover:border-primary/50", 
+                      !profile.isActive && "bg-muted/50 opacity-70"
+                    )}
+                  >
+                    <div className="flex items-start p-4 space-x-4">
+                      <Image
+                        src={profile.logo || `https://placehold.co/60x60.png?text=${profile.name.substring(0,1)}`}
+                        alt={`${profile.name} Logo`}
+                        width={60}
+                        height={60}
+                        className="rounded-md object-cover border flex-shrink-0 cursor-pointer"
+                        data-ai-hint={profile.logoAiHint || "company logo"}
+                        onClick={() => onSelectProfile(profile.id)}
                       />
-                      <div className="flex space-x-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => handleEdit(profile)}>
-                          <Edit3 className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8" onClick={() => confirmDelete(profile)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                      <div className="flex-grow cursor-pointer" onClick={() => onSelectProfile(profile.id)}>
+                        <CardTitle className="text-lg hover:text-primary">{profile.name}</CardTitle>
+                        {profile.location && <CardDescription>{profile.location}</CardDescription>}
+                        <p className="text-xs text-muted-foreground mt-1">Followers: {profile.followers || 0}</p>
+                      </div>
+                      <div className="flex flex-col items-end space-y-2">
+                        <Switch 
+                          checked={!!profile.isActive} 
+                          onCheckedChange={() => toggleActive(profile.id)} 
+                          aria-label={profile.isActive ? "Deactivate profile" : "Activate profile"} 
+                        />
+                        <div className="flex space-x-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => handleEdit(profile)}>
+                            <Edit3 className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8" onClick={() => confirmDelete(profile)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  {profile.website && 
-                    <CardContent className="pb-3 pt-0">
-                        <a href={profile.website} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-primary hover:underline flex items-center">
-                            <ExternalLink className="h-3 w-3 mr-1"/>View Website
-                        </a>
-                    </CardContent>
-                  }
-                </Card>
-              ))}
-            </div>
+                    {profile.website && 
+                      <CardContent className="pb-3 pt-0">
+                          <a href={profile.website} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-primary hover:underline flex items-center">
+                              <ExternalLink className="h-3 w-3 mr-1"/>View Website
+                          </a>
+                      </CardContent>
+                    }
+                  </Card>
+                ))}
+              </div>
+            )}
           </CardContent>
         )}
       </Card>
@@ -292,5 +326,3 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
 };
 
 export default UserBusinessProfilesScreen;
-
-    

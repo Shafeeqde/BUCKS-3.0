@@ -20,7 +20,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  // AlertDialogTrigger, // Removed - not needed for manually controlled dialog
 } from "@/components/ui/alert-dialog";
 
 interface UserSkillsetsScreenProps {
@@ -210,14 +209,20 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
               </div>
 
               {loadingProfiles ? (
-                <div className="flex justify-center items-center py-10">
+                <div className="flex flex-col justify-center items-center py-10 min-h-[200px]">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <p className="ml-2 text-muted-foreground">Loading profiles...</p>
+                  <p className="ml-2 mt-2 text-muted-foreground">Loading your skillset profiles...</p>
                 </div>
               ) : filteredProfiles.length === 0 ? (
-                <p className="text-center text-muted-foreground py-6">
-                  {searchTerm ? 'No profiles found matching your search.' : 'No skillset profiles created yet. Create one above.'}
-                </p>
+                <div className="text-center py-10 min-h-[200px] flex flex-col items-center justify-center">
+                  <Rocket className="h-12 w-12 text-muted-foreground mb-4" />
+                  <p className="text-lg text-muted-foreground">
+                    {searchTerm ? 'No profiles found matching your search.' : 'No skillset profiles yet.'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {searchTerm ? 'Try a different search term.' : 'Create your first skillset profile using the form above!'}
+                  </p>
+                </div>
               ) : (
                 <div className="space-y-4">
                   {filteredProfiles.map(profile => (
@@ -293,5 +298,3 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
 };
 
 export default UserSkillsetsScreen;
-
-    

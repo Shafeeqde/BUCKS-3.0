@@ -22,6 +22,8 @@ const simulateFetchVehicles = async (): Promise<UserVehicle[]> => {
         { id: 'v2', vehicleType: 'Bike', licensePlate: 'XYZ-789', isActive: false },
         { id: 'v3', vehicleType: 'Auto Rickshaw', licensePlate: 'PQR-456', isActive: true },
       ];
+      // To test empty state, uncomment next line
+      // resolve([]);
       console.log('Simulated user vehicles fetched:', mockVehicles);
       resolve(mockVehicles);
     }, 1000);
@@ -55,7 +57,6 @@ const simulateToggleVehicleStatus = async (vehicleId: string, currentStatus: boo
 
 interface UserVehiclesScreenProps {
   setActiveTab: (tab: TabName) => void;
-  // userData: any; // TODO: Pass actual user data
 }
 
 const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab }) => {
@@ -135,7 +136,6 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
         title: 'Status Updated',
         description: `Vehicle ${!currentStatus ? 'activated' : 'deactivated'}.`,
       });
-      // If successful, vehicles state is already updated optimistically
     } catch (error) {
       console.error('Error toggling vehicle status:', error);
       toast({
@@ -143,12 +143,10 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
         description: 'Could not update vehicle status. Please try again.',
         variant: 'destructive',
       });
-      setVehicles(originalVehicles); // Revert UI on failure
+      setVehicles(originalVehicles); 
     }
   };
   
-  // TODO: Implement Edit and Delete functionality
-
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 h-full overflow-y-auto custom-scrollbar">
       <Card className="shadow-lg">
@@ -184,7 +182,6 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
                 />
               </div>
             </div>
-            {/* Add more fields like brand, model, color, year as needed */}
             <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
               {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
               {isSubmitting ? 'Adding...' : 'Add Vehicle'}
@@ -194,14 +191,16 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
           <div>
             <h3 className="text-xl font-semibold text-foreground mb-4">Your Registered Vehicles</h3>
             {loadingVehicles ? (
-              <div className="flex justify-center items-center py-10">
+              <div className="flex flex-col justify-center items-center py-10 min-h-[200px]">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="ml-2 text-muted-foreground">Loading vehicles...</p>
+                <p className="ml-2 mt-2 text-muted-foreground">Loading your vehicles...</p>
               </div>
             ) : vehicles.length === 0 ? (
-              <p className="text-center text-muted-foreground py-6">
-                No vehicles added yet. Add your first vehicle using the form above.
-              </p>
+              <div className="text-center py-10 min-h-[200px] flex flex-col items-center justify-center">
+                <Car className="h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-lg text-muted-foreground">No vehicles registered yet.</p>
+                <p className="text-sm text-muted-foreground">Add your first vehicle using the form above to get started.</p>
+              </div>
             ) : (
               <div className="space-y-4">
                 {vehicles.map((vehicle) => (
@@ -226,10 +225,10 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
                       </div>
                     </CardHeader>
                     <CardFooter className="flex justify-end space-x-2 pt-4 border-t">
-                      <Button variant="ghost" size="sm" onClick={() => {/* TODO: Implement Edit */ toast({title: "Edit Clicked (Not Implemented)", description: `Edit vehicle ${vehicle.licensePlate}`})}}>
+                      <Button variant="ghost" size="sm" onClick={() => toast({title: "Edit Clicked (Not Implemented)", description: `Edit vehicle ${vehicle.licensePlate}`})}>
                         <Edit3 className="mr-1 h-4 w-4" /> Edit
                       </Button>
-                      <Button variant="destructive" size="sm" onClick={() => {/* TODO: Implement Delete */ toast({title: "Delete Clicked (Not Implemented)", description: `Delete vehicle ${vehicle.licensePlate}`, variant: "destructive"})}}>
+                      <Button variant="destructive" size="sm" onClick={() => toast({title: "Delete Clicked (Not Implemented)", description: `Delete vehicle ${vehicle.licensePlate}`, variant: "destructive"})}>
                         <Trash2 className="mr-1 h-4 w-4" /> Delete
                       </Button>
                     </CardFooter>
