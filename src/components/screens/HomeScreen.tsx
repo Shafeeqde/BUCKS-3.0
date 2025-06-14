@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
 
 import IndividualProfessionalCard, { type IndividualProfessionalCardData } from '@/components/search/IndividualProfessionalCard';
-import BusinessProfileCard, { type BusinessProfileCardData as BusinessCardDataType } from '@/components/search/BusinessProfileCard'; // Renamed to avoid conflict
+import BusinessProfileCard, { type BusinessProfileCardData as BusinessCardDataType } from '@/components/search/BusinessProfileCard';
 import type { TabName } from '@/types';
 
 const initialPlaceholders = [
@@ -25,11 +25,11 @@ const initialPlaceholders = [
   "Ask Locality Hub AI...",
 ];
 
-type SearchResultItem =
+export type SearchResultItem = // Exporting for potential use elsewhere, though not strictly necessary for this file
   | { type: 'individual'; data: IndividualProfessionalCardData }
   | { type: 'business'; data: BusinessCardDataType };
 
-// Extended dummy data
+// Ensure this dummy data is comprehensive and matches the types exactly
 const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'individual',
@@ -61,14 +61,13 @@ const simulatedSearchResults: SearchResultItem[] = [
       logoUrl: 'https://placehold.co/80x80.png',
       logoAiHint: 'restaurant logo',
       briefInfo: '10-15 mins • 3km away • BTM layout',
-      tagline: "International, locally sourced specialties",
+      tagline: "International, locally sourced specialties. Best Griddle in town!",
       averageRating: 4.5,
       totalReviews: 232,
       products: [
         { id: 'p-biryani-1', name: 'Mutton Biryani (Serves 2)', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'mutton biryani', price: '299', discountPrice: '229', discountPercentage: '22%' },
-        { id: 'p-biryani-2', name: 'Hyderabad Special Biryani', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'hyderabad biryani', price: '300', discountPrice: '249', discountPercentage: '17%' },
-        { id: 'p-chicken-1', name: 'Chicken Boneless Biryani (Serves 2)', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'chicken biryani', price: '250', discountPrice: '199', discountPercentage: '20%' },
-        { id: 'p-biryani-3', name: 'Veg Biryani', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'veg biryani', price: '180' },
+        { id: 'p-pizza-1', name: 'Spicy Chicken Pizza', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'pizza slice', price: '350' },
+        { id: 'p-burger-1', name: 'Classic Griddle Burger', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'burger', price: '180' },
       ],
       phone: '+91 9876543210',
     },
@@ -97,16 +96,17 @@ const simulatedSearchResults: SearchResultItem[] = [
     type: 'business',
     data: {
       id: 'business-aromas-2',
-      name: 'Aromas of Biryani',
+      name: 'Aromas of Biryani Cafe',
       logoUrl: 'https://placehold.co/80x80.png',
       logoAiHint: 'biryani shop',
       briefInfo: '10-15 mins • 3km away • BTM layout',
-      tagline: 'Authentic Biryani Experience',
+      tagline: 'Authentic Biryani Experience & Cafe Delights',
       averageRating: 4.2,
       totalReviews: 150,
        products: [
         { id: 'aroma-p1', name: 'Chicken Dum Biryani', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'dum biryani', price: '280' },
-        { id: 'aroma-p2', name: 'Paneer Biryani', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'paneer biryani', price: '250', discountPrice: '220', discountPercentage: '10%' },
+        { id: 'aroma-p2', name: 'Paneer Biryani Special', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'paneer biryani', price: '250', discountPrice: '220', discountPercentage: '10%' },
+        { id: 'aroma-coffee-1', name: 'Cappuccino Cafe Special', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'coffee cup', price: '120' },
       ],
       phone: '+91 9123456789',
     },
@@ -115,15 +115,15 @@ const simulatedSearchResults: SearchResultItem[] = [
 
 interface HomeScreenProps {
   setActiveTab: (tab: TabName) => void;
-  onSelectIndividualProfile: (profileId: string) => void;
+  onSelectIndividualProfile: (profileId: string) => void; // Kept for potential future use
   onSelectBusinessProfile: (profileId: string | number) => void;
-  onSelectSkillsetProfile: (skillsetProfileId: string) => void; // Added for skillset profile navigation
+  onSelectSkillsetProfile: (skillsetProfileId: string) => void;
   onAddToCart: (businessId: string | number, productId: string) => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
   setActiveTab,
-  onSelectIndividualProfile,
+  onSelectIndividualProfile, // Keep prop, even if mapping changes
   onSelectBusinessProfile,
   onSelectSkillsetProfile,
   onAddToCart
@@ -134,7 +134,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const [aiTextAnswer, setAiTextAnswer] = useState<string | null>(null);
   const [foundLocations, setFoundLocations] = useState<LocationResult[]>([]);
   const [currentQueryType, setCurrentQueryType] = useState<'general' | 'location_search' | null>(null);
-  const [isAnsweringQuery, setIsAnsweringQuery] = useState(false);
+  const [isAnsweringQuery, setIsAnsweringQuery] = useState(false); // For AI query
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [currentPlaceholder, setCurrentPlaceholder] = useState(initialPlaceholders[0]);
 
@@ -148,7 +148,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const { toast } = useToast();
 
   const [displayedSearchResults, setDisplayedSearchResults] = useState<SearchResultItem[]>([]);
-  const [isLoadingSimulatedResults, setIsLoadingSimulatedResults] = useState(false);
+  const [isLoadingSimulatedResults, setIsLoadingSimulatedResults] = useState(false); // For card results
 
 
   useEffect(() => {
@@ -172,7 +172,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    if (e.target.value.trim() === '' && isSearchMode) { // If search cleared in search mode, reset
+    if (e.target.value.trim() === '' && isSearchMode) {
         setDisplayedSearchResults([]);
     }
   };
@@ -227,42 +227,60 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     }
   }, [searchTerm, showSuggestions, fetchAiSuggestions, isAnsweringQuery, currentQueryType, isLoadingAiSuggestions]);
 
-  const performSimulatedSearch = (query: string) => {
+
+  const performSimulatedSearch = useCallback((query: string) => {
     setIsLoadingSimulatedResults(true);
-    setTimeout(() => { // Simulate API delay
+    console.log('[HomeScreen] performSimulatedSearch called with query:', `"${query}"`);
+    setTimeout(() => {
+      let filtered: SearchResultItem[];
       if (query.trim() === '') {
-        setDisplayedSearchResults(simulatedSearchResults.slice(0,4)); // Show a few by default if search is cleared
+        filtered = simulatedSearchResults.slice(0, 4); // Show a few by default
+        console.log('[HomeScreen] Empty query, showing initial results:', filtered.map(r => ({ id: r.data.id, type: r.type, name: r.data.name })));
       } else {
         const lowerQuery = query.toLowerCase();
-        const filtered = simulatedSearchResults.filter(item => {
+        console.log('[HomeScreen] Searching with lowerQuery:', `"${lowerQuery}"`);
+        
+        filtered = simulatedSearchResults.filter(item => {
+          let match = false;
           if (item.type === 'individual') {
-            return item.data.name.toLowerCase().includes(lowerQuery) ||
-                   item.data.professionalTitle?.toLowerCase().includes(lowerQuery) ||
-                   item.data.shortBio?.toLowerCase().includes(lowerQuery);
-          } else { // business
-            return item.data.name.toLowerCase().includes(lowerQuery) ||
-                   item.data.tagline?.toLowerCase().includes(lowerQuery) ||
-                   item.data.products?.some(p => p.name.toLowerCase().includes(lowerQuery));
+            match = item.data.name.toLowerCase().includes(lowerQuery) ||
+                   (item.data.professionalTitle && item.data.professionalTitle.toLowerCase().includes(lowerQuery)) ||
+                   (item.data.shortBio && item.data.shortBio.toLowerCase().includes(lowerQuery));
+          } else if (item.type === 'business') {
+            const nameMatch = item.data.name.toLowerCase().includes(lowerQuery);
+            const taglineMatch = !!item.data.tagline && item.data.tagline.toLowerCase().includes(lowerQuery);
+            const productMatch = !!item.data.products && item.data.products.some(p => p.name.toLowerCase().includes(lowerQuery));
+            match = nameMatch || taglineMatch || productMatch;
+            
+            console.log(`[HomeScreen] Business Check: ${item.data.name}`);
+            console.log(`  Query: "${lowerQuery}"`);
+            console.log(`  Name Match (${item.data.name.toLowerCase()}): ${nameMatch}`);
+            console.log(`  Tagline Match (${item.data.tagline?.toLowerCase()}): ${taglineMatch}`);
+            console.log(`  Product Match: ${productMatch}`);
+            console.log(`  Overall Match: ${match}`);
           }
+          return match;
         });
-        setDisplayedSearchResults(filtered);
+        console.log('[HomeScreen] Filtered results for query "' + query + '":', filtered.map(r => ({ id: r.data.id, type: r.type, name: r.data.name })));
       }
+      setDisplayedSearchResults(filtered);
       setIsLoadingSimulatedResults(false);
     }, 500);
-  };
+  }, []); // Removed displayedSearchResults from dependencies to avoid re-triggering on set
+
 
   const handleQuerySubmit = async (event?: React.FormEvent<HTMLFormElement>, queryOverride?: string) => {
     if (event) event.preventDefault();
     const queryToSubmit = queryOverride || searchTerm.trim();
 
-    if (!queryToSubmit) {
+    if (!queryToSubmit && !queryOverride) { // Allow empty queryOverride for initial load with suggestions
       toast({
         title: "Empty Search",
         description: "Please enter a query to search.",
         variant: "destructive",
       });
-      setIsSearchMode(true); // Still enter search mode to show default simulated results
-      performSimulatedSearch('');
+      setIsSearchMode(true);
+      performSimulatedSearch(''); // Show default cards on empty submit if search mode is entered
       return;
     }
 
@@ -273,32 +291,35 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     setCurrentQueryType(null);
     setAiSuggestions([]);
 
-    if (!queryOverride) {
+    if (!queryOverride && queryToSubmit) { // Only add to recent searches if it's a user-typed query
         setRecentSearches(prev => [queryToSubmit, ...prev.filter(s => s !== queryToSubmit)].slice(0, 10));
     }
 
-    // Perform both AI query and simulated card search
-    setIsAnsweringQuery(true);
-    performSimulatedSearch(queryToSubmit); // Start simulated search
+    setIsAnsweringQuery(true); // For AI
+    performSimulatedSearch(queryToSubmit); // For cards
 
-    try {
-      const input: GeneralQueryInput = { query: queryToSubmit };
-      const result: GeneralQueryOutput = await answerGeneralQuery(input);
+    if(queryToSubmit){ // Only run AI query if there is a query
+        try {
+          const input: GeneralQueryInput = { query: queryToSubmit };
+          const result: GeneralQueryOutput = await answerGeneralQuery(input);
 
-      setAiTextAnswer(result.answer);
-      setCurrentQueryType(result.queryType);
-      if (result.queryType === 'location_search' && result.locations) {
-        setFoundLocations(result.locations);
-      } else {
-        setFoundLocations([]);
-      }
-    } catch (error) {
-      console.error("Error answering query:", error);
-      setAiTextAnswer("Sorry, I couldn't get an AI answer for that. Please try again.");
-      setCurrentQueryType('general');
-      setFoundLocations([]);
-    } finally {
-      setIsAnsweringQuery(false);
+          setAiTextAnswer(result.answer);
+          setCurrentQueryType(result.queryType);
+          if (result.queryType === 'location_search' && result.locations) {
+            setFoundLocations(result.locations);
+          } else {
+            setFoundLocations([]);
+          }
+        } catch (error) {
+          console.error("Error answering query:", error);
+          setAiTextAnswer("Sorry, I couldn't get an AI answer for that. Please try again.");
+          setCurrentQueryType('general');
+          setFoundLocations([]);
+        } finally {
+          setIsAnsweringQuery(false);
+        }
+    } else {
+        setIsAnsweringQuery(false); // No AI query if queryToSubmit is empty (e.g. from suggestion click for initial load)
     }
   };
 
@@ -323,14 +344,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     setShowSuggestions(false);
     setAiSuggestions([]);
     setDisplayedSearchResults([]);
-    setCurrentPlaceholderIndex(0);
+    setCurrentPlaceholderIndex(0); // Reset placeholder animation
+    performSimulatedSearch(''); // Show initial mixed results
   };
 
   let currentSuggestions: string[] = [];
   let currentSuggestionTitle: string = '';
 
   const shouldTryShowSuggestionsContainer = showSuggestions &&
-                                          (!isSearchMode || (isSearchMode && !aiTextAnswer && !isAnsweringQuery && foundLocations.length === 0));
+                                          (!isSearchMode || (isSearchMode && !aiTextAnswer && !isAnsweringQuery && foundLocations.length === 0 && displayedSearchResults.length === 0));
+
 
   if (shouldTryShowSuggestionsContainer) {
     if (searchTerm.trim() === '') {
@@ -348,10 +371,25 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const renderAISuggestions = currentSuggestions.length > 0 && currentSuggestionTitle;
 
   const showMap = !isSearchMode;
-  const showResultsArea = isSearchMode; // Always show results area in search mode
+  const showResultsArea = isSearchMode;
 
-  // Card Click Handlers
-  const handleIndividualCardPress = (id: string) => onSelectSkillsetProfile(id); // Assuming individual cards link to skillset profiles now
+  const handleIndividualCardPress = (profileId: string) => {
+    // For now, all individual cards lead to skillset profile for consistency
+    // The profileId here is the 'id' field from IndividualProfessionalCardData
+    // This might be like 'individual-jenson-1' which needs mapping if it's not a direct skillset ID
+    // Or, the card data should directly contain the `skillsetProfileId`
+    if (profileId === 'individual-jenson-1') {
+        onSelectSkillsetProfile('jenson-interior-stylist-123'); // Example mapping
+    } else if (profileId === 'prof2') { // Alicia Keyson
+        onSelectSkillsetProfile('alicia-ux-designer-skillset-dummy-id'); // New dummy ID
+    }
+    else {
+        // Fallback or general individual profile if that concept remains
+        // onSelectIndividualProfile(profileId); 
+        toast({ title: "Profile Clicked", description: `Individual ID: ${profileId}. Navigating to skillset view.`});
+        onSelectSkillsetProfile(profileId); // Assume ID is skillset ID for now
+    }
+  };
   const handleBusinessCardPress = (id: string | number) => onSelectBusinessProfile(id);
   
   const handleCardEnquiryClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Enquiry for ${type}: ${id}` });
@@ -363,12 +401,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
 
   useEffect(() => {
-    // Load initial set of diverse results if not in search mode and no results displayed
     if (!isSearchMode && displayedSearchResults.length === 0) {
-        performSimulatedSearch(''); // Will load initial mixed results
+        performSimulatedSearch('');
     }
-  }, [isSearchMode]);
-
+  }, [isSearchMode, performSimulatedSearch]); // Removed displayedSearchResults to prevent loop
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -457,7 +493,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
       <ScrollArea className={cn(
           "flex-grow",
-           showResultsArea ? "pt-4 px-2 sm:px-4" : "relative" // Add padding when results area is shown
+           showResultsArea ? "pt-4 px-2 sm:px-4" : "relative"
       )}>
         {showMap && (
           <iframe
@@ -472,8 +508,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         )}
 
         {showResultsArea && (
-          <div className="space-y-6">
-            {isAnsweringQuery && (
+          <div className="space-y-6 pb-6"> {/* Added pb-6 for bottom padding */}
+            {isAnsweringQuery && ( // For AI query loading
                <div className="flex flex-col justify-center items-center h-40 text-center">
                   <svg className="animate-spin h-8 w-8 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -526,8 +562,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               </div>
             )}
             
-            {/* Display Simulated Search Results Cards */}
-            {isLoadingSimulatedResults && (
+            {isLoadingSimulatedResults && ( // For simulated card loading
                 <div className="flex flex-col justify-center items-center h-40 text-center">
                     <svg className="animate-spin h-8 w-8 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -540,6 +575,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
             {!isLoadingSimulatedResults && displayedSearchResults.length > 0 && (
               <div className="space-y-6">
                 {displayedSearchResults.map((item) => {
+                   console.log('[HomeScreen Render] Processing item for card:', item.data.id, 'Type:', item.type);
                   if (item.type === 'individual') {
                     return (
                       <IndividualProfessionalCard
@@ -554,6 +590,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                       />
                     );
                   } else if (item.type === 'business') {
+                     console.log('[HomeScreen Render] Rendering BusinessProfileCard for:', item.data.name);
                     return (
                       <BusinessProfileCard
                         key={item.data.id}
@@ -581,9 +618,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                 </div>
             )}
             
-            {!isAnsweringQuery && !isLoadingSimulatedResults && displayedSearchResults.length === 0 && !aiTextAnswer && foundLocations.length === 0 && searchTerm.trim() === '' && (
+            {!isAnsweringQuery && !isLoadingSimulatedResults && displayedSearchResults.length === 0 && searchTerm.trim() === '' && (isSearchMode) && ( // Only show if in search mode and everything is empty
                  <div className="text-center py-10 text-muted-foreground">
                     <p className="text-lg">Search for professionals, businesses, or ask Locality Hub AI.</p>
+                     <p className="text-sm mt-1">Initial dummy results are shown for demonstration.</p>
                 </div>
             )}
 
@@ -595,3 +633,5 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 };
 
 export default HomeScreen;
+
+    
