@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { 
     ArrowLeft, Briefcase, Building, MessageSquare, ShoppingBag, Users, Info, ExternalLink as ExternalLinkIcon, Phone, MapPin, Rss, ThumbsUp, 
-    MessageCircle as CommentIcon, Star, Video, CalendarDays, DollarSign, PlusCircle, MoreHorizontal, Settings, Edit, Trash2 
+    MessageCircle as CommentIcon, Star, Video, CalendarDays, DollarSign, PlusCircle, MoreHorizontal, Settings, Edit, Trash2, UserPlus
 } from 'lucide-react';
 import type { UserBusinessProfile, BusinessProduct, BusinessJob, BusinessFeedItem, BusinessService, BusinessReview } from '@/types';
 import { cn } from '@/lib/utils';
@@ -291,3 +291,5 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 };
 
 export default UserBusinessProfileDetailScreen;
+
+    
