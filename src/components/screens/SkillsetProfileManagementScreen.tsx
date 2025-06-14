@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, ArrowLeft, PlusCircle, Edit2, Trash2, Image as ImageIcon, Link as LinkIcon, Briefcase } from 'lucide-react';
+import { Loader2, ArrowLeft, PlusCircle, Edit2, Trash2, Image as ImageIcon, Link as LinkIcon, Briefcase, BookOpen } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, SkillsetProfileData, SkillsetSpecificWorkExperience, SkillsetSpecificPortfolioItem, SkillsetSpecificFeedItem } from '@/types';
 import Image from 'next/image'; 
@@ -95,13 +95,12 @@ const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: stri
         });
       }
       else {
-        // Fallback for newly created profiles which might not have full data structure yet
         resolve({
             id: skillsetProfileId,
-            skillName: `New Skillset (${skillsetProfileId.substring(0,5)})`, // Default name
+            skillName: `New Skillset (${skillsetProfileId.substring(0,5)})`,
             skillLevel: 'Beginner',
             skillDescription: '',
-            userName: 'Current User', // Placeholder
+            userName: 'Current User', 
             userAvatarUrl: 'https://placehold.co/100x100.png',
             userAvatarAiHint: 'person avatar',
             professionalTitle: '',
@@ -138,10 +137,13 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // State for Work Experience CRUD
   const [showWorkExperienceDialog, setShowWorkExperienceDialog] = useState(false);
   const [currentWorkExperience, setCurrentWorkExperience] = useState<Partial<SkillsetSpecificWorkExperience> & { id?: string } | null>(null);
   const [workExperienceToDeleteId, setWorkExperienceToDeleteId] = useState<string | null>(null);
+
+  const [showPortfolioItemDialog, setShowPortfolioItemDialog] = useState(false);
+  const [currentPortfolioItem, setCurrentPortfolioItem] = useState<Partial<SkillsetSpecificPortfolioItem> & { id?: string } | null>(null);
+  const [portfolioItemToDeleteId, setPortfolioItemToDeleteId] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -197,7 +199,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
 
   // --- Work Experience CRUD Functions ---
   const openAddWorkExperienceDialog = () => {
-    setCurrentWorkExperience({}); // Empty object for new entry
+    setCurrentWorkExperience({}); 
     setShowWorkExperienceDialog(true);
   };
 
@@ -218,14 +220,14 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     }
     if (!editedData) return;
 
-    if (currentWorkExperience.id) { // Editing existing
+    if (currentWorkExperience.id) { 
       const updatedEntries = editedData.workExperienceEntries.map(exp =>
         exp.id === currentWorkExperience!.id ? { ...exp, ...currentWorkExperience } as SkillsetSpecificWorkExperience : exp
       );
       setEditedData({ ...editedData, workExperienceEntries: updatedEntries });
-    } else { // Adding new
+    } else { 
       const newEntry: SkillsetSpecificWorkExperience = {
-        id: `wx-${Date.now()}`, // Simple unique ID generation
+        id: `wx-${Date.now()}`, 
         title: currentWorkExperience.title,
         company: currentWorkExperience.company,
         years: currentWorkExperience.years,
@@ -246,31 +248,82 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     if (!editedData || !workExperienceToDeleteId) return;
     const updatedEntries = editedData.workExperienceEntries.filter(exp => exp.id !== workExperienceToDeleteId);
     setEditedData({ ...editedData, workExperienceEntries: updatedEntries });
-    setWorkExperienceToDeleteId(null); // Close dialog
+    setWorkExperienceToDeleteId(null); 
     toast({ title: "Work Experience Deleted", variant: "destructive" });
   };
-  // --- End Work Experience CRUD ---
+
+  // --- Portfolio Item CRUD Functions ---
+  const openAddPortfolioItemDialog = () => {
+    setCurrentPortfolioItem({});
+    setShowPortfolioItemDialog(true);
+  };
+
+  const openEditPortfolioItemDialog = (item: SkillsetSpecificPortfolioItem) => {
+    setCurrentPortfolioItem({ ...item });
+    setShowPortfolioItemDialog(true);
+  };
+
+  const handlePortfolioItemDialogChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setCurrentPortfolioItem(prev => prev ? { ...prev, [name]: value } : null);
+  };
+
+  const handleSavePortfolioItem = () => {
+    if (!currentPortfolioItem || !currentPortfolioItem.title) {
+        toast({ title: "Missing Title", description: "Title is required for portfolio items.", variant: "destructive" });
+        return;
+    }
+    if (!editedData) return;
+
+    if (currentPortfolioItem.id) { // Editing
+        const updatedItems = editedData.portfolioItems.map(item =>
+            item.id === currentPortfolioItem!.id ? { ...item, ...currentPortfolioItem } as SkillsetSpecificPortfolioItem : item
+        );
+        setEditedData({ ...editedData, portfolioItems: updatedItems });
+    } else { // Adding new
+        const newItem: SkillsetSpecificPortfolioItem = {
+            id: `pi-${Date.now()}`,
+            title: currentPortfolioItem.title,
+            description: currentPortfolioItem.description || '',
+            imageUrl: currentPortfolioItem.imageUrl || '',
+            imageAiHint: currentPortfolioItem.imageAiHint || '',
+            videoUrl: currentPortfolioItem.videoUrl || '',
+            link: currentPortfolioItem.link || '',
+        };
+        setEditedData({ ...editedData, portfolioItems: [...editedData.portfolioItems, newItem] });
+    }
+    setShowPortfolioItemDialog(false);
+    setCurrentPortfolioItem(null);
+    toast({ title: "Portfolio Item Saved", description: "Your portfolio item has been updated locally." });
+  };
+
+  const confirmDeletePortfolioItem = (id: string) => {
+    setPortfolioItemToDeleteId(id);
+  };
+
+  const executeDeletePortfolioItem = () => {
+    if (!editedData || !portfolioItemToDeleteId) return;
+    const updatedItems = editedData.portfolioItems.filter(item => item.id !== portfolioItemToDeleteId);
+    setEditedData({ ...editedData, portfolioItems: updatedItems });
+    setPortfolioItemToDeleteId(null);
+    toast({ title: "Portfolio Item Deleted", variant: "destructive" });
+  };
 
 
-  const handleManageList = (listName: 'portfolioItems' | 'professionalFeed') => {
-    toast({ title: "Manage List (Not Implemented)", description: `UI for managing ${listName} would open here.`});
+  const handleManageFeedList = () => {
+    toast({ title: "Manage Feed (Not Implemented)", description: `UI for managing professional feed would open here.`});
   }
 
   const handleSave = async () => {
     if (!editedData) return;
     setIsSaving(true);
     try {
-      // In a real app, you'd send editedData to your backend.
-      // For now, we just simulate the save and update the profileData state for optimistic UI.
       const success = await simulateUpdateSkillsetProfile(editedData.id, editedData);
       if (success) {
-        // Update the main profileData state to reflect changes after "saving"
-        // This ensures that if the user navigates away and back, the changes (locally) persist.
         setProfileData(prev => {
             if (!prev) return null;
-            // Reconstruct profileData from editedData to ensure deep copy and correct structure
             const updatedProfileData: SkillsetProfileData = {
-                ...prev, // Keep fields not in SkillsetProfileFormData (like reviews, counts)
+                ...prev, 
                 id: editedData.id,
                 skillName: editedData.skillName,
                 skillLevel: editedData.skillLevel,
@@ -373,7 +426,6 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
             </div>
           </div>
           
-          {/* Work Experience Section */}
             <Card className="mt-6">
                 <CardHeader className="flex flex-row justify-between items-center">
                     <CardTitle className="flex items-center"><Briefcase className="mr-2 h-5 w-5 text-primary"/>Work Experience</CardTitle>
@@ -385,19 +437,19 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                     {editedData.workExperienceEntries && editedData.workExperienceEntries.length > 0 ? (
                     <ul className="space-y-4">
                         {editedData.workExperienceEntries.map((exp) => (
-                        <li key={exp.id} className="p-4 border rounded-md hover:shadow-sm">
+                        <li key={exp.id} className="p-4 border rounded-md hover:shadow-sm bg-muted/30">
                             <div className="flex justify-between items-start">
                                 <div>
                                     <h4 className="font-semibold text-foreground">{exp.title}</h4>
                                     <p className="text-sm text-muted-foreground">{exp.company} ({exp.years})</p>
-                                    {exp.description && <p className="text-xs text-muted-foreground mt-1">{exp.description}</p>}
+                                    {exp.description && <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{exp.description}</p>}
                                 </div>
-                                <div className="space-x-2 flex-shrink-0 ml-2">
-                                    <Button type="button" variant="ghost" size="icon" onClick={() => openEditWorkExperienceDialog(exp)}>
+                                <div className="space-x-1 flex-shrink-0 ml-2">
+                                    <Button type="button" variant="ghost" size="icon" onClick={() => openEditWorkExperienceDialog(exp)} className="h-8 w-8">
                                         <Edit2 className="h-4 w-4" />
                                     </Button>
                                     <AlertDialogTrigger asChild>
-                                        <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => confirmDeleteWorkExperience(exp.id)}>
+                                        <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteWorkExperience(exp.id)}>
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </AlertDialogTrigger>
@@ -412,59 +464,77 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                 </CardContent>
             </Card>
 
-
-          {/* Sections for managing lists - Portfolio, Feed */}
-          {['portfolioItems', 'professionalFeed'].map((sectionKey) => {
-            const titleMap: Record<string, string> = {
-              portfolioItems: 'Portfolio Items',
-              professionalFeed: 'Professional Feed Updates'
-            };
-            const IconMap: Record<string, React.ElementType> = {
-                portfolioItems: ImageIcon,
-                professionalFeed: LinkIcon, // Placeholder, could be Rss
-            };
-            const items = editedData[sectionKey as keyof Pick<SkillsetProfileFormData, 'portfolioItems' | 'professionalFeed'>] as any[];
-            const SectionIcon = IconMap[sectionKey];
-            
-            return (
-              <Card key={sectionKey} className="mt-6">
+            <Card className="mt-6">
                 <CardHeader className="flex flex-row justify-between items-center">
-                  <CardTitle className="flex items-center">
-                    {SectionIcon && <SectionIcon className="mr-2 h-5 w-5 text-primary"/>}
-                    {titleMap[sectionKey]}
-                  </CardTitle>
-                  <Button type="button" variant="outline" size="sm" onClick={() => handleManageList(sectionKey as any)}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add New
-                  </Button>
+                    <CardTitle className="flex items-center"><BookOpen className="mr-2 h-5 w-5 text-primary"/>Portfolio Items</CardTitle>
+                    <Button type="button" variant="outline" size="sm" onClick={openAddPortfolioItemDialog}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add New
+                    </Button>
                 </CardHeader>
                 <CardContent>
-                  {items && items.length > 0 ? (
-                    <ul className="space-y-3">
-                      {items.map((item: any) => (
-                        <li key={item.id} className="p-3 border rounded-md flex justify-between items-center hover:bg-muted/50">
-                          <div>
-                            <p className="font-semibold">{item.title || item.content?.substring(0,50) + (item.content?.length > 50 ? '...' : '')}</p>
-                            {sectionKey === 'portfolioItems' && item.imageUrl && 
-                                <Image src={item.imageUrl} alt={item.title || "Portfolio item"} width={60} height={40} className="rounded object-cover mt-1" data-ai-hint={item.imageAiHint || "portfolio image"}/>}
-                          </div>
-                          <div className="space-x-2">
-                            <Button type="button" variant="ghost" size="icon" onClick={() => toast({title:"Edit Clicked", description: `Edit item ${item.id} (Not Implemented)`})}>
-                              <Edit2 className="h-4 w-4" />
-                            </Button>
-                            <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => toast({title:"Delete Clicked", description: `Delete item ${item.id} (Not Implemented)`})}>
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+                    {editedData.portfolioItems && editedData.portfolioItems.length > 0 ? (
+                    <ul className="space-y-4">
+                        {editedData.portfolioItems.map((item) => (
+                        <li key={item.id} className="p-4 border rounded-md hover:shadow-sm bg-muted/30">
+                            <div className="flex justify-between items-start">
+                                <div className="flex-grow mr-2">
+                                    <h4 className="font-semibold text-foreground">{item.title}</h4>
+                                    {item.description && <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{item.description}</p>}
+                                    {item.imageUrl && (
+                                        <div className="mt-2">
+                                            <Image src={item.imageUrl} alt={item.title || "Portfolio item"} width={100} height={60} className="rounded object-cover border" data-ai-hint={item.imageAiHint || "portfolio project"}/>
+                                        </div>
+                                    )}
+                                    {item.link && <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline mt-1 inline-flex items-center gap-1"><LinkIcon className="h-3 w-3"/>View Link</a>}
+                                    {item.videoUrl && <p className="text-xs text-muted-foreground mt-1">Video: {item.videoUrl}</p>}
+                                </div>
+                                <div className="space-x-1 flex-shrink-0">
+                                    <Button type="button" variant="ghost" size="icon" onClick={() => openEditPortfolioItemDialog(item)} className="h-8 w-8">
+                                        <Edit2 className="h-4 w-4" />
+                                    </Button>
+                                    <AlertDialogTrigger asChild>
+                                        <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeletePortfolioItem(item.id)}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                </div>
+                            </div>
                         </li>
-                      ))}
+                        ))}
                     </ul>
-                  ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">No {titleMap[sectionKey].toLowerCase()} added yet for this skillset.</p>
-                  )}
+                    ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">No portfolio items added yet for this skillset.</p>
+                    )}
                 </CardContent>
-              </Card>
-            );
-          })}
+            </Card>
+
+
+          {/* Placeholder for Professional Feed Management */}
+          <Card className="mt-6">
+            <CardHeader className="flex flex-row justify-between items-center">
+              <CardTitle className="flex items-center"><LinkIcon className="mr-2 h-5 w-5 text-primary"/>Professional Feed</CardTitle>
+              <Button type="button" variant="outline" size="sm" onClick={handleManageFeedList}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add New Post
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {editedData.professionalFeed && editedData.professionalFeed.length > 0 ? (
+                <ul className="space-y-3">
+                  {editedData.professionalFeed.map((item: any) => (
+                    <li key={item.id} className="p-3 border rounded-md flex justify-between items-center hover:bg-muted/50">
+                      <p className="font-semibold truncate w-3/4">{item.content?.substring(0,70) + (item.content?.length > 70 ? '...' : '')}</p>
+                      <div className="space-x-1">
+                         <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => toast({title:"Edit Feed Item (Not Implemented)"})}><Edit2 className="h-4 w-4"/></Button>
+                         <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8"  onClick={() => toast({title:"Delete Feed Item (Not Implemented)"})}><Trash2 className="h-4 w-4"/></Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">No feed posts added yet for this skillset.</p>
+              )}
+            </CardContent>
+          </Card>
 
           <CardFooter className="mt-8 p-0 pt-6 border-t">
             <div className="flex justify-end w-full space-x-3">
@@ -478,7 +548,6 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
         </form>
       </div>
 
-    {/* Work Experience Add/Edit Dialog */}
     <Dialog open={showWorkExperienceDialog} onOpenChange={setShowWorkExperienceDialog}>
         <DialogContent className="sm:max-w-[525px]">
             <DialogHeader>
@@ -514,18 +583,75 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
         </DialogContent>
     </Dialog>
 
-    {/* Work Experience Delete Confirmation Dialog */}
     <AlertDialog open={!!workExperienceToDeleteId} onOpenChange={(open) => !open && setWorkExperienceToDeleteId(null)}>
         <AlertDialogContent>
             <AlertDialogHeader>
                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete this work experience entry from your profile.
+                    This action cannot be undone. This will permanently delete this work experience entry.
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
                 <AlertDialogCancel onClick={() => setWorkExperienceToDeleteId(null)}>Cancel</AlertDialogCancel>
                 <AlertDialogAction onClick={executeDeleteWorkExperience} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+
+    <Dialog open={showPortfolioItemDialog} onOpenChange={setShowPortfolioItemDialog}>
+        <DialogContent className="sm:max-w-[525px]">
+            <DialogHeader>
+                <DialogTitle>{currentPortfolioItem?.id ? 'Edit' : 'Add'} Portfolio Item</DialogTitle>
+                <DialogDescription>
+                    Showcase your work related to this skillset.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="pi-title" className="text-right">Title <span className="text-destructive">*</span></Label>
+                    <Input id="pi-title" name="title" value={currentPortfolioItem?.title || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="pi-description" className="text-right">Description</Label>
+                    <Textarea id="pi-description" name="description" value={currentPortfolioItem?.description || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="Describe the project or item." />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="pi-imageUrl" className="text-right">Image URL</Label>
+                    <Input id="pi-imageUrl" name="imageUrl" value={currentPortfolioItem?.imageUrl || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="https://example.com/image.png"/>
+                </div>
+                 <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="pi-imageAiHint" className="text-right">Image AI Hint</Label>
+                    <Input id="pi-imageAiHint" name="imageAiHint" value={currentPortfolioItem?.imageAiHint || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="e.g., modern kitchen"/>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="pi-videoUrl" className="text-right">Video URL</Label>
+                    <Input id="pi-videoUrl" name="videoUrl" value={currentPortfolioItem?.videoUrl || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="https://youtube.com/watch?v=..."/>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="pi-link" className="text-right">External Link</Label>
+                    <Input id="pi-link" name="link" value={currentPortfolioItem?.link || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="https://behance.net/project/..."/>
+                </div>
+            </div>
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button type="button" variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button type="button" onClick={handleSavePortfolioItem}>Save Item</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+
+    <AlertDialog open={!!portfolioItemToDeleteId} onOpenChange={(open) => !open && setPortfolioItemToDeleteId(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete this portfolio item.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => setPortfolioItemToDeleteId(null)}>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={executeDeletePortfolioItem} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
