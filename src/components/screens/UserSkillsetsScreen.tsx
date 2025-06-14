@@ -15,10 +15,8 @@ import { cn } from '@/lib/utils';
 interface UserSkillsetsScreenProps {
   setActiveTab: (tab: TabName) => void;
   onManageSkillsetProfile: (skillsetProfileId: string) => void;
-  // userData: any; // TODO: For fetching profiles based on logged-in user
 }
 
-// --- Placeholder API Simulation Functions ---
 const simulateFetchSkillsetProfiles = async (): Promise<SkillsetProfileSummary[]> => {
   console.log('Simulating fetching user skillset profiles...');
   return new Promise((resolve) => {
@@ -54,12 +52,12 @@ const simulateCreateSkillsetProfile = async (skillName: string): Promise<Skillse
 
 const simulateToggleSkillsetProfileStatus = async (profileId: string, newStatus: boolean): Promise<boolean> => {
   console.log(`Simulating toggling status for ${profileId} to ${newStatus}`);
-  return new Promise(resolve => setTimeout(() => resolve(true), 500)); // Simulate success
+  return new Promise(resolve => setTimeout(() => resolve(true), 500)); 
 };
 
 const simulateDeleteSkillsetProfile = async (profileId: string): Promise<boolean> => {
   console.log(`Simulating deleting profile ${profileId}`);
-  return new Promise(resolve => setTimeout(() => resolve(true), 500)); // Simulate success
+  return new Promise(resolve => setTimeout(() => resolve(true), 500)); 
 };
 
 
@@ -98,9 +96,9 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
     try {
       const newProfile = await simulateCreateSkillsetProfile(newSkillsetName);
       setSkillsetProfiles(prev => [...prev, newProfile]);
-      toast({ title: "Profile Created", description: `Skillset profile "${newProfile.skillName}" created.` });
+      toast({ title: "Profile Created", description: `Skillset profile "${newProfile.skillName}" created. You can now manage its details.` });
       setNewSkillsetName('');
-      onManageSkillsetProfile(newProfile.id); // Navigate to manage the new profile
+      onManageSkillsetProfile(newProfile.id); 
     } catch (error) {
       console.error('Error creating skillset profile:', error);
       toast({ title: 'Creation Failed', description: 'Could not create skillset profile.', variant: 'destructive' });
@@ -203,7 +201,14 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
                     <CardHeader className="pb-3">
                       <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
                         <div>
-                          <CardTitle className="text-lg hover:text-primary cursor-pointer" onClick={() => onManageSkillsetProfile(profile.id)}>
+                          <CardTitle 
+                            className="text-lg hover:text-primary cursor-pointer" 
+                            onClick={() => onManageSkillsetProfile(profile.id)}
+                            onKeyDown={(e) => e.key === 'Enter' && onManageSkillsetProfile(profile.id)}
+                            tabIndex={0}
+                            role="button"
+                            aria-label={`Manage ${profile.skillName}`}
+                          >
                             {profile.skillName}
                           </CardTitle>
                           {profile.skillLevel && <CardDescription>{profile.skillLevel}</CardDescription>}

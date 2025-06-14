@@ -4,10 +4,9 @@ import { useState } from 'react';
 import React from 'react';
 import ServiceCard from '@/components/services/ServiceCard';
 import { Input } from '@/components/ui/input';
-import SvgRenderer from '@/components/ui/SvgRenderer';
-import type { Service, TabName, VehicleOption } from '@/types';
+import type { Service, TabName, VehicleOption, ActivityDetails } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Search as SearchIcon, MapPin, Car, Bike, Building2 } from 'lucide-react'; // Assuming Building2 for Auto
+import { ArrowLeft, Search as SearchIcon, MapPin, Car, Bike, Building2 } from 'lucide-react'; 
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,7 +25,7 @@ const initialServicesData: Service[] = [
 
 const taxiVehicleOptions: VehicleOption[] = [
   { id: 'bike', name: 'Bike', icon: Bike, priceRange: '₹ 50-80', estimatedETA: '5 mins', dataAiHint: "motorcycle transport" },
-  { id: 'auto', name: 'Auto', icon: Building2, priceRange: '₹ 80-120', estimatedETA: '7 mins', dataAiHint: "auto rickshaw" }, // Using Building2 as a placeholder for Auto Rickshaw icon
+  { id: 'auto', name: 'Auto', icon: Building2, priceRange: '₹ 80-120', estimatedETA: '7 mins', dataAiHint: "auto rickshaw" },
   { id: 'car_mini', name: 'Car (Mini)', icon: Car, priceRange: '₹ 120-200', estimatedETA: '10 mins', dataAiHint: "small car" },
   { id: 'car_premium', name: 'Car (Premium)', icon: Car, priceRange: '₹ 200-350', estimatedETA: '12 mins', dataAiHint: "luxury car" },
 ];
@@ -34,10 +33,10 @@ const taxiVehicleOptions: VehicleOption[] = [
 
 interface ServicesScreenProps {
   setActiveTab: (tab: TabName) => void;
-  // onRequestRide: (rideDetails: any) => void; // For future global state integration
+  onRequestRide: (rideDetails: { pickup: string; dropoff: string; vehicleId: string }) => void;
 }
 
-const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab }) => {
+const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequestRide }) => {
   const { toast } = useToast();
 
   const [isTaxiBookingActive, setIsTaxiBookingActive] = useState(false);
@@ -50,18 +49,13 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab }) => {
   const handleServiceClick = (service: Service) => {
     if (service.id === 'taxi' && !service.locked) {
       setIsTaxiBookingActive(true);
-      setPickupLocation('Your Current Location (Simulated)'); // Simulate auto-filling pickup
+      setPickupLocation('Your Current Location (Simulated)'); 
       return;
     }
-    // For other services, if they had targetTabs:
-    // if (service.targetTab && !service.locked) {
-    //   setActiveTab(service.targetTab);
-    // } else {
-      toast({
-        title: `${service.name} Service`,
-        description: service.locked ? "This service is coming soon!" : `Exploring ${service.name}.`,
-      });
-    // }
+    toast({
+      title: `${service.name} Service`,
+      description: service.locked ? "This service is coming soon!" : `Exploring ${service.name}.`,
+    });
   };
 
   const handleBookRide = async () => {
@@ -79,34 +73,23 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab }) => {
     }
 
     setIsRequestingRide(true);
-    console.log('Booking ride:', { pickupLocation, dropoffLocation, selectedVehicle });
+    console.log('Booking ride:', { pickupLocation, dropoffLocation, vehicleId: selectedVehicle.id });
+    
+    // Simulate API call delay before calling onRequestRide
+    await new Promise(resolve => setTimeout(resolve, 500)); 
 
-    // Simulate API call
-    try {
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
-        
-        toast({
-            title: "Ride Requested (Simulated)",
-            description: `Searching for drivers for your ${selectedVehicle.name} ride.`,
-        });
-        // TODO: This should trigger the ActiveActivityView in page.tsx
-        // For now, we navigate to home where the FAB might show active ride.
-        setIsTaxiBookingActive(false);
-        setPickupLocation('');
-        setDropoffLocation('');
-        setSelectedVehicle(null);
-        setActiveTab('home'); 
-        
-    } catch (error) {
-        console.error('Ride request failed:', error);
-         toast({
-            title: "Ride Request Failed",
-            description: "An error occurred while requesting your ride.",
-            variant: "destructive",
-         });
-    } finally {
-         setIsRequestingRide(false);
-    }
+    onRequestRide({
+        pickup: pickupLocation,
+        dropoff: dropoffLocation,
+        vehicleId: selectedVehicle.id, // Pass selected vehicle ID
+    });
+    
+    // Note: Toast and navigation to home will now be handled by page.tsx after activityDetails are set
+    setIsTaxiBookingActive(false);
+    setPickupLocation('');
+    setDropoffLocation('');
+    setSelectedVehicle(null);
+    setIsRequestingRide(false);
   };
   
   return (
@@ -131,7 +114,6 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab }) => {
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Location Inputs */}
             <Card>
               <CardContent className="pt-6 space-y-4">
                 <div>
@@ -166,7 +148,6 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab }) => {
               </CardContent>
             </Card>
             
-            {/* Recent Locations Placeholder */}
              <Card>
                 <CardContent className="pt-6">
                     <h3 className="text-md font-semibold text-foreground mb-2">Recent Locations</h3>
@@ -174,8 +155,6 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab }) => {
                 </CardContent>
             </Card>
 
-
-            {/* Vehicle Type Selection */}
             <div>
               <h3 className="text-lg font-semibold text-foreground mb-3">Choose Vehicle Type</h3>
               <div className="flex space-x-3 overflow-x-auto custom-scrollbar pb-2">
@@ -199,7 +178,6 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab }) => {
               </div>
             </div>
 
-            {/* Book Ride Button */}
             <Button 
               size="lg" 
               className="w-full text-lg py-6" 
@@ -210,7 +188,6 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab }) => {
               {isRequestingRide ? 'Requesting...' : `Book ${selectedVehicle?.name || 'Ride'}`}
             </Button>
             
-            {/* Cancel Booking Button */}
             <Button variant="link" className="w-full text-destructive" onClick={() => setIsTaxiBookingActive(false)}>
               Cancel Booking
             </Button>
@@ -221,5 +198,4 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab }) => {
   );
 };
 export default ServicesScreen;
-
     

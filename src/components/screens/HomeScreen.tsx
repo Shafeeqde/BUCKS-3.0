@@ -2,10 +2,10 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, MapPin, X, PocketKnife, Filter, ArrowDownUp, ShoppingCart, LucideIcon } from 'lucide-react';
+import { Search, MapPin, X, PocketKnife, Filter, ArrowDownUp, ShoppingCart, Info as InfoIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import SearchSuggestions from '@/components/home/SearchSuggestions';
 import { suggestSearchTerms, type SuggestSearchTermsInput } from '@/ai/flows/suggest-search-terms';
@@ -13,9 +13,10 @@ import { answerGeneralQuery, type GeneralQueryInput, type GeneralQueryOutput, ty
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
 
-import IndividualProfessionalCard, { type IndividualProfessionalCardData } from '@/components/search/IndividualProfessionalCard';
+import IndividualProfessionalCard from '@/components/search/IndividualProfessionalCard';
+import type { IndividualProfessionalCardData } from '@/components/search/IndividualProfessionalCard';
 import BusinessProfileCard from '@/components/search/BusinessProfileCard';
-import type { TabName, BusinessProfileCardData as BusinessCardDataType, BusinessProductCardItem } from '@/types';
+import type { BusinessProfileCardData as BusinessCardDataType, BusinessProductCardItem, TabName } from '@/types';
 
 const initialPlaceholders = [
   "What are you looking for?",
@@ -29,11 +30,12 @@ export type SearchResultItem =
   | { type: 'individual'; data: IndividualProfessionalCardData }
   | { type: 'business'; data: BusinessCardDataType };
 
+// More detailed simulated search results
 const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'individual',
     data: {
-      id: 'individual-jenson-1', // Matches ID for SkillsetProfileScreen navigation
+      id: 'jenson-interior-stylist-123', // Specific ID for Jenson's skillset
       name: 'Jenson Harris',
       avatarUrl: 'https://placehold.co/80x80.png',
       avatarAiHint: 'man smiling professional',
@@ -41,8 +43,6 @@ const simulatedSearchResults: SearchResultItem[] = [
       previewImages: [
         { url: 'https://placehold.co/200x150.png', aiHint: 'modern living room' },
         { url: 'https://placehold.co/200x150.png', aiHint: 'stylish kitchen' },
-        { url: 'https://placehold.co/200x150.png', aiHint: 'cozy bedroom' },
-        { url: 'https://placehold.co/200x150.png', aiHint: 'elegant dining area' },
       ],
       shortBio: "I'm a qualified interior designer and stylist with a keen eye for furniture, objects and art curation.",
       averageRating: 4.8,
@@ -55,7 +55,7 @@ const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'business',
     data: {
-      id: 'business-hotgriddle-1', // Matches ID for UserBusinessProfileDetailScreen navigation
+      id: 1, // Matches ID from initialBusinessProfiles in page.tsx
       name: 'Hot Griddle Restaurant',
       logoUrl: 'https://placehold.co/80x80.png',
       logoAiHint: 'restaurant logo',
@@ -64,65 +64,59 @@ const simulatedSearchResults: SearchResultItem[] = [
       averageRating: 4.5,
       totalReviews: 232,
       products: [
-        { id: 'p-biryani-1', name: 'Mutton Biryani (Serves 2)', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'mutton biryani', price: '299', discountPrice: '229', discountPercentage: '22%' },
-        { id: 'p-pizza-1', name: 'Spicy Chicken Pizza', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'pizza slice', price: '350' },
-        { id: 'p-burger-1', name: 'Classic Griddle Burger', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'burger', price: '180' },
+        { id: 'prod-biryani-101', name: 'Mutton Biryani (Serves 2)', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'mutton biryani', price: '299', discountPrice: '229', discountPercentage: '22%' },
+        { id: 'prod-pizza-102', name: 'Spicy Chicken Pizza', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'pizza slice', price: '350' },
       ],
       phone: '+91 9876543210',
     },
   },
-    {
+  {
     type: 'individual',
     data: {
-      id: 'prof2-ux-designer-skillset', // Made up ID for a skillset
-      name: 'Alicia Keyson',
+      id: 'plumbing-profile-johndoe-123', // Specific ID for John Doe's skillset
+      name: 'John Doe',
       avatarUrl: 'https://placehold.co/80x80.png',
-      avatarAiHint: 'woman architect',
-      professionalTitle: 'Lead UX Designer',
+      avatarAiHint: 'man plumber tools',
+      professionalTitle: 'Master Plumber',
       previewImages: [
-        { url: 'https://placehold.co/200x150.png', aiHint: 'app interface' },
-        { url: 'https://placehold.co/200x150.png', aiHint: 'website mockup' },
+        { url: 'https://placehold.co/200x150.png', aiHint: 'pipe installation' },
       ],
-      shortBio: 'Crafting intuitive and engaging digital experiences. Expert in user research, prototyping, and usability testing.',
+      shortBio: 'Reliable plumbing services for residential and commercial properties.',
       averageRating: 4.9,
-      totalReviews: 210,
-      recommendationsCount: 180,
-      phone: '555-0102',
-      email: 'alicia.k@example.com',
+      totalReviews: 75,
+      recommendationsCount: 60,
+      phone: '555-0111',
+      email: 'john.doe@example.com',
     },
   },
   {
     type: 'business',
     data: {
-      id: 'business-aromas-2', // Matches ID for UserBusinessProfileDetailScreen navigation (using 2 from page.tsx)
-      name: 'Aromas of Biryani Cafe',
+      id: 2, // Matches ID from initialBusinessProfiles in page.tsx
+      name: 'Mikado UX UI & Branding Studio',
       logoUrl: 'https://placehold.co/80x80.png',
-      logoAiHint: 'biryani shop',
-      briefInfo: '10-15 mins • 3km away • BTM layout',
-      tagline: 'Authentic Biryani Experience & Cafe Delights',
-      averageRating: 4.2,
-      totalReviews: 150,
-       products: [
-        { id: 'aroma-p1', name: 'Chicken Dum Biryani', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'dum biryani', price: '280' },
-        { id: 'aroma-p2', name: 'Paneer Biryani Special', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'paneer biryani', price: '250', discountPrice: '220', discountPercentage: '10%' },
-        { id: 'aroma-coffee-1', name: 'Cappuccino Cafe Special', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'coffee cup', price: '120' },
+      logoAiHint: 'design studio',
+      briefInfo: 'Indiranagar, Bengaluru',
+      tagline: 'Curating digital experiences that connect with people.',
+      averageRating: 4.9,
+      totalReviews: 75,
+      products: [
+         { id: 'serv-brand-pkg', name: 'Brand Identity Package', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'branding design', price: 'Quote' },
       ],
-      phone: '+91 9123456789',
+      phone: '+91 8197278080',
     },
   },
 ];
 
 interface HomeScreenProps {
   setActiveTab: (tab: TabName) => void;
-  onSelectIndividualProfile: (profileId: string) => void; // Kept for potential general profiles
   onSelectBusinessProfile: (profileId: string | number) => void;
-  onSelectSkillsetProfile: (skillsetProfileId: string) => void; // For specific skill profiles
+  onSelectSkillsetProfile: (skillsetProfileId: string) => void;
   onAddToCart: (businessId: string | number, productId: string) => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
   setActiveTab,
-  onSelectIndividualProfile,
   onSelectBusinessProfile,
   onSelectSkillsetProfile,
   onAddToCart
@@ -149,7 +143,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const [displayedSearchResults, setDisplayedSearchResults] = useState<SearchResultItem[]>([]);
   const [isLoadingSimulatedResults, setIsLoadingSimulatedResults] = useState(false);
 
-
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
     if (!isSearchMode) {
@@ -171,7 +164,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    if (e.target.value.trim() === '' && isSearchMode) { // Clear results if search term cleared in search mode
+    if (e.target.value.trim() === '' && isSearchMode) {
         setDisplayedSearchResults([]);
         setAiTextAnswer(null);
         setFoundLocations([]);
@@ -181,9 +174,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
   const handleFocus = () => {
     setShowSuggestions(true);
-    if (!isSearchMode) { // If focusing from map view, don't immediately set to search mode
-      // but allow suggestions to show
-    }
   };
 
   const handleBlur = () => {
@@ -232,14 +222,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     }
   }, [searchTerm, showSuggestions, fetchAiSuggestions, isAnsweringQuery, currentQueryType, isLoadingAiSuggestions]);
 
-
   const performSimulatedSearch = useCallback((query: string) => {
     const trimmedQuery = query.trim();
     const lowerQuery = trimmedQuery.toLowerCase();
     console.log('[HomeScreen] performSimulatedSearch called with query:', `"${trimmedQuery}" (lowercase: "${lowerQuery}")`);
 
     if (trimmedQuery === '') {
-        console.log('[HomeScreen] Empty query, clearing simulated results.');
+        console.log('[HomeScreen] Empty query, not showing simulated results by default.');
         setDisplayedSearchResults([]);
         setIsLoadingSimulatedResults(false);
         return;
@@ -273,7 +262,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
       setIsLoadingSimulatedResults(false);
     }, 500);
   }, []);
-
 
   const handleQuerySubmit = async (event?: React.FormEvent<HTMLFormElement>, queryOverride?: string) => {
     if (event) event.preventDefault();
@@ -353,7 +341,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   let currentSuggestionTitle: string = '';
 
   const shouldTryShowSuggestionsContainer = showSuggestions &&
-                                          (!isSearchMode || (isSearchMode && !aiTextAnswer && !isAnsweringQuery && foundLocations.length === 0 && displayedSearchResults.length === 0));
+                                          (!isSearchMode || (isSearchMode && !aiTextAnswer && !isAnsweringQuery && foundLocations.length === 0 && displayedSearchResults.length === 0 && !isLoadingSimulatedResults));
 
 
   if (shouldTryShowSuggestionsContainer) {
@@ -375,21 +363,22 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const showResultsArea = isSearchMode;
 
   const handleIndividualCardPress = (profileId: string) => {
-    console.log(`Individual card pressed, navigating to skillset profile: ${profileId}`);
-    // Assuming individual cards always link to skillset profiles now
+    console.log(`[HomeScreen] Individual/Skillset card pressed, navigating to skillset profile: ${profileId}`);
     onSelectSkillsetProfile(profileId);
   };
+
   const handleBusinessCardPress = (id: string | number) => {
-    console.log(`Business card pressed: ${id}`);
+    console.log(`[HomeScreen] Business card pressed: ${id}`);
     onSelectBusinessProfile(id);
   };
   
-  const handleCardEnquiryClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Enquiry for ${type}: ${id}` });
-  const handleCardCallClick = (id: string | number, phone: string | undefined, type: 'individual' | 'business') => toast({ title: `Call ${type}: ${id}`, description: phone ? `Dialing ${phone}` : "No phone." });
-  const handleCardRecommendClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Recommend ${type}: ${id}` });
-  const handleCardShareClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Share ${type}: ${id}` });
-  const handleCardFollowClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Follow ${type}: ${id}` });
-  const handleCardProductClick = (businessId: string | number, productId: string) => toast({ title: `Product ${productId} from Business ${businessId} clicked.` });
+  const handleCardEnquiryClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Enquiry for ${type}: ${id} (Simulated)` });
+  const handleCardCallClick = (id: string | number, phone: string | undefined, type: 'individual' | 'business') => toast({ title: `Call ${type}: ${id} (Simulated)`, description: phone ? `Dialing ${phone}` : "No phone." });
+  const handleCardRecommendClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Recommend ${type}: ${id} (Simulated)` });
+  const handleCardShareClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Share ${type}: ${id} (Simulated)` });
+  const handleCardFollowClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Follow ${type}: ${id} (Simulated)` });
+  const handleCardProductClick = (businessId: string | number, productId: string) => toast({ title: `Product ${productId} from Business ${businessId} clicked (Simulated).` });
+
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -607,6 +596,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
             
             {isSearchMode && !isAnsweringQuery && !isLoadingSimulatedResults && displayedSearchResults.length === 0 && searchTerm.trim() === '' && (
                  <div className="text-center py-10 text-muted-foreground">
+                     <InfoIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                     <p className="text-lg">Please enter a search term to find professionals or businesses.</p>
                 </div>
             )}
@@ -618,5 +608,4 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 };
 
 export default HomeScreen;
-
     
