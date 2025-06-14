@@ -30,7 +30,7 @@ To share this app with others, you need to deploy it. Firebase App Hosting is th
     firebase login
     ```
     Follow the prompts to log in with your Google account.
-fi
+
 3.  **Target your Firebase Project**:
     Ensure your CLI is connected to the correct Firebase project. If you have multiple projects, you can list them with `firebase projects:list` and set the active project with `firebase use <your-project-id>`.
 
@@ -44,4 +44,3 @@ fi
     After successful deployment, the Firebase CLI will provide you with a Hosting URL (e.g., `https://your-project-id.web.app` or similar). Share this URL with your friends!
 
 For more detailed information, refer to the [Firebase App Hosting documentation](https://firebase.google.com/docs/app-hosting).
-
