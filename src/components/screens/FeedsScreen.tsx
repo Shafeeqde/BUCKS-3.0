@@ -2,11 +2,16 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Image as ImageIcon, TextIcon } from 'lucide-react';
 import CategoryItem from '@/components/feeds/CategoryItem';
 import FeedCard from '@/components/feeds/FeedCard';
 import type { Category, FeedItem as FeedItemType } from '@/types';
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 const initialCategories: Category[] = [
   { id: 'moments-0', name: 'Your Moments', icon: Plus, type: 'moments', viewed: false, color: 'bg-primary/10 text-primary' },
@@ -53,6 +58,10 @@ const FeedsScreen = () => {
   const [feedItems, setFeedItems] = useState<FeedItemType[]>(initialFeedItems);
   const { toast } = useToast();
 
+  const [showCreateMomentDialog, setShowCreateMomentDialog] = useState(false);
+  const [momentImageUrl, setMomentImageUrl] = useState('');
+  const [momentText, setMomentText] = useState('');
+
   const handleInteraction = (id: number, type: 'recommend' | 'notRecommend') => {
     setFeedItems(prevItems =>
       prevItems.map(item => {
@@ -69,8 +78,8 @@ const FeedsScreen = () => {
             ...item,
             recommendations: updatedRecommendations,
             notRecommendations: updatedNotRecommendations,
-            showCommentBox: isOpeningCommentBox, 
-            currentComment: '' 
+            showCommentBox: isOpeningCommentBox,
+            currentComment: ''
           };
         }
         return item;
@@ -102,38 +111,115 @@ const FeedsScreen = () => {
   };
 
   const handleCategoryClick = (id: string) => {
-    setCategories(prevCategories =>
-      prevCategories.map(category =>
-        category.id === id ? { ...category, viewed: true } : category
-      )
-    );
     const category = categories.find(c => c.id === id);
+    if (category?.type === 'moments' && category.id === 'moments-0') {
+      setMomentImageUrl('');
+      setMomentText('');
+      setShowCreateMomentDialog(true);
+    } else {
+      setCategories(prevCategories =>
+        prevCategories.map(cat =>
+          cat.id === id ? { ...cat, viewed: true } : cat
+        )
+      );
+      toast({
+          title: `Viewing ${category?.name || 'Category'}`,
+          description: "Content for this category would load here in a full app.",
+      });
+    }
+  };
+
+  const handlePostMoment = () => {
+    if (!momentImageUrl.trim() && !momentText.trim()) {
+      toast({
+        title: "Cannot Post Empty Moment",
+        description: "Please add an image URL or some text for your moment.",
+        variant: "destructive",
+      });
+      return;
+    }
+    // Simulate posting the moment
+    console.log("Posting moment:", { imageUrl: momentImageUrl, text: momentText });
     toast({
-        title: `Viewing ${category?.name || 'Category'}`,
-        description: "Content for this category would load here in a full app.",
+      title: "Moment Posted! (Simulated)",
+      description: "Your moment has been shared.",
     });
+    setShowCreateMomentDialog(false);
+    setMomentImageUrl('');
+    setMomentText('');
+    // In a real app, you'd add this moment to a list and potentially update the "Your Moments" category visual
   };
 
   return (
-    <main className="flex-grow bg-background overflow-y-auto h-full custom-scrollbar">
-      <div className="flex py-3 border-b border-border overflow-x-auto custom-scrollbar px-4 space-x-3 bg-card sticky top-0 z-[5]">
-        {categories.map((category) => (
-          <CategoryItem key={category.id} category={category} onClick={handleCategoryClick} />
-        ))}
-      </div>
+    <>
+      <main className="flex-grow bg-background overflow-y-auto h-full custom-scrollbar">
+        <div className="flex py-3 border-b border-border overflow-x-auto custom-scrollbar px-4 space-x-3 bg-card sticky top-0 z-[5]">
+          {categories.map((category) => (
+            <CategoryItem key={category.id} category={category} onClick={handleCategoryClick} />
+          ))}
+        </div>
 
-      <div className="p-4 space-y-4">
-        {feedItems.map((item) => (
-          <FeedCard
-            key={item.id}
-            item={item}
-            onInteraction={handleInteraction}
-            onCommentChange={handleCommentChange}
-            onPostComment={handlePostComment}
-          />
-        ))}
-      </div>
-    </main>
+        <div className="p-4 space-y-4">
+          {feedItems.map((item) => (
+            <FeedCard
+              key={item.id}
+              item={item}
+              onInteraction={handleInteraction}
+              onCommentChange={handleCommentChange}
+              onPostComment={handlePostComment}
+            />
+          ))}
+        </div>
+      </main>
+
+      <Dialog open={showCreateMomentDialog} onOpenChange={setShowCreateMomentDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <Plus className="mr-2 h-5 w-5 text-primary" /> Create Your Moment
+            </DialogTitle>
+            <DialogDescription>
+              Share an image and a short text with your followers.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="momentImageUrl" className="flex items-center">
+                <ImageIcon className="mr-2 h-4 w-4 text-muted-foreground" /> Image URL
+              </Label>
+              <Input
+                id="momentImageUrl"
+                placeholder="https://example.com/image.png"
+                value={momentImageUrl}
+                onChange={(e) => setMomentImageUrl(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="momentText" className="flex items-center">
+                <TextIcon className="mr-2 h-4 w-4 text-muted-foreground" /> Your Text
+              </Label>
+              <Textarea
+                id="momentText"
+                placeholder="What's happening?"
+                value={momentText}
+                onChange={(e) => setMomentText(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button type="button" onClick={handlePostMoment}>
+              Post Moment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
