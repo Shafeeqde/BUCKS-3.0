@@ -26,6 +26,7 @@ interface SideMenuProps {
   setActiveTab: (tab: TabName) => void;
   businessProfiles: UserBusinessProfile[];
   onSelectBusinessProfile: (id: string | number) => void;
+  selectedBusinessProfileId: string | number | null; // Added prop
   onLogout: () => void;
 }
 
@@ -36,11 +37,12 @@ const SideMenu: React.FC<SideMenuProps> = ({
   setActiveTab,
   businessProfiles,
   onSelectBusinessProfile,
+  selectedBusinessProfileId, // Consuming prop
   onLogout,
 }) => {
   const menuItems = [
     { name: 'Professional Profile', tab: 'account' as TabName, icon: User },
-    { name: 'Skillsets', tab: 'user-skillsets' as TabName, icon: Rocket }, // Corrected tab name
+    { name: 'Skillsets', tab: 'user-skillsets' as TabName, icon: Rocket },
     { name: 'Vehicles', tab: 'vehicles' as TabName, icon: Car },
     { name: 'Business Profiles', tab: 'business-profiles' as TabName, icon: Briefcase },
   ];
@@ -85,7 +87,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
                 {businessProfiles.map((profile) => (
                   <Button
                     key={profile.id}
-                    variant={activeTab === 'business-detail' && profile.id === profile.id /* Need to get selectedBusinessProfileId here */ ? 'secondary' : 'ghost'}
+                    variant={activeTab === 'business-detail' && profile.id === selectedBusinessProfileId ? 'secondary' : 'ghost'} // Corrected active state check
                     className="w-full justify-start text-sm h-11"
                     onClick={() => handleBusinessProfileClick(profile.id)}
                   >

@@ -616,6 +616,7 @@ export default function AppRoot() {
           setActiveTab={handleTabSelection}
           businessProfiles={businessProfilesData}
           onSelectBusinessProfile={handleSelectBusinessProfile}
+          selectedBusinessProfileId={selectedBusinessProfileId}
           onLogout={handleLogout}
         />
       )}
