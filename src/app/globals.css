@@ -9,97 +9,97 @@ body {
 
 @layer base {
   :root {
-    /* Teal and Warm Grey Theme */
-    --background: 200 20% 97%; /* Very light, slightly cool off-white */
-    --foreground: 210 10% 23%; /* Dark Desaturated Blue/Grey for text */
+    /* Glowing Neon Teal Theme */
+    --background: 240 10% 4%; /* Very Dark Blue/Almost Black */
+    --foreground: 180 100% 95%; /* Bright Cyan-White for text */
 
-    --card: 0 0% 100%; /* White for cards */
-    --card-foreground: 210 10% 23%;
+    --card: 240 8% 8%; /* Slightly Lighter Dark Blue for cards */
+    --card-foreground: 180 100% 95%;
 
-    --popover: 0 0% 100%; /* White for popovers */
-    --popover-foreground: 210 10% 23%;
+    --popover: 240 8% 6%; /* Darker Popover */
+    --popover-foreground: 180 100% 95%;
 
-    --primary: 170 70% 45%; /* Teal */
-    --primary-foreground: 0 0% 100%; /* White for text on primary */
+    --primary: 170 100% 50%; /* Neon Teal */
+    --primary-foreground: 210 100% 15%; /* Very Dark Blue for text on Neon Teal */
 
-    --secondary: 170 50% 90%; /* Light Teal */
-    --secondary-foreground: 170 70% 30%; /* Darker Teal for text on secondary */
+    --secondary: 170 80% 30%; /* Dimmer Teal */
+    --secondary-foreground: 180 100% 90%; /* Light Cyan for text on secondary */
 
-    --muted: 210 20% 94%; /* Lighter Cool Grey for muted elements */
-    --muted-foreground: 210 10% 45%; 
+    --muted: 240 5% 12%; /* Dark Muted Blue/Grey */
+    --muted-foreground: 180 20% 70%; /* Muted Cyan-Grey */
 
-    --accent: 30 90% 60%; /* Warm Orange/Coral for pop */
-    --accent-foreground: 0 0% 100%; /* White for text on accent */
+    --accent: 320 100% 55%; /* Neon Pink/Magenta */
+    --accent-foreground: 0 0% 100%; /* White text on Neon Pink */
 
-    --destructive: 0 70% 55%; /* Softer Red */
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 100% 55%; /* Neon Red */
+    --destructive-foreground: 0 0% 100%; /* White text on Neon Red */
 
-    --border: 200 20% 88%; /* Slightly darker cool border */
-    --input: 0 0% 100%; /* White inputs */
-    --ring: 170 70% 45%; /* Primary Teal for rings */
+    --border: 170 50% 30%; /* Dim Teal border, for a subtle neon edge */
+    --input: 240 8% 10%; /* Dark input background */
+    --ring: 170 100% 55%; /* Neon Teal for rings (slightly lighter for pop) */
 
-    --chart-1: 170 70% 50%; /* Teal */
-    --chart-2: 30 85% 60%;  /* Orange */
-    --chart-3: 190 60% 60%; /* Lighter Teal/Cyan */
-    --chart-4: 210 20% 50%; /* Medium Grey */
-    --chart-5: 160 50% 40%; /* Darker Teal */
+    --chart-1: 170 100% 50%; /* Neon Teal */
+    --chart-2: 320 100% 55%; /* Neon Pink */
+    --chart-3: 50 100% 50%;  /* Neon Yellow */
+    --chart-4: 240 10% 50%; /* Mid Grey for charts */
+    --chart-5: 170 80% 70%; /* Lighter Neon Teal */
     --radius: 0.5rem;
 
-    /* Sidebar variables adapted to Teal theme */
-    --sidebar-background: 170 30% 97%; /* Very light teal, almost white */
-    --sidebar-foreground: 170 50% 25%; /* Dark teal text */
-    --sidebar-primary: 170 70% 45%; /* Main Teal for active items */
-    --sidebar-primary-foreground: 0 0% 100%; /* White text on primary */
-    --sidebar-accent: 170 60% 55%; /* Brighter Teal for hover/accent */
-    --sidebar-accent-foreground: 0 0% 100%; /* White text on accent */
-    --sidebar-border: 170 20% 85%; /* Light Teal border */
-    --sidebar-ring: 170 70% 45%; /* Main Teal for rings */
+    /* Sidebar variables adapted to Neon Teal theme */
+    --sidebar-background: 240 10% 3%; /* Even darker for sidebar */
+    --sidebar-foreground: 180 80% 85%; /* Slightly dimmer cyan text */
+    --sidebar-primary: 170 100% 50%; /* Neon Teal for active items */
+    --sidebar-primary-foreground: 210 100% 10%; /* Very dark for text on neon */
+    --sidebar-accent: 320 100% 55%; /* Neon Pink for hover/accent */
+    --sidebar-accent-foreground: 0 0% 100%; /* White text */
+    --sidebar-border: 170 50% 20%; /* Darker Teal border */
+    --sidebar-ring: 170 100% 55%;
   }
 
   .dark {
-    --background: 200 20% 12%; /* Dark Cool Grey/Blue background */
-    --foreground: 200 15% 95%; /* Light Off-white text */
+    --background: 0 0% 2%; /* Pure Black for deep contrast */
+    --foreground: 180 100% 95%; 
 
-    --card: 200 20% 18%; /* Darker card background */
-    --card-foreground: 200 15% 95%;
+    --card: 0 0% 6%; 
+    --card-foreground: 180 100% 95%;
 
-    --popover: 200 15% 15%;
-    --popover-foreground: 200 15% 95%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 180 100% 95%;
 
-    --primary: 170 65% 55%; /* Lighter Teal for dark mode primary */
-    --primary-foreground: 200 20% 10%; /* Very Dark Grey for text on primary */
+    --primary: 170 100% 50%; 
+    --primary-foreground: 210 100% 15%;
 
-    --secondary: 170 30% 25%; /* Muted Dark Teal for secondary elements */
-    --secondary-foreground: 170 40% 85%; /* Lighter Teal text */
+    --secondary: 170 80% 30%;
+    --secondary-foreground: 180 100% 90%;
 
-    --muted: 200 15% 22%;
-    --muted-foreground: 200 10% 65%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 180 20% 70%;
 
-    --accent: 30 80% 65%; /* Slightly lighter Orange/Coral for dark mode */
-    --accent-foreground: 20 20% 10%; /* Dark text on accent */
+    --accent: 320 100% 55%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 60% 50%; /* Red for destructive actions */
+    --destructive: 0 100% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 200 15% 28%;
-    --input: 200 15% 20%;
-    --ring: 170 65% 55%; /* Primary Teal for rings */
+    --border: 170 50% 25%; 
+    --input: 0 0% 7%;
+    --ring: 170 100% 55%;
 
-    --chart-1: 170 60% 50%;
-    --chart-2: 30 75% 60%;
-    --chart-3: 190 50% 55%;
-    --chart-4: 210 15% 45%;
-    --chart-5: 160 40% 35%;
+    --chart-1: 170 100% 50%;
+    --chart-2: 320 100% 55%;
+    --chart-3: 50 100% 50%;
+    --chart-4: 0 0% 40%; /* Darker Grey for charts */
+    --chart-5: 170 80% 70%;
 
-    /* Sidebar dark theme variables */
-    --sidebar-background: 200 20% 15%; /* Dark cool grey for sidebar */
-    --sidebar-foreground: 200 15% 90%; /* Light text */
-    --sidebar-primary: 170 65% 55%; /* Lighter Teal for active items */
-    --sidebar-primary-foreground: 0 0% 100%; /* White text */
-    --sidebar-accent: 170 55% 65%; /* Lighter Teal for hover */
-    --sidebar-accent-foreground: 200 20% 10%; /* Dark text */
-    --sidebar-border: 200 15% 25%; /* Darker border */
-    --sidebar-ring: 170 65% 55%; /* Primary Teal for rings */
+    /* Sidebar dark theme variables - already dark, but can be tweaked if needed */
+    --sidebar-background: 0 0% 1%; 
+    --sidebar-foreground: 180 80% 85%;
+    --sidebar-primary: 170 100% 50%;
+    --sidebar-primary-foreground: 210 100% 10%;
+    --sidebar-accent: 320 100% 55%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 170 50% 15%;
+    --sidebar-ring: 170 100% 55%;
   }
 }
 
@@ -139,3 +139,4 @@ body {
   @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
 }
 */
+
