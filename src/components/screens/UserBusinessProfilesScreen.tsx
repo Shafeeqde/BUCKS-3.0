@@ -10,16 +10,16 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { PlusCircle, Edit3, Trash2, XCircle, Building, Search, ExternalLink } from 'lucide-react';
-import type { UserBusinessProfile } from '@/types'; // Removed unused imports
+import type { UserBusinessProfile } from '@/types'; 
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 
 interface UserBusinessProfilesScreenProps {
   businessProfiles: UserBusinessProfile[];
   onSelectProfile: (id: string | number) => void;
-  onManageProfile: (id: string | number) => void; // New prop for navigation to management screen
+  onManageProfile: (id: string | number) => void; 
 }
 
 const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
@@ -59,12 +59,11 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
       setProfiles(updatedProfiles);
       toast({ title: "Profile Updated", description: `${currentProfile.name} has been updated.` });
       resetForm();
-      // Optionally, navigate to the updated profile's management screen or detail screen
       onManageProfile(editingProfile.id);
 
     } else {
       const newProfileToAdd: UserBusinessProfile = {
-        id: Date.now(), // Using number for simplicity, could be string
+        id: Date.now(), 
         name: currentProfile.name,
         bio: currentProfile.bio,
         logo: currentProfile.logo || `https://placehold.co/80x80.png?text=${currentProfile.name.substring(0,2)}`,
@@ -90,12 +89,11 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
       setProfiles(prev => [...prev, newProfileToAdd]);
       toast({ title: "Profile Added", description: `${newProfileToAdd.name} has been added. You can now manage its details.` });
       resetForm();
-      onManageProfile(newProfileToAdd.id); // Navigate to manage the newly created profile
+      onManageProfile(newProfileToAdd.id); 
     }
   };
 
   const handleEdit = (profile: UserBusinessProfile) => {
-    // Instead of setting editingProfile here, directly navigate to the management screen
     onManageProfile(profile.id);
   };
 
@@ -112,8 +110,6 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
   };
 
   const toggleActive = (profileId: string | number) => {
-    // Here, you'd typically make an API call to update the backend
-    // For simulation, we update local state and show a toast
     setProfiles(profiles.map(p => {
       if (p.id === profileId) {
         const updatedProfile = { ...p, isActive: !p.isActive };
@@ -229,7 +225,7 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
                 <Card 
                   key={profile.id} 
                   className={cn(
-                    "transition-all duration-200 ease-in-out hover:shadow-md hover:border-primary/50", 
+                    "transition-all duration-200 ease-in-out hover:shadow-lg hover:border-primary/50", 
                     !profile.isActive && "bg-muted/50 opacity-70"
                   )}
                 >
@@ -251,18 +247,16 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
                     <div className="flex flex-col items-end space-y-2">
                       <Switch 
                         checked={!!profile.isActive} 
-                        onCheckedChange={(e) => toggleActive(profile.id)} 
+                        onCheckedChange={() => toggleActive(profile.id)} 
                         aria-label={profile.isActive ? "Deactivate profile" : "Activate profile"} 
                       />
                       <div className="flex space-x-1">
                         <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => handleEdit(profile)}>
                           <Edit3 className="h-4 w-4" />
                         </Button>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8" onClick={() => confirmDelete(profile)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
+                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8" onClick={() => confirmDelete(profile)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -298,3 +292,5 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
 };
 
 export default UserBusinessProfilesScreen;
+
+    

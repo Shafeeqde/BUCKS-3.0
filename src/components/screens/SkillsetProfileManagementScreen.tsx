@@ -15,7 +15,7 @@ import type { TabName, SkillsetProfileData, SkillsetSpecificWorkExperience, Skil
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 
 interface SkillsetProfileFormData {
@@ -36,7 +36,7 @@ interface SkillsetProfileFormData {
   };
   workExperienceEntries: SkillsetSpecificWorkExperience[];
   portfolioItems: SkillsetSpecificPortfolioItem[];
-  professionalFeed: SkillsetSpecificFeedItem[]; // Changed from optional
+  professionalFeed: SkillsetSpecificFeedItem[]; 
 }
 
 
@@ -281,12 +281,12 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     }
     if (!editedData) return;
 
-    if (currentPortfolioItem.id) { // Editing
+    if (currentPortfolioItem.id) { 
         const updatedItems = editedData.portfolioItems.map(item =>
             item.id === currentPortfolioItem!.id ? { ...item, ...currentPortfolioItem } as SkillsetSpecificPortfolioItem : item
         );
         setEditedData({ ...editedData, portfolioItems: updatedItems });
-    } else { // Adding new
+    } else { 
         const newItem: SkillsetSpecificPortfolioItem = {
             id: `pi-${Date.now()}`,
             title: currentPortfolioItem.title,
@@ -317,7 +317,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
 
   // --- Professional Feed CRUD Functions ---
   const openAddFeedItemDialog = () => {
-    setCurrentFeedItem({ timestamp: new Date().toLocaleDateString() }); // Pre-fill timestamp
+    setCurrentFeedItem({ timestamp: new Date().toLocaleDateString() }); 
     setShowFeedItemDialog(true);
   };
 
@@ -338,12 +338,12 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     }
     if (!editedData) return;
 
-    if (currentFeedItem.id) { // Editing
+    if (currentFeedItem.id) { 
         const updatedItems = editedData.professionalFeed.map(item =>
             item.id === currentFeedItem!.id ? { ...item, ...currentFeedItem } as SkillsetSpecificFeedItem : item
         );
         setEditedData({ ...editedData, professionalFeed: updatedItems });
-    } else { // Adding new
+    } else { 
         const newItem: SkillsetSpecificFeedItem = {
             id: `feed-${Date.now()}`,
             content: currentFeedItem.content,
@@ -506,11 +506,9 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                                     <Button type="button" variant="ghost" size="icon" onClick={() => openEditWorkExperienceDialog(exp)} className="h-8 w-8">
                                         <Edit2 className="h-4 w-4" />
                                     </Button>
-                                    <AlertDialogTrigger asChild>
-                                        <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteWorkExperience(exp.id)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </AlertDialogTrigger>
+                                    <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteWorkExperience(exp.id)}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
                                 </div>
                             </div>
                         </li>
@@ -550,11 +548,9 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                                     <Button type="button" variant="ghost" size="icon" onClick={() => openEditPortfolioItemDialog(item)} className="h-8 w-8">
                                         <Edit2 className="h-4 w-4" />
                                     </Button>
-                                    <AlertDialogTrigger asChild>
-                                        <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeletePortfolioItem(item.id)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </AlertDialogTrigger>
+                                    <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeletePortfolioItem(item.id)}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
                                 </div>
                             </div>
                         </li>
@@ -593,11 +589,9 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                           <Button type="button" variant="ghost" size="icon" onClick={() => openEditFeedItemDialog(item)} className="h-8 w-8">
                             <Edit2 className="h-4 w-4" />
                           </Button>
-                          <AlertDialogTrigger asChild>
-                            <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteFeedItem(item.id)}>
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
+                          <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteFeedItem(item.id)}>
+                              <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </li>
@@ -679,7 +673,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                     Showcase your work related to this skillset.
                 </DialogDescription>
             </DialogHeader>
-            <ScrollArea className="max-h-[60vh] pr-6"> {/* Added ScrollArea for dialog content */}
+            <ScrollArea className="max-h-[60vh] pr-6"> 
               <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="pi-title" className="text-right">Title <span className="text-destructive">*</span></Label>
@@ -741,7 +735,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
             </DialogHeader>
             <ScrollArea className="max-h-[60vh] pr-6">
               <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-start gap-4"> {/* Changed items-center to items-start for Textarea */}
+                  <div className="grid grid-cols-4 items-start gap-4"> 
                       <Label htmlFor="feed-content" className="text-right pt-2">Content <span className="text-destructive">*</span></Label>
                       <Textarea id="feed-content" name="content" value={currentFeedItem?.content || ''} onChange={handleFeedItemDialogChange} className="col-span-3" placeholder="What's on your mind?" rows={4} />
                   </div>
@@ -757,7 +751,6 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                       <Label htmlFor="feed-timestamp" className="text-right">Timestamp</Label>
                       <Input id="feed-timestamp" name="timestamp" value={currentFeedItem?.timestamp || ''} onChange={handleFeedItemDialogChange} className="col-span-3" placeholder="e.g., Just now, 2 hours ago, Jan 15"/>
                   </div>
-                  {/* videoUrl can be added if needed for feed items */}
               </div>
             </ScrollArea>
             <DialogFooter>
@@ -790,5 +783,4 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
 
 export default SkillsetProfileManagementScreen;
 
-
-  
+    

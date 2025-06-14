@@ -15,7 +15,7 @@ import type { UserBusinessProfile, BusinessProduct, BusinessService } from '@/ty
 import { initialBusinessProfiles } from '@/app/page'; 
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 
 
@@ -221,13 +221,13 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
 
     let updatedServices = [...(editedData.services || [])];
 
-    if (currentService.id) { // Editing existing service
+    if (currentService.id) { 
       updatedServices = updatedServices.map(serv =>
         serv.id === currentService!.id ? { ...serv, ...currentService } as BusinessService : serv
       );
-    } else { // Adding new service
+    } else { 
       const newService: BusinessService = {
-        id: `serv-${Date.now()}`, // Generate unique ID
+        id: `serv-${Date.now()}`, 
         name: currentService.name,
         description: currentService.description || '',
         price: currentService.price || '',
@@ -352,11 +352,9 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
                                             <Button type="button" variant="ghost" size="icon" onClick={() => openEditProductDialog(product)} className="h-8 w-8">
                                                 <Edit2 className="h-4 w-4" />
                                             </Button>
-                                            <AlertDialogTrigger asChild>
-                                                <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteProduct(product.id)}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </AlertDialogTrigger>
+                                            <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteProduct(product.id)}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
                                         </div>
                                     </div>
                                 </Card>
@@ -390,11 +388,9 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
                                             <Button type="button" variant="ghost" size="icon" onClick={() => openEditServiceDialog(service)} className="h-8 w-8">
                                                 <Edit2 className="h-4 w-4" />
                                             </Button>
-                                            <AlertDialogTrigger asChild>
-                                                <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteService(service.id)}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </AlertDialogTrigger>
+                                            <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteService(service.id)}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
                                         </div>
                                     </div>
                                 </Card>
@@ -432,7 +428,6 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
         </form>
       </div>
 
-      {/* Product Dialog */}
       <Dialog open={showProductDialog} onOpenChange={setShowProductDialog}>
         <DialogContent className="sm:max-w-lg">
             <DialogHeader>
@@ -501,7 +496,6 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Service Dialog */}
       <Dialog open={showServiceDialog} onOpenChange={setShowServiceDialog}>
         <DialogContent className="sm:max-w-lg">
             <DialogHeader>
