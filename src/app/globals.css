@@ -9,98 +9,98 @@ body {
 
 @layer base {
   :root {
-    /* Light Mode with Vibrant Teal & Pink */
-    --background: 210 40% 98%;    /* Very Light Cool Gray */
-    --foreground: 210 10% 23%;    /* Dark Gray for text */
+    /* Modern Blue & Slate with Vibrant Coral Accent - Light Mode */
+    --background: 220 30% 97%;    /* Very Light Cool Off-White */
+    --foreground: 220 20% 25%;    /* Dark Slate Blue/Grey (for text) */
 
     --card: 0 0% 100%;             /* White */
-    --card-foreground: 210 10% 23%;
+    --card-foreground: 220 20% 25%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 10% 23%;
+    --popover-foreground: 220 20% 25%;
 
-    --primary: 170 100% 40%;       /* Vibrant Teal (slightly darker for light bg) */
-    --primary-foreground: 0 0% 100%; /* White text on Teal */
+    --primary: 210 75% 55%;       /* Strong, Professional Blue */
+    --primary-foreground: 0 0% 100%; /* White text on Blue */
 
-    --secondary: 170 70% 65%;     /* Lighter Teal */
-    --secondary-foreground: 210 20% 20%; /* Darker text on Lighter Teal */
+    --secondary: 210 60% 88%;     /* Lighter, Softer Blue */
+    --secondary-foreground: 210 30% 30%; /* Darker text for lighter secondary */
 
-    --muted: 210 40% 90%;          /* Light Muted Gray */
-    --muted-foreground: 210 15% 45%;  /* Muted Gray text */
+    --muted: 220 25% 92%;          /* Light Grey */
+    --muted-foreground: 220 15% 50%;  /* Mid Grey text */
 
-    --accent: 320 100% 55%;        /* Neon Pink/Magenta */
-    --accent-foreground: 0 0% 100%;  /* White text on Pink */
+    --accent: 25 95% 60%;        /* Vibrant Coral/Orange */
+    --accent-foreground: 0 0% 100%;  /* White text on Accent */
 
     --destructive: 0 84% 60%;        /* Standard Red */
     --destructive-foreground: 0 0% 100%; /* White text on Red */
 
-    --border: 210 20% 85%;         /* Light Gray border */
-    --input: 210 30% 94%;          /* Slightly darker input background */
-    --ring: 170 100% 45%;          /* Vibrant Teal for rings */
+    --border: 220 20% 85%;         /* Light Grey border */
+    --input: 220 25% 94%;          /* Slightly darker input background */
+    --ring: 210 75% 60%;          /* Primary Blue variant for rings */
 
-    --chart-1: 170 100% 40%;       /* Vibrant Teal */
-    --chart-2: 320 100% 55%;       /* Neon Pink */
-    --chart-3: 50 100% 50%;        /* Vibrant Yellow */
-    --chart-4: 210 10% 50%;       /* Mid Grey for charts */
-    --chart-5: 170 80% 70%;       /* Lighter Teal */
+    --chart-1: 210 75% 55%;       /* Primary Blue */
+    --chart-2: 25 95% 60%;        /* Accent Coral */
+    --chart-3: 210 50% 70%;       /* Lighter Blue */
+    --chart-4: 25 70% 80%;        /* Lighter Coral */
+    --chart-5: 220 15% 60%;       /* Mid Grey */
     --radius: 0.5rem;
 
-    /* Sidebar variables for light theme */
-    --sidebar-background: 210 30% 96%;    /* Slightly off-white for sidebar */
-    --sidebar-foreground: 210 10% 30%;    /* Darker gray text */
-    --sidebar-primary: 170 100% 40%;      /* Vibrant Teal */
+    /* Sidebar variables for light theme - aligned with main theme */
+    --sidebar-background: 220 30% 95%;    /* Slightly darker off-white for sidebar */
+    --sidebar-foreground: 220 20% 30%;    /* Darker slate text */
+    --sidebar-primary: 210 75% 55%;       /* Primary Blue */
     --sidebar-primary-foreground: 0 0% 100%; /* White text */
-    --sidebar-accent: 320 90% 60%;        /* Bright Pink */
+    --sidebar-accent: 25 90% 65%;         /* Vibrant Coral Accent */
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 210 20% 80%;        /* Light gray border */
-    --sidebar-ring: 170 100% 45%;
+    --sidebar-border: 220 20% 80%;        /* Light gray border */
+    --sidebar-ring: 210 75% 60%;
   }
 
   .dark {
-    /* Glowing Neon Teal Theme (Dark Mode) */
-    --background: 240 10% 4%; /* Very Dark Blue/Almost Black */
-    --foreground: 180 100% 95%; /* Bright Cyan-White for text */
+    /* Modern Blue & Slate with Vibrant Coral Accent - Dark Mode */
+    --background: 220 15% 10%;     /* Very Dark Desaturated Blue */
+    --foreground: 220 20% 90%;     /* Light Grey/Off-white text */
 
-    --card: 240 8% 8%; /* Slightly Lighter Dark Blue for cards */
-    --card-foreground: 180 100% 95%;
+    --card: 220 15% 15%;           /* Slightly Lighter Dark Blue for cards */
+    --card-foreground: 220 20% 90%;
 
-    --popover: 240 8% 6%; /* Darker Popover */
-    --popover-foreground: 180 100% 95%;
+    --popover: 220 15% 12%;         /* Darker Popover */
+    --popover-foreground: 220 20% 90%;
 
-    --primary: 170 100% 50%; /* Neon Teal */
-    --primary-foreground: 210 100% 15%; /* Very Dark Blue for text on Neon Teal */
+    --primary: 210 80% 65%;       /* Brighter Blue for dark mode */
+    --primary-foreground: 220 10% 10%; /* Very Dark Blue for text on Primary */
 
-    --secondary: 170 80% 30%; /* Dimmer Teal */
-    --secondary-foreground: 180 100% 90%; /* Light Cyan for text on secondary */
+    --secondary: 210 25% 30%;     /* Muted Dark Blue */
+    --secondary-foreground: 220 20% 85%; /* Lighter text on dark secondary */
 
-    --muted: 240 5% 12%; /* Dark Muted Blue/Grey */
-    --muted-foreground: 180 20% 70%; /* Muted Cyan-Grey */
+    --muted: 220 15% 20%;          /* Dark Muted Blue/Grey */
+    --muted-foreground: 220 15% 65%;  /* Muted Grey text */
 
-    --accent: 320 100% 55%; /* Neon Pink/Magenta */
-    --accent-foreground: 0 0% 100%; /* White text on Neon Pink */
+    --accent: 25 90% 70%;        /* Brighter Coral/Orange for dark mode */
+    --accent-foreground: 220 10% 10%; /* Very Dark for text on Accent */
 
-    --destructive: 0 100% 55%; /* Neon Red */
-    --destructive-foreground: 0 0% 100%; /* White text on Neon Red */
+    --destructive: 0 70% 55%;        /* Slightly less intense Red for dark */
+    --destructive-foreground: 0 0% 100%; /* White text on Red */
 
-    --border: 170 50% 30%; /* Dim Teal border, for a subtle neon edge */
-    --input: 240 8% 10%; /* Dark input background */
-    --ring: 170 100% 55%; /* Neon Teal for rings (slightly lighter for pop) */
+    --border: 220 15% 25%;         /* Darker Grey border */
+    --input: 220 15% 18%;          /* Dark input background */
+    --ring: 210 80% 70%;          /* Brighter Primary Blue for rings */
 
-    --chart-1: 170 100% 50%; /* Neon Teal */
-    --chart-2: 320 100% 55%; /* Neon Pink */
-    --chart-3: 50 100% 50%;  /* Neon Yellow */
-    --chart-4: 240 10% 50%; /* Mid Grey for charts */
-    --chart-5: 170 80% 70%; /* Lighter Neon Teal */
+    --chart-1: 210 80% 65%;       /* Primary Blue (Dark Mode) */
+    --chart-2: 25 90% 70%;        /* Accent Coral (Dark Mode) */
+    --chart-3: 210 60% 50%;       /* Mid Blue */
+    --chart-4: 25 70% 55%;        /* Mid Coral */
+    --chart-5: 220 15% 50%;       /* Lighter Grey */
 
-    /* Sidebar dark theme variables - adapted to Neon Teal theme */
-    --sidebar-background: 240 10% 3%; /* Even darker for sidebar */
-    --sidebar-foreground: 180 80% 85%; /* Slightly dimmer cyan text */
-    --sidebar-primary: 170 100% 50%; /* Neon Teal for active items */
-    --sidebar-primary-foreground: 210 100% 10%; /* Very dark for text on neon */
-    --sidebar-accent: 320 100% 55%; /* Neon Pink for hover/accent */
-    --sidebar-accent-foreground: 0 0% 100%; /* White text */
-    --sidebar-border: 170 50% 20%; /* Darker Teal border */
-    --sidebar-ring: 170 100% 55%;
+    /* Sidebar dark theme variables - aligned with main dark theme */
+    --sidebar-background: 220 15% 8%;  /* Even darker for sidebar */
+    --sidebar-foreground: 220 20% 80%;  /* Slightly dimmer light text */
+    --sidebar-primary: 210 80% 65%;    /* Primary Blue (Dark Mode) */
+    --sidebar-primary-foreground: 220 10% 10%; /* Dark text on primary */
+    --sidebar-accent: 25 90% 70%;     /* Accent Coral (Dark Mode) */
+    --sidebar-accent-foreground: 220 10% 10%;
+    --sidebar-border: 220 15% 20%;     /* Darker border */
+    --sidebar-ring: 210 80% 70%;
   }
 }
 
@@ -133,10 +133,3 @@ body {
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--accent) / 0.5) hsl(var(--background));
 }
-
-/* Additional global style for consistent focus rings, if desired */
-/*
-*:focus-visible {
-  @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
-}
-*/
