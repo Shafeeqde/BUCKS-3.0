@@ -9,27 +9,28 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, ArrowLeft, Save, Building, Info, Contact, Image as ImageIcon, Globe, PhoneIcon, Mail } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Building, Info, Contact, Image as ImageIcon, Globe, PhoneIcon, Mail, ShoppingBag, PlusCircle, Edit2, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import type { UserBusinessProfile } from '@/types';
-import { initialBusinessProfiles } from '@/app/page'; // To get placeholder data structure
+import type { UserBusinessProfile, BusinessProduct } from '@/types';
+import { initialBusinessProfiles } from '@/app/page'; 
+import Image from 'next/image';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { cn } from '@/lib/utils';
+
 
 interface BusinessProfileManagementScreenProps {
   businessProfileId: string | number;
   onBack: () => void;
 }
 
-// Simulate fetching the detailed profile data
 const simulateFetchBusinessProfileForManagement = async (profileId: string | number): Promise<UserBusinessProfile | null> => {
   console.log(`Simulating fetching business profile for management: ${profileId}`);
-  // In a real app, this would be an API call.
-  // For now, find in the initialBusinessProfiles from page.tsx or return a new structure
   const existingProfile = initialBusinessProfiles.find(p => p.id === profileId);
   if (existingProfile) {
-    return Promise.resolve(JSON.parse(JSON.stringify(existingProfile))); // Deep copy
+    return Promise.resolve(JSON.parse(JSON.stringify(existingProfile))); 
   }
-  // If creating a new one, it might not exist in initialBusinessProfiles, so return a default structure.
-  // The ID would have been generated in UserBusinessProfilesScreen if it's a truly new one.
+  
   const newProfileTemplate: UserBusinessProfile = {
     id: profileId,
     name: '',
@@ -43,15 +44,12 @@ const simulateFetchBusinessProfileForManagement = async (profileId: string | num
     feed: [],
     jobs: [],
     reviews: [],
-    // ... other fields initialized to default/empty values
   };
   return Promise.resolve(newProfileTemplate);
 };
 
 const simulateUpdateBusinessProfile = async (profileId: string | number, updatedData: Partial<UserBusinessProfile>): Promise<boolean> => {
   console.log(`Simulating updating business profile ${profileId} with data:`, updatedData);
-  // In a real app, this would be an API call.
-  // For now, just simulate success.
   return new Promise((resolve) => {
     setTimeout(() => {
       console.log('Simulated business profile updated successfully.');
@@ -69,6 +67,10 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  const [showProductDialog, setShowProductDialog] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState<Partial<BusinessProduct> & { id?: string | number } | null>(null);
+  const [productToDeleteId, setProductToDeleteId] = useState<string | number | null>(null);
+
   useEffect(() => {
     if (businessProfileId) {
       fetchProfileData(businessProfileId);
@@ -82,7 +84,13 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
       const data = await simulateFetchBusinessProfileForManagement(id);
       if (data) {
         setProfileData(data);
-        setEditedData({ ...data }); // Initialize editedData with fetched profile
+        setEditedData({ 
+          ...data,
+          products: data.products ? [...data.products.map(p => ({...p}))] : [], // Ensure deep copy of products
+          services: data.services ? [...data.services.map(s => ({...s}))] : [],
+          jobs: data.jobs ? [...data.jobs.map(j => ({...j}))] : [],
+          feed: data.feed ? [...data.feed.map(f => ({...f}))] : [],
+        }); 
       } else {
         setError("Business profile not found for management.");
         toast({ title: "Error", description: "Business profile not found.", variant: "destructive" });
@@ -97,7 +105,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
   };
 
   const handleInputChange = (field: keyof UserBusinessProfile, value: any) => {
-    setEditedData(prev => ({ ...prev, [field]: value }));
+    setEditedData(prev => prev ? ({ ...prev, [field]: value }) : null);
   };
 
   const handleSaveChanges = async () => {
@@ -111,7 +119,6 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
       if (success) {
         setProfileData(prev => prev ? { ...prev, ...editedData } as UserBusinessProfile : null);
         toast({ title: "Profile Saved", description: `Business profile "${editedData.name}" updated successfully.` });
-        // Optionally, call onBack() or navigate, or stay on page
       } else {
         toast({ title: "Save Failed", description: "Could not update business profile.", variant: "destructive" });
       }
@@ -122,6 +129,68 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
       setIsSaving(false);
     }
   };
+
+  // --- Product CRUD Functions ---
+  const openAddProductDialog = () => {
+    setCurrentProduct({});
+    setShowProductDialog(true);
+  };
+
+  const openEditProductDialog = (product: BusinessProduct) => {
+    setCurrentProduct({ ...product });
+    setShowProductDialog(true);
+  };
+
+  const handleProductDialogChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setCurrentProduct(prev => prev ? { ...prev, [name]: value } : null);
+  };
+
+  const handleSaveProduct = () => {
+    if (!currentProduct || !currentProduct.name || !currentProduct.price) {
+      toast({ title: "Missing Fields", description: "Product Name and Price are required.", variant: "destructive" });
+      return;
+    }
+    if (!editedData) return;
+
+    let updatedProducts = [...(editedData.products || [])];
+
+    if (currentProduct.id) { // Editing existing product
+      updatedProducts = updatedProducts.map(prod =>
+        prod.id === currentProduct!.id ? { ...prod, ...currentProduct } as BusinessProduct : prod
+      );
+    } else { // Adding new product
+      const newProduct: BusinessProduct = {
+        id: `prod-${Date.now()}`, // Generate unique ID
+        name: currentProduct.name,
+        price: currentProduct.price,
+        description: currentProduct.description || '',
+        discountPrice: currentProduct.discountPrice || '',
+        discountPercentage: currentProduct.discountPrice && currentProduct.price ? 
+                              Math.round(((parseFloat(currentProduct.price) - parseFloat(currentProduct.discountPrice)) / parseFloat(currentProduct.price)) * 100) + '%' 
+                              : '',
+        imageUrl: currentProduct.imageUrl || '',
+        imageAiHint: currentProduct.imageAiHint || '',
+      };
+      updatedProducts.push(newProduct);
+    }
+    setEditedData({ ...editedData, products: updatedProducts });
+    setShowProductDialog(false);
+    setCurrentProduct(null);
+    toast({ title: "Product Saved", description: "Product details have been updated locally." });
+  };
+
+  const confirmDeleteProduct = (id: string | number) => {
+    setProductToDeleteId(id);
+  };
+
+  const executeDeleteProduct = () => {
+    if (!editedData || productToDeleteId === null) return;
+    const updatedProducts = (editedData.products || []).filter(prod => prod.id !== productToDeleteId);
+    setEditedData({ ...editedData, products: updatedProducts });
+    setProductToDeleteId(null);
+    toast({ title: "Product Deleted", variant: "destructive" });
+  };
   
   if (loading) {
     return <div className="flex justify-center items-center h-full p-4"><Loader2 className="h-12 w-12 animate-spin text-primary" /><p className="ml-3">Loading profile data...</p></div>;
@@ -129,7 +198,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
   if (error) {
     return <div className="p-4 text-center text-destructive">{error} <Button onClick={() => fetchProfileData(businessProfileId)} variant="outline">Try Again</Button></div>;
   }
-  if (!profileData || !editedData) { // Ensure editedData is also initialized
+  if (!profileData || !editedData) { 
     return <div className="p-4 text-center text-muted-foreground">Profile data is not available.</div>;
   }
 
@@ -154,7 +223,6 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
 
         <form onSubmit={(e) => { e.preventDefault(); handleSaveChanges(); }}>
           <div className="space-y-8">
-            {/* Basic Info Section */}
             <Card>
               <CardHeader><CardTitle className="flex items-center"><Info className="mr-2 h-5 w-5 text-primary"/>Basic Information</CardTitle></CardHeader>
               <CardContent className="space-y-4">
@@ -173,7 +241,6 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
               </CardContent>
             </Card>
 
-            {/* Contact & Location Section */}
             <Card>
               <CardHeader><CardTitle className="flex items-center"><Contact className="mr-2 h-5 w-5 text-primary"/>Contact & Location</CardTitle></CardHeader>
               <CardContent className="space-y-4">
@@ -186,7 +253,6 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
               </CardContent>
             </Card>
 
-            {/* Visuals Section */}
             <Card>
               <CardHeader><CardTitle className="flex items-center"><ImageIcon className="mr-2 h-5 w-5 text-primary"/>Visuals</CardTitle></CardHeader>
               <CardContent className="space-y-4">
@@ -197,28 +263,64 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
               </CardContent>
             </Card>
             
-            {/* Placeholder for Products Management */}
             <Card>
-                <CardHeader><CardTitle>Products/Menu Items</CardTitle></CardHeader>
-                <CardContent><p className="text-sm text-muted-foreground">Product management (Add, Edit, Delete) will be enabled in Phase 4.</p></CardContent>
+                <CardHeader className="flex flex-row justify-between items-center">
+                    <CardTitle className="flex items-center"><ShoppingBag className="mr-2 h-5 w-5 text-primary"/>Products/Menu Items</CardTitle>
+                    <Button type="button" variant="outline" size="sm" onClick={openAddProductDialog}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add New Product
+                    </Button>
+                </CardHeader>
+                <CardContent>
+                    {editedData.products && editedData.products.length > 0 ? (
+                        <div className="space-y-3">
+                            {editedData.products.map((product) => (
+                                <Card key={product.id} className="p-3 bg-muted/30">
+                                    <div className="flex items-start gap-3">
+                                        {product.imageUrl && (
+                                            <Image src={product.imageUrl} alt={product.name} width={60} height={60} className="rounded-md object-cover border" data-ai-hint={product.imageAiHint || "product item"}/>
+                                        )}
+                                        <div className="flex-grow">
+                                            <h4 className="font-semibold text-sm">{product.name}</h4>
+                                            <p className="text-xs text-muted-foreground">{product.description ? product.description.substring(0,100) + (product.description.length > 100 ? '...' : '') : 'No description'}</p>
+                                            <p className="text-sm font-medium text-primary mt-1">
+                                                {product.discountPrice ? `₹${product.discountPrice}` : `₹${product.price}`}
+                                                {product.discountPrice && <span className="text-xs text-muted-foreground line-through ml-1">₹{product.price}</span>}
+                                                {product.discountPercentage && <span className="text-xs text-destructive ml-1.5">({product.discountPercentage})</span>}
+                                            </p>
+                                        </div>
+                                        <div className="flex flex-col sm:flex-row gap-1 flex-shrink-0">
+                                            <Button type="button" variant="ghost" size="icon" onClick={() => openEditProductDialog(product)} className="h-8 w-8">
+                                                <Edit2 className="h-4 w-4" />
+                                            </Button>
+                                            <AlertDialogTrigger asChild>
+                                                <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteProduct(product.id)}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                        </div>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4">No products added yet for this business.</p>
+                    )}
+                </CardContent>
             </Card>
 
-            {/* Placeholder for Services Management */}
             <Card>
                 <CardHeader><CardTitle>Services Offered</CardTitle></CardHeader>
-                <CardContent><p className="text-sm text-muted-foreground">Service management will be enabled in Phase 4.</p></CardContent>
+                <CardContent><p className="text-sm text-muted-foreground">Service management will be enabled soon.</p></CardContent>
             </Card>
             
-            {/* Placeholder for Jobs Management */}
             <Card>
                 <CardHeader><CardTitle>Job Openings</CardTitle></CardHeader>
-                <CardContent><p className="text-sm text-muted-foreground">Job posting management will be enabled in Phase 4.</p></CardContent>
+                <CardContent><p className="text-sm text-muted-foreground">Job posting management will be enabled soon.</p></CardContent>
             </Card>
 
-            {/* Placeholder for Feed Management */}
             <Card>
                 <CardHeader><CardTitle>Business Feed/Posts</CardTitle></CardHeader>
-                <CardContent><p className="text-sm text-muted-foreground">Feed post management will be enabled in Phase 4.</p></CardContent>
+                <CardContent><p className="text-sm text-muted-foreground">Feed post management will be enabled soon.</p></CardContent>
             </Card>
 
 
@@ -236,8 +338,79 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
           </CardFooter>
         </form>
       </div>
+
+      <Dialog open={showProductDialog} onOpenChange={setShowProductDialog}>
+        <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+                <DialogTitle>{currentProduct?.id ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+                <DialogDescription>
+                    Fill in the details for the product or menu item.
+                </DialogDescription>
+            </DialogHeader>
+            <ScrollArea className="max-h-[70vh] pr-6">
+                <div className="grid gap-4 py-4">
+                    <div className="space-y-1.5">
+                        <Label htmlFor="prod-name">Product Name <span className="text-destructive">*</span></Label>
+                        <Input id="prod-name" name="name" value={currentProduct?.name || ''} onChange={handleProductDialogChange} />
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="prod-description">Description</Label>
+                        <Textarea id="prod-description" name="description" value={currentProduct?.description || ''} onChange={handleProductDialogChange} placeholder="Describe the product..." />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="prod-price">Original Price (₹) <span className="text-destructive">*</span></Label>
+                            <Input id="prod-price" name="price" type="number" value={currentProduct?.price || ''} onChange={handleProductDialogChange} />
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="prod-discountPrice">Discounted Price (₹)</Label>
+                            <Input id="prod-discountPrice" name="discountPrice" type="number" value={currentProduct?.discountPrice || ''} onChange={handleProductDialogChange} />
+                        </div>
+                    </div>
+                     {currentProduct?.price && currentProduct?.discountPrice && parseFloat(currentProduct.price) > parseFloat(currentProduct.discountPrice) && (
+                        <div className="text-xs text-destructive">
+                            Calculated Discount: {Math.round(((parseFloat(currentProduct.price) - parseFloat(currentProduct.discountPrice)) / parseFloat(currentProduct.price)) * 100)}%
+                        </div>
+                     )}
+                    <div className="space-y-1.5">
+                        <Label htmlFor="prod-imageUrl">Image URL</Label>
+                        <Input id="prod-imageUrl" name="imageUrl" value={currentProduct?.imageUrl || ''} onChange={handleProductDialogChange} placeholder="https://example.com/image.png"/>
+                    </div>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="prod-imageAiHint">Image AI Hint</Label>
+                        <Input id="prod-imageAiHint" name="imageAiHint" value={currentProduct?.imageAiHint || ''} onChange={handleProductDialogChange} placeholder="e.g., spicy chicken biryani"/>
+                    </div>
+                </div>
+            </ScrollArea>
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button type="button" variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button type="button" onClick={handleSaveProduct}>Save Product</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={productToDeleteId !== null} onOpenChange={(open) => !open && setProductToDeleteId(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the product
+                    "{editedData?.products?.find(p => p.id === productToDeleteId)?.name || 'this product'}".
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => setProductToDeleteId(null)}>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={executeDeleteProduct} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </ScrollArea>
   );
 };
 
 export default BusinessProfileManagementScreen;
+
+    
