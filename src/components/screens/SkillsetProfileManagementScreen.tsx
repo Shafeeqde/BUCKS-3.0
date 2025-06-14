@@ -9,10 +9,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, ArrowLeft, PlusCircle, Edit2, Trash2, Image as ImageIcon, Link as LinkIcon, Briefcase, BookOpen } from 'lucide-react';
+import { Loader2, ArrowLeft, PlusCircle, Edit2, Trash2, Image as ImageIcon, Link as LinkIcon, Briefcase, BookOpen, Rss } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, SkillsetProfileData, SkillsetSpecificWorkExperience, SkillsetSpecificPortfolioItem, SkillsetSpecificFeedItem } from '@/types';
-import Image from 'next/image'; 
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -24,9 +24,9 @@ interface SkillsetProfileFormData {
   skillLevel: string;
   skillDescription?: string;
   isActive: boolean;
-  userName: string; 
-  userAvatarUrl?: string; 
-  professionalTitle?: string; 
+  userName: string;
+  userAvatarUrl?: string;
+  professionalTitle?: string;
   skillSpecificBio?: string;
   contactInfo?: {
     phone?: string;
@@ -36,7 +36,7 @@ interface SkillsetProfileFormData {
   };
   workExperienceEntries: SkillsetSpecificWorkExperience[];
   portfolioItems: SkillsetSpecificPortfolioItem[];
-  professionalFeed?: SkillsetSpecificFeedItem[];
+  professionalFeed: SkillsetSpecificFeedItem[]; // Changed from optional
 }
 
 
@@ -89,7 +89,9 @@ const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: stri
                 { id: 'jp1', title: 'Downtown Loft Transformation', imageUrl: 'https://placehold.co/600x400.png', imageAiHint: 'modern loft', description: 'Complete styling of a 2-bedroom downtown loft.', link: '#' },
                 { id: 'jp2', title: 'Minimalist Scandinavian Home', imageUrl: 'https://placehold.co/600x400.png', imageAiHint: 'scandinavian design', description: 'Styled a family home with a minimalist Scandinavian aesthetic.', link: '#' },
             ],
-            professionalFeed: [{ id: 'jf1', content: 'New blog post: "Top 5 Color Trends for Interiors in 2024".', timestamp: '2 days ago', imageUrl: 'https://placehold.co/400x200.png', imageAiHint: 'color swatches' }],
+            professionalFeed: [
+                { id: 'jf1', content: 'New blog post: "Top 5 Color Trends for Interiors in 2024".', timestamp: '2 days ago', imageUrl: 'https://placehold.co/400x200.png', imageAiHint: 'color swatches' }
+            ],
             reviews: [{ id: 'jr1', reviewerName: 'Sarah L.', rating: 5, comment: 'Jenson understood my vision and brought it to life beautifully!', date: '2023-12-05' }],
             recommendationsCount: 125, averageRating: 4.8, totalReviews: 88,
         });
@@ -100,7 +102,7 @@ const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: stri
             skillName: `New Skillset (${skillsetProfileId.substring(0,5)})`,
             skillLevel: 'Beginner',
             skillDescription: '',
-            userName: 'Current User', 
+            userName: 'Current User',
             userAvatarUrl: 'https://placehold.co/100x100.png',
             userAvatarAiHint: 'person avatar',
             professionalTitle: '',
@@ -144,6 +146,10 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
   const [showPortfolioItemDialog, setShowPortfolioItemDialog] = useState(false);
   const [currentPortfolioItem, setCurrentPortfolioItem] = useState<Partial<SkillsetSpecificPortfolioItem> & { id?: string } | null>(null);
   const [portfolioItemToDeleteId, setPortfolioItemToDeleteId] = useState<string | null>(null);
+
+  const [showFeedItemDialog, setShowFeedItemDialog] = useState(false);
+  const [currentFeedItem, setCurrentFeedItem] = useState<Partial<SkillsetSpecificFeedItem> & { id?: string } | null>(null);
+  const [feedItemToDeleteId, setFeedItemToDeleteId] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -199,7 +205,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
 
   // --- Work Experience CRUD Functions ---
   const openAddWorkExperienceDialog = () => {
-    setCurrentWorkExperience({}); 
+    setCurrentWorkExperience({});
     setShowWorkExperienceDialog(true);
   };
 
@@ -212,7 +218,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     const { name, value } = e.target;
     setCurrentWorkExperience(prev => prev ? { ...prev, [name]: value } : null);
   };
-  
+
   const handleSaveWorkExperience = () => {
     if (!currentWorkExperience || !currentWorkExperience.title || !currentWorkExperience.company || !currentWorkExperience.years) {
         toast({ title: "Missing Fields", description: "Title, Company, and Years are required for work experience.", variant: "destructive"});
@@ -220,14 +226,14 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     }
     if (!editedData) return;
 
-    if (currentWorkExperience.id) { 
+    if (currentWorkExperience.id) {
       const updatedEntries = editedData.workExperienceEntries.map(exp =>
         exp.id === currentWorkExperience!.id ? { ...exp, ...currentWorkExperience } as SkillsetSpecificWorkExperience : exp
       );
       setEditedData({ ...editedData, workExperienceEntries: updatedEntries });
-    } else { 
+    } else {
       const newEntry: SkillsetSpecificWorkExperience = {
-        id: `wx-${Date.now()}`, 
+        id: `wx-${Date.now()}`,
         title: currentWorkExperience.title,
         company: currentWorkExperience.company,
         years: currentWorkExperience.years,
@@ -248,7 +254,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     if (!editedData || !workExperienceToDeleteId) return;
     const updatedEntries = editedData.workExperienceEntries.filter(exp => exp.id !== workExperienceToDeleteId);
     setEditedData({ ...editedData, workExperienceEntries: updatedEntries });
-    setWorkExperienceToDeleteId(null); 
+    setWorkExperienceToDeleteId(null);
     toast({ title: "Work Experience Deleted", variant: "destructive" });
   };
 
@@ -309,10 +315,62 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     toast({ title: "Portfolio Item Deleted", variant: "destructive" });
   };
 
+  // --- Professional Feed CRUD Functions ---
+  const openAddFeedItemDialog = () => {
+    setCurrentFeedItem({ timestamp: new Date().toLocaleDateString() }); // Pre-fill timestamp
+    setShowFeedItemDialog(true);
+  };
 
-  const handleManageFeedList = () => {
-    toast({ title: "Manage Feed (Not Implemented)", description: `UI for managing professional feed would open here.`});
-  }
+  const openEditFeedItemDialog = (item: SkillsetSpecificFeedItem) => {
+    setCurrentFeedItem({ ...item });
+    setShowFeedItemDialog(true);
+  };
+
+  const handleFeedItemDialogChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setCurrentFeedItem(prev => prev ? { ...prev, [name]: value } : null);
+  };
+
+  const handleSaveFeedItem = () => {
+    if (!currentFeedItem || !currentFeedItem.content) {
+        toast({ title: "Missing Content", description: "Content is required for feed posts.", variant: "destructive" });
+        return;
+    }
+    if (!editedData) return;
+
+    if (currentFeedItem.id) { // Editing
+        const updatedItems = editedData.professionalFeed.map(item =>
+            item.id === currentFeedItem!.id ? { ...item, ...currentFeedItem } as SkillsetSpecificFeedItem : item
+        );
+        setEditedData({ ...editedData, professionalFeed: updatedItems });
+    } else { // Adding new
+        const newItem: SkillsetSpecificFeedItem = {
+            id: `feed-${Date.now()}`,
+            content: currentFeedItem.content,
+            imageUrl: currentFeedItem.imageUrl || '',
+            imageAiHint: currentFeedItem.imageAiHint || '',
+            videoUrl: currentFeedItem.videoUrl || '',
+            timestamp: currentFeedItem.timestamp || new Date().toLocaleDateString(),
+        };
+        setEditedData({ ...editedData, professionalFeed: [...editedData.professionalFeed, newItem] });
+    }
+    setShowFeedItemDialog(false);
+    setCurrentFeedItem(null);
+    toast({ title: "Feed Post Saved", description: "Your feed post has been updated locally." });
+  };
+
+  const confirmDeleteFeedItem = (id: string) => {
+    setFeedItemToDeleteId(id);
+  };
+
+  const executeDeleteFeedItem = () => {
+    if (!editedData || !feedItemToDeleteId) return;
+    const updatedItems = editedData.professionalFeed.filter(item => item.id !== feedItemToDeleteId);
+    setEditedData({ ...editedData, professionalFeed: updatedItems });
+    setFeedItemToDeleteId(null);
+    toast({ title: "Feed Post Deleted", variant: "destructive" });
+  };
+
 
   const handleSave = async () => {
     if (!editedData) return;
@@ -323,7 +381,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
         setProfileData(prev => {
             if (!prev) return null;
             const updatedProfileData: SkillsetProfileData = {
-                ...prev, 
+                ...prev,
                 id: editedData.id,
                 skillName: editedData.skillName,
                 skillLevel: editedData.skillLevel,
@@ -336,7 +394,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                 contactInfo: editedData.contactInfo ? { ...editedData.contactInfo } : undefined,
                 workExperienceEntries: [...editedData.workExperienceEntries.map(w => ({...w}))],
                 portfolioItems: [...editedData.portfolioItems.map(p => ({...p}))],
-                professionalFeed: editedData.professionalFeed ? [...editedData.professionalFeed.map(f => ({...f}))] : [],
+                professionalFeed: [...editedData.professionalFeed.map(f => ({...f}))],
             };
             return updatedProfileData;
         });
@@ -351,7 +409,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
       setIsSaving(false);
     }
   };
-  
+
 
   if (loading) {
     return <div className="flex justify-center items-center h-full"><Loader2 className="h-12 w-12 animate-spin text-primary" /><p className="ml-3">Loading profile data...</p></div>;
@@ -403,10 +461,10 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
               <Card>
                 <CardHeader><CardTitle>Skill-Specific Bio</CardTitle></CardHeader>
                 <CardContent>
-                  <Textarea 
-                    value={editedData.skillSpecificBio || ''} 
-                    onChange={(e) => handleInputChange('skillSpecificBio', e.target.value)} 
-                    placeholder="Describe your expertise and offerings for this specific skill..." 
+                  <Textarea
+                    value={editedData.skillSpecificBio || ''}
+                    onChange={(e) => handleInputChange('skillSpecificBio', e.target.value)}
+                    placeholder="Describe your expertise and offerings for this specific skill..."
                     rows={5}
                   />
                 </CardContent>
@@ -425,7 +483,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
               </Card>
             </div>
           </div>
-          
+
             <Card className="mt-6">
                 <CardHeader className="flex flex-row justify-between items-center">
                     <CardTitle className="flex items-center"><Briefcase className="mr-2 h-5 w-5 text-primary"/>Work Experience</CardTitle>
@@ -509,23 +567,38 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
             </Card>
 
 
-          {/* Placeholder for Professional Feed Management */}
           <Card className="mt-6">
             <CardHeader className="flex flex-row justify-between items-center">
-              <CardTitle className="flex items-center"><LinkIcon className="mr-2 h-5 w-5 text-primary"/>Professional Feed</CardTitle>
-              <Button type="button" variant="outline" size="sm" onClick={handleManageFeedList}>
+              <CardTitle className="flex items-center"><Rss className="mr-2 h-5 w-5 text-primary"/>Professional Feed</CardTitle>
+              <Button type="button" variant="outline" size="sm" onClick={openAddFeedItemDialog}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Add New Post
               </Button>
             </CardHeader>
             <CardContent>
               {editedData.professionalFeed && editedData.professionalFeed.length > 0 ? (
-                <ul className="space-y-3">
-                  {editedData.professionalFeed.map((item: any) => (
-                    <li key={item.id} className="p-3 border rounded-md flex justify-between items-center hover:bg-muted/50">
-                      <p className="font-semibold truncate w-3/4">{item.content?.substring(0,70) + (item.content?.length > 70 ? '...' : '')}</p>
-                      <div className="space-x-1">
-                         <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => toast({title:"Edit Feed Item (Not Implemented)"})}><Edit2 className="h-4 w-4"/></Button>
-                         <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8"  onClick={() => toast({title:"Delete Feed Item (Not Implemented)"})}><Trash2 className="h-4 w-4"/></Button>
+                <ul className="space-y-4">
+                  {editedData.professionalFeed.map((item) => (
+                    <li key={item.id} className="p-4 border rounded-md hover:shadow-sm bg-muted/30">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-grow mr-2">
+                          {item.imageUrl && (
+                            <div className="mb-2">
+                              <Image src={item.imageUrl} alt={"Feed item " + item.id} width={150} height={80} className="rounded object-cover border" data-ai-hint={item.imageAiHint || "feed post image"}/>
+                            </div>
+                          )}
+                          <p className="text-sm text-foreground whitespace-pre-line">{item.content}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{item.timestamp}</p>
+                        </div>
+                        <div className="space-x-1 flex-shrink-0">
+                          <Button type="button" variant="ghost" size="icon" onClick={() => openEditFeedItemDialog(item)} className="h-8 w-8">
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <AlertDialogTrigger asChild>
+                            <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteFeedItem(item.id)}>
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                        </div>
                       </div>
                     </li>
                   ))}
@@ -606,32 +679,34 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                     Showcase your work related to this skillset.
                 </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="pi-title" className="text-right">Title <span className="text-destructive">*</span></Label>
-                    <Input id="pi-title" name="title" value={currentPortfolioItem?.title || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="pi-description" className="text-right">Description</Label>
-                    <Textarea id="pi-description" name="description" value={currentPortfolioItem?.description || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="Describe the project or item." />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="pi-imageUrl" className="text-right">Image URL</Label>
-                    <Input id="pi-imageUrl" name="imageUrl" value={currentPortfolioItem?.imageUrl || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="https://example.com/image.png"/>
-                </div>
-                 <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="pi-imageAiHint" className="text-right">Image AI Hint</Label>
-                    <Input id="pi-imageAiHint" name="imageAiHint" value={currentPortfolioItem?.imageAiHint || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="e.g., modern kitchen"/>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="pi-videoUrl" className="text-right">Video URL</Label>
-                    <Input id="pi-videoUrl" name="videoUrl" value={currentPortfolioItem?.videoUrl || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="https://youtube.com/watch?v=..."/>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="pi-link" className="text-right">External Link</Label>
-                    <Input id="pi-link" name="link" value={currentPortfolioItem?.link || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="https://behance.net/project/..."/>
-                </div>
-            </div>
+            <ScrollArea className="max-h-[60vh] pr-6"> {/* Added ScrollArea for dialog content */}
+              <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="pi-title" className="text-right">Title <span className="text-destructive">*</span></Label>
+                      <Input id="pi-title" name="title" value={currentPortfolioItem?.title || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="pi-description" className="text-right">Description</Label>
+                      <Textarea id="pi-description" name="description" value={currentPortfolioItem?.description || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="Describe the project or item." />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="pi-imageUrl" className="text-right">Image URL</Label>
+                      <Input id="pi-imageUrl" name="imageUrl" value={currentPortfolioItem?.imageUrl || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="https://example.com/image.png"/>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="pi-imageAiHint" className="text-right">Image AI Hint</Label>
+                      <Input id="pi-imageAiHint" name="imageAiHint" value={currentPortfolioItem?.imageAiHint || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="e.g., modern kitchen"/>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="pi-videoUrl" className="text-right">Video URL</Label>
+                      <Input id="pi-videoUrl" name="videoUrl" value={currentPortfolioItem?.videoUrl || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="https://youtube.com/watch?v=..."/>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="pi-link" className="text-right">External Link</Label>
+                      <Input id="pi-link" name="link" value={currentPortfolioItem?.link || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="https://behance.net/project/..."/>
+                  </div>
+              </div>
+            </ScrollArea>
             <DialogFooter>
                 <DialogClose asChild>
                     <Button type="button" variant="outline">Cancel</Button>
@@ -656,9 +731,64 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
         </AlertDialogContent>
     </AlertDialog>
 
+    <Dialog open={showFeedItemDialog} onOpenChange={setShowFeedItemDialog}>
+        <DialogContent className="sm:max-w-[525px]">
+            <DialogHeader>
+                <DialogTitle>{currentFeedItem?.id ? 'Edit' : 'Add'} Feed Post</DialogTitle>
+                <DialogDescription>
+                    Share updates, tips, or news related to your skillset.
+                </DialogDescription>
+            </DialogHeader>
+            <ScrollArea className="max-h-[60vh] pr-6">
+              <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-start gap-4"> {/* Changed items-center to items-start for Textarea */}
+                      <Label htmlFor="feed-content" className="text-right pt-2">Content <span className="text-destructive">*</span></Label>
+                      <Textarea id="feed-content" name="content" value={currentFeedItem?.content || ''} onChange={handleFeedItemDialogChange} className="col-span-3" placeholder="What's on your mind?" rows={4} />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="feed-imageUrl" className="text-right">Image URL</Label>
+                      <Input id="feed-imageUrl" name="imageUrl" value={currentFeedItem?.imageUrl || ''} onChange={handleFeedItemDialogChange} className="col-span-3" placeholder="https://example.com/feed-image.png"/>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="feed-imageAiHint" className="text-right">Image AI Hint</Label>
+                      <Input id="feed-imageAiHint" name="imageAiHint" value={currentFeedItem?.imageAiHint || ''} onChange={handleFeedItemDialogChange} className="col-span-3" placeholder="e.g., work in progress"/>
+                  </div>
+                   <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="feed-timestamp" className="text-right">Timestamp</Label>
+                      <Input id="feed-timestamp" name="timestamp" value={currentFeedItem?.timestamp || ''} onChange={handleFeedItemDialogChange} className="col-span-3" placeholder="e.g., Just now, 2 hours ago, Jan 15"/>
+                  </div>
+                  {/* videoUrl can be added if needed for feed items */}
+              </div>
+            </ScrollArea>
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button type="button" variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button type="button" onClick={handleSaveFeedItem}>Save Post</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+
+    <AlertDialog open={!!feedItemToDeleteId} onOpenChange={(open) => !open && setFeedItemToDeleteId(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete this feed post.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => setFeedItemToDeleteId(null)}>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={executeDeleteFeedItem} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+
     </ScrollArea>
   );
 };
 
 export default SkillsetProfileManagementScreen;
 
+
+  
