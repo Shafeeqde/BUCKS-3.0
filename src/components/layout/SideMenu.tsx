@@ -40,7 +40,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
 }) => {
   const menuItems = [
     { name: 'Professional Profile', tab: 'account' as TabName, icon: User },
-    { name: 'Skillsets', tab: 'skillsets' as TabName, icon: Rocket },
+    { name: 'Skillsets', tab: 'user-skillsets' as TabName, icon: Rocket }, // Corrected tab name
     { name: 'Vehicles', tab: 'vehicles' as TabName, icon: Car },
     { name: 'Business Profiles', tab: 'business-profiles' as TabName, icon: Briefcase },
   ];
