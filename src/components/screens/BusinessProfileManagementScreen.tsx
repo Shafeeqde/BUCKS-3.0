@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, ArrowLeft, Save, Building, Info, Contact, Image as ImageIcon, Globe, Phone, Mail, ShoppingBag, PlusCircle, Edit2, Trash2, Briefcase } from 'lucide-react';
+import { ArrowLeftIcon, ArrowDownTrayIcon, BuildingOfficeIcon, InformationCircleIcon, IdentificationIcon, PhotoIcon, GlobeAltIcon, PhoneIcon, EnvelopeIcon, ShoppingBagIcon, PlusCircleIcon, PencilSquareIcon, TrashIcon, BriefcaseIcon } from '@heroicons/react/24/outline';
 import { useToast } from "@/hooks/use-toast";
 import type { UserBusinessProfile, BusinessProduct, BusinessService } from '@/types';
 import { initialBusinessProfiles } from '@/app/page'; 
@@ -253,7 +253,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
   };
   
   if (loading) {
-    return <div className="flex justify-center items-center h-full p-4"><Loader2 className="h-12 w-12 animate-spin text-primary" /><p className="ml-3">Loading profile data...</p></div>;
+    return <div className="flex justify-center items-center h-full p-4"><span className="h-12 w-12 animate-spin border-2 border-primary border-t-transparent rounded-full"></span><p className="ml-3">Loading profile data...</p></div>;
   }
   if (error) {
     return <div className="p-4 text-center text-destructive">{error} <Button onClick={() => fetchProfileData(businessProfileId)} variant="outline">Try Again</Button></div>;
@@ -268,13 +268,13 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
     <ScrollArea className="h-full bg-background">
       <div className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
         <Button variant="outline" onClick={onBack} className="mb-6">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Business Profiles
+          <ArrowLeftIcon className="mr-2 h-4 w-4" /> Back to Business Profiles
         </Button>
 
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
-              <Building className="mr-2 h-6 w-6 text-primary"/>
+              <BuildingOfficeIcon className="mr-2 h-6 w-6 text-primary"/>
               Manage Business: {editedData.name || "New Profile"}
             </CardTitle>
             <CardDescription>Edit the details for this business profile. Changes are saved locally until you click "Save Changes".</CardDescription>
@@ -284,7 +284,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
         <form onSubmit={(e) => { e.preventDefault(); handleSaveChanges(); }}>
           <div className="space-y-8">
             <Card>
-              <CardHeader><CardTitle className="flex items-center"><Info className="mr-2 h-5 w-5 text-primary"/>Basic Information</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center"><InformationCircleIcon className="mr-2 h-5 w-5 text-primary"/>Basic Information</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <Label htmlFor="businessName">Business Name <span className="text-destructive">*</span></Label>
@@ -302,7 +302,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
             </Card>
 
             <Card>
-              <CardHeader><CardTitle className="flex items-center"><Contact className="mr-2 h-5 w-5 text-primary"/>Contact & Location</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center"><IdentificationIcon className="mr-2 h-5 w-5 text-primary"/>Contact & Location</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div><Label htmlFor="phone">Phone Number</Label><Input id="phone" type="tel" value={editedData.phone || ''} onChange={(e) => handleInputChange('phone', e.target.value)} /></div>
@@ -314,7 +314,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
             </Card>
 
             <Card>
-              <CardHeader><CardTitle className="flex items-center"><ImageIcon className="mr-2 h-5 w-5 text-primary"/>Visuals</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center"><PhotoIcon className="mr-2 h-5 w-5 text-primary"/>Visuals</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <div><Label htmlFor="logoUrl">Logo URL</Label><Input id="logoUrl" value={editedData.logo || ''} onChange={(e) => handleInputChange('logo', e.target.value)} placeholder="https://link.to/logo.png"/></div>
                 <div><Label htmlFor="logoAiHint">Logo AI Hint</Label><Input id="logoAiHint" value={editedData.logoAiHint || ''} onChange={(e) => handleInputChange('logoAiHint', e.target.value)} placeholder="e.g., modern cafe logo"/></div>
@@ -325,9 +325,9 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
             
             <Card>
                 <CardHeader className="flex flex-row justify-between items-center">
-                    <CardTitle className="flex items-center"><ShoppingBag className="mr-2 h-5 w-5 text-primary"/>Products/Menu Items</CardTitle>
+                    <CardTitle className="flex items-center"><ShoppingBagIcon className="mr-2 h-5 w-5 text-primary"/>Products/Menu Items</CardTitle>
                     <Button type="button" variant="outline" size="sm" onClick={openAddProductDialog}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add New Product
+                        <PlusCircleIcon className="mr-2 h-4 w-4" /> Add New Product
                     </Button>
                 </CardHeader>
                 <CardContent>
@@ -350,10 +350,10 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
                                         </div>
                                         <div className="flex flex-col sm:flex-row gap-1 flex-shrink-0">
                                             <Button type="button" variant="ghost" size="icon" onClick={() => openEditProductDialog(product)} className="h-8 w-8">
-                                                <Edit2 className="h-4 w-4" />
+                                                <PencilSquareIcon className="h-4 w-4" />
                                             </Button>
                                             <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteProduct(product.id)}>
-                                                <Trash2 className="h-4 w-4" />
+                                                <TrashIcon className="h-4 w-4" />
                                             </Button>
                                         </div>
                                     </div>
@@ -368,9 +368,9 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
 
             <Card>
                 <CardHeader className="flex flex-row justify-between items-center">
-                    <CardTitle className="flex items-center"><Briefcase className="mr-2 h-5 w-5 text-primary"/>Services Offered</CardTitle>
+                    <CardTitle className="flex items-center"><BriefcaseIcon className="mr-2 h-5 w-5 text-primary"/>Services Offered</CardTitle>
                     <Button type="button" variant="outline" size="sm" onClick={openAddServiceDialog}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add New Service
+                        <PlusCircleIcon className="mr-2 h-4 w-4" /> Add New Service
                     </Button>
                 </CardHeader>
                 <CardContent>
@@ -386,10 +386,10 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
                                         </div>
                                         <div className="flex flex-col sm:flex-row gap-1 flex-shrink-0">
                                             <Button type="button" variant="ghost" size="icon" onClick={() => openEditServiceDialog(service)} className="h-8 w-8">
-                                                <Edit2 className="h-4 w-4" />
+                                                <PencilSquareIcon className="h-4 w-4" />
                                             </Button>
                                             <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteService(service.id)}>
-                                                <Trash2 className="h-4 w-4" />
+                                                <TrashIcon className="h-4 w-4" />
                                             </Button>
                                         </div>
                                     </div>
@@ -419,9 +419,9 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
             <div className="flex justify-end w-full space-x-3">
               <Button type="button" variant="outline" onClick={onBack} disabled={isSaving}>Cancel</Button>
               <Button type="submit" disabled={isSaving || !hasChanges}>
-                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                <Save className="mr-2 h-4 w-4"/>
-                Save Changes
+                {isSaving && <span className="mr-2 h-4 w-4 animate-spin border-2 border-primary-foreground border-t-transparent rounded-full"></span>}
+                <ArrowDownTrayIcon className="mr-2 h-4 w-4"/>
+                {isSaving ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           </CardFooter>
@@ -550,5 +550,4 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
 };
 
 export default BusinessProfileManagementScreen;
-
     
