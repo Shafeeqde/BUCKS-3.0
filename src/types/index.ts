@@ -53,7 +53,7 @@ export interface FeedItem {
 export interface Service {
   id: string;
   name: string;
-  icon: LucideIcon; // Updated to LucideIcon type
+  icon: LucideIcon;
   locked: boolean;
   dataAiHint?: string;
 }
@@ -97,7 +97,7 @@ export interface UserProfile {
   email: string;
   phone: string;
   address?: string;
-  avatarUrl?: string; // Added for side menu display
+  avatarUrl?: string; 
 }
 
 export interface UserVehicle {
@@ -255,7 +255,62 @@ export type ActivityDetails = {
     vehicleType?: string;
 } | null;
 
-export interface IndividualProfileData {
+// --- Overall Professional Profile Management ---
+export interface WorkExperienceEntry {
+    id: string;
+    title: string;
+    company: string;
+    employmentType?: string; // e.g., Full-time, Part-time, Contract
+    location?: string;
+    startDate?: string; // Consider using Date type if complex date logic is needed
+    endDate?: string; // Or "Present"
+    description?: string;
+}
+
+export interface EducationEntry {
+    id: string;
+    institution: string;
+    degree?: string;
+    fieldOfStudy?: string;
+    startDate?: string;
+    endDate?: string;
+    description?: string; // For honors, activities, etc.
+}
+
+export interface LicenseCertificationEntry {
+    id: string;
+    name: string;
+    issuingOrganization?: string;
+    issueDate?: string;
+    expirationDate?: string; // Or "Does not expire"
+    credentialId?: string;
+    credentialUrl?: string;
+}
+
+export interface OverallProfessionalProfileData {
+    id: string;
+    userId: string;
+    name?: string; // User's full name for display
+    professionalTitle?: string; // e.g., "Senior Software Engineer at Google"
+    avatarUrl?: string; // URL for the profile picture
+    avatarAiHint?: string;
+    coverPhotoUrl?: string; // URL for the cover image
+    coverPhotoAiHint?: string;
+    professionalBio?: string;
+    areasOfExpertise: string[];
+    externalProfileLinks: {
+        id: string;
+        platform: string; // e.g., LinkedIn, GitHub, Portfolio
+        url: string;
+    }[];
+    workExperience: WorkExperienceEntry[];
+    education: EducationEntry[];
+    licensesCertifications: LicenseCertificationEntry[];
+    // Potentially add: Skills (more granular), Projects, Recommendations
+}
+
+
+export interface IndividualProfileData { // Public view, less detailed than management
   id: string;
   name: string;
   avatarUrl?: string;
@@ -268,34 +323,33 @@ export interface IndividualProfileData {
     website?: string;
     location?: string;
   };
-  skillsets: {
+  skillsets: { // Links to specific skillset profiles
+    id: string; // ID of the skillset profile
     name: string;
     level: string;
     description?: string;
-    workExperience?: string;
-    portfolioUrls?: { url: string; title?: string; }[];
   }[];
   recommendationsCount: number;
   averageRating: number;
   totalReviews: number;
-  workExperienceEntries?: SkillsetSpecificWorkExperience[];
-  portfolioItems?: SkillsetSpecificPortfolioItem[];
+  workExperienceEntries?: WorkExperienceEntry[]; // Summary of work experience
+  portfolioItems?: SkillsetSpecificPortfolioItem[]; // Highlights
   professionalFeed?: BusinessFeedItem[]; 
   reviews?: BusinessReview[]; 
 }
 
 // --- Types for Skillset-Specific Profiles ---
 
-export interface SkillsetSpecificWorkExperience {
+export interface SkillsetSpecificWorkExperience { // Could be different from general work exp
   id: string;
   title: string;
   company: string;
-  years: string;
+  years: string; // Simpler representation for skillset view
   description?: string;
 }
 
 export interface SkillsetSpecificPortfolioItem {
-  id: string;
+  id:string;
   title: string;
   imageUrl?: string;
   imageAiHint?: string;
@@ -319,12 +373,12 @@ export interface SkillsetProfileData {
   skillName: string;
   skillLevel?: string;
   skillDescription?: string;
-  userName: string;
+  userName: string; // User who owns this skillset
   userAvatarUrl?: string;
   userAvatarAiHint?: string;
-  professionalTitle?: string;
-  skillSpecificBio?: string;
-  contactInfo?: {
+  professionalTitle?: string; // User's general professional title
+  skillSpecificBio?: string; // Bio specific to this skillset
+  contactInfo?: { // Contact info specifically for this skillset offering
     phone?: string;
     email?: string;
     website?: string;
@@ -354,4 +408,5 @@ export interface UserDataForSideMenu {
   name: string;
   email: string;
   avatarUrl?: string;
+  avatarAiHint?: string; // For the default avatar
 }

@@ -7,8 +7,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
-  UserCog, // For Professional Profile
-  Settings, // For Account Settings
+  UserCog, 
+  Settings, 
   Briefcase,
   Car,
   Building,
@@ -16,10 +16,14 @@ import {
   ChevronRight,
   ShieldCheck,
   Rocket,
-  Sparkles
+  Sparkles, // Main menu title icon
+  Home, // Home icon
+  MessageCircle, // Feeds icon
+  LayoutGrid, // Services/Menu icon
+  Star as StarIcon, // Recommended icon (renamed to avoid conflict)
 } from 'lucide-react';
 import type { TabName, UserBusinessProfile, UserDataForSideMenu } from '@/types';
-import Image from 'next/image'; // For business logos
+import Image from 'next/image'; 
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -30,7 +34,7 @@ interface SideMenuProps {
   onSelectBusinessProfile: (id: string | number) => void;
   selectedBusinessProfileId: string | number | null;
   onLogout: () => void;
-  userData: UserDataForSideMenu | null; // Updated to use specific type
+  userData: UserDataForSideMenu | null;
 }
 
 const SideMenu: React.FC<SideMenuProps> = ({
@@ -45,8 +49,11 @@ const SideMenu: React.FC<SideMenuProps> = ({
   userData,
 }) => {
   const menuItems = [
+    { name: 'Home', tab: 'home' as TabName, icon: Home },
+    { name: 'Feeds', tab: 'feeds' as TabName, icon: MessageCircle },
+    { name: 'Services', tab: 'menu' as TabName, icon: LayoutGrid },
+    { name: 'Recommended', tab: 'recommended' as TabName, icon: StarIcon },
     { name: 'Professional Profile', tab: 'professional-profile' as TabName, icon: UserCog },
-    { name: 'Account Settings', tab: 'account' as TabName, icon: Settings },
     { name: 'Skillset Profiles', tab: 'user-skillsets' as TabName, icon: Rocket },
     { name: 'Vehicle Management', tab: 'vehicles' as TabName, icon: Car },
     { name: 'Business Profiles', tab: 'business-profiles' as TabName, icon: Briefcase },
@@ -62,6 +69,11 @@ const SideMenu: React.FC<SideMenuProps> = ({
     onClose();
   };
 
+  const handleUserSectionClick = () => {
+    setActiveTab('professional-profile');
+    onClose();
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="left" className="w-[280px] sm:w-[320px] p-0 flex flex-col bg-card">
@@ -73,16 +85,21 @@ const SideMenu: React.FC<SideMenuProps> = ({
         </SheetHeader>
 
         {userData && (
-          <div className="p-4 border-b flex items-center space-x-3">
+          <Button
+            variant="ghost"
+            className="p-4 border-b flex items-center space-x-3 h-auto text-left w-full justify-start hover:bg-accent/50 rounded-none"
+            onClick={handleUserSectionClick}
+          >
             <Avatar className="h-12 w-12">
-              <AvatarImage src={userData.avatarUrl || 'https://placehold.co/48x48.png'} alt={userData.name} data-ai-hint="user avatar" />
+              <AvatarImage src={userData.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar'} alt={userData.name} data-ai-hint={userData.avatarAiHint || "user avatar"} />
               <AvatarFallback>{userData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
-            <div>
+            <div className="flex-grow">
               <p className="font-semibold text-foreground">{userData.name}</p>
               <p className="text-xs text-muted-foreground">{userData.email}</p>
             </div>
-          </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Button>
         )}
 
         <ScrollArea className="flex-grow">
@@ -129,9 +146,9 @@ const SideMenu: React.FC<SideMenuProps> = ({
             )}
             
             <div className="pt-4 space-y-1 border-t mt-2">
-                 <Button variant="ghost" className="w-full justify-start text-base h-12" onClick={() => { /* TODO: Navigate to actual settings screen */ onClose(); }}>
+                 <Button variant="ghost" className="w-full justify-start text-base h-12" onClick={() => handleNavigation('account')}>
                     <Settings className="mr-3 h-5 w-5" />
-                    App Settings
+                    Account Settings
                 </Button>
                 <Button variant="ghost" className="w-full justify-start text-base h-12" onClick={() => { /* TODO: Navigate to privacy screen */ onClose(); }}>
                     <ShieldCheck className="mr-3 h-5 w-5" />
@@ -144,10 +161,10 @@ const SideMenu: React.FC<SideMenuProps> = ({
         <div className="p-4 border-t mt-auto">
           <Button
             variant="outline"
-            className="w-full justify-start text-base h-12"
+            className="w-full justify-start text-base h-12 text-destructive hover:text-destructive hover:bg-destructive/10"
             onClick={() => { onLogout(); onClose(); }}
           >
-            <LogOut className="mr-3 h-5 w-5 text-destructive" />
+            <LogOut className="mr-3 h-5 w-5" />
             Logout
           </Button>
         </div>
