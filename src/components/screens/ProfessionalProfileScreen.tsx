@@ -3,14 +3,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'; // Added CardFooter
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, UserCircle, Briefcase, LinkIcon, PlusCircle, Edit2, Trash2, ExternalLink } from 'lucide-react';
+import { Loader2, UserCircle, Briefcase, Link as LinkIconComponent, PlusCircle, Edit2, Trash2, ExternalLink } from 'lucide-react'; // Renamed Link to LinkIconComponent
 import { useToast } from "@/hooks/use-toast";
-import type { TabName, UserDataForSideMenu } from '@/types'; // UserDataForSideMenu might be useful if this screen displays user info
+import type { TabName, UserDataForSideMenu } from '@/types';
 import { cn } from '@/lib/utils';
 
 // Define a type for the overall Professional Profile data
@@ -29,7 +29,7 @@ interface OverallProfessionalProfileData {
 
 interface ProfessionalProfileScreenProps {
   setActiveTab: (tab: TabName) => void;
-  userData: UserDataForSideMenu | null; // To potentially link to the logged-in user
+  userData: UserDataForSideMenu | null;
 }
 
 // --- Placeholder API Simulation Functions ---
@@ -78,10 +78,15 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
 
 
   useEffect(() => {
-    // For now, using a dummy user ID for simulation
-    const currentUserId = userData?.email || 'dummy-user-id-123';
-    fetchProfileData(currentUserId);
-  }, [userData]);
+    const currentUserId = userData?.email || 'dummy-user-id-123'; // Use email or a fallback
+    if (currentUserId) {
+      fetchProfileData(currentUserId);
+    } else {
+        setLoading(false);
+        setError("User data not available to fetch profile.");
+        toast({title: "Error", description: "Cannot load professional profile without user information.", variant: "destructive"})
+    }
+  }, [userData, toast]); // Added toast to dependency array
 
   const fetchProfileData = async (userId: string) => {
     setLoading(true); setError(null);
@@ -89,7 +94,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
       const data = await simulateFetchOverallProfessionalProfile(userId);
       if (data) {
         setProfileData(data);
-        setEditedData(JSON.parse(JSON.stringify(data))); // Deep copy for editing
+        setEditedData(JSON.parse(JSON.stringify(data))); 
       } else {
         const defaultProfile: OverallProfessionalProfileData = {
             id: `prof-profile-${userId}`, userId, professionalBio: '', areasOfExpertise: [], externalProfileLinks: [],
@@ -108,16 +113,22 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
   };
 
   const handleInputChange = (field: keyof OverallProfessionalProfileData, value: any) => {
-    setEditedData(prev => prev ? { ...prev, [field]: value } : null);
+    setEditedData(prev => prev ? ({ ...prev, [field]: value }) : null);
   };
   
   const handleAddExpertise = () => {
     if (currentExpertise.trim() && editedData?.areasOfExpertise) {
+        if (editedData.areasOfExpertise.includes(currentExpertise.trim())) {
+            toast({ title: "Duplicate Entry", description: "This area of expertise already exists.", variant: "default" });
+            return;
+        }
         setEditedData(prev => ({
             ...prev,
             areasOfExpertise: [...(prev?.areasOfExpertise || []), currentExpertise.trim()]
         }));
         setCurrentExpertise('');
+    } else if (!currentExpertise.trim()){
+        toast({ title: "Empty Field", description: "Please enter an area of expertise.", variant: "destructive" });
     }
   };
 
@@ -132,6 +143,10 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
   
   const handleAddLink = () => {
     if (currentLinkPlatform.trim() && currentLinkUrl.trim() && editedData?.externalProfileLinks) {
+        if (!currentLinkUrl.startsWith('http://') && !currentLinkUrl.startsWith('https://')) {
+             toast({ title: "Invalid URL", description: "Please enter a valid URL (e.g., https://example.com).", variant: "destructive"});
+            return;
+        }
         const newLink = { id: `link-${Date.now()}`, platform: currentLinkPlatform.trim(), url: currentLinkUrl.trim() };
         setEditedData(prev => ({
             ...prev,
@@ -139,6 +154,8 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
         }));
         setCurrentLinkPlatform('');
         setCurrentLinkUrl('');
+    } else {
+        toast({ title: "Missing Fields", description: "Platform and URL are required for external links.", variant: "destructive"});
     }
   };
 
@@ -155,10 +172,9 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
     if (!editedData) return;
     setIsSaving(true);
     try {
-      // Ensure all required fields are present if necessary, for now using editedData as is
       const success = await simulateUpdateOverallProfessionalProfile(editedData as OverallProfessionalProfileData);
       if (success) {
-        setProfileData(JSON.parse(JSON.stringify(editedData))); // Update original with saved
+        setProfileData(JSON.parse(JSON.stringify(editedData))); 
         toast({ title: "Profile Saved", description: "Your professional profile has been updated." });
       } else {
         toast({ title: "Save Failed", description: "Could not update profile.", variant: "destructive" });
@@ -177,7 +193,18 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
     return <div className="flex justify-center items-center h-full p-4"><Loader2 className="h-12 w-12 animate-spin text-primary" /><p className="ml-3 text-muted-foreground">Loading Professional Profile...</p></div>;
   }
   if (error || !editedData) {
-    return <div className="p-4 text-center text-destructive">{error || "Profile data unavailable."} <Button onClick={() => fetchProfileData(userData?.email || 'dummy-user-id-123')} variant="outline">Try Again</Button></div>;
+    return (
+        <div className="p-4 text-center">
+            <p className="text-destructive mb-4">{error || "Profile data unavailable."}</p>
+            <Button 
+                onClick={() => fetchProfileData(userData?.email || 'dummy-user-id-123')} 
+                variant="outline"
+                disabled={!userData?.email}
+            >
+                Try Again
+            </Button>
+        </div>
+    );
   }
 
   return (
