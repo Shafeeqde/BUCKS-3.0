@@ -14,7 +14,6 @@ import { Edit3, Grid, List, Camera, Video, Link as LinkIcon, FileText, MessageSq
 import { cn } from '@/lib/utils';
 
 interface AccountScreenProps {
-  onLogout: () => void; // Kept for potential future use, though button removed
   userData: UserDataForSideMenu | null;
   setActiveTab: (tab: TabName) => void;
 }
@@ -31,11 +30,12 @@ const allUserContent: ProfilePost[] = [
 ];
 
 
-const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setActiveTab }) => {
+const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab }) => {
     const { toast } = useToast();
     const [activeProfileTab, setActiveProfileTab] = useState('feed');
 
-    const userContent = userData ? allUserContent.filter(post => post.user === userData.name) : [];
+    // Filter content based on userData if available, otherwise use allUserContent as fallback
+    const userContent = userData?.name ? allUserContent.filter(post => post.user === userData.name) : allUserContent;
 
     const filteredPosts = userContent.filter(post => {
         switch (activeProfileTab) {
@@ -50,12 +50,17 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setAc
     });
 
     const totalPosts = userContent.length;
-    const followersCount = userData ? (parseInt(userData.id.substring(userData.id.length - 3), 16) % 500) + 100 : 1234;
-    const followingCount = userData ? (parseInt(userData.id.substring(userData.id.length - 2), 16) % 200) + 50 : 567;
+    // Simulate follower/following counts based on user ID if available, else fallback
+    const followersCount = userData?.id ? (parseInt(userData.id.substring(userData.id.length - 3), 16) % 500) + 100 : 1234;
+    const followingCount = userData?.id ? (parseInt(userData.id.substring(userData.id.length - 2), 16) % 200) + 50 : 567;
 
     const handleManageProfessionalProfile = () => {
       setActiveTab('professional-profile');
       toast({ title: "Navigating", description: "Opening your professional profile dashboard." });
+    };
+
+    const handleEditPersonalProfile = () => {
+        toast({ title: "Edit Personal Profile (Simulated)", description: "This would open a form to edit your display name, avatar, etc. for this content profile." });
     };
     
     const renderPostContent = (item: ProfilePost) => {
@@ -166,7 +171,13 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setAc
                                 <AvatarFallback>{userData?.name?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
                             </Avatar>
                             <div className="flex-grow text-center sm:text-left mt-2 sm:mt-0">
-                                <h1 className="text-2xl sm:text-3xl font-bold font-headline text-foreground">{userData?.name || 'User Profile'}</h1>
+                                <div className="flex items-center justify-center sm:justify-start gap-2">
+                                    <h1 className="text-2xl sm:text-3xl font-bold font-headline text-foreground">{userData?.name || 'User Profile'}</h1>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={handleEditPersonalProfile}>
+                                        <Edit3 className="h-4 w-4" />
+                                        <span className="sr-only">Edit Personal Profile</span>
+                                    </Button>
+                                </div>
                                 {userData?.email && <p className="text-sm text-muted-foreground">{userData.email}</p>}
                                 <div className="flex justify-center sm:justify-start space-x-6 mt-3 text-sm">
                                     <div><span className="font-semibold text-foreground">{totalPosts}</span> <span className="text-muted-foreground">Posts</span></div>
@@ -219,3 +230,4 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setAc
 };
 
 export default AccountScreen;
+
