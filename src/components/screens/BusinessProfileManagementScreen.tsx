@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, ArrowLeft, Save, Building, Info, Contact, Image as ImageIcon, Globe, PhoneIcon, Mail, ShoppingBag, PlusCircle, Edit2, Trash2, Briefcase } from 'lucide-react';
+import { Loader2, ArrowLeft, Save, Building, Info, Contact, Image as ImageIcon, Globe, Phone, Mail, ShoppingBag, PlusCircle, Edit2, Trash2, Briefcase } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import type { UserBusinessProfile, BusinessProduct, BusinessService } from '@/types';
 import { initialBusinessProfiles } from '@/app/page'; 

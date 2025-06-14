@@ -6,7 +6,7 @@ import ServiceCard from '@/components/services/ServiceCard';
 import { Input } from '@/components/ui/input';
 import type { Service, TabName, VehicleOption, ActivityDetails } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Search as SearchIcon, MapPin, Car, Bike, Building2 } from 'lucide-react'; 
+import { ArrowLeft, Search as SearchIcon, MapPin, Car, Bike, CarTaxiFront } from 'lucide-react'; // Replaced Building2 with CarTaxiFront
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,7 +26,7 @@ const initialServicesData: Service[] = [
 
 const taxiVehicleOptions: VehicleOption[] = [
   { id: 'bike', name: 'Bike', icon: Bike, priceRange: '₹ 50-80', estimatedETA: '5 mins', dataAiHint: "motorcycle transport" },
-  { id: 'auto', name: 'Auto', icon: Building2, priceRange: '₹ 80-120', estimatedETA: '7 mins', dataAiHint: "auto rickshaw" },
+  { id: 'auto', name: 'Auto', icon: CarTaxiFront, priceRange: '₹ 80-120', estimatedETA: '7 mins', dataAiHint: "auto rickshaw" }, // Changed icon
   { id: 'car_mini', name: 'Car (Mini)', icon: Car, priceRange: '₹ 120-200', estimatedETA: '10 mins', dataAiHint: "small car" },
   { id: 'car_premium', name: 'Car (Premium)', icon: Car, priceRange: '₹ 200-350', estimatedETA: '12 mins', dataAiHint: "luxury car" },
 ];
@@ -205,3 +205,4 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
   );
 };
 export default ServicesScreen;
+

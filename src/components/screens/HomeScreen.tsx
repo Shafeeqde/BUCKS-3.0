@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, MapPin, X, PocketKnife, Filter, ArrowDownUp, ShoppingCart, Info as InfoIcon } from 'lucide-react';
+import { Search, MapPin, X, Bot, Filter, ArrowDownUp, ShoppingCart, Info as InfoIcon } from 'lucide-react'; // Changed PocketKnife to Bot
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -497,7 +497,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-xl font-headline flex items-center">
-                    <PocketKnife className="mr-2 h-5 w-5 text-primary"/>
+                    <Bot className="mr-2 h-5 w-5 text-primary"/>
                     {currentQueryType === 'location_search' ? "AI Summary:" : "Locality Hub AI says:"}
                   </CardTitle>
                 </CardHeader>

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Plus, Image as ImageIcon, TextIcon, Loader2 } from 'lucide-react';
+import { Plus, Image as ImageIcon, Baseline, Loader2 } from 'lucide-react'; // Changed TextIcon to Baseline
 import CategoryItem from '@/components/feeds/CategoryItem';
 import FeedCard from '@/components/feeds/FeedCard';
 import type { Category, FeedItem as FeedItemType } from '@/types';
@@ -201,7 +201,7 @@ const FeedsScreen = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="momentText" className="flex items-center">
-                <TextIcon className="mr-2 h-4 w-4 text-muted-foreground" /> Your Text
+                <Baseline className="mr-2 h-4 w-4 text-muted-foreground" /> Your Text
               </Label>
               <Textarea
                 id="momentText"
@@ -231,3 +231,4 @@ const FeedsScreen = () => {
 };
 
 export default FeedsScreen;
+
