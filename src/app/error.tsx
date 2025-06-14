@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 
 export default function Error({
   error,
@@ -17,7 +17,7 @@ export default function Error({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4 text-center">
-      <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
+      <ExclamationTriangleIcon className="w-16 h-16 text-destructive mb-4" />
       <h1 className="text-3xl font-bold text-destructive mb-2 font-headline">
         Oops! Something went wrong.
       </h1>

@@ -7,42 +7,38 @@ import { Input } from '@/components/ui/input';
 import type { Service, TabName, VehicleOption, ActivityDetails } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { 
-  ArrowLeft, 
-  Search as SearchIcon, 
-  MapPin, 
-  Car, 
-  Bike, 
-  CarTaxiFront,
-  Briefcase,
-  Utensils,
-  ShoppingBag,
-  CreditCard,
-  Ticket,
-  Truck,
-  Landmark // Replaced Building2 for Auto with CarTaxiFront, imported other icons
-} from 'lucide-react'; 
+  ArrowLeftIcon, 
+  MagnifyingGlassIcon, 
+  MapPinIcon, 
+  TruckIcon, // Replaced Car, Bike, CarTaxiFront
+  BriefcaseIcon,
+  BuildingStorefrontIcon, // Replaced Utensils
+  ShoppingBagIcon,
+  CreditCardIcon,
+  TicketIcon,
+  BuildingLibraryIcon, // Replaced Landmark
+} from '@heroicons/react/24/outline'; 
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const initialServicesData: Service[] = [
-    { id: 'taxi', name: 'Taxi', icon: CarTaxiFront, locked: false, dataAiHint: "car taxi ride" },
-    { id: 'jobs', name: 'Jobs', icon: Briefcase, locked: false, dataAiHint: "briefcase work" },
-    { id: 'foods', name: 'Foods', icon: Utensils, locked: true, dataAiHint: "utensils restaurant" },
-    { id: 'shopping', name: 'Shopping', icon: ShoppingBag, locked: true, dataAiHint: "shopping bag" },
-    { id: 'pay', name: 'Pay', icon: CreditCard, locked: true, dataAiHint: "credit card" },
-    { id: 'tickets', name: 'Tickets', icon: Ticket, locked: true, dataAiHint: "ticket movie" },
-    { id: 'delivery', name: 'Delivery', icon: Truck, locked: true, dataAiHint: "truck delivery" },
-    { id: 'banking', name: 'Banking', icon: Landmark, locked: true, dataAiHint: "bank building" }, // Changed from banknote to Landmark for banking
+    { id: 'taxi', name: 'Taxi', icon: TruckIcon, locked: false, dataAiHint: "car taxi ride" },
+    { id: 'jobs', name: 'Jobs', icon: BriefcaseIcon, locked: false, dataAiHint: "briefcase work" },
+    { id: 'foods', name: 'Foods', icon: BuildingStorefrontIcon, locked: true, dataAiHint: "utensils restaurant" },
+    { id: 'shopping', name: 'Shopping', icon: ShoppingBagIcon, locked: true, dataAiHint: "shopping bag" },
+    { id: 'pay', name: 'Pay', icon: CreditCardIcon, locked: true, dataAiHint: "credit card" },
+    { id: 'tickets', name: 'Tickets', icon: TicketIcon, locked: true, dataAiHint: "ticket movie" },
+    { id: 'delivery', name: 'Delivery', icon: TruckIcon, locked: true, dataAiHint: "truck delivery" },
+    { id: 'banking', name: 'Banking', icon: BuildingLibraryIcon, locked: true, dataAiHint: "bank building" },
 ];
 
 const taxiVehicleOptions: VehicleOption[] = [
-  { id: 'bike', name: 'Bike', icon: Bike, priceRange: '₹ 50-80', estimatedETA: '5 mins', dataAiHint: "motorcycle transport" },
-  { id: 'auto', name: 'Auto', icon: CarTaxiFront, priceRange: '₹ 80-120', estimatedETA: '7 mins', dataAiHint: "auto rickshaw" },
-  { id: 'car_mini', name: 'Car (Mini)', icon: Car, priceRange: '₹ 120-200', estimatedETA: '10 mins', dataAiHint: "small car" },
-  { id: 'car_premium', name: 'Car (Premium)', icon: Car, priceRange: '₹ 200-350', estimatedETA: '12 mins', dataAiHint: "luxury car" },
+  { id: 'bike', name: 'Bike', icon: TruckIcon, priceRange: '₹ 50-80', estimatedETA: '5 mins', dataAiHint: "motorcycle transport" }, // Using TruckIcon as placeholder
+  { id: 'auto', name: 'Auto', icon: TruckIcon, priceRange: '₹ 80-120', estimatedETA: '7 mins', dataAiHint: "auto rickshaw" }, // Using TruckIcon as placeholder
+  { id: 'car_mini', name: 'Car (Mini)', icon: TruckIcon, priceRange: '₹ 120-200', estimatedETA: '10 mins', dataAiHint: "small car" },
+  { id: 'car_premium', name: 'Car (Premium)', icon: TruckIcon, priceRange: '₹ 200-350', estimatedETA: '12 mins', dataAiHint: "luxury car" },
 ];
 
 
@@ -115,7 +111,7 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
         <div className="flex items-center mb-6">
           {isTaxiBookingActive && (
             <Button variant="ghost" size="icon" onClick={() => setIsTaxiBookingActive(false)} className="mr-2 text-muted-foreground hover:text-primary">
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeftIcon className="h-5 w-5" />
             </Button>
           )}
           <h2 className="text-2xl font-bold text-foreground font-headline">
@@ -136,7 +132,7 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
                 <div>
                   <label htmlFor="pickup" className="block text-sm font-medium text-muted-foreground mb-1">Pickup Location</label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5"/>
+                    <MapPinIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5"/>
                     <Input
                       id="pickup"
                       className="pl-10 text-base"
@@ -149,7 +145,7 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
                 <div>
                   <label htmlFor="dropoff" className="block text-sm font-medium text-muted-foreground mb-1">Drop-off Location</label>
                   <div className="relative">
-                    <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5"/>
+                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5"/>
                     <Input
                       id="dropoff"
                       className="pl-10 text-base"
@@ -160,7 +156,7 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
                   </div>
                 </div>
                 <Button variant="outline" className="w-full justify-start text-muted-foreground" onClick={() => toast({title: "Map Picker", description: "Map selection UI would open here."})}>
-                  <MapPin className="mr-2 h-4 w-4"/> Select on Map (Placeholder)
+                  <MapPinIcon className="mr-2 h-4 w-4"/> Select on Map (Placeholder)
                 </Button>
               </CardContent>
             </Card>
@@ -205,7 +201,7 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
               onClick={handleBookRide}
               disabled={isRequestingRide || !pickupLocation || !dropoffLocation || !selectedVehicle}
             >
-              {isRequestingRide && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+              {isRequestingRide && <span className="mr-2 h-5 w-5 animate-spin border-2 border-primary-foreground border-t-transparent rounded-full"></span>}
               {isRequestingRide ? 'Requesting...' : `Book ${selectedVehicle?.name || 'Ride'}`}
             </Button>
             

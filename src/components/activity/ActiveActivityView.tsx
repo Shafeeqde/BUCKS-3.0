@@ -3,15 +3,15 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { X, User, Car, MapPin } from 'lucide-react';
+import { XMarkIcon, UserIcon, TruckIcon, MapPinIcon } from '@heroicons/react/24/outline'; // Replaced X, User, Car, MapPin
 import { cn } from '@/lib/utils';
-import type { ActivityDetails } from '@/types'; // Ensure ActivityDetails is imported
+import type { ActivityDetails } from '@/types'; 
 
 interface ActiveActivityViewProps {
   isVisible: boolean;
   onClose: () => void;
   userRole: 'rider' | 'driver' | null;
-  activeActivityDetails: ActivityDetails; // Use the imported type
+  activeActivityDetails: ActivityDetails; 
   onAcceptRequest?: () => void;
   onRejectRequest?: () => void;
   onArrivedAtPickup?: () => void;
@@ -66,7 +66,7 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
       {activeActivityDetails?.driverName ? (
         <DetailSection title="Driver Information">
           <div className="flex items-start p-3 border border-border rounded-md bg-muted/20 my-2">
-            <User className="h-6 w-6 text-primary mr-3 shrink-0 mt-0.5" />
+            <UserIcon className="h-6 w-6 text-primary mr-3 shrink-0 mt-0.5" />
             <div className="flex-1">
               <InfoRow label="Driver" value={activeActivityDetails.driverName} />
               <InfoRow label="Vehicle" value={activeActivityDetails.vehicle} />
@@ -79,7 +79,7 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
 
       <DetailSection title="Location Details">
         <div className="flex items-start p-3 border border-border rounded-md bg-muted/20 my-2">
-          <MapPin className="h-6 w-6 text-primary mr-3 shrink-0 mt-0.5" />
+          <MapPinIcon className="h-6 w-6 text-primary mr-3 shrink-0 mt-0.5" />
           <div className="flex-1">
             <InfoRow label="Pickup" value={activeActivityDetails?.pickup} />
             <InfoRow label="Drop-off" value={activeActivityDetails?.dropoff} />
@@ -122,12 +122,12 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
   const renderDriverRequestView = () => (
     <>
       <DetailSection title="Incoming Ride Request!">
-        <InfoRow label="From" value={activeActivityDetails?.riderName} icon={User} />
+        <InfoRow label="From" value={activeActivityDetails?.riderName} icon={UserIcon} />
       </DetailSection>
 
       <DetailSection title="Trip Details">
          <div className="flex items-start p-3 border border-border rounded-md bg-muted/20 my-2">
-            <MapPin className="h-6 w-6 text-primary mr-3 shrink-0 mt-0.5" />
+            <MapPinIcon className="h-6 w-6 text-primary mr-3 shrink-0 mt-0.5" />
             <div className="flex-1">
                 <InfoRow label="Pickup" value={activeActivityDetails?.pickup} />
                 <InfoRow label="Drop-off" value={activeActivityDetails?.dropoff} />
@@ -164,7 +164,7 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
       <DetailSection title="Active Ride">
         <InfoRow label="Status" value={activeActivityDetails?.status} />
          <div className="flex items-start p-3 border border-border rounded-md bg-muted/20 my-2">
-            <User className="h-6 w-6 text-primary mr-3 shrink-0 mt-0.5" />
+            <UserIcon className="h-6 w-6 text-primary mr-3 shrink-0 mt-0.5" />
             <div className="flex-1">
                 <InfoRow label="Rider" value={activeActivityDetails?.riderName} />
             </div>
@@ -173,7 +173,7 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
 
       <DetailSection title="Location Details">
          <div className="flex items-start p-3 border border-border rounded-md bg-muted/20 my-2">
-            <MapPin className="h-6 w-6 text-primary mr-3 shrink-0 mt-0.5" />
+            <MapPinIcon className="h-6 w-6 text-primary mr-3 shrink-0 mt-0.5" />
             <div className="flex-1">
                 <InfoRow label="Pickup" value={activeActivityDetails?.pickup} />
                 <InfoRow label="Drop-off" value={activeActivityDetails?.dropoff} />
@@ -222,7 +222,7 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
   const renderDriverStatusView = () => (
     <>
       <DetailSection title="Driver Status">
-          <InfoRow label="Current Status" value={activeActivityDetails?.status || "Online"} icon={Car}/>
+          <InfoRow label="Current Status" value={activeActivityDetails?.status || "Online"} icon={TruckIcon}/>
           <p className="text-sm text-muted-foreground mt-2">
               You are currently online and available for ride requests.
           </p>
@@ -254,7 +254,7 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
              "Active Activity"}
           </h2>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close active activity view">
-            <X className="h-5 w-5 text-muted-foreground hover:text-foreground" />
+            <XMarkIcon className="h-5 w-5 text-muted-foreground hover:text-foreground" />
           </Button>
         </div>
 

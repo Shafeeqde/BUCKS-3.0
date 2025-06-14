@@ -1,12 +1,13 @@
 
 "use client";
 
-import { Lock, type LucideIcon } from 'lucide-react';
+import { LockClosedIcon } from '@heroicons/react/24/outline'; // Replaced Lock
 import SvgRenderer from '@/components/ui/SvgRenderer';
 import type { Service } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'; // Added
-import { cn } from '@/lib/utils'; // Added
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils'; 
+import type { ForwardRefExoticComponent, RefAttributes, SVGProps } from 'react';
 
 interface ServiceCardProps {
   service: Service;
@@ -14,12 +15,13 @@ interface ServiceCardProps {
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ service, onClick }) => {
-  const IconComponent = service.icon;
+  const IconComponent = service.icon as ForwardRefExoticComponent<Omit<SVGProps<SVGSVGElement>, "ref"> & {title?: string | undefined; titleId?: string | undefined;} & RefAttributes<SVGSVGElement>>;
+
 
   const cardContent = (
     <CardContent className="flex flex-col items-center p-0">
       <div className="w-12 h-12 flex items-center justify-center rounded-full bg-background shadow-md text-primary mb-2">
-        {typeof IconComponent === 'string' ? (
+        {typeof IconComponent === 'string' ? ( // Should not happen with Heroicons but kept for type safety
           <SvgRenderer svgString={IconComponent} className="w-6 h-6" />
         ) : (
           <IconComponent className="w-6 h-6" />
@@ -46,7 +48,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onClick }) => {
                 "absolute -top-0.5 -right-0.5 bg-muted rounded-full p-0.5 shadow-sm border border-transparent",
                 "group-hover:border-accent transition-colors" 
               )}>
-                <Lock className="w-3 h-3 text-muted-foreground" />
+                <LockClosedIcon className="w-3 h-3 text-muted-foreground" />
               </div>
             </div>
           </TooltipTrigger>

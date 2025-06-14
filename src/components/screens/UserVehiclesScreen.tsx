@@ -7,12 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Car, PlusCircle, Edit3, Trash2 } from 'lucide-react';
+import { TruckIcon, PlusCircleIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'; // Replaced Car, Edit3, etc.
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, UserVehicle } from '@/types';
 import { cn } from '@/lib/utils';
 
-// --- Placeholder API Simulation Functions ---
 const simulateFetchVehicles = async (): Promise<UserVehicle[]> => {
   console.log('Simulating fetching user vehicles...');
   return new Promise((resolve) => {
@@ -22,8 +21,6 @@ const simulateFetchVehicles = async (): Promise<UserVehicle[]> => {
         { id: 'v2', vehicleType: 'Bike', licensePlate: 'XYZ-789', isActive: false },
         { id: 'v3', vehicleType: 'Auto Rickshaw', licensePlate: 'PQR-456', isActive: true },
       ];
-      // To test empty state, uncomment next line
-      // resolve([]);
       console.log('Simulated user vehicles fetched:', mockVehicles);
       resolve(mockVehicles);
     }, 1000);
@@ -37,7 +34,7 @@ const simulateAddVehicle = async (vehicleData: Pick<UserVehicle, 'vehicleType' |
       const newVehicle: UserVehicle = {
         id: `v${Date.now()}`,
         ...vehicleData,
-        isActive: false, // New vehicles are inactive by default
+        isActive: false, 
       };
       console.log('Simulated vehicle added:', newVehicle);
       resolve(newVehicle);
@@ -67,7 +64,7 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
 
   const [vehicles, setVehicles] = useState<UserVehicle[]>([]);
   const [loadingVehicles, setLoadingVehicles] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false); // For add/edit form submission
+  const [isSubmitting, setIsSubmitting] = useState(false); 
 
   useEffect(() => {
     fetchUserVehicles();
@@ -152,7 +149,7 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-headline flex items-center">
-            <Car className="mr-2 h-6 w-6 text-primary" /> My Vehicles
+            <TruckIcon className="mr-2 h-6 w-6 text-primary" /> My Vehicles
           </CardTitle>
           <CardDescription>Manage your vehicles for providing services.</CardDescription>
         </CardHeader>
@@ -183,7 +180,7 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
               </div>
             </div>
             <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
-              {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+              {isSubmitting ? <span className="mr-2 h-4 w-4 animate-spin border-2 border-primary-foreground border-t-transparent rounded-full"></span> : <PlusCircleIcon className="mr-2 h-4 w-4" />}
               {isSubmitting ? 'Adding...' : 'Add Vehicle'}
             </Button>
           </form>
@@ -192,12 +189,12 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
             <h3 className="text-xl font-semibold text-foreground mb-4">Your Registered Vehicles</h3>
             {loadingVehicles ? (
               <div className="flex flex-col justify-center items-center py-10 min-h-[200px]">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="h-8 w-8 animate-spin border-4 border-primary border-t-transparent rounded-full"></span>
                 <p className="ml-2 mt-2 text-muted-foreground">Loading your vehicles...</p>
               </div>
             ) : vehicles.length === 0 ? (
               <div className="text-center py-10 min-h-[200px] flex flex-col items-center justify-center">
-                <Car className="h-12 w-12 text-muted-foreground mb-4" />
+                <TruckIcon className="h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-lg text-muted-foreground">No vehicles registered yet.</p>
                 <p className="text-sm text-muted-foreground">Add your first vehicle using the form above to get started.</p>
               </div>
@@ -226,10 +223,10 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
                     </CardHeader>
                     <CardFooter className="flex justify-end space-x-2 pt-4 border-t">
                       <Button variant="ghost" size="sm" onClick={() => toast({title: "Edit Clicked (Not Implemented)", description: `Edit vehicle ${vehicle.licensePlate}`})}>
-                        <Edit3 className="mr-1 h-4 w-4" /> Edit
+                        <PencilSquareIcon className="mr-1 h-4 w-4" /> Edit
                       </Button>
                       <Button variant="destructive" size="sm" onClick={() => toast({title: "Delete Clicked (Not Implemented)", description: `Delete vehicle ${vehicle.licensePlate}`, variant: "destructive"})}>
-                        <Trash2 className="mr-1 h-4 w-4" /> Delete
+                        <TrashIcon className="mr-1 h-4 w-4" /> Delete
                       </Button>
                     </CardFooter>
                   </Card>

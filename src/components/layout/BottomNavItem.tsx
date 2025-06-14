@@ -1,12 +1,13 @@
-import type { LucideProps } from 'lucide-react';
+
 import type { TabName } from '@/types';
+import type { ForwardRefExoticComponent, RefAttributes, SVGProps } from 'react';
 
 interface BottomNavItemProps {
   tabName: TabName;
   activeTab: TabName;
   setActiveTab: (tab: TabName) => void;
   label: string;
-  Icon: React.ElementType<LucideProps>;
+  Icon: ForwardRefExoticComponent<Omit<SVGProps<SVGSVGElement>, "ref"> & {title?: string | undefined; titleId?: string | undefined;} & RefAttributes<SVGSVGElement>>;
 }
 
 const BottomNavItem: React.FC<BottomNavItemProps> = ({

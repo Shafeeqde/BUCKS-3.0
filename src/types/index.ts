@@ -1,15 +1,19 @@
 
-import type { LucideIcon } from 'lucide-react';
+import type { ForwardRefExoticComponent, RefAttributes, SVGProps } from 'react'; // For Heroicons
+
+// Used by Heroicons
+export type HeroIconType = ForwardRefExoticComponent<Omit<SVGProps<SVGSVGElement>, "ref"> & {title?: string | undefined; titleId?: string | undefined;} & RefAttributes<SVGSVGElement>>;
+
 
 export type TabName =
   | 'login'
   | 'registration'
   | 'home'
   | 'feeds'
-  | 'menu' // Corresponds to ServicesScreen
+  | 'menu' 
   | 'recommended'
-  | 'account' // This is the Personal Content Profile
-  | 'professional-profile' // The main professional identity dashboard
+  | 'account' 
+  | 'professional-profile' 
   | 'vehicles'
   | 'business-profiles'
   | 'business-detail'
@@ -21,12 +25,12 @@ export type TabName =
   | 'manage-skillset-profile'
   | 'job-board' 
   | 'job-detail'
-  | 'account-settings'; // New tab for actual account settings
+  | 'account-settings'; 
 
 export interface Category {
   id: string;
   name?: string;
-  icon?: string | LucideIcon; 
+  icon?: string | HeroIconType; 
   image?: string;
   type?: 'moments' | 'profile' | 'default';
   viewed: boolean;
@@ -54,7 +58,7 @@ export interface FeedItem {
 export interface Service {
   id: string;
   name: string;
-  icon: LucideIcon;
+  icon: HeroIconType;
   locked: boolean;
   dataAiHint?: string;
 }
@@ -85,7 +89,7 @@ export interface GeneralQueryOutput {
 export interface VehicleOption {
   id: string;
   name: string;
-  icon: LucideIcon;
+  icon: HeroIconType;
   dataAiHint?: string;
   priceRange: string;
   estimatedETA: string;
@@ -107,8 +111,6 @@ export interface UserVehicle {
   licensePlate: string;
   isActive: boolean;
 }
-
-// --- Types for Business Profiles ---
 
 export interface BusinessProduct {
   id: string | number;
@@ -189,8 +191,6 @@ export interface UserBusinessProfile {
 }
 
 
-// --- Types for Search Result Cards ---
-
 export interface BusinessProductCardItem {
   id: string;
   name: string;
@@ -236,7 +236,7 @@ export interface MessageItem {
 export interface NotificationItem {
   id: string | number;
   type: string;
-  icon?: LucideIcon;
+  icon?: HeroIconType;
   content: string;
   timestamp: string;
   read: boolean;
@@ -256,7 +256,6 @@ export type ActivityDetails = {
     vehicleType?: string;
 } | null;
 
-// --- Overall Professional Profile Management ---
 export interface WorkExperienceEntry {
     id: string;
     title: string;
@@ -338,7 +337,6 @@ export interface IndividualProfileData {
   reviews?: BusinessReview[]; 
 }
 
-// --- Types for Skillset-Specific Profiles ---
 
 export interface SkillsetSpecificWorkExperience { 
   id: string;
@@ -403,7 +401,6 @@ export interface SkillsetProfileSummary {
   averageRating?: number;
 }
 
-// For SideMenu User Data & AccountScreen user data
 export interface UserDataForSideMenu {
   id: string; 
   name: string;
@@ -412,7 +409,6 @@ export interface UserDataForSideMenu {
   avatarAiHint?: string;
 }
 
-// --- Types for Personal Content Profile (AccountScreen) ---
 export interface ProfilePost {
   id: string | number;
   type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text'; 

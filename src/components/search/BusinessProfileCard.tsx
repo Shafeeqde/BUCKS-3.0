@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, MessageCircle, Phone, ThumbsUp, Share2, UserPlus, ShoppingCart } from 'lucide-react';
+import { StarIcon, ChatBubbleOvalLeftEllipsisIcon, PhoneIcon, HandThumbUpIcon, ShareIcon, UserPlusIcon, ShoppingCartIcon } from '@heroicons/react/24/outline'; // Updated imports
 import { cn } from '@/lib/utils';
 import type { BusinessProfileCardData, BusinessProductCardItem } from '@/types';
 
@@ -22,7 +22,7 @@ interface BusinessProfileCardProps {
   onFollowClick?: (id: string | number) => void;
 }
 
-const StarRating: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 4, className }) => {
+const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 4, className }) => { // Renamed StarRating to avoid conflict
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.4;
   const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
@@ -30,11 +30,11 @@ const StarRating: React.FC<{ rating: number; size?: number; className?: string }
   return (
     <div className={cn("flex items-center", className)}>
       {[...Array(fullStars)].map((_, i) => (
-        <Star key={`full-${i}`} className={cn(`w-${size} h-${size} text-yellow-400 fill-yellow-400`)} />
+        <StarIcon key={`full-${i}`} className={cn(`w-${size} h-${size} text-yellow-400 fill-yellow-400`)} />
       ))}
-      {halfStar && <Star key="half" className={cn(`w-${size} h-${size} text-yellow-400 fill-yellow-200`)} />}
+      {halfStar && <StarIcon key="half" className={cn(`w-${size} h-${size} text-yellow-400 fill-yellow-200`)} />}
       {[...Array(emptyStars)].map((_, i) => (
-        <Star key={`empty-${i}`} className={cn(`w-${size} h-${size} text-muted-foreground/30 fill-muted-foreground/30`)} />
+        <StarIcon key={`empty-${i}`} className={cn(`w-${size} h-${size} text-muted-foreground/30 fill-muted-foreground/30`)} />
       ))}
     </div>
   );
@@ -53,7 +53,6 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
 }) => {
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 w-full">
-      {/* Header */}
       <div
         className="p-4 flex items-start space-x-3 cursor-pointer"
         onClick={() => onPress?.(business.id)}
@@ -76,13 +75,12 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
         </div>
         {onFollowClick && (
           <Button variant="outline" size="sm" className="rounded-full self-start" onClick={(e) => { e.stopPropagation(); onFollowClick(business.id); }}>
-            <UserPlus className="h-4 w-4" />
+            <UserPlusIcon className="h-4 w-4" />
             <span className="ml-1.5 hidden sm:inline">Follow</span>
           </Button>
         )}
       </div>
 
-      {/* Products List */}
       {business.products && business.products.length > 0 && (
         <div className="px-4 pb-4 border-t mt-2 pt-3">
           <h4 className="text-sm font-semibold text-foreground mb-2">Products</h4>
@@ -128,7 +126,7 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
                     className="w-full mt-2 text-xs h-7"
                     onClick={(e) => { e.stopPropagation(); onAddToCartClick?.(business.id, product.id); }}
                   >
-                    <ShoppingCart className="h-3.5 w-3.5 mr-1" /> Add
+                    <ShoppingCartIcon className="h-3.5 w-3.5 mr-1" /> Add
                   </Button>
                 </CardContent>
               </Card>
@@ -137,12 +135,11 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
         </div>
       )}
 
-      {/* Stats (Optional) */}
       {(business.averageRating !== undefined || business.totalReviews !== undefined) && (
         <CardFooter className="text-xs text-muted-foreground pt-2 pb-3 px-4 border-t justify-start gap-3">
           {business.averageRating !== undefined && (
             <div className="flex items-center">
-              <StarRating rating={business.averageRating} size={3} />
+              <StarRatingDisplay rating={business.averageRating} size={3} />
               <span className="ml-1">({business.averageRating.toFixed(1)})</span>
             </div>
           )}
@@ -152,27 +149,26 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
         </CardFooter>
       )}
 
-      {/* CTA Buttons (Optional) */}
       {(onEnquiryClick || onCallClick || onRecommendClick || onShareClick) && (
         <CardFooter className="pt-3 pb-4 px-2 border-t flex-wrap justify-start gap-1 sm:gap-2">
           {onEnquiryClick && (
             <Button variant="ghost" size="sm" className="text-xs" onClick={(e) => { e.stopPropagation(); onEnquiryClick(business.id); }}>
-              <MessageCircle className="h-4 w-4 mr-1" /> Enquiry
+              <ChatBubbleOvalLeftEllipsisIcon className="h-4 w-4 mr-1" /> Enquiry
             </Button>
           )}
           {business.phone && onCallClick && (
             <Button variant="ghost" size="sm" className="text-xs" onClick={(e) => { e.stopPropagation(); onCallClick(business.id, business.phone); }}>
-              <Phone className="h-4 w-4 mr-1" /> Call
+              <PhoneIcon className="h-4 w-4 mr-1" /> Call
             </Button>
           )}
           {onRecommendClick && (
             <Button variant="ghost" size="sm" className="text-xs" onClick={(e) => { e.stopPropagation(); onRecommendClick(business.id); }}>
-              <ThumbsUp className="h-4 w-4 mr-1" /> Recommend
+              <HandThumbUpIcon className="h-4 w-4 mr-1" /> Recommend
             </Button>
           )}
           {onShareClick && (
             <Button variant="ghost" size="sm" className="text-xs" onClick={(e) => { e.stopPropagation(); onShareClick(business.id); }}>
-              <Share2 className="h-4 w-4 mr-1" /> Share
+              <ShareIcon className="h-4 w-4 mr-1" /> Share
             </Button>
           )}
         </CardFooter>

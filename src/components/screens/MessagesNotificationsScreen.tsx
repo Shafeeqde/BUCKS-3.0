@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { X, Bell, MessageCircle, CheckCheck, Mail, AlertTriangle, Gift, User } from 'lucide-react';
-import type { MessageItem, NotificationItem } from '@/types';
+import { XMarkIcon, BellIcon, ChatBubbleOvalLeftEllipsisIcon, CheckCircleIcon, EnvelopeIcon, ExclamationTriangleIcon, GiftIcon, UserIcon } from '@heroicons/react/24/outline';
+import type { MessageItem, NotificationItem, Category } from '@/types'; // Adjusted types
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -22,10 +22,10 @@ const initialMessages: MessageItem[] = [
 ];
 
 const initialNotifications: NotificationItem[] = [
-  { id: 1, type: 'Like', icon: Gift, content: 'Your post "Enjoying the golden hour!" received 10 new likes.', timestamp: '1 hour ago', read: false, link: '#' },
-  { id: 2, type: 'Comment', icon: MessageCircle, content: 'Deepthi commented on your post: "Such a beautiful view!"', timestamp: '3 hours ago', read: false, link: '#' },
-  { id: 3, type: 'Follow', icon: User, content: 'Senthil Devaraj started following you.', timestamp: '6 hours ago', read: true, link: '#' },
-  { id: 4, type: 'Update', icon: AlertTriangle, content: 'New services added to the "Menu" section. Check them out!', timestamp: 'Yesterday', read: true, link: '#' },
+  { id: 1, type: 'Like', icon: GiftIcon, content: 'Your post "Enjoying the golden hour!" received 10 new likes.', timestamp: '1 hour ago', read: false, link: '#' },
+  { id: 2, type: 'Comment', icon: ChatBubbleOvalLeftEllipsisIcon, content: 'Deepthi commented on your post: "Such a beautiful view!"', timestamp: '3 hours ago', read: false, link: '#' },
+  { id: 3, type: 'Follow', icon: UserIcon, content: 'Senthil Devaraj started following you.', timestamp: '6 hours ago', read: true, link: '#' },
+  { id: 4, type: 'Update', icon: ExclamationTriangleIcon, content: 'New services added to the "Menu" section. Check them out!', timestamp: 'Yesterday', read: true, link: '#' },
 ];
 
 const MessagesNotificationsScreen: React.FC<MessagesNotificationsScreenProps> = ({ onClose }) => {
@@ -52,24 +52,24 @@ const MessagesNotificationsScreen: React.FC<MessagesNotificationsScreenProps> = 
             Messages & Notifications
           </CardTitle>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
-            <X className="h-5 w-5 text-muted-foreground" />
+            <XMarkIcon className="h-5 w-5 text-muted-foreground" />
           </Button>
         </CardHeader>
         
         <Tabs defaultValue="messages" onValueChange={(value) => setActiveTab(value as 'messages' | 'notifications')} className="flex flex-col flex-grow overflow-hidden">
           <TabsList className="grid w-full grid-cols-2 rounded-none border-b h-auto p-0">
             <TabsTrigger value="messages" className="py-3 text-sm rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none">
-              <Mail className="mr-2 h-4 w-4" /> Messages {unreadMessagesCount > 0 && `(${unreadMessagesCount})`}
+              <EnvelopeIcon className="mr-2 h-4 w-4" /> Messages {unreadMessagesCount > 0 && `(${unreadMessagesCount})`}
             </TabsTrigger>
             <TabsTrigger value="notifications" className="py-3 text-sm rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none">
-              <Bell className="mr-2 h-4 w-4" /> Notifications {unreadNotificationsCount > 0 && `(${unreadNotificationsCount})`}
+              <BellIcon className="mr-2 h-4 w-4" /> Notifications {unreadNotificationsCount > 0 && `(${unreadNotificationsCount})`}
             </TabsTrigger>
           </TabsList>
 
           <div className="p-3 flex-shrink-0">
             {(activeTab === 'messages' && unreadMessagesCount > 0) || (activeTab === 'notifications' && unreadNotificationsCount > 0) ? (
               <Button size="sm" className="w-full" onClick={markAllAsRead}>
-                <CheckCheck className="mr-2 h-4 w-4" /> Mark all as read
+                <CheckCircleIcon className="mr-2 h-4 w-4" /> Mark all as read
               </Button>
             ) : (
                  <p className="text-sm text-center text-muted-foreground py-1">No unread items.</p>
@@ -105,7 +105,7 @@ const MessagesNotificationsScreen: React.FC<MessagesNotificationsScreenProps> = 
                 <Card key={notif.id} className={cn("hover:shadow-md transition-shadow", !notif.read && "border-primary ring-1 ring-primary/20")}>
                    <CardContent className="p-3">
                     <div className="flex items-start space-x-3">
-                      {notif.icon ? <notif.icon className={cn("h-5 w-5 mt-0.5 flex-shrink-0", !notif.read ? "text-primary" : "text-muted-foreground")} /> : <Bell className="h-5 w-5 mt-0.5 flex-shrink-0 text-muted-foreground"/>}
+                      {notif.icon ? <notif.icon className={cn("h-5 w-5 mt-0.5 flex-shrink-0", !notif.read ? "text-primary" : "text-muted-foreground")} /> : <BellIcon className="h-5 w-5 mt-0.5 flex-shrink-0 text-muted-foreground"/>}
                       <div className="flex-grow">
                         <div className="flex justify-between items-center mb-0.5">
                            <p className={cn("font-semibold text-foreground text-sm", !notif.read && "text-primary")}>{notif.type}</p>
@@ -127,4 +127,3 @@ const MessagesNotificationsScreen: React.FC<MessagesNotificationsScreenProps> = 
 };
 
 export default MessagesNotificationsScreen;
-    

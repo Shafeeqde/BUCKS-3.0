@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, type ButtonProps } from '@/components/ui/button';
-import { Car } from 'lucide-react';
+import { TruckIcon } from '@heroicons/react/24/outline'; // Replaced Car
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -89,28 +89,28 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   const fabButton = (
     <Button
       ref={fabRef}
-      onMouseDown={!isClient ? undefined : handleMouseDown} // Only allow drag on client
-      style={ isClient ? { // Only apply transform on client
+      onMouseDown={!isClient ? undefined : handleMouseDown} 
+      style={ isClient ? { 
         transform: `translate(${translation.x}px, ${translation.y}px)`,
         touchAction: 'none', 
       } : {}}
       className={cn(
         "fixed bottom-20 right-6 z-50 h-14 w-14 rounded-full shadow-xl text-primary-foreground bg-primary hover:bg-primary/90 flex items-center justify-center",
-        isClient && "cursor-grab", // Only show grab cursor on client
+        isClient && "cursor-grab", 
         isClient && isDragging && "cursor-grabbing",
         className 
       )}
       size="icon"
       aria-label={tooltipText} 
       {...props}
-      onClick={!isClient ? originalOnClick : undefined} // For server render or if not dragging
+      onClick={!isClient ? originalOnClick : undefined} 
     >
-      {icon ? icon : children ? children : <Car className="w-6 h-6" />}
+      {icon ? icon : children ? children : <TruckIcon className="w-6 h-6" />}
     </Button>
   );
 
   if (!isClient) {
-    return fabButton; // Render basic button for SSR or if JS is disabled
+    return fabButton; 
   }
 
   return (

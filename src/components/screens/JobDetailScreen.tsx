@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Briefcase, MapPin, Building, CalendarDays, DollarSign, ExternalLink, ListChecks } from 'lucide-react';
+import { ArrowLeftIcon, BriefcaseIcon, MapPinIcon, BuildingOfficeIcon, CalendarDaysIcon, CurrencyDollarIcon, ArrowTopRightOnSquareIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
 import type { BusinessJob } from '@/types';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
@@ -32,7 +32,7 @@ const JobDetailScreen: React.FC<JobDetailScreenProps> = ({ job, onBack }) => {
     <ScrollArea className="h-full bg-background">
       <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <Button variant="outline" onClick={onBack} className="mb-6">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Job Board
+          <ArrowLeftIcon className="mr-2 h-4 w-4" /> Back to Job Board
         </Button>
 
         <Card className="shadow-xl">
@@ -48,7 +48,7 @@ const JobDetailScreen: React.FC<JobDetailScreenProps> = ({ job, onBack }) => {
                 />
               ) : (
                 <div className="w-20 h-20 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Building className="w-10 h-10 text-muted-foreground" />
+                  <BuildingOfficeIcon className="w-10 h-10 text-muted-foreground" />
                 </div>
               )}
               <div className="flex-grow">
@@ -62,7 +62,7 @@ const JobDetailScreen: React.FC<JobDetailScreenProps> = ({ job, onBack }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
               {job.location && (
                 <div className="flex items-start">
-                  <MapPin className="h-5 w-5 mr-3 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  <MapPinIcon className="h-5 w-5 mr-3 text-muted-foreground flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-foreground">Location</p>
                     <p className="text-muted-foreground">{job.location}</p>
@@ -71,7 +71,7 @@ const JobDetailScreen: React.FC<JobDetailScreenProps> = ({ job, onBack }) => {
               )}
               {job.type && (
                 <div className="flex items-start">
-                  <Briefcase className="h-5 w-5 mr-3 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  <BriefcaseIcon className="h-5 w-5 mr-3 text-muted-foreground flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-foreground">Job Type</p>
                     <p className="text-muted-foreground">{job.type}</p>
@@ -80,7 +80,7 @@ const JobDetailScreen: React.FC<JobDetailScreenProps> = ({ job, onBack }) => {
               )}
               {job.postedDate && (
                 <div className="flex items-start">
-                  <CalendarDays className="h-5 w-5 mr-3 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  <CalendarDaysIcon className="h-5 w-5 mr-3 text-muted-foreground flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-foreground">Date Posted</p>
                     <p className="text-muted-foreground">{job.postedDate}</p>
@@ -89,7 +89,7 @@ const JobDetailScreen: React.FC<JobDetailScreenProps> = ({ job, onBack }) => {
               )}
               {job.salaryRange && (
                 <div className="flex items-start">
-                  <DollarSign className="h-5 w-5 mr-3 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  <CurrencyDollarIcon className="h-5 w-5 mr-3 text-muted-foreground flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-foreground">Salary</p>
                     <p className="text-muted-foreground">{job.salaryRange}</p>
@@ -108,7 +108,7 @@ const JobDetailScreen: React.FC<JobDetailScreenProps> = ({ job, onBack }) => {
             {job.requirements && job.requirements.length > 0 && (
               <div>
                 <h3 className="text-xl font-semibold text-foreground mb-3 font-headline flex items-center">
-                  <ListChecks className="mr-2 h-5 w-5 text-primary" /> Requirements
+                  <ClipboardDocumentListIcon className="mr-2 h-5 w-5 text-primary" /> Requirements
                 </h3>
                 <ul className="list-disc list-inside space-y-1 text-muted-foreground pl-2">
                   {job.requirements.map((req, index) => (
@@ -122,7 +122,7 @@ const JobDetailScreen: React.FC<JobDetailScreenProps> = ({ job, onBack }) => {
           <CardFooter className="border-t pt-6 flex flex-col sm:flex-row items-center gap-3">
             <Button size="lg" onClick={handleApply} className="w-full sm:w-auto flex-grow sm:flex-grow-0">
               {job.applyLink ? 'Apply via Link' : 'Apply Now (Simulated)'}
-              {job.applyLink && <ExternalLink className="ml-2 h-4 w-4" />}
+              {job.applyLink && <ArrowTopRightOnSquareIcon className="ml-2 h-4 w-4" />}
             </Button>
             <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={() => toast({title: "Saved (Simulated)"})}>
               Save Job

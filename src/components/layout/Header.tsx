@@ -1,5 +1,5 @@
 
-import { Menu, MessageSquare } from 'lucide-react';
+import { Bars3Icon, ChatBubbleOvalLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -16,7 +16,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onMessagesClick, unreadCou
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Open menu" className="mr-2 text-foreground hover:text-primary" onClick={onMenuClick}>
-              <Menu className="w-6 h-6" />
+              <Bars3Icon className="w-6 h-6" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onMessagesClick, unreadCou
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Messages" className="text-foreground hover:text-primary" onClick={onMessagesClick}>
-              <MessageSquare className="w-6 h-6" />
+              <ChatBubbleOvalLeftEllipsisIcon className="w-6 h-6" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>

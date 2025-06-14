@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { PlusCircle, Edit3, Trash2, XCircle, Building, Search, ExternalLink, Loader2 } from 'lucide-react';
+import { PlusCircleIcon, PencilSquareIcon, TrashIcon, XCircleIcon, BuildingOfficeIcon, MagnifyingGlassIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import type { UserBusinessProfile } from '@/types'; 
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
@@ -22,22 +22,21 @@ interface UserBusinessProfilesScreenProps {
   onManageProfile: (id: string | number) => void; 
 }
 
-// Simulated fetch for initial data for demonstration of loading state
 const simulateFetchInitialProfiles = async (initialProfiles: UserBusinessProfile[]): Promise<UserBusinessProfile[]> => {
   return new Promise(resolve => {
     setTimeout(() => {
       resolve(initialProfiles);
-    }, 700); // Simulate network delay
+    }, 700); 
   });
 };
 
 const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
-  businessProfiles: initialProfilesProp, // Renamed to avoid conflict
+  businessProfiles: initialProfilesProp, 
   onSelectProfile,
   onManageProfile,
 }) => {
   const [profiles, setProfiles] = useState<UserBusinessProfile[]>([]);
-  const [loading, setLoading] = useState(true); // Added loading state
+  const [loading, setLoading] = useState(true); 
   const [showForm, setShowForm] = useState(false);
   const [editingProfile, setEditingProfile] = useState<UserBusinessProfile | null>(null);
   const [currentProfile, setCurrentProfile] = useState<Partial<UserBusinessProfile>>({
@@ -154,12 +153,12 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <CardTitle className="text-2xl font-headline flex items-center">
-                <Building className="mr-2 h-6 w-6 text-primary" /> My Business Profiles
+                <BuildingOfficeIcon className="mr-2 h-6 w-6 text-primary" /> My Business Profiles
               </CardTitle>
               <CardDescription>Manage your business listings and presence.</CardDescription>
             </div>
             <Button onClick={() => { resetForm(); setShowForm(true); }} className="w-full sm:w-auto">
-              <PlusCircle className="mr-2 h-5 w-5" /> Create New Profile
+              <PlusCircleIcon className="mr-2 h-5 w-5" /> Create New Profile
             </Button>
           </div>
            <div className="mt-4 relative">
@@ -169,7 +168,7 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           </div>
         </CardHeader>
 
@@ -223,10 +222,10 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
               </div>
               <CardFooter className="p-0 pt-6 flex justify-end space-x-3">
                 <Button variant="outline" type="button" onClick={resetForm}>
-                  <XCircle className="mr-2 h-4 w-4" /> Cancel
+                  <XCircleIcon className="mr-2 h-4 w-4" /> Cancel
                 </Button>
                 <Button type="submit">
-                  <PlusCircle className="mr-2 h-4 w-4" /> {editingProfile ? 'Save Changes' : 'Create Profile'}
+                  <PlusCircleIcon className="mr-2 h-4 w-4" /> {editingProfile ? 'Save Changes' : 'Create Profile'}
                 </Button>
               </CardFooter>
             </form>
@@ -237,18 +236,18 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
           <CardContent className={filteredProfiles.length > 0 || loading ? "pt-6" : "pt-0"}>
             {loading ? (
               <div className="flex flex-col justify-center items-center py-10 min-h-[200px]">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                 <span className="h-8 w-8 animate-spin border-4 border-primary border-t-transparent rounded-full"></span>
                 <p className="ml-2 mt-2 text-muted-foreground">Loading business profiles...</p>
               </div>
             ) : filteredProfiles.length === 0 && !searchTerm ? (
               <div className="text-center py-10 min-h-[200px] flex flex-col items-center justify-center">
-                <Building className="h-12 w-12 text-muted-foreground mb-4" />
+                <BuildingOfficeIcon className="h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-lg text-muted-foreground">No business profiles yet.</p>
                 <p className="text-sm text-muted-foreground">Click "Create New Profile" above to add your first business.</p>
               </div>
             ) : filteredProfiles.length === 0 && searchTerm ? (
               <div className="text-center py-10 min-h-[200px] flex flex-col items-center justify-center">
-                <Search className="h-12 w-12 text-muted-foreground mb-4" />
+                <MagnifyingGlassIcon className="h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-lg text-muted-foreground">No profiles found matching "{searchTerm}".</p>
                 <p className="text-sm text-muted-foreground">Try a different search term.</p>
               </div>
@@ -285,10 +284,10 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
                         />
                         <div className="flex space-x-1">
                           <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => handleEdit(profile)}>
-                            <Edit3 className="h-4 w-4" />
+                            <PencilSquareIcon className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8" onClick={() => confirmDelete(profile)}>
-                            <Trash2 className="h-4 w-4" />
+                            <TrashIcon className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -296,7 +295,7 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
                     {profile.website && 
                       <CardContent className="pb-3 pt-0">
                           <a href={profile.website} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-primary hover:underline flex items-center">
-                              <ExternalLink className="h-3 w-3 mr-1"/>View Website
+                              <ArrowTopRightOnSquareIcon className="h-3 w-3 mr-1"/>View Website
                           </a>
                       </CardContent>
                     }

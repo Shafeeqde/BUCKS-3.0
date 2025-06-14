@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, UserDataForSideMenu, ProfilePost } from '@/types';
-import { Edit3, Grid, List, Camera, Video, Link as LinkIcon, FileText, MessageSquare, ThumbsUp, PlusCircle, UserCog } from 'lucide-react';
+import { PencilSquareIcon, Squares2X2Icon, ListBulletIcon, CameraIcon, VideoCameraIcon, LinkIcon as LinkIconOutline, DocumentTextIcon, ChatBubbleOvalLeftEllipsisIcon, HandThumbUpIcon, PlusCircleIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 
 interface AccountScreenProps {
@@ -18,14 +18,13 @@ interface AccountScreenProps {
   setActiveTab: (tab: TabName) => void;
 }
 
-// Simulated content data for the logged-in user
 const allUserContent: ProfilePost[] = [
     { id: 1, type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?nature,landscape', thumbnailAiHint: 'nature landscape', likes: 120, comments: 15, user: 'Test User', timestamp: '2 hours ago', content: 'Enjoying the golden hour! What a beautiful sunset.' },
     { id: 2, type: 'video', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?tech,desk', thumbnailAiHint: 'tech desk', videoUrl: '#', likes: 85, comments: 10, user: 'Test User', timestamp: '5 hours ago', content: 'A quick tour of my new workspace setup. Loving the minimalist vibe!' },
     { id: 3, type: 'text', content: 'Just finished reading "Atomic Habits" by James Clear. Highly recommend for anyone looking to build better routines! #books #productivity', likes: 75, comments: 8, user: 'Test User', timestamp: '1 day ago' },
     { id: 4, type: 'link', content: 'My latest blog post on "The Future of AI in Design". Check it out!', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?ai,design', thumbnailAiHint: 'ai design', likes: 50, comments: 5, url: 'https://example.com/blog/ai-design', user: 'Test User', timestamp: '3 days ago' },
     { id: 5, type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?food,healthy', thumbnailAiHint: 'food healthy', likes: 200, comments: 22, user: 'Test User', timestamp: '1 day ago', content: 'Healthy and delicious meal prep for the week.' },
-    { id: 6, type: 'file', content: 'Q3_Marketing_Report.pdf', fileName: 'Q3_Marketing_Report.pdf', fileIcon: 'FileText', likes: 30, comments: 2, user: 'Test User', timestamp: '3 weeks ago' },
+    { id: 6, type: 'file', content: 'Q3_Marketing_Report.pdf', fileName: 'Q3_Marketing_Report.pdf', fileIcon: 'DocumentTextIcon', likes: 30, comments: 2, user: 'Test User', timestamp: '3 weeks ago' },
     { id: 7, type: 'tweet', content: 'Excited for the upcoming Next.js conference! Who else is attending? #NextJS #WebDev', likes: 45, comments: 7, user: 'Test User', timestamp: '2 months ago' },
 ];
 
@@ -34,7 +33,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
     const { toast } = useToast();
     const [activeProfileTab, setActiveProfileTab] = useState('feed');
 
-    // Filter content based on userData if available, otherwise use allUserContent as fallback
     const userContent = userData?.name ? allUserContent.filter(post => post.user === userData.name) : allUserContent;
 
     const filteredPosts = userContent.filter(post => {
@@ -50,7 +48,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
     });
 
     const totalPosts = userContent.length;
-    // Simulate follower/following counts based on user ID if available, else fallback
     const followersCount = userData?.id ? (parseInt(userData.id.substring(userData.id.length - 3), 16) % 500) + 100 : 1234;
     const followingCount = userData?.id ? (parseInt(userData.id.substring(userData.id.length - 2), 16) % 200) + 50 : 567;
 
@@ -71,7 +68,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                 return (
                     <div className="relative my-2 bg-black rounded-md aspect-video flex items-center justify-center">
                         {item.thumbnailUrl && <Image src={item.thumbnailUrl} alt="Video thumbnail" layout="fill" objectFit="cover" className="rounded-md opacity-70" data-ai-hint={item.thumbnailAiHint || "video content"}/>}
-                        <Video className="h-12 w-12 text-white absolute z-10" />
+                        <VideoCameraIcon className="h-12 w-12 text-white absolute z-10" />
                         <p className="absolute bottom-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded">{item.content || "Video Post"}</p>
                     </div>
                 );
@@ -86,7 +83,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
             case 'file':
                 return (
                     <div className="my-2 p-3 border rounded-md flex items-center gap-2 bg-muted/50">
-                        <FileText className="h-6 w-6 text-primary" />
+                        <DocumentTextIcon className="h-6 w-6 text-primary" />
                         <div>
                             <p className="font-medium">{item.fileName || item.content}</p>
                             <p className="text-xs text-muted-foreground">Shared a file.</p>
@@ -118,10 +115,10 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
             </CardContent>
             <CardFooter className="flex justify-start items-center gap-2 pt-2 border-t">
                 <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
-                    <ThumbsUp className="h-4 w-4 mr-1.5" /> {item.likes}
+                    <HandThumbUpIcon className="h-4 w-4 mr-1.5" /> {item.likes}
                 </Button>
                 <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
-                    <MessageSquare className="h-4 w-4 mr-1.5" /> {item.comments}
+                    <ChatBubbleOvalLeftEllipsisIcon className="h-4 w-4 mr-1.5" /> {item.comments}
                 </Button>
             </CardFooter>
         </Card>
@@ -136,25 +133,25 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                 <>
                     {item.thumbnailUrl && <Image src={item.thumbnailUrl} alt="Video thumbnail" layout="fill" objectFit="cover" className="opacity-80 group-hover:opacity-60 transition-opacity" data-ai-hint={item.thumbnailAiHint || "gallery video"}/>}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                        <Video className="h-8 w-8 text-white" />
+                        <VideoCameraIcon className="h-8 w-8 text-white" />
                     </div>
                 </>
             )}
              {item.type === 'link' && (
                  <div className="w-full h-full bg-muted flex flex-col items-center justify-center p-2 text-center">
-                    <LinkIcon className="h-8 w-8 text-primary mb-1"/>
+                    <LinkIconOutline className="h-8 w-8 text-primary mb-1"/>
                     <p className="text-xs font-medium text-foreground line-clamp-2">{item.content}</p>
                  </div>
             )}
             {item.type === 'file' && (
                 <div className="w-full h-full bg-muted flex flex-col items-center justify-center p-2 text-center">
-                    <FileText className="h-8 w-8 text-primary mb-1"/>
+                    <DocumentTextIcon className="h-8 w-8 text-primary mb-1"/>
                     <p className="text-xs font-medium text-foreground line-clamp-2">{item.fileName || item.content}</p>
                 </div>
             )}
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 text-white text-sm">
-                <span className="flex items-center"><ThumbsUp className="h-4 w-4 mr-1" />{item.likes}</span>
-                <span className="flex items-center"><MessageSquare className="h-4 w-4 mr-1" />{item.comments}</span>
+                <span className="flex items-center"><HandThumbUpIcon className="h-4 w-4 mr-1" />{item.likes}</span>
+                <span className="flex items-center"><ChatBubbleOvalLeftEllipsisIcon className="h-4 w-4 mr-1" />{item.comments}</span>
             </div>
         </Card>
     );
@@ -174,7 +171,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                                 <div className="flex items-center justify-center sm:justify-start gap-2">
                                     <h1 className="text-2xl sm:text-3xl font-bold font-headline text-foreground">{userData?.name || 'User Profile'}</h1>
                                     <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={handleEditPersonalProfile}>
-                                        <Edit3 className="h-4 w-4" />
+                                        <PencilSquareIcon className="h-4 w-4" />
                                         <span className="sr-only">Edit Personal Profile</span>
                                     </Button>
                                 </div>
@@ -188,10 +185,10 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                         </div>
                         <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row gap-2 justify-between items-center">
                             <Button variant="outline" onClick={handleManageProfessionalProfile} className="w-full sm:w-auto">
-                                <UserCog className="mr-2 h-4 w-4" /> Manage Professional Profile
+                                <UserCircleIcon className="mr-2 h-4 w-4" /> Manage Professional Profile
                             </Button>
                              <Button className="w-full sm:w-auto" onClick={() => toast({ title: "Create Post (Simulated)", description: "Functionality to create a new post will be here."})}>
-                                <PlusCircle className="mr-2 h-4 w-4"/> Create Post
+                                <PlusCircleIcon className="mr-2 h-4 w-4"/> Create Post
                             </Button>
                         </div>
                     </CardContent>
@@ -199,12 +196,12 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
 
                 <Tabs value={activeProfileTab} onValueChange={(value) => setActiveProfileTab(value)} className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm py-2 px-2 sm:px-0">
                     <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
-                        <TabsTrigger value="feed" className="py-2.5"><List className="mr-1.5 h-4 w-4"/>Feed</TabsTrigger>
-                        <TabsTrigger value="images" className="py-2.5"><Camera className="mr-1.5 h-4 w-4"/>Images</TabsTrigger>
-                        <TabsTrigger value="videos" className="py-2.5"><Video className="mr-1.5 h-4 w-4"/>Videos</TabsTrigger>
-                        <TabsTrigger value="links" className="py-2.5"><LinkIcon className="mr-1.5 h-4 w-4"/>Links</TabsTrigger>
-                        <TabsTrigger value="files" className="py-2.5"><FileText className="mr-1.5 h-4 w-4"/>Files</TabsTrigger>
-                        <TabsTrigger value="tweets" className="py-2.5"><MessageSquare className="mr-1.5 h-4 w-4"/>Tweets</TabsTrigger>
+                        <TabsTrigger value="feed" className="py-2.5"><ListBulletIcon className="mr-1.5 h-4 w-4"/>Feed</TabsTrigger>
+                        <TabsTrigger value="images" className="py-2.5"><CameraIcon className="mr-1.5 h-4 w-4"/>Images</TabsTrigger>
+                        <TabsTrigger value="videos" className="py-2.5"><VideoCameraIcon className="mr-1.5 h-4 w-4"/>Videos</TabsTrigger>
+                        <TabsTrigger value="links" className="py-2.5"><LinkIconOutline className="mr-1.5 h-4 w-4"/>Links</TabsTrigger>
+                        <TabsTrigger value="files" className="py-2.5"><DocumentTextIcon className="mr-1.5 h-4 w-4"/>Files</TabsTrigger>
+                        <TabsTrigger value="tweets" className="py-2.5"><ChatBubbleOvalLeftEllipsisIcon className="mr-1.5 h-4 w-4"/>Tweets</TabsTrigger>
                     </TabsList>
                 </Tabs>
 
@@ -230,4 +227,3 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
 };
 
 export default AccountScreen;
-

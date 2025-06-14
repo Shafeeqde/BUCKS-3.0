@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, MapPin, X, Bot, Filter, ArrowDownUp, ShoppingCart, Info as InfoIcon } from 'lucide-react'; // Changed PocketKnife to Bot
+import { MagnifyingGlassIcon, MapPinIcon, XMarkIcon, ChatBubbleLeftEllipsisIcon, AdjustmentsHorizontalIcon, ArrowUpOnSquareIcon, ShoppingCartIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -30,12 +30,11 @@ export type SearchResultItem =
   | { type: 'individual'; data: IndividualProfessionalCardData }
   | { type: 'business'; data: BusinessCardDataType };
 
-// More detailed simulated search results
 const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'individual',
     data: {
-      id: 'jenson-interior-stylist-123', // Specific ID for Jenson's skillset
+      id: 'jenson-interior-stylist-123', 
       name: 'Jenson Harris',
       avatarUrl: 'https://placehold.co/80x80.png',
       avatarAiHint: 'man smiling professional',
@@ -55,7 +54,7 @@ const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'business',
     data: {
-      id: 1, // Matches ID from initialBusinessProfiles in page.tsx
+      id: 1, 
       name: 'Hot Griddle Restaurant',
       logoUrl: 'https://placehold.co/80x80.png',
       logoAiHint: 'restaurant logo',
@@ -73,7 +72,7 @@ const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'individual',
     data: {
-      id: 'plumbing-profile-johndoe-123', // Specific ID for John Doe's skillset
+      id: 'plumbing-profile-johndoe-123', 
       name: 'John Doe',
       avatarUrl: 'https://placehold.co/80x80.png',
       avatarAiHint: 'man plumber tools',
@@ -92,7 +91,7 @@ const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'business',
     data: {
-      id: 2, // Matches ID from initialBusinessProfiles in page.tsx
+      id: 2, 
       name: 'Mikado UX UI & Branding Studio',
       logoUrl: 'https://placehold.co/80x80.png',
       logoAiHint: 'design studio',
@@ -410,7 +409,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               aria-label="Close search results"
               data-close-search="true"
             >
-              <X className="w-5 h-5" />
+              <XMarkIcon className="w-5 h-5" />
             </Button>
           )}
           <form onSubmit={handleQuerySubmit} className={cn(
@@ -437,7 +436,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               disabled={(isAnsweringQuery && isSearchMode)}
               aria-label="Submit search query"
             >
-              <Search className="w-5 h-5" />
+              <MagnifyingGlassIcon className="w-5 h-5" />
             </Button>
           </form>
         </div>
@@ -455,11 +454,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         {isSearchMode && (
           <div className="px-4 pt-2 pb-3 border-b bg-card sm:bg-transparent">
             <div className="flex items-center space-x-2 overflow-x-auto custom-scrollbar pb-1">
-                <Button variant="outline" size="sm" className="rounded-full shrink-0"><Filter className="mr-1.5 h-3.5 w-3.5"/>Filters</Button>
+                <Button variant="outline" size="sm" className="rounded-full shrink-0"><AdjustmentsHorizontalIcon className="mr-1.5 h-3.5 w-3.5"/>Filters</Button>
                 <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary">Available Now</Button>
                 <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary">Most Recommend</Button>
                 <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary">Ratings</Button>
-                <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary"><ArrowDownUp className="mr-1.5 h-3.5 w-3.5"/>Sort</Button>
+                <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary"><ArrowUpOnSquareIcon className="mr-1.5 h-3.5 w-3.5"/>Sort</Button> {/* Replaced ArrowDownUp */}
             </div>
           </div>
         )}
@@ -497,7 +496,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-xl font-headline flex items-center">
-                    <Bot className="mr-2 h-5 w-5 text-primary"/>
+                    <ChatBubbleLeftEllipsisIcon className="mr-2 h-5 w-5 text-primary"/> {/* Replaced Bot */}
                     {currentQueryType === 'location_search' ? "AI Summary:" : "Locality Hub AI says:"}
                   </CardTitle>
                 </CardHeader>
@@ -510,7 +509,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
             {!isAnsweringQuery && currentQueryType === 'location_search' && foundLocations.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold text-foreground font-headline mb-3 flex items-center">
-                    <MapPin className="mr-2 h-5 w-5 text-primary"/> Places Found:
+                    <MapPinIcon className="mr-2 h-5 w-5 text-primary"/> Places Found:
                 </h3>
                 <div className="space-y-3">
                   {foundLocations.map((location, index) => (
@@ -523,7 +522,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                     >
                       <CardContent className="pt-4">
                         <div className="flex items-start space-x-3">
-                          <MapPin className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
+                          <MapPinIcon className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                           <div>
                             <h4 className="font-semibold text-foreground">{location.name}</h4>
                             <p className="text-sm text-muted-foreground">{location.address}</p>
@@ -549,7 +548,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
             {!isLoadingSimulatedResults && displayedSearchResults.length > 0 && (
               <div className="space-y-6">
                  <h3 className="text-lg font-semibold text-foreground font-headline mb-0 flex items-center">
-                    <Search className="mr-2 h-5 w-5 text-primary"/> Matching Profiles & Businesses:
+                    <MagnifyingGlassIcon className="mr-2 h-5 w-5 text-primary"/> Matching Profiles & Businesses:
                 </h3>
                 {displayedSearchResults.map((item) => {
                   if (item.type === 'individual') {
@@ -596,7 +595,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
             
             {isSearchMode && !isAnsweringQuery && !isLoadingSimulatedResults && displayedSearchResults.length === 0 && searchTerm.trim() === '' && (
                  <div className="text-center py-10 text-muted-foreground">
-                     <InfoIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                     <InformationCircleIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                     <p className="text-lg">Please enter a search term to find professionals or businesses.</p>
                 </div>
             )}
@@ -608,4 +607,3 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 };
 
 export default HomeScreen;
-    

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Plus, Image as ImageIcon, Baseline, Loader2 } from 'lucide-react';
+import { PlusIcon, PhotoIcon, PencilSquareIcon } from '@heroicons/react/24/outline'; // Replaced Image, Baseline, Loader2
 import CategoryItem from '@/components/feeds/CategoryItem';
 import FeedCard from '@/components/feeds/FeedCard';
 import type { Category, FeedItem as FeedItemType } from '@/types';
@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
 const initialCategories: Category[] = [
-  { id: 'moments-0', name: 'Your Moments', icon: Plus, type: 'moments', viewed: false, color: 'bg-primary/10 text-primary' },
+  { id: 'moments-0', name: 'Your Moments', icon: PlusIcon, type: 'moments', viewed: false, color: 'bg-primary/10 text-primary' },
   { id: 'feed-deepthi', name: 'Deepthi', image: 'https://source.unsplash.com/random/100x100/?woman,portrait', dataAiHint: 'woman portrait', viewed: false },
   { id: 'feed-maanisha', name: 'Maanisha', image: 'https://source.unsplash.com/random/100x100/?woman,smiling', dataAiHint: 'woman smiling', viewed: false },
   { id: 'feed-subhesh', name: 'Subhesh', image: 'https://source.unsplash.com/random/100x100/?man,office', dataAiHint: 'man office', viewed: true },
@@ -64,6 +64,14 @@ const FeedsScreen = () => {
   const [isPostingMoment, setIsPostingMoment] = useState(false);
 
   const handleInteraction = (id: number, type: 'recommend' | 'notRecommend') => {
+    const itemInteractedWith = feedItems.find(item => item.id === id);
+    if (!itemInteractedWith) return;
+
+    toast({
+      title: type === 'recommend' ? "Recommended!" : "Marked as Not Recommended",
+      description: `You ${type === 'recommend' ? 'recommended' : 'marked'} ${itemInteractedWith.user}'s post.`,
+    });
+
     setFeedItems(prevItems =>
       prevItems.map(item => {
         if (item.id === id) {
@@ -73,11 +81,6 @@ const FeedsScreen = () => {
           if (type === 'recommend') updatedRecommendations += 1;
           else if (type === 'notRecommend') updatedNotRecommendations += 1;
           
-          toast({
-            title: type === 'recommend' ? "Recommended!" : "Marked as Not Recommended",
-            description: `You ${type === 'recommend' ? 'recommended' : 'marked'} ${item.user}'s post.`,
-          });
-
           return {
             ...item,
             recommendations: updatedRecommendations,
@@ -88,7 +91,7 @@ const FeedsScreen = () => {
       })
     );
   };
-
+  
   const handleToggleCommentBox = (id: number) => {
     setFeedItems(prevItems =>
       prevItems.map(item =>
@@ -188,7 +191,7 @@ const FeedsScreen = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center">
-              <Plus className="mr-2 h-5 w-5 text-primary" /> Create Your Moment
+              <PlusIcon className="mr-2 h-5 w-5 text-primary" /> Create Your Moment
             </DialogTitle>
             <DialogDescription>
               Share an image and a short text with your followers.
@@ -197,7 +200,7 @@ const FeedsScreen = () => {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="momentImageUrl" className="flex items-center">
-                <ImageIcon className="mr-2 h-4 w-4 text-muted-foreground" /> Image URL
+                <PhotoIcon className="mr-2 h-4 w-4 text-muted-foreground" /> Image URL
               </Label>
               <Input
                 id="momentImageUrl"
@@ -209,7 +212,7 @@ const FeedsScreen = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="momentText" className="flex items-center">
-                <Baseline className="mr-2 h-4 w-4 text-muted-foreground" /> Your Text
+                <PencilSquareIcon className="mr-2 h-4 w-4 text-muted-foreground" /> Your Text
               </Label>
               <Textarea
                 id="momentText"
@@ -228,7 +231,7 @@ const FeedsScreen = () => {
               </Button>
             </DialogClose>
             <Button type="button" onClick={handlePostMoment} disabled={isPostingMoment}>
-              {isPostingMoment && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isPostingMoment && <span className="mr-2 h-4 w-4 animate-spin border-2 border-primary-foreground border-t-transparent rounded-full"></span>}
               {isPostingMoment ? 'Posting...' : 'Post Moment'}
             </Button>
           </DialogFooter>

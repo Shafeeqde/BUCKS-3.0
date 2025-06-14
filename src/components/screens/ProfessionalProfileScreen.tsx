@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Loader2, UserCircle, Briefcase, Link as LinkIconComponent, PlusCircle, Edit2, Trash2, ExternalLink, Building, BookOpen, ShieldCheck, Camera, Star, Award } from 'lucide-react';
+import { UserCircleIcon, BriefcaseIcon, LinkIcon as LinkIconOutline, PlusCircleIcon, PencilSquareIcon, TrashIcon, ArrowTopRightOnSquareIcon, BuildingOfficeIcon, BookOpenIcon, ShieldCheckIcon, CameraIcon, StarIcon, TrophyIcon } from '@heroicons/react/24/outline';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, UserDataForSideMenu, OverallProfessionalProfileData, WorkExperienceEntry, EducationEntry, LicenseCertificationEntry } from '@/types';
 import { cn } from '@/lib/utils';
@@ -293,7 +293,6 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
     if (!editedData || !profileData) return;
     setIsSaving(true);
     try {
-      // Simulate updating the URLs directly in editedData for now
       const updatedProfileWithImageUrls: OverallProfessionalProfileData = {
         ...profileData,
         ...editedData,
@@ -321,7 +320,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
   const hasChanges = JSON.stringify(profileData) !== JSON.stringify(editedData);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-full p-4"><Loader2 className="h-12 w-12 animate-spin text-primary" /><p className="ml-3 text-muted-foreground">Loading Professional Profile...</p></div>;
+    return <div className="flex justify-center items-center h-full p-4"><span className="h-12 w-12 animate-spin border-4 border-primary border-t-transparent rounded-full"></span><p className="ml-3 text-muted-foreground">Loading Professional Profile...</p></div>;
   }
   if (error || !editedData) {
     return (
@@ -347,7 +346,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
               <Image src={editedData.coverPhotoUrl} alt="Cover photo" layout="fill" objectFit="cover" data-ai-hint={editedData.coverPhotoAiHint || "professional background"} />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-primary/10 to-secondary/10">
-                <Camera className="h-16 w-16 text-muted-foreground/50" />
+                <CameraIcon className="h-16 w-16 text-muted-foreground/50" />
               </div>
             )}
             <Button 
@@ -357,7 +356,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
               onClick={() => toast({ title: "Edit Cover Photo", description: "Image upload functionality will be available soon."})}
               aria-label="Edit cover photo"
             >
-              <Edit2 className="h-4 w-4" />
+              <PencilSquareIcon className="h-4 w-4" />
             </Button>
           </div>
           <CardContent className="p-4 sm:p-6 relative">
@@ -367,7 +366,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                   <Image src={editedData.avatarUrl} alt={editedData.name || userData?.name || 'User Avatar'} layout="fill" objectFit="cover" className="rounded-full" data-ai-hint={editedData.avatarAiHint || "professional person"}/>
                 ) : (
                   <div className="w-full h-full rounded-full bg-muted flex items-center justify-center">
-                    <UserCircle className="h-16 w-16 text-muted-foreground" />
+                    <UserCircleIcon className="h-16 w-16 text-muted-foreground" />
                   </div>
                 )}
                 <Button 
@@ -377,7 +376,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                   onClick={() => toast({ title: "Edit Avatar", description: "Image upload functionality will be available soon."})}
                   aria-label="Edit avatar"
                 >
-                  <Edit2 className="h-4 w-4" />
+                  <PencilSquareIcon className="h-4 w-4" />
                 </Button>
               </div>
               <div className="flex-grow mt-4 sm:mt-0 text-center sm:text-left">
@@ -405,7 +404,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
         <div className="p-4 sm:px-0 sm:pb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1 space-y-6">
             <Card>
-              <CardHeader><CardTitle className="text-lg flex items-center"><UserCircle className="mr-2 h-5 w-5 text-primary"/>About</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-lg flex items-center"><UserCircleIcon className="mr-2 h-5 w-5 text-primary"/>About</CardTitle></CardHeader>
               <CardContent>
                 <Textarea
                   id="professionalBio"
@@ -420,7 +419,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
             </Card>
             <Card>
               <CardHeader className="flex flex-row justify-between items-center">
-                <CardTitle className="text-lg flex items-center"><Star className="mr-2 h-5 w-5 text-primary"/>Areas of Expertise</CardTitle>
+                <CardTitle className="text-lg flex items-center"><StarIcon className="mr-2 h-5 w-5 text-primary"/>Areas of Expertise</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {editedData.areasOfExpertise && editedData.areasOfExpertise.length > 0 && (
@@ -429,7 +428,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                       <div key={index} className="flex items-center bg-secondary text-secondary-foreground px-2.5 py-1 rounded-md text-xs">
                         <span>{area}</span>
                         <Button type="button" variant="ghost" size="icon" className="ml-1.5 h-5 w-5 text-secondary-foreground hover:bg-secondary/80" onClick={() => handleRemoveExpertise(index)}>
-                          <Trash2 className="h-3 w-3" />
+                          <TrashIcon className="h-3 w-3" />
                         </Button>
                       </div>
                     ))}
@@ -440,12 +439,12 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                       <Label htmlFor="newExpertise" className="sr-only">Add Expertise</Label>
                       <Input id="newExpertise" value={currentExpertise} onChange={(e) => setCurrentExpertise(e.target.value)} placeholder="Add an area..." className="text-sm h-9"/>
                   </div>
-                  <Button type="button" onClick={handleAddExpertise} variant="outline" size="icon" aria-label="Add expertise" className="h-9 w-9"><PlusCircle className="h-4 w-4" /></Button>
+                  <Button type="button" onClick={handleAddExpertise} variant="outline" size="icon" aria-label="Add expertise" className="h-9 w-9"><PlusCircleIcon className="h-4 w-4" /></Button>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle className="text-lg flex items-center"><LinkIconComponent className="mr-2 h-5 w-5 text-primary"/>External Links</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-lg flex items-center"><LinkIconOutline className="mr-2 h-5 w-5 text-primary"/>External Links</CardTitle></CardHeader>
               <CardContent className="space-y-3">
                 {editedData.externalProfileLinks && editedData.externalProfileLinks.length > 0 && (
                   <ul className="space-y-2">
@@ -454,10 +453,10 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                         <div>
                           <span className="font-medium text-foreground">{link.platform}: </span>
                           <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate max-w-[150px] inline-block align-bottom">
-                             {link.url.replace(/^https?:\/\//, '')} <ExternalLink className="inline h-3 w-3 ml-0.5 opacity-70"/>
+                             {link.url.replace(/^https?:\/\//, '')} <ArrowTopRightOnSquareIcon className="inline h-3 w-3 ml-0.5 opacity-70"/>
                           </a>
                         </div>
-                        <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6" onClick={() => handleRemoveLink(link.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                        <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-6 w-6" onClick={() => handleRemoveLink(link.id)}><TrashIcon className="h-3.5 w-3.5" /></Button>
                       </li>
                     ))}
                   </ul>
@@ -466,7 +465,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                   <Input value={currentLinkPlatform} onChange={(e) => setCurrentLinkPlatform(e.target.value)} placeholder="Platform (e.g., LinkedIn)" className="text-sm h-9"/>
                   <div className="flex items-end gap-2">
                     <Input type="url" value={currentLinkUrl} onChange={(e) => setCurrentLinkUrl(e.target.value)} placeholder="URL (https://...)" className="text-sm h-9 flex-grow"/>
-                    <Button type="button" onClick={handleAddLink} variant="outline" size="icon" aria-label="Add external link" className="h-9 w-9"><PlusCircle className="h-4 w-4" /></Button>
+                    <Button type="button" onClick={handleAddLink} variant="outline" size="icon" aria-label="Add external link" className="h-9 w-9"><PlusCircleIcon className="h-4 w-4" /></Button>
                   </div>
                 </div>
               </CardContent>
@@ -476,8 +475,8 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
           <div className="md:col-span-2 space-y-6">
             <Card>
                 <CardHeader className="flex flex-row justify-between items-center">
-                    <CardTitle className="text-lg flex items-center"><Briefcase className="mr-2 h-5 w-5 text-primary"/>Experience</CardTitle>
-                    <Button type="button" variant="outline" size="sm" onClick={openAddWorkExperienceDialog}><PlusCircle className="mr-1.5 h-4 w-4"/>Add Experience</Button>
+                    <CardTitle className="text-lg flex items-center"><BriefcaseIcon className="mr-2 h-5 w-5 text-primary"/>Experience</CardTitle>
+                    <Button type="button" variant="outline" size="sm" onClick={openAddWorkExperienceDialog}><PlusCircleIcon className="mr-1.5 h-4 w-4"/>Add Experience</Button>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {(editedData.workExperience || []).length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No work experience added yet.</p>}
@@ -491,8 +490,8 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                                     {exp.description && <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{exp.description}</p>}
                                 </div>
                                 <div className="flex-shrink-0 space-x-1">
-                                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditWorkExperienceDialog(exp)}><Edit2 className="h-4 w-4"/></Button>
-                                    <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" onClick={() => setWorkExperienceToDelete(exp)}><Trash2 className="h-4 w-4"/></Button>
+                                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditWorkExperienceDialog(exp)}><PencilSquareIcon className="h-4 w-4"/></Button>
+                                    <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" onClick={() => setWorkExperienceToDelete(exp)}><TrashIcon className="h-4 w-4"/></Button>
                                 </div>
                             </div>
                         </div>
@@ -502,8 +501,8 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
 
              <Card>
                 <CardHeader className="flex flex-row justify-between items-center">
-                    <CardTitle className="text-lg flex items-center"><BookOpen className="mr-2 h-5 w-5 text-primary"/>Education</CardTitle>
-                    <Button type="button" variant="outline" size="sm" onClick={openAddEducationDialog}><PlusCircle className="mr-1.5 h-4 w-4"/>Add Education</Button>
+                    <CardTitle className="text-lg flex items-center"><BookOpenIcon className="mr-2 h-5 w-5 text-primary"/>Education</CardTitle>
+                    <Button type="button" variant="outline" size="sm" onClick={openAddEducationDialog}><PlusCircleIcon className="mr-1.5 h-4 w-4"/>Add Education</Button>
                 </CardHeader>
                 <CardContent className="space-y-4">
                      {(editedData.education || []).length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No education details added yet.</p>}
@@ -517,8 +516,8 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                                     {edu.description && <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{edu.description}</p>}
                                 </div>
                                 <div className="flex-shrink-0 space-x-1">
-                                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditEducationDialog(edu)}><Edit2 className="h-4 w-4"/></Button>
-                                    <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" onClick={() => setEducationToDelete(edu)}><Trash2 className="h-4 w-4"/></Button>
+                                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditEducationDialog(edu)}><PencilSquareIcon className="h-4 w-4"/></Button>
+                                    <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" onClick={() => setEducationToDelete(edu)}><TrashIcon className="h-4 w-4"/></Button>
                                 </div>
                             </div>
                         </div>
@@ -528,8 +527,8 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
 
              <Card>
                 <CardHeader className="flex flex-row justify-between items-center">
-                    <CardTitle className="text-lg flex items-center"><Award className="mr-2 h-5 w-5 text-primary"/>Licenses & Certifications</CardTitle>
-                    <Button type="button" variant="outline" size="sm" onClick={openAddLicenseDialog}><PlusCircle className="mr-1.5 h-4 w-4"/>Add Certification</Button>
+                    <CardTitle className="text-lg flex items-center"><TrophyIcon className="mr-2 h-5 w-5 text-primary"/>Licenses & Certifications</CardTitle>
+                    <Button type="button" variant="outline" size="sm" onClick={openAddLicenseDialog}><PlusCircleIcon className="mr-1.5 h-4 w-4"/>Add Certification</Button>
                 </CardHeader>
                 <CardContent className="space-y-4">
                      {(editedData.licensesCertifications || []).length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No licenses or certifications added yet.</p>}
@@ -540,11 +539,11 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                                     <h4 className="font-semibold text-foreground">{cert.name}</h4>
                                     <p className="text-sm text-muted-foreground">{cert.issuingOrganization}</p>
                                     <p className="text-xs text-muted-foreground">Issued: {cert.issueDate} {cert.expirationDate ? `| Expires: ${cert.expirationDate}` : ''}</p>
-                                    {cert.credentialUrl && cert.credentialUrl !== '#' && <a href={cert.credentialUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center mt-1"><ExternalLink className="h-3 w-3 mr-1"/>Show Credential</a>}
+                                    {cert.credentialUrl && cert.credentialUrl !== '#' && <a href={cert.credentialUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center mt-1"><ArrowTopRightOnSquareIcon className="h-3 w-3 mr-1"/>Show Credential</a>}
                                 </div>
                                 <div className="flex-shrink-0 space-x-1">
-                                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditLicenseDialog(cert)}><Edit2 className="h-4 w-4"/></Button>
-                                    <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" onClick={() => setLicenseToDelete(cert)}><Trash2 className="h-4 w-4"/></Button>
+                                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditLicenseDialog(cert)}><PencilSquareIcon className="h-4 w-4"/></Button>
+                                    <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" onClick={() => setLicenseToDelete(cert)}><TrashIcon className="h-4 w-4"/></Button>
                                 </div>
                             </div>
                         </div>
@@ -556,7 +555,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
         <CardFooter className="p-4 sm:px-0 mt-8 pt-6 border-t">
             <div className="flex justify-end w-full">
               <Button type="button" size="lg" onClick={handleSaveAll} disabled={isSaving || !hasChanges}>
-                {isSaving && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+                {isSaving && <span className="mr-2 h-5 w-5 animate-spin border-2 border-primary-foreground border-t-transparent rounded-full"></span>}
                 {isSaving ? 'Saving...' : 'Save All Changes'}
               </Button>
             </div>
@@ -682,5 +681,3 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
 };
 
 export default ProfessionalProfileScreen;
-
-

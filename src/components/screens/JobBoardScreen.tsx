@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, MapPin, Search, Building, Loader2, ExternalLink, Filter as FilterIcon } from 'lucide-react';
+import { BriefcaseIcon, MapPinIcon, MagnifyingGlassIcon, BuildingOfficeIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import type { BusinessJob } from '@/types';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -25,7 +25,7 @@ interface JobBoardScreenProps {
 }
 
 const jobTypeOptions = [
-  { value: "all", label: "All Job Types" }, // Changed value from "" to "all"
+  { value: "all", label: "All Job Types" },
   { value: "Full-time", label: "Full-time" },
   { value: "Part-time", label: "Part-time" },
   { value: "Contract", label: "Contract" },
@@ -35,7 +35,7 @@ const jobTypeOptions = [
 const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSelectJob }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
-  const [jobTypeFilter, setJobTypeFilter] = useState(''); // Initial state is empty, placeholder will show
+  const [jobTypeFilter, setJobTypeFilter] = useState(''); 
   const [filteredJobs, setFilteredJobs] = useState<BusinessJob[]>(initialJobs);
   const [loading, setLoading] = useState(false);
 
@@ -53,7 +53,6 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
       
       const locationMatch = locationFilter ? (job.location?.toLowerCase().includes(lowerLocationFilter) || false) : true;
       
-      // Updated typeMatch logic
       const typeMatch = (jobTypeFilter && jobTypeFilter !== "all") 
                           ? (job.type?.toLowerCase() === lowerJobTypeFilter) 
                           : true;
@@ -61,7 +60,6 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
       return searchCritMatch && locationMatch && typeMatch;
     });
     
-    // Simulate loading delay
     setTimeout(() => {
       setFilteredJobs(results);
       setLoading(false);
@@ -74,14 +72,14 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
         <Card className="mb-6 shadow-md">
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
-              <Briefcase className="mr-3 h-7 w-7 text-primary" /> Job Board
+              <BriefcaseIcon className="mr-3 h-7 w-7 text-primary" /> Job Board
             </CardTitle>
             <CardDescription>Find your next career opportunity. Use the filters below to narrow your search.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   placeholder="Search by title, company..."
                   value={searchTerm}
@@ -90,7 +88,7 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
                 />
               </div>
               <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <MapPinIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   placeholder="Filter by location"
                   value={locationFilter}
@@ -101,7 +99,7 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
               <div>
                 <Select value={jobTypeFilter} onValueChange={setJobTypeFilter}>
                   <SelectTrigger className="w-full">
-                     <FilterIcon className="h-4 w-4 mr-2 text-muted-foreground" />
+                     <FunnelIcon className="h-4 w-4 mr-2 text-muted-foreground" />
                     <SelectValue placeholder="Filter by Job Type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -119,11 +117,11 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
 
         {loading ? (
           <div className="flex justify-center items-center py-10">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <span className="h-12 w-12 animate-spin border-4 border-primary border-t-transparent rounded-full"></span>
           </div>
         ) : filteredJobs.length === 0 ? (
           <div className="text-center py-10">
-            <Briefcase className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+            <BriefcaseIcon className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
             <p className="text-xl text-muted-foreground">No jobs found matching your criteria.</p>
             <p className="text-sm text-muted-foreground">Try adjusting your search or filters.</p>
           </div>
@@ -149,13 +147,13 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
                     />
                   ) : (
                     <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center flex-shrink-0">
-                      <Building className="w-8 h-8 text-muted-foreground" />
+                      <BuildingOfficeIcon className="w-8 h-8 text-muted-foreground" />
                     </div>
                   )}
                   <div className="flex-grow">
                     <h3 className="text-lg font-semibold text-primary hover:underline">{job.title}</h3>
                     <p className="text-sm font-medium text-foreground">{job.businessName}</p>
-                    {job.location && <p className="text-xs text-muted-foreground flex items-center mt-1"><MapPin className="h-3 w-3 mr-1" />{job.location}</p>}
+                    {job.location && <p className="text-xs text-muted-foreground flex items-center mt-1"><MapPinIcon className="h-3 w-3 mr-1" />{job.location}</p>}
                     <div className="mt-2 flex flex-wrap gap-2">
                       {job.type && <Badge variant="secondary" className="text-xs">{job.type}</Badge>}
                       {job.salaryRange && <Badge variant="outline" className="text-xs">{job.salaryRange}</Badge>}
@@ -183,4 +181,3 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
 };
 
 export default JobBoardScreen;
-

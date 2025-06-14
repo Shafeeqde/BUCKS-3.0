@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { PlusCircle, Edit3, Rocket, Search, Loader2, Trash2 } from 'lucide-react';
+import { PlusCircleIcon, PencilSquareIcon, RocketLaunchIcon, MagnifyingGlassIcon, TrashIcon } from '@heroicons/react/24/outline';
 import type { TabName, SkillsetProfileSummary } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
@@ -163,7 +163,7 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <CardTitle className="text-2xl font-headline flex items-center">
-                  <Rocket className="mr-2 h-6 w-6 text-primary" /> My Skillset Profiles
+                  <RocketLaunchIcon className="mr-2 h-6 w-6 text-primary" /> My Skillset Profiles
                 </CardTitle>
                 <CardDescription>Manage your professional service profiles.</CardDescription>
               </div>
@@ -188,7 +188,7 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
               </CardContent>
               <CardFooter>
                 <Button onClick={handleCreateNewProfile} disabled={creatingProfile || !newSkillsetName.trim()} className="w-full sm:w-auto">
-                  {creatingProfile ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+                  {creatingProfile ? <span className="mr-2 h-4 w-4 animate-spin border-2 border-primary-foreground border-t-transparent rounded-full"></span> : <PlusCircleIcon className="mr-2 h-4 w-4" />}
                   {creatingProfile ? 'Creating...' : 'Create & Manage Profile'}
                 </Button>
               </CardFooter>
@@ -204,18 +204,18 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-10"
                       />
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                      <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   </div>
               </div>
 
               {loadingProfiles ? (
                 <div className="flex flex-col justify-center items-center py-10 min-h-[200px]">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <span className="h-8 w-8 animate-spin border-4 border-primary border-t-transparent rounded-full"></span>
                   <p className="ml-2 mt-2 text-muted-foreground">Loading your skillset profiles...</p>
                 </div>
               ) : filteredProfiles.length === 0 ? (
                 <div className="text-center py-10 min-h-[200px] flex flex-col items-center justify-center">
-                  <Rocket className="h-12 w-12 text-muted-foreground mb-4" />
+                  <RocketLaunchIcon className="h-12 w-12 text-muted-foreground mb-4" />
                   <p className="text-lg text-muted-foreground">
                     {searchTerm ? 'No profiles found matching your search.' : 'No skillset profiles yet.'}
                   </p>
@@ -261,10 +261,10 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
                       </CardContent>
                       <CardFooter className="flex justify-end space-x-2 pt-3 border-t">
                         <Button variant="outline" size="sm" onClick={() => onManageSkillsetProfile(profile.id)}>
-                          <Edit3 className="mr-1 h-4 w-4" /> Manage Details
+                          <PencilSquareIcon className="mr-1 h-4 w-4" /> Manage Details
                         </Button>
                         <Button variant="destructive" size="sm" onClick={() => openDeleteConfirmation(profile.id, profile.skillName)}>
-                          <Trash2 className="mr-1 h-4 w-4" /> Delete
+                          <TrashIcon className="mr-1 h-4 w-4" /> Delete
                         </Button>
                       </CardFooter>
                     </Card>

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageCircle } from 'lucide-react'; // Import MessageCircle for comment icon
+import { ChatBubbleOvalLeftEllipsisIcon } from '@heroicons/react/24/outline'; // Replaced MessageCircle
 import ArrowUpIcon from '@/components/icons/ArrowUpIcon';
 import ArrowDownIcon from '@/components/icons/ArrowDownIcon';
 import type { FeedItem as FeedItemType } from '@/types';
@@ -16,7 +16,7 @@ interface FeedCardProps {
   onInteraction: (id: number, type: 'recommend' | 'notRecommend') => void;
   onCommentChange: (id: number, value: string) => void;
   onPostComment: (id: number) => void;
-  onToggleCommentBox: (id: number) => void; // New prop
+  onToggleCommentBox: (id: number) => void;
 }
 
 const FeedCard: React.FC<FeedCardProps> = ({ item, onInteraction, onCommentChange, onPostComment, onToggleCommentBox }) => {
@@ -45,7 +45,7 @@ const FeedCard: React.FC<FeedCardProps> = ({ item, onInteraction, onCommentChang
             className="flex items-center mr-4 hover:text-primary focus:outline-none"
             aria-label={`View or add comments for ${item.user}'s post`}
           >
-            <MessageCircle className="w-4 h-4 mr-1" /> {item.comments}
+            <ChatBubbleOvalLeftEllipsisIcon className="w-4 h-4 mr-1" /> {item.comments}
           </button>
           <span className="mr-4">👍 {item.recommendations}</span>
           <span>👎 {item.notRecommendations}</span>
