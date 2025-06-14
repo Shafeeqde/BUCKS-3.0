@@ -14,7 +14,7 @@ import { Loader2 } from 'lucide-react';
 
 const initialServicesData: Service[] = [
     { id: 'taxi', name: 'Taxi', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-car"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.8-2.8c-.7-.7-1.7-1.2-2.8-1.4L4 5v14"/><path d="M12 10H4v6h10"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>`, locked: false, dataAiHint: "car taxi ride" },
-    { id: 'jobs', name: 'Jobs', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-briefcase"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`, locked: true, dataAiHint: "briefcase work" },
+    { id: 'jobs', name: 'Jobs', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-briefcase"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`, locked: false, dataAiHint: "briefcase work" }, // Unlocked Jobs
     { id: 'foods', name: 'Foods', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-utensils"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M15 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><line x1="7" x2="7" y1="2" y2="22"/><line x1="17" x2="17" y1="2" y2="22"/></svg>`, locked: true, dataAiHint: "utensils restaurant" },
     { id: 'shopping', name: 'Shopping', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`, locked: true, dataAiHint: "shopping bag" },
     { id: 'pay', name: 'Pay', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-credit-card"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>`, locked: true, dataAiHint: "credit card" },
@@ -52,6 +52,10 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
       setPickupLocation('Your Current Location (Simulated)'); 
       return;
     }
+    if (service.id === 'jobs' && !service.locked) {
+      setActiveTab('job-board');
+      return;
+    }
     toast({
       title: `${service.name} Service`,
       description: service.locked ? "This service is coming soon!" : `Exploring ${service.name}.`,
@@ -75,16 +79,14 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
     setIsRequestingRide(true);
     console.log('Booking ride:', { pickupLocation, dropoffLocation, vehicleId: selectedVehicle.id });
     
-    // Simulate API call delay before calling onRequestRide
     await new Promise(resolve => setTimeout(resolve, 500)); 
 
     onRequestRide({
         pickup: pickupLocation,
         dropoff: dropoffLocation,
-        vehicleId: selectedVehicle.id, // Pass selected vehicle ID
+        vehicleId: selectedVehicle.id, 
     });
     
-    // Note: Toast and navigation to home will now be handled by page.tsx after activityDetails are set
     setIsTaxiBookingActive(false);
     setPickupLocation('');
     setDropoffLocation('');

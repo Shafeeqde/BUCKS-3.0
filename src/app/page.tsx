@@ -15,16 +15,18 @@ import UserSkillsetsScreen from '@/components/screens/UserSkillsetsScreen';
 import UserVehiclesScreen from '@/components/screens/UserVehiclesScreen';
 import UserBusinessProfilesScreen from '@/components/screens/UserBusinessProfilesScreen';
 import UserBusinessProfileDetailScreen from '@/components/screens/UserBusinessProfileDetailScreen';
-import BusinessProfileManagementScreen from '@/components/screens/BusinessProfileManagementScreen'; // New import
+import BusinessProfileManagementScreen from '@/components/screens/BusinessProfileManagementScreen';
 import MessagesNotificationsScreen from '@/components/screens/MessagesNotificationsScreen';
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
 import ActiveActivityView from '@/components/activity/ActiveActivityView';
 import IndividualProfileScreen from '@/components/screens/IndividualProfileScreen';
 import SkillsetProfileScreen from '@/components/screens/SkillsetProfileScreen';
 import SkillsetProfileManagementScreen from '@/components/screens/SkillsetProfileManagementScreen';
+import JobBoardScreen from '@/components/screens/JobBoardScreen'; // New import
+import JobDetailScreen from '@/components/screens/JobDetailScreen'; // New import
 
 
-import type { TabName, UserBusinessProfile, ActivityDetails } from '@/types';
+import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -63,8 +65,8 @@ export const initialBusinessProfiles: UserBusinessProfile[] = [
         {id: 'serv4', name: 'Home Delivery (Partnered)', description: 'Get your favorite meals delivered to your doorstep through our delivery partners (Swiggy, Zomato).', price: 'Varies'},
     ],
     jobs: [
-      { id: 'job-chef-1', title: 'Head Chef', location: 'Bangalore', type: 'Full-time', postedDate: '2024-05-20', description: 'Seeking an experienced Head Chef with expertise in multi-cuisine cooking and kitchen management. Competitive salary and benefits.' },
-      { id: 'job-waiter-2', title: 'Service Staff / Waiter', location: 'Bangalore', type: 'Part-time', postedDate: '2024-05-18', description: 'Looking for energetic and customer-friendly service staff for weekend shifts. Good communication skills required.' },
+      { id: 'job-chef-1', businessId: 1, businessName: 'Hot Griddle Restaurant', businessLogoUrl: 'https://placehold.co/80x80.png', title: 'Head Chef', location: 'BTM Layout, Bangalore', type: 'Full-time', postedDate: '2024-05-20', salaryRange: '₹60,000 - ₹80,000 per month', description: 'Seeking an experienced Head Chef with expertise in multi-cuisine cooking and kitchen management. Must have a passion for creating innovative dishes and leading a team. Competitive salary and benefits package.', requirements: ['5+ years experience as Head Chef', 'Proven kitchen management skills', 'Degree in Culinary Arts preferred'] },
+      { id: 'job-waiter-2', businessId: 1, businessName: 'Hot Griddle Restaurant', businessLogoUrl: 'https://placehold.co/80x80.png', title: 'Service Staff / Waiter', location: 'BTM Layout, Bangalore', type: 'Part-time', postedDate: '2024-05-18', salaryRange: '₹12,000 - ₹15,000 per month (pro-rata)', description: 'Looking for energetic and customer-friendly service staff for weekend shifts. Good communication skills and ability to work in a fast-paced environment required.', requirements: ['Excellent communication skills', 'Previous F&B experience a plus', 'Ability to work evenings and weekends'] },
     ],
     reviews: [
         { id: 'rev1', reviewerName: 'Aisha K.', rating: 5, comment: 'The biryani was absolutely fantastic! Best I have had in Bangalore. Ambiance is great too. Will visit again!', date: '2024-05-15'},
@@ -100,8 +102,8 @@ export const initialBusinessProfiles: UserBusinessProfile[] = [
         {id: 'mserv4', name: 'Mobile App Design (iOS & Android)', description: 'User-centric mobile application design for optimal engagement and usability, covering both iOS and Android platforms.'},
     ],
     jobs: [
-        {id: 'mjob1', title: 'Senior UX Designer', location: 'Bengaluru (Remote option available)', type: 'Full-time', postedDate: '2024-05-15', description: 'Looking for a seasoned UX designer to lead projects and mentor junior designers. Strong portfolio showcasing complex problem-solving required.'},
-        {id: 'mjob2', title: 'Graphic Design Intern', location: 'Bengaluru', type: 'Internship', postedDate: '2024-05-20', description: 'Opportunity for aspiring graphic designers to learn and contribute to real-world projects. Paid internship.'},
+        {id: 'mjob1', businessId: 2, businessName: 'Mikado UX UI & Branding Studio', businessLogoUrl: 'https://placehold.co/80x80.png', title: 'Senior UX Designer', location: 'Bengaluru (Remote option available)', type: 'Full-time', postedDate: '2024-05-15', salaryRange: '₹1,20,000 - ₹1,80,000 per month', description: 'Looking for a seasoned UX designer to lead projects and mentor junior designers. Strong portfolio showcasing complex problem-solving required.', requirements: ['5+ years UX design experience', 'Proficiency in Figma, Adobe XD', 'Strong communication skills'] },
+        {id: 'mjob2', businessId: 2, businessName: 'Mikado UX UI & Branding Studio', businessLogoUrl: 'https://placehold.co/80x80.png', title: 'Graphic Design Intern', location: 'Bengaluru', type: 'Internship', postedDate: '2024-05-20', salaryRange: '₹20,000 per month stipend', description: 'Opportunity for aspiring graphic designers to learn and contribute to real-world projects. Paid internship with potential for full-time conversion.', requirements: ['Portfolio of design work', 'Familiarity with Adobe Creative Suite', 'Eagerness to learn'] },
     ],
     reviews: [
         {id: 'mrev1', reviewerName: 'Startup Founder X', rating: 5, comment: 'Mikado transformed our app! The new UX is intuitive and has significantly improved user engagement. Their team is top-notch.', date: '2024-04-30'},
@@ -126,12 +128,13 @@ export default function AppRoot() {
 
   const [businessProfilesData, setBusinessProfilesData] = useState<UserBusinessProfile[]>(initialBusinessProfiles);
   const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | number | null>(null);
-  const [businessProfileToManageId, setBusinessProfileToManageId] = useState<string | number | null>(null); // New state
+  const [businessProfileToManageId, setBusinessProfileToManageId] = useState<string | number | null>(null); 
   
   const [selectedIndividualProfileId, setSelectedIndividualProfileId] = useState<string | null>(null); 
   const [selectedSkillsetProfileId, setSelectedSkillsetProfileId] = useState<string | null>(null); 
   const [skillsetProfileToManageId, setSkillsetProfileToManageId] = useState<string | null>(null); 
 
+  const [selectedJobId, setSelectedJobId] = useState<string | number | null>(null); // New state for Job Detail
 
   const [isFabVisible, setIsFabVisible] = useState(false);
   const [isActiveActivityViewVisible, setIsActiveActivityViewVisible] = useState(false);
@@ -164,22 +167,24 @@ export default function AppRoot() {
     setActivityDetails(null);
     setIsDriverOnlineSim(false);
     setSelectedBusinessProfileId(null);
-    setBusinessProfileToManageId(null); // Clear on logout
+    setBusinessProfileToManageId(null); 
     setSelectedIndividualProfileId(null);
     setSelectedSkillsetProfileId(null);
     setSkillsetProfileToManageId(null);
+    setSelectedJobId(null); // Clear on logout
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   };
 
   const handleTabSelection = (tab: TabName) => {
     setActiveTab(tab);
     setShowSideMenu(false);
-    if (tab !== 'business-detail' && tab !== 'individual-profile' && tab !== 'skillset-profile' && tab !== 'manage-skillset-profile' && tab !== 'manage-business-profile') {
+    if (tab !== 'business-detail' && tab !== 'individual-profile' && tab !== 'skillset-profile' && tab !== 'manage-skillset-profile' && tab !== 'manage-business-profile' && tab !== 'job-detail') {
         setSelectedBusinessProfileId(null);
         setBusinessProfileToManageId(null);
         setSelectedIndividualProfileId(null);
         setSelectedSkillsetProfileId(null);
         setSkillsetProfileToManageId(null);
+        setSelectedJobId(null);
     }
   };
 
@@ -189,7 +194,7 @@ export default function AppRoot() {
     setShowSideMenu(false);
   };
 
-  const handleManageBusinessProfile = (profileId: string | number) => { // New handler
+  const handleManageBusinessProfile = (profileId: string | number) => { 
     setBusinessProfileToManageId(profileId);
     setActiveTab('manage-business-profile');
     setShowSideMenu(false);
@@ -235,6 +240,17 @@ export default function AppRoot() {
   const handleBackFromManageSkillsetProfile = () => {
     setSkillsetProfileToManageId(null);
     setActiveTab('user-skillsets');
+  };
+
+  const handleSelectJob = (jobId: string | number) => {
+    setSelectedJobId(jobId);
+    setActiveTab('job-detail');
+    setShowSideMenu(false);
+  };
+
+  const handleBackFromJobDetail = () => {
+    setSelectedJobId(null);
+    setActiveTab('job-board');
   };
 
   const handleAddToCart = (businessId: string | number, productId: string) => {
@@ -552,7 +568,20 @@ export default function AppRoot() {
             />
           );
         }
-        return <p className="p-4 text-center text-muted-foreground">No skillset profile selected for management.</p>; 
+        return <p className="p-4 text-center text-muted-foreground">No skillset profile selected for management.</p>;
+      
+      case 'job-board':
+        const allJobs = businessProfilesData.flatMap(bp => bp.jobs?.map(job => ({...job, businessId: bp.id, businessName: bp.name, businessLogoUrl: bp.logo})) || []);
+        return <JobBoardScreen jobs={allJobs} onSelectJob={handleSelectJob} />;
+
+      case 'job-detail':
+        const allJobsForDetail = businessProfilesData.flatMap(bp => bp.jobs?.map(job => ({...job, businessId: bp.id, businessName: bp.name, businessLogoUrl: bp.logo})) || []);
+        const job = allJobsForDetail.find(j => j.id === selectedJobId);
+        if (job) {
+            return <JobDetailScreen job={job} onBack={handleBackFromJobDetail} />;
+        }
+        return <p className="p-4 text-center text-muted-foreground">Job details not found.</p>;
+
 
       default: return <HomeScreen 
                         setActiveTab={handleTabSelection}
@@ -631,4 +660,3 @@ export default function AppRoot() {
   );
 }
     
-

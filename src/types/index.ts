@@ -12,12 +12,14 @@ export type TabName =
   | 'vehicles'
   | 'business-profiles'
   | 'business-detail'
-  | 'manage-business-profile' // New: For managing/editing a specific business profile
+  | 'manage-business-profile'
   | 'messages-notifications'
   | 'individual-profile' // Public view of a general professional profile
   | 'skillset-profile' // Public view of a specific skillset profile
   | 'user-skillsets' // User's management screen for their skillset profiles
-  | 'manage-skillset-profile';
+  | 'manage-skillset-profile'
+  | 'job-board' // New: For viewing job listings
+  | 'job-detail'; // New: For viewing a specific job's details
 
 export interface Category {
   id: string;
@@ -117,13 +119,20 @@ export interface BusinessProduct {
 }
 
 export interface BusinessJob {
-  id: string | number;
+  id: string | number; // Unique ID for the job itself
+  businessId: string | number; // ID of the business posting the job
+  businessName: string; // Name of the business
+  businessLogoUrl?: string; // Logo of the business
   title: string;
   location?: string;
-  type?: string;
+  type?: 'Full-time' | 'Part-time' | 'Contract' | 'Internship' | string; // Allow other strings
   description?: string;
-  postedDate?: string;
+  postedDate?: string; // Consider using Date type if more manipulation is needed
+  salaryRange?: string;
+  requirements?: string[];
+  applyLink?: string; // External application link
 }
+
 
 export interface BusinessFeedItem {
   id: string | number;
@@ -136,7 +145,7 @@ export interface BusinessFeedItem {
 
 export interface BusinessService {
   id: string | number;
-  name: string;
+  name:string;
   description?: string;
   price?: string;
 }
@@ -162,12 +171,12 @@ export interface UserBusinessProfile {
   email?: string;
   location?: string;
   specialties?: string[];
-  followers?: number; // Changed from followersCount
-  following?: number; // Changed from followingCount
+  followers?: number; 
+  following?: number; 
   feed?: BusinessFeedItem[];
   products?: BusinessProduct[];
   services?: BusinessService[];
-  jobs?: BusinessJob[];
+  jobs?: BusinessJob[]; // Uses the enhanced BusinessJob type
   reviews?: BusinessReview[];
   averageRating?: number;
   totalReviews?: number;
@@ -269,8 +278,8 @@ export interface IndividualProfileData {
   totalReviews: number;
   workExperienceEntries?: SkillsetSpecificWorkExperience[];
   portfolioItems?: SkillsetSpecificPortfolioItem[];
-  professionalFeed?: BusinessFeedItem[]; // Re-using BusinessFeedItem
-  reviews?: BusinessReview[]; // Re-using BusinessReview
+  professionalFeed?: BusinessFeedItem[]; 
+  reviews?: BusinessReview[]; 
 }
 
 // --- Types for Skillset-Specific Profiles ---
@@ -293,7 +302,7 @@ export interface SkillsetSpecificPortfolioItem {
   link?: string;
 }
 
-export interface SkillsetSpecificFeedItem { // Renamed from BusinessFeedItem for clarity if different structure needed
+export interface SkillsetSpecificFeedItem { 
   id: string;
   content: string;
   imageUrl?: string;
@@ -321,8 +330,8 @@ export interface SkillsetProfileData {
   };
   workExperienceEntries: SkillsetSpecificWorkExperience[];
   portfolioItems: SkillsetSpecificPortfolioItem[];
-  professionalFeed: SkillsetSpecificFeedItem[]; // Using specific type
-  reviews: BusinessReview[]; // Re-using BusinessReview for skillset reviews
+  professionalFeed: SkillsetSpecificFeedItem[]; 
+  reviews: BusinessReview[]; 
   recommendationsCount: number;
   averageRating: number;
   totalReviews: number;
