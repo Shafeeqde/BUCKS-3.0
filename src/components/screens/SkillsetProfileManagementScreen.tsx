@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, ArrowLeft, PlusCircle, Edit2, Trash2, Image as ImageIcon, Link as LinkIcon, Briefcase, BookOpen, Rss } from 'lucide-react';
+import { ArrowLeftIcon, PlusCircleIcon, PencilSquareIcon, TrashIcon, PhotoIcon, LinkIcon, BriefcaseIcon, BookOpenIcon, RssIcon } from '@heroicons/react/24/outline';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, SkillsetProfileData, SkillsetSpecificWorkExperience, SkillsetSpecificPortfolioItem, SkillsetSpecificFeedItem } from '@/types';
 import Image from 'next/image';
@@ -36,7 +36,7 @@ interface SkillsetProfileFormData {
   };
   workExperienceEntries: SkillsetSpecificWorkExperience[];
   portfolioItems: SkillsetSpecificPortfolioItem[];
-  professionalFeed: SkillsetSpecificFeedItem[]; 
+  professionalFeed: SkillsetSpecificFeedItem[];
 }
 
 
@@ -281,12 +281,12 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     }
     if (!editedData) return;
 
-    if (currentPortfolioItem.id) { 
+    if (currentPortfolioItem.id) {
         const updatedItems = editedData.portfolioItems.map(item =>
             item.id === currentPortfolioItem!.id ? { ...item, ...currentPortfolioItem } as SkillsetSpecificPortfolioItem : item
         );
         setEditedData({ ...editedData, portfolioItems: updatedItems });
-    } else { 
+    } else {
         const newItem: SkillsetSpecificPortfolioItem = {
             id: `pi-${Date.now()}`,
             title: currentPortfolioItem.title,
@@ -317,7 +317,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
 
   // --- Professional Feed CRUD Functions ---
   const openAddFeedItemDialog = () => {
-    setCurrentFeedItem({ timestamp: new Date().toLocaleDateString() }); 
+    setCurrentFeedItem({ timestamp: new Date().toLocaleDateString() });
     setShowFeedItemDialog(true);
   };
 
@@ -338,12 +338,12 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     }
     if (!editedData) return;
 
-    if (currentFeedItem.id) { 
+    if (currentFeedItem.id) {
         const updatedItems = editedData.professionalFeed.map(item =>
             item.id === currentFeedItem!.id ? { ...item, ...currentFeedItem } as SkillsetSpecificFeedItem : item
         );
         setEditedData({ ...editedData, professionalFeed: updatedItems });
-    } else { 
+    } else {
         const newItem: SkillsetSpecificFeedItem = {
             id: `feed-${Date.now()}`,
             content: currentFeedItem.content,
@@ -412,7 +412,15 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
 
 
   if (loading) {
-    return <div className="flex justify-center items-center h-full"><Loader2 className="h-12 w-12 animate-spin text-primary" /><p className="ml-3">Loading profile data...</p></div>;
+    return (
+        <div className="flex justify-center items-center h-full">
+            <svg className="animate-spin h-12 w-12 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p className="ml-3 text-muted-foreground">Loading profile data...</p>
+        </div>
+    );
   }
   if (error) {
     return <div className="p-4 text-center text-destructive">{error} <Button onClick={() => fetchProfileData(skillsetProfileId)} variant="outline">Try Again</Button></div>;
@@ -427,7 +435,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     <ScrollArea className="h-full bg-background">
       <div className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
         <Button variant="outline" onClick={onBack} className="mb-6">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Skillset Profiles
+          <ArrowLeftIcon className="mr-2 h-4 w-4" /> Back to Skillset Profiles
         </Button>
 
         <Card className="mb-6">
@@ -486,9 +494,9 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
 
             <Card className="mt-6">
                 <CardHeader className="flex flex-row justify-between items-center">
-                    <CardTitle className="flex items-center"><Briefcase className="mr-2 h-5 w-5 text-primary"/>Work Experience</CardTitle>
+                    <CardTitle className="flex items-center"><BriefcaseIcon className="mr-2 h-5 w-5 text-primary"/>Work Experience</CardTitle>
                     <Button type="button" variant="outline" size="sm" onClick={openAddWorkExperienceDialog}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add New
+                        <PlusCircleIcon className="mr-2 h-4 w-4" /> Add New
                     </Button>
                 </CardHeader>
                 <CardContent>
@@ -504,10 +512,10 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                                 </div>
                                 <div className="space-x-1 flex-shrink-0 ml-2">
                                     <Button type="button" variant="ghost" size="icon" onClick={() => openEditWorkExperienceDialog(exp)} className="h-8 w-8">
-                                        <Edit2 className="h-4 w-4" />
+                                        <PencilSquareIcon className="h-4 w-4" />
                                     </Button>
                                     <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteWorkExperience(exp.id)}>
-                                        <Trash2 className="h-4 w-4" />
+                                        <TrashIcon className="h-4 w-4" />
                                     </Button>
                                 </div>
                             </div>
@@ -522,9 +530,9 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
 
             <Card className="mt-6">
                 <CardHeader className="flex flex-row justify-between items-center">
-                    <CardTitle className="flex items-center"><BookOpen className="mr-2 h-5 w-5 text-primary"/>Portfolio Items</CardTitle>
+                    <CardTitle className="flex items-center"><BookOpenIcon className="mr-2 h-5 w-5 text-primary"/>Portfolio Items</CardTitle>
                     <Button type="button" variant="outline" size="sm" onClick={openAddPortfolioItemDialog}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add New
+                        <PlusCircleIcon className="mr-2 h-4 w-4" /> Add New
                     </Button>
                 </CardHeader>
                 <CardContent>
@@ -546,10 +554,10 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                                 </div>
                                 <div className="space-x-1 flex-shrink-0">
                                     <Button type="button" variant="ghost" size="icon" onClick={() => openEditPortfolioItemDialog(item)} className="h-8 w-8">
-                                        <Edit2 className="h-4 w-4" />
+                                        <PencilSquareIcon className="h-4 w-4" />
                                     </Button>
                                     <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeletePortfolioItem(item.id)}>
-                                        <Trash2 className="h-4 w-4" />
+                                        <TrashIcon className="h-4 w-4" />
                                     </Button>
                                 </div>
                             </div>
@@ -565,9 +573,9 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
 
           <Card className="mt-6">
             <CardHeader className="flex flex-row justify-between items-center">
-              <CardTitle className="flex items-center"><Rss className="mr-2 h-5 w-5 text-primary"/>Professional Feed</CardTitle>
+              <CardTitle className="flex items-center"><RssIcon className="mr-2 h-5 w-5 text-primary"/>Professional Feed</CardTitle>
               <Button type="button" variant="outline" size="sm" onClick={openAddFeedItemDialog}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add New Post
+                <PlusCircleIcon className="mr-2 h-4 w-4" /> Add New Post
               </Button>
             </CardHeader>
             <CardContent>
@@ -587,10 +595,10 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                         </div>
                         <div className="space-x-1 flex-shrink-0">
                           <Button type="button" variant="ghost" size="icon" onClick={() => openEditFeedItemDialog(item)} className="h-8 w-8">
-                            <Edit2 className="h-4 w-4" />
+                            <PencilSquareIcon className="h-4 w-4" />
                           </Button>
                           <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDeleteFeedItem(item.id)}>
-                              <Trash2 className="h-4 w-4" />
+                              <TrashIcon className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -607,8 +615,13 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
             <div className="flex justify-end w-full space-x-3">
                 <Button type="button" variant="outline" onClick={onBack}>Cancel</Button>
                 <Button type="submit" disabled={isSaving || !hasChanges}>
-                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
+                {isSaving && (
+                    <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-primary-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                )}
+                {isSaving ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           </CardFooter>
@@ -673,7 +686,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                     Showcase your work related to this skillset.
                 </DialogDescription>
             </DialogHeader>
-            <ScrollArea className="max-h-[60vh] pr-6"> 
+            <ScrollArea className="max-h-[60vh] pr-6">
               <div className="grid gap-4 py-4">
                   <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="pi-title" className="text-right">Title <span className="text-destructive">*</span></Label>
@@ -735,7 +748,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
             </DialogHeader>
             <ScrollArea className="max-h-[60vh] pr-6">
               <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-start gap-4"> 
+                  <div className="grid grid-cols-4 items-start gap-4">
                       <Label htmlFor="feed-content" className="text-right pt-2">Content <span className="text-destructive">*</span></Label>
                       <Textarea id="feed-content" name="content" value={currentFeedItem?.content || ''} onChange={handleFeedItemDialogChange} className="col-span-3" placeholder="What's on your mind?" rows={4} />
                   </div>
@@ -782,5 +795,3 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
 };
 
 export default SkillsetProfileManagementScreen;
-
-    

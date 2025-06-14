@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Star, ThumbsUp, Mail, Phone, Globe, Briefcase, Link as LinkIcon, ExternalLink, Info } from 'lucide-react';
+import { StarIcon, HandThumbUpIcon, EnvelopeIcon, PhoneIcon, GlobeAltIcon, BriefcaseIcon, LinkIcon, ArrowTopRightOnSquareIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, IndividualProfileData } from '@/types';
 import { cn } from '@/lib/utils';
@@ -36,28 +36,22 @@ const simulateFetchIndividualProfile = async (profileId: string): Promise<Indivi
         },
         skillsets: [
           {
+            id: 'skill-uxui',
             name: 'UX/UI Design',
             level: 'Expert',
             description: 'User research, wireframing, prototyping, usability testing. Figma, Adobe XD.',
-            workExperience: '7+ years leading design for SaaS products and mobile apps.',
-            portfolioUrls: [
-              { url: '#ux-project-1', title: 'E-commerce Redesign Case Study' },
-              { url: '#ui-project-2', title: 'Mobile App UI Kit' }
-            ],
           },
           {
+            id: 'skill-frontend',
             name: 'Frontend Development',
             level: 'Advanced',
             description: 'React, Next.js, TypeScript, Tailwind CSS. Building responsive and performant UIs.',
-            workExperience: '5+ years developing production-grade applications.',
-            portfolioUrls: [{ url: '#frontend-project-1', title: 'Interactive Dashboard Project' }],
           },
           {
+            id: 'skill-illustration',
             name: 'Illustration',
             level: 'Intermediate',
             description: 'Digital illustrations for web and print media.',
-            workExperience: 'Freelance illustration projects for various clients.',
-            portfolioUrls: [],
           }
         ],
         recommendationsCount: 78,
@@ -110,7 +104,10 @@ const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setAc
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4">
-        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <svg className="animate-spin h-12 w-12 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
         <p className="text-muted-foreground">Loading Profile...</p>
       </div>
     );
@@ -139,9 +136,9 @@ const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setAc
     const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
     return (
       <div className="flex items-center">
-        {[...Array(fullStars)].map((_, i) => <Star key={`full-${i}`} className="h-5 w-5 text-yellow-400 fill-yellow-400" />)}
-        {halfStar && <Star key="half" className="h-5 w-5 text-yellow-400 fill-yellow-200" />} {/* Simplistic half star */}
-        {[...Array(emptyStars)].map((_, i) => <Star key={`empty-${i}`} className="h-5 w-5 text-muted-foreground/50" />)}
+        {[...Array(fullStars)].map((_, i) => <StarIcon key={`full-${i}`} className="h-5 w-5 text-yellow-400 fill-yellow-400" />)}
+        {halfStar && <StarIcon key="half" className="h-5 w-5 text-yellow-400 fill-yellow-200" />}
+        {[...Array(emptyStars)].map((_, i) => <StarIcon key={`empty-${i}`} className="h-5 w-5 text-muted-foreground/50" />)}
       </div>
     );
   };
@@ -167,13 +164,13 @@ const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setAc
                   <span className="text-sm text-muted-foreground hidden sm:inline"> ({profileData.totalReviews} reviews)</span>
                 </div>
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <ThumbsUp className="h-4 w-4 text-green-500" />
+                  <HandThumbUpIcon className="h-4 w-4 text-green-500" />
                   <span>{profileData.recommendationsCount} Recommendations</span>
                 </div>
                  <span className="text-sm text-muted-foreground sm:hidden"> ({profileData.totalReviews} reviews)</span>
               </div>
               <Button size="lg">
-                <Mail className="mr-2 h-5 w-5" /> Contact {profileData.name.split(' ')[0]}
+                <EnvelopeIcon className="mr-2 h-5 w-5" /> Contact {profileData.name.split(' ')[0]}
               </Button>
             </div>
           </CardContent>
@@ -186,24 +183,24 @@ const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setAc
             {profileData.contactInfo && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center"><Info className="mr-2 h-5 w-5 text-primary" />Contact Information</CardTitle>
+                  <CardTitle className="text-xl flex items-center"><InformationCircleIcon className="mr-2 h-5 w-5 text-primary" />Contact Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
                   {profileData.contactInfo.phone && (
                     <div className="flex items-center">
-                      <Phone className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
+                      <PhoneIcon className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
                       <a href={`tel:${profileData.contactInfo.phone}`} className="text-foreground hover:text-primary hover:underline">{profileData.contactInfo.phone}</a>
                     </div>
                   )}
                   {profileData.contactInfo.email && (
                     <div className="flex items-center">
-                      <Mail className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
+                      <EnvelopeIcon className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
                       <a href={`mailto:${profileData.contactInfo.email}`} className="text-foreground hover:text-primary hover:underline">{profileData.contactInfo.email}</a>
                     </div>
                   )}
                   {profileData.contactInfo.website && (
                     <div className="flex items-center">
-                      <Globe className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
+                      <GlobeAltIcon className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
                       <a href={profileData.contactInfo.website} target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary hover:underline truncate">
                         {profileData.contactInfo.website.replace(/^https?:\/\//, '')}
                       </a>
@@ -212,7 +209,6 @@ const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setAc
                 </CardContent>
               </Card>
             )}
-            {/* Placeholder for "Professional Feed Summary" or "Quick Links" */}
              <Card>
                 <CardHeader><CardTitle className="text-xl">Quick Links</CardTitle></CardHeader>
                 <CardContent><p className="text-sm text-muted-foreground">Portfolio, Certifications, etc.</p></CardContent>
@@ -224,33 +220,17 @@ const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setAc
             {profileData.skillsets && profileData.skillsets.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center"><Briefcase className="mr-2 h-5 w-5 text-primary" />Skillsets & Expertise</CardTitle>
+                  <CardTitle className="text-xl flex items-center"><BriefcaseIcon className="mr-2 h-5 w-5 text-primary" />Skillsets & Expertise</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {profileData.skillsets.map((skill, index) => (
-                    <div key={index} className={cn("pb-4", index < profileData.skillsets.length - 1 && "border-b")}>
+                    <div key={skill.id} className={cn("pb-4", index < profileData.skillsets.length - 1 && "border-b")}>
                       <div className="flex justify-between items-center mb-1">
                         <h4 className="text-lg font-semibold text-foreground">{skill.name}</h4>
                         <Badge variant="secondary">{skill.level}</Badge>
                       </div>
                       {skill.description && <p className="text-sm text-muted-foreground mb-2">{skill.description}</p>}
-                      {skill.workExperience && <p className="text-xs text-muted-foreground italic mb-2">Experience: {skill.workExperience}</p>}
-                      {skill.portfolioUrls && skill.portfolioUrls.length > 0 && (
-                        <div>
-                          <h5 className="text-xs font-semibold text-muted-foreground mb-1">Portfolio Highlights:</h5>
-                          <ul className="space-y-1">
-                            {skill.portfolioUrls.map((item, urlIndex) => (
-                              <li key={urlIndex}>
-                                <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center">
-                                  <LinkIcon className="h-3 w-3 mr-1.5 flex-shrink-0" />
-                                  {item.title || `View Project ${urlIndex + 1}`}
-                                  <ExternalLink className="h-3 w-3 ml-1.5 opacity-70"/>
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      {/* Placeholder for portfolio highlights per skillset if needed in future */}
                     </div>
                   ))}
                 </CardContent>
@@ -267,7 +247,6 @@ const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setAc
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">Detailed reviews will be listed here.</p>
-                  {/* Placeholder for individual reviews */}
                    <div className="mt-4 p-4 bg-muted/50 rounded-md text-center text-sm text-muted-foreground">
                         Full review listing coming soon.
                    </div>
@@ -276,7 +255,6 @@ const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setAc
               </Card>
             )}
 
-            {/* Professional Feed Section (Placeholder) */}
             <Card>
               <CardHeader><CardTitle className="text-xl">Professional Updates</CardTitle></CardHeader>
               <CardContent>
@@ -294,4 +272,6 @@ const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setAc
 };
 
 export default IndividualProfileScreen;
+    
+
     
