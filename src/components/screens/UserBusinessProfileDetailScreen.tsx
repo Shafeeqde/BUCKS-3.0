@@ -105,7 +105,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 -mt-12 sm:-mt-16 md:-mt-20">
             <div className="relative h-24 w-24 sm:h-32 sm:w-32 flex-shrink-0">
               <Image
-                src={profile.logo || `https://placehold.co/128x128.png?text=${profile.name.substring(0,1)}`}
+                src={profile.logo || `https://source.unsplash.com/128x128/?abstract,logo&text=${profile.name.substring(0,1)}`}
                 alt={`${profile.name} Logo`}
                 fill
                 className="rounded-full sm:rounded-lg object-cover border-4 border-background bg-card shadow-lg"
@@ -183,7 +183,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                         <div key={product.id} className="flex flex-col items-center text-center cursor-pointer group" onClick={() => handleViewProduct(product)}>
                             <div className="relative w-20 h-20 sm:w-24 sm:h-24 mb-2">
                                 <Image 
-                                    src={product.imageUrl || 'https://placehold.co/100x100.png'} 
+                                    src={product.imageUrl || 'https://source.unsplash.com/100x100/?food,item'} 
                                     alt={product.name} 
                                     fill
                                     className="rounded-full object-cover border-2 border-transparent group-hover:border-primary transition-all shadow-md"

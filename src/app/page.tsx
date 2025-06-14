@@ -94,7 +94,7 @@ export const initialBusinessProfiles: UserBusinessProfile[] = [
         {id: 'mfeed1', content: 'Excited to launch our new branding for a major e-commerce client! Check out the case study on our website for a deep dive into our process.', image: 'https://source.unsplash.com/600x350/?branding,design,project', imageAiHint: 'branding design project', timestamp: '1 week ago'},
         {id: 'mfeed2', content: 'We are hiring talented UX Designers! If you are passionate about creating user-centric solutions, visit our careers page for more details.', timestamp: '3 days ago'},
     ],
-    products: [], 
+    products: [],
     services: [
         {id: 'mserv1', name: 'UI/UX Design Sprint', description: 'Intensive design sprint to rapidly prototype and validate your product ideas. Ideal for startups and new product development.', price: 'Contact for Quote'},
         {id: 'mserv2', name: 'Brand Identity Package', description: 'Comprehensive branding package including logo design, style guide creation, and marketing collateral design.', price: 'Starting at ₹50,000'},
@@ -124,15 +124,15 @@ export default function AppRoot() {
   const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<any>(null); 
+  const [userData, setUserData] = useState<any>(null);
 
   const [businessProfilesData, setBusinessProfilesData] = useState<UserBusinessProfile[]>(initialBusinessProfiles);
   const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | number | null>(null);
-  const [businessProfileToManageId, setBusinessProfileToManageId] = useState<string | number | null>(null); 
-  
-  const [selectedIndividualProfileId, setSelectedIndividualProfileId] = useState<string | null>(null); 
-  const [selectedSkillsetProfileId, setSelectedSkillsetProfileId] = useState<string | null>(null); 
-  const [skillsetProfileToManageId, setSkillsetProfileToManageId] = useState<string | null>(null); 
+  const [businessProfileToManageId, setBusinessProfileToManageId] = useState<string | number | null>(null);
+
+  const [selectedIndividualProfileId, setSelectedIndividualProfileId] = useState<string | null>(null);
+  const [selectedSkillsetProfileId, setSelectedSkillsetProfileId] = useState<string | null>(null);
+  const [skillsetProfileToManageId, setSkillsetProfileToManageId] = useState<string | null>(null);
 
   const [selectedJobId, setSelectedJobId] = useState<string | number | null>(null); // New state for Job Detail
 
@@ -147,13 +147,13 @@ export default function AppRoot() {
 
   const handleLoginSuccess = (user: any) => {
     setIsLoggedIn(true);
-    setUserData(user); 
+    setUserData(user);
     setActiveTab('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
   };
 
   const handleRegistrationSuccess = (user: any) => {
-    setActiveTab('login'); 
+    setActiveTab('login');
     toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in.` });
   };
 
@@ -167,7 +167,7 @@ export default function AppRoot() {
     setActivityDetails(null);
     setIsDriverOnlineSim(false);
     setSelectedBusinessProfileId(null);
-    setBusinessProfileToManageId(null); 
+    setBusinessProfileToManageId(null);
     setSelectedIndividualProfileId(null);
     setSelectedSkillsetProfileId(null);
     setSkillsetProfileToManageId(null);
@@ -194,30 +194,30 @@ export default function AppRoot() {
     setShowSideMenu(false);
   };
 
-  const handleManageBusinessProfile = (profileId: string | number) => { 
+  const handleManageBusinessProfile = (profileId: string | number) => {
     setBusinessProfileToManageId(profileId);
     setActiveTab('manage-business-profile');
     setShowSideMenu(false);
   };
 
   const handleBackFromBusinessDetail = () => {
-    setActiveTab('business-profiles'); 
+    setActiveTab('business-profiles');
     setSelectedBusinessProfileId(null);
-    setBusinessProfileToManageId(null); 
+    setBusinessProfileToManageId(null);
   };
 
-  const handleBackFromManageBusinessProfile = () => { 
+  const handleBackFromManageBusinessProfile = () => {
     setBusinessProfileToManageId(null);
     setActiveTab('business-profiles');
   };
-  
+
   const handleSelectIndividualProfile = (profileId: string) => {
-    if(profileId === 'individual-jenson-1' || profileId === 'jenson-interior-stylist-123') { 
-        handleSelectSkillsetProfile('jenson-interior-stylist-123'); 
+    if(profileId === 'individual-jenson-1' || profileId === 'jenson-interior-stylist-123') {
+        handleSelectSkillsetProfile('jenson-interior-stylist-123');
     } else if (profileId === 'prof2' || profileId === 'prof2-ux-designer-skillset'){
-        handleSelectSkillsetProfile('prof2-ux-designer-skillset'); 
+        handleSelectSkillsetProfile('prof2-ux-designer-skillset');
     } else if (profileId === "currentUser" && userData) {
-        setActiveTab('account'); 
+        setActiveTab('account');
     } else {
         setSelectedIndividualProfileId(profileId);
         setActiveTab('individual-profile');
@@ -269,7 +269,7 @@ export default function AppRoot() {
       };
       setActivityDetails(rideDetails);
       setIsActiveActivityViewVisible(true);
-      
+
       setTimeout(() => {
           setActivityDetails(prev => {
             if (prev?.type === 'ride' && prev?.status === 'Looking for driver...') {
@@ -278,7 +278,7 @@ export default function AppRoot() {
                 ...prev,
                 status: 'Driver Assigned',
                 driverName: 'Sim Driver',
-                vehicle: `${prev.vehicle || 'Vehicle'} - XX00YZ0000 (Simulated)`, 
+                vehicle: `${prev.vehicle || 'Vehicle'} - XX00YZ0000 (Simulated)`,
               };
             }
             return prev;
@@ -308,12 +308,12 @@ export default function AppRoot() {
          });
          return;
     }
-    
+
      if (activityDetails) {
          setIsActiveActivityViewVisible(true);
      }
   };
-  
+
   useEffect(() => {
     console.log('[Driver Sim Effect] Running. State:', { isLoggedIn, isDriverOnlineSim, activityDetailsType: activityDetails?.type, isActiveActivityViewVisible });
     let onlineTimer: NodeJS.Timeout;
@@ -323,7 +323,7 @@ export default function AppRoot() {
       console.log('[Driver Sim Effect] Condition 1 MET. Starting onlineTimer (5s).');
       onlineTimer = setTimeout(() => {
         console.log('[Driver Sim Effect] onlineTimer FIRED. Re-checking conditions. State:', { isLoggedIn, isDriverOnlineSim, activityDetailsType: activityDetails?.type, isActiveActivityViewVisible });
-        if(isLoggedIn && !isDriverOnlineSim && !activityDetails && !isActiveActivityViewVisible) { 
+        if(isLoggedIn && !isDriverOnlineSim && !activityDetails && !isActiveActivityViewVisible) {
             console.log('[Driver Sim Effect] Condition 2 MET. Simulating driver going online.');
             setIsDriverOnlineSim(true);
             toast({ title: "You are Online (Driver Sim)", description: "Waiting for ride requests." });
@@ -331,7 +331,7 @@ export default function AppRoot() {
             console.log('[Driver Sim Effect] Starting requestTimeout (8s).');
             requestTimeout = setTimeout(() => {
               console.log('[Driver Sim Effect] requestTimeout FIRED. Checking conditions for request. State:', { isLoggedIn, isDriverOnlineSim, activityDetailsType: activityDetails?.type });
-              if (isDriverOnlineSim && (!activityDetails?.type || activityDetails?.type === 'driver_status') && isLoggedIn) { 
+              if (isDriverOnlineSim && (!activityDetails?.type || activityDetails?.type === 'driver_status') && isLoggedIn) {
                   console.log('[Driver Sim Effect] Condition 3 MET. Simulating driver receiving request.');
                   setActivityDetails({
                       type: 'request',
@@ -339,8 +339,8 @@ export default function AppRoot() {
                       pickup: '123 Frontend St',
                       dropoff: '456 Backend Ave',
                       fare: '₹180',
-                      vehicleType: 'Car (Mini)', 
-                      distance: '5 km',      
+                      vehicleType: 'Car (Mini)',
+                      distance: '5 km',
                   });
               } else {
                 console.log('[Driver Sim Effect] Condition 3 FAILED for simulating request. Details:', {
@@ -398,15 +398,15 @@ export default function AppRoot() {
       console.log("Driver accepted request (Simulated)");
       if (activityDetails?.type === 'request') {
           setActivityDetails(prevDetails => {
-            if (!prevDetails || prevDetails.type !== 'request') return prevDetails; 
+            if (!prevDetails || prevDetails.type !== 'request') return prevDetails;
             return {
-              type: 'ride', 
-              status: 'en_route', 
+              type: 'ride',
+              status: 'en_route',
               riderName: prevDetails.riderName,
               pickup: prevDetails.pickup,
               dropoff: prevDetails.dropoff,
               fare: prevDetails.fare,
-              vehicle: `My ${prevDetails.vehicleType || 'Car'} - SIM123`, 
+              vehicle: `My ${prevDetails.vehicleType || 'Car'} - SIM123`,
             };
           });
           toast({ title: "Ride Accepted", description: "Proceed to pickup location." });
@@ -422,7 +422,7 @@ export default function AppRoot() {
 
   const handleArrivedAtPickup = useCallback(() => {
       console.log("Driver arrived at pickup (Simulated)");
-      if (activityDetails?.type === 'ride' && (activityDetails.status === 'en_route' && !activityDetails.driverName)) { 
+      if (activityDetails?.type === 'ride' && (activityDetails.status === 'en_route' && !activityDetails.driverName)) {
           setActivityDetails(prev => prev ? ({ ...prev, status: 'arrived' }) : null);
           toast({ title: "Arrived", description: "You have arrived at the pickup location." });
       }
@@ -430,7 +430,7 @@ export default function AppRoot() {
 
   const handleStartRide = useCallback(() => {
       console.log("Driver started ride (Simulated)");
-      if (activityDetails?.type === 'ride' && (activityDetails.status === 'arrived' && !activityDetails.driverName)) { 
+      if (activityDetails?.type === 'ride' && (activityDetails.status === 'arrived' && !activityDetails.driverName)) {
           setActivityDetails(prev => prev ? ({ ...prev, status: 'on_the_way' }) : null);
           toast({ title: "Ride Started", description: "Ride in progress." });
       }
@@ -448,7 +448,7 @@ export default function AppRoot() {
           }, 3000);
       }
   }, [activityDetails, toast]);
-  
+
   const handleCancelRide = useCallback(() => {
       console.log("Ride cancelled (Simulated)");
       if (activityDetails?.type === 'ride' || activityDetails?.type === 'request') {
@@ -477,14 +477,14 @@ export default function AppRoot() {
 
   useEffect(() => {
     let autoAcceptTimer: NodeJS.Timeout;
-    if (isActiveActivityViewVisible && activityDetails?.type === 'request' && isLoggedIn && (!activityDetails?.driverName)) { 
+    if (isActiveActivityViewVisible && activityDetails?.type === 'request' && isLoggedIn && (!activityDetails?.driverName)) {
       console.log("Setting up auto-accept timer for driver's request view.");
       autoAcceptTimer = setTimeout(() => {
         if (activityDetails?.type === 'request' && isLoggedIn && (!activityDetails?.driverName)) {
             console.log("Simulating driver auto-accept due to timeout.");
             handleAcceptRequest();
         }
-      }, 7000); 
+      }, 7000);
       return () => {
         console.log("Clearing auto-accept timer.");
         clearTimeout(autoAcceptTimer);
@@ -494,7 +494,7 @@ export default function AppRoot() {
 
 
   const renderScreenContent = () => {
-    if (!isClient) return null; 
+    if (!isClient) return null;
 
     if (!isLoggedIn) {
       if (activeTab === 'registration') {
@@ -504,7 +504,7 @@ export default function AppRoot() {
     }
 
     switch (activeTab) {
-      case 'home': return <HomeScreen 
+      case 'home': return <HomeScreen
                             setActiveTab={handleTabSelection}
                             onSelectBusinessProfile={handleSelectBusinessProfile}
                             onSelectSkillsetProfile={handleSelectSkillsetProfile}
@@ -515,9 +515,9 @@ export default function AppRoot() {
       case 'recommended': return <RecommendedScreen />;
       case 'account': return <AccountScreen onLogout={handleLogout} />;
       case 'user-skillsets': return (
-                            <UserSkillsetsScreen 
-                                setActiveTab={handleTabSelection} 
-                                onManageSkillsetProfile={handleManageSkillsetProfile} 
+                            <UserSkillsetsScreen
+                                setActiveTab={handleTabSelection}
+                                onManageSkillsetProfile={handleManageSkillsetProfile}
                             />
                         );
       case 'vehicles': return <UserVehiclesScreen setActiveTab={handleTabSelection} />;
@@ -525,14 +525,14 @@ export default function AppRoot() {
         <UserBusinessProfilesScreen
           businessProfiles={businessProfilesData}
           onSelectProfile={handleSelectBusinessProfile}
-          onManageProfile={handleManageBusinessProfile} 
+          onManageProfile={handleManageBusinessProfile}
         />
       );
       case 'business-detail':
         const selectedProfile = businessProfilesData.find(p => p.id === selectedBusinessProfileId);
         return <UserBusinessProfileDetailScreen profile={selectedProfile} onBack={handleBackFromBusinessDetail} />;
-      
-      case 'manage-business-profile': 
+
+      case 'manage-business-profile':
         if (businessProfileToManageId) {
           return (
             <BusinessProfileManagementScreen
@@ -542,8 +542,8 @@ export default function AppRoot() {
           );
         }
         return <p className="p-4 text-center text-muted-foreground">No business profile selected for management.</p>;
-      
-      case 'individual-profile': 
+
+      case 'individual-profile':
         if (selectedIndividualProfileId === "currentUser" && userData) {
              return <IndividualProfileScreen profileId="currentUser" setActiveTab={handleTabSelection} />;
         } else if (selectedIndividualProfileId) {
@@ -556,7 +556,7 @@ export default function AppRoot() {
         if (selectedSkillsetProfileId) {
           return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId} setActiveTab={handleTabSelection} />;
         }
-        return <p className="p-4 text-center text-muted-foreground">No skillset profile selected.</p>; 
+        return <p className="p-4 text-center text-muted-foreground">No skillset profile selected.</p>;
 
       case 'manage-skillset-profile':
         if (skillsetProfileToManageId) {
@@ -569,7 +569,7 @@ export default function AppRoot() {
           );
         }
         return <p className="p-4 text-center text-muted-foreground">No skillset profile selected for management.</p>;
-      
+
       case 'job-board':
         const allJobs = businessProfilesData.flatMap(bp => bp.jobs?.map(job => ({...job, businessId: bp.id, businessName: bp.name, businessLogoUrl: bp.logo})) || []);
         return <JobBoardScreen jobs={allJobs} onSelectJob={handleSelectJob} />;
@@ -583,7 +583,7 @@ export default function AppRoot() {
         return <p className="p-4 text-center text-muted-foreground">Job details not found.</p>;
 
 
-      default: return <HomeScreen 
+      default: return <HomeScreen
                         setActiveTab={handleTabSelection}
                         onSelectBusinessProfile={handleSelectBusinessProfile}
                         onSelectSkillsetProfile={handleSelectSkillsetProfile}
@@ -591,7 +591,7 @@ export default function AppRoot() {
                       />;
     }
   };
-  
+
   if (!isClient) {
     return (
       <div className="flex flex-col h-screen bg-background items-center justify-center">
@@ -605,7 +605,7 @@ export default function AppRoot() {
       <Header
         onMenuClick={() => setShowSideMenu(true)}
         onMessagesClick={() => setShowMessagesNotifications(true)}
-        unreadCount={isLoggedIn ? 5 : 0} 
+        unreadCount={isLoggedIn ? 5 : 0}
       />
 
       {isLoggedIn && (
@@ -620,7 +620,7 @@ export default function AppRoot() {
           onLogout={handleLogout}
         />
       )}
-      
+
       <div className="flex-grow overflow-hidden relative">
         {renderScreenContent()}
       </div>
@@ -638,8 +638,8 @@ export default function AppRoot() {
           isVisible={isActiveActivityViewVisible}
           onClose={handleCloseActivityView}
           userRole={
-            activityDetails?.type === 'request' ? 'driver' : 
-            (activityDetails?.type === 'ride' ? (activityDetails.driverName ? 'rider' : 'driver') : 
+            activityDetails?.type === 'request' ? 'driver' :
+            (activityDetails?.type === 'ride' ? (activityDetails.driverName ? 'rider' : 'driver') :
             (activityDetails?.type === 'driver_status' ? 'driver' : null))
           }
           activeActivityDetails={activityDetails}
@@ -653,11 +653,10 @@ export default function AppRoot() {
           onGoOffline={handleGoOffline}
         />
       )}
-      
+
       {isClient && showMessagesNotifications && (
         <MessagesNotificationsScreen onClose={() => setShowMessagesNotifications(false)} />
       )}
     </div>
   );
 }
-    

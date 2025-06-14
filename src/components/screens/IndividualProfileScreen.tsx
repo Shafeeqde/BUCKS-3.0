@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Star, ThumbsUp, Mail, Phone, Globe, Briefcase, Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { Loader2, Star, ThumbsUp, Mail, Phone, Globe, Briefcase, Link as LinkIcon, ExternalLink, Info } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, IndividualProfileData } from '@/types';
 import { cn } from '@/lib/utils';
@@ -26,7 +26,7 @@ const simulateFetchIndividualProfile = async (profileId: string): Promise<Indivi
       const mockProfileData: IndividualProfileData = {
         id: profileId,
         name: 'Alice Wonderland',
-        avatarUrl: 'https://placehold.co/120x120.png',
+        avatarUrl: 'https://source.unsplash.com/120x120/?woman,smiling',
         avatarAiHint: 'woman smiling',
         bio: 'Creative UX/UI designer and frontend developer with a passion for crafting intuitive and engaging digital experiences. Proficient in modern design tools and web technologies.',
         contactInfo: {
