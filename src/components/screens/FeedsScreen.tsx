@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Plus, Image as ImageIcon, TextIcon } from 'lucide-react';
+import { Plus, Image as ImageIcon, TextIcon, Loader2 } from 'lucide-react';
 import CategoryItem from '@/components/feeds/CategoryItem';
 import FeedCard from '@/components/feeds/FeedCard';
 import type { Category, FeedItem as FeedItemType } from '@/types';
@@ -61,6 +61,7 @@ const FeedsScreen = () => {
   const [showCreateMomentDialog, setShowCreateMomentDialog] = useState(false);
   const [momentImageUrl, setMomentImageUrl] = useState('');
   const [momentText, setMomentText] = useState('');
+  const [isPostingMoment, setIsPostingMoment] = useState(false);
 
   const handleInteraction = (id: number, type: 'recommend' | 'notRecommend') => {
     setFeedItems(prevItems =>
@@ -129,7 +130,7 @@ const FeedsScreen = () => {
     }
   };
 
-  const handlePostMoment = () => {
+  const handlePostMoment = async () => {
     if (!momentImageUrl.trim() && !momentText.trim()) {
       toast({
         title: "Cannot Post Empty Moment",
@@ -138,7 +139,9 @@ const FeedsScreen = () => {
       });
       return;
     }
+    setIsPostingMoment(true);
     // Simulate posting the moment
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
     console.log("Posting moment:", { imageUrl: momentImageUrl, text: momentText });
     toast({
       title: "Moment Posted! (Simulated)",
@@ -147,6 +150,7 @@ const FeedsScreen = () => {
     setShowCreateMomentDialog(false);
     setMomentImageUrl('');
     setMomentText('');
+    setIsPostingMoment(false);
     // In a real app, you'd add this moment to a list and potentially update the "Your Moments" category visual
   };
 
@@ -192,6 +196,7 @@ const FeedsScreen = () => {
                 placeholder="https://example.com/image.png"
                 value={momentImageUrl}
                 onChange={(e) => setMomentImageUrl(e.target.value)}
+                disabled={isPostingMoment}
               />
             </div>
             <div className="space-y-2">
@@ -204,17 +209,19 @@ const FeedsScreen = () => {
                 value={momentText}
                 onChange={(e) => setMomentText(e.target.value)}
                 rows={3}
+                disabled={isPostingMoment}
               />
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <DialogClose asChild>
-              <Button type="button" variant="outline">
+              <Button type="button" variant="outline" disabled={isPostingMoment}>
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="button" onClick={handlePostMoment}>
-              Post Moment
+            <Button type="button" onClick={handlePostMoment} disabled={isPostingMoment}>
+              {isPostingMoment && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isPostingMoment ? 'Posting...' : 'Post Moment'}
             </Button>
           </DialogFooter>
         </DialogContent>

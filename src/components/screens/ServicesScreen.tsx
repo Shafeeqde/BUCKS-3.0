@@ -11,6 +11,7 @@ import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const initialServicesData: Service[] = [
     { id: 'taxi', name: 'Taxi', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-car"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.8-2.8c-.7-.7-1.7-1.2-2.8-1.4L4 5v14"/><path d="M12 10H4v6h10"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>`, locked: false, dataAiHint: "car taxi ride" },
@@ -162,15 +163,19 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
               <div className="flex space-x-3 overflow-x-auto custom-scrollbar pb-2">
                 {taxiVehicleOptions.map((vehicle) => {
                   const IconComponent = vehicle.icon;
+                  const isSelected = selectedVehicle?.id === vehicle.id;
                   return (
                     <Card 
                       key={vehicle.id} 
-                      className={`cursor-pointer transition-all hover:shadow-lg min-w-[140px] flex-shrink-0 ${selectedVehicle?.id === vehicle.id ? 'ring-2 ring-primary border-primary shadow-xl' : 'border-border'}`}
+                      className={cn(
+                        "cursor-pointer transition-all hover:shadow-lg min-w-[140px] flex-shrink-0 border-border",
+                        isSelected && "ring-2 ring-primary border-primary shadow-xl bg-primary/10"
+                      )}
                       onClick={() => setSelectedVehicle(vehicle)}
                     >
                       <CardContent className="p-4 flex flex-col items-center text-center">
-                        <IconComponent className={`w-10 h-10 mb-2 ${selectedVehicle?.id === vehicle.id ? 'text-primary' : 'text-muted-foreground'}`} data-ai-hint={vehicle.dataAiHint} />
-                        <p className={`font-semibold ${selectedVehicle?.id === vehicle.id ? 'text-primary' : 'text-foreground'}`}>{vehicle.name}</p>
+                        <IconComponent className={cn("w-10 h-10 mb-2", isSelected ? 'text-primary' : 'text-muted-foreground')} data-ai-hint={vehicle.dataAiHint} />
+                        <p className={cn("font-semibold", isSelected ? 'text-primary' : 'text-foreground')}>{vehicle.name}</p>
                         <p className="text-xs text-muted-foreground">{vehicle.priceRange}</p>
                         <p className="text-xs text-muted-foreground">{vehicle.estimatedETA}</p>
                       </CardContent>
@@ -200,4 +205,3 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
   );
 };
 export default ServicesScreen;
-    

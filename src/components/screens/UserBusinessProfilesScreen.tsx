@@ -226,19 +226,25 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
             )}
             <div className="space-y-4">
               {filteredProfiles.map(profile => (
-                <Card key={profile.id} className={cn("transition-all", !profile.isActive && "bg-muted/50 opacity-70")}>
+                <Card 
+                  key={profile.id} 
+                  className={cn(
+                    "transition-all duration-200 ease-in-out hover:shadow-md hover:border-primary/50", 
+                    !profile.isActive && "bg-muted/50 opacity-70"
+                  )}
+                >
                   <div className="flex items-start p-4 space-x-4">
                     <Image
                       src={profile.logo || `https://placehold.co/60x60.png?text=${profile.name.substring(0,1)}`}
                       alt={`${profile.name} Logo`}
                       width={60}
                       height={60}
-                      className="rounded-md object-cover border flex-shrink-0"
+                      className="rounded-md object-cover border flex-shrink-0 cursor-pointer"
                       data-ai-hint={profile.logoAiHint || "company logo"}
                       onClick={() => onSelectProfile(profile.id)}
                     />
-                    <div className="flex-grow" onClick={() => onSelectProfile(profile.id)}>
-                      <CardTitle className="text-lg hover:text-primary cursor-pointer">{profile.name}</CardTitle>
+                    <div className="flex-grow cursor-pointer" onClick={() => onSelectProfile(profile.id)}>
+                      <CardTitle className="text-lg hover:text-primary">{profile.name}</CardTitle>
                       {profile.location && <CardDescription>{profile.location}</CardDescription>}
                       <p className="text-xs text-muted-foreground mt-1">Followers: {profile.followers || 0}</p>
                     </div>
@@ -249,11 +255,11 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
                         aria-label={profile.isActive ? "Deactivate profile" : "Activate profile"} 
                       />
                       <div className="flex space-x-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(profile)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => handleEdit(profile)}>
                           <Edit3 className="h-4 w-4" />
                         </Button>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDelete(profile)}>
+                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8" onClick={() => confirmDelete(profile)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
