@@ -9,7 +9,6 @@ export type TabName =
   | 'menu' // Corresponds to ServicesScreen
   | 'recommended'
   | 'account'
-  // | 'skillsets' // Replaced by 'user-skillsets' for clarity
   | 'vehicles'
   | 'business-profiles'
   | 'business-detail'
@@ -96,18 +95,6 @@ export interface UserProfile {
   address?: string;
 }
 
-// Represents a skill a user lists on their UserSkillsetsScreen (management view)
-// This is being replaced by SkillsetProfileSummary
-// export interface UserSkill {
-//   id: string;
-//   name: string;
-//   level?: string;
-//   description: string;
-//   media?: string;
-//   mediaAiHint?: string;
-//   isActive?: boolean;
-// }
-
 export interface UserVehicle {
   id: string;
   vehicleType: string;
@@ -115,6 +102,7 @@ export interface UserVehicle {
   isActive: boolean;
 }
 
+// --- Types for Business Profiles (Detailed View - UserBusinessProfileDetailScreen) ---
 export interface BusinessProduct {
   id: string | number;
   name: string;
@@ -141,7 +129,7 @@ export interface BusinessFeedItem {
   timestamp: string;
 }
 
-export interface UserBusinessProfile {
+export interface UserBusinessProfile { // For detailed business profile screen
   id: string | number;
   name: string;
   logo?: string;
@@ -157,12 +145,47 @@ export interface UserBusinessProfile {
   followers?: number;
   following?: number;
   specialties?: string[];
-  products?: BusinessProduct[];
+  products?: BusinessProduct[]; // Uses the more detailed BusinessProduct
   services?: string[];
   feed?: BusinessFeedItem[];
   jobs?: BusinessJob[];
   isActive?: boolean;
 }
+
+// --- Types for Search Result Cards ---
+
+// Product item for display within a BusinessProfileCard
+export interface BusinessProductCardItem {
+  id: string;
+  name: string;
+  imageUrl?: string;
+  imageAiHint?: string; // AI hint for the product image
+  price: string; // Display price as string for flexibility
+  discountPrice?: string; // Optional discount price
+  discountPercentage?: string; // Optional discount percentage
+}
+
+// Data for BusinessProfileCard component (search results)
+export interface BusinessProfileCardData {
+  id: string | number;
+  name: string;
+  logoUrl?: string;
+  logoAiHint?: string; // AI hint for the logo
+  briefInfo?: string; // e.g., "10-15 mins • 3km away • BTM layout"
+  tagline?: string; // e.g., "Luxury Living Interiors"
+  previewMedia?: { // Optional preview images/videos for the business itself
+      id: string;
+      type: 'image' | 'video';
+      url: string;
+      aiHint?: string;
+  }[];
+  averageRating?: number;
+  totalReviews?: number;
+  products?: BusinessProductCardItem[]; // List of products to display on the card
+  phone?: string;
+  email?: string;
+}
+
 
 export interface MessageItem {
   id: string | number;
@@ -212,11 +235,11 @@ export interface IndividualProfileData {
     website?: string;
     location?: string;
   };
-  skillsets: { // This would be a list of skills on a general profile
+  skillsets: { 
     name: string;
     level: string;
     description?: string;
-    workExperience?: string; // General work experience related to this skill
+    workExperience?: string; 
     portfolioUrls?: { url: string; title?: string; }[]; 
   }[];
   recommendationsCount: number;
@@ -266,14 +289,14 @@ export interface SkillsetSpecificReview {
 
 // Data for the public-facing detailed view of a single Skillset Profile
 export interface SkillsetProfileData {
-  id: string; // Unique ID for this specific Skillset Profile
+  id: string; 
   skillName: string;
   skillLevel?: string;
   skillDescription?: string;
-  userName: string; // The user who owns this skillset profile
+  userName: string; 
   userAvatarUrl?: string;
   userAvatarAiHint?: string;
-  professionalTitle?: string; // User's overall professional title (can be overridden by skill-specific one)
+  professionalTitle?: string; 
   skillSpecificBio?: string;
   contactInfo?: {
     phone?: string;
@@ -285,9 +308,9 @@ export interface SkillsetProfileData {
   portfolioItems: SkillsetSpecificPortfolioItem[];
   professionalFeed?: SkillsetSpecificFeedItem[];
   reviews: SkillsetSpecificReview[];
-  recommendationsCount: number; // Specific to this skillset
-  averageRating: number; // Specific to this skillset
-  totalReviews: number; // Specific to this skillset
+  recommendationsCount: number; 
+  averageRating: number; 
+  totalReviews: number; 
 }
 
 // Summary of a Skillset Profile for listing in UserSkillsetsScreen (management view)
@@ -296,7 +319,6 @@ export interface SkillsetProfileSummary {
   skillName: string; 
   skillLevel?: string; 
   isActive: boolean; 
-  // Optional summary stats for display in list
   portfolioItemCount?: number;
   averageRating?: number; 
 }
