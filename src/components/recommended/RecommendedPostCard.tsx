@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image';
@@ -12,7 +13,7 @@ interface RecommendedPostCardProps {
 
 const RecommendedPostCard: React.FC<RecommendedPostCardProps> = ({ post }) => {
   return (
-    <Card className="shadow-sm">
+    <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
       <CardHeader className="flex flex-row items-center space-x-2 pb-3">
         <Avatar className="w-8 h-8">
           <AvatarImage src={post.userImage} alt={post.recommendedBy} data-ai-hint={post.userImageAiHint || "person avatar"} />

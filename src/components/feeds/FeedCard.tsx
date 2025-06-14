@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image';
@@ -18,7 +19,7 @@ interface FeedCardProps {
 
 const FeedCard: React.FC<FeedCardProps> = ({ item, onInteraction, onCommentChange, onPostComment }) => {
   return (
-    <Card className="shadow-sm">
+    <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
       <CardHeader className="flex flex-row items-center space-x-3 pb-3">
         <Avatar>
           <AvatarImage src={item.userImage} alt={item.user} data-ai-hint={item.userImageAiHint || "profile person"} />
