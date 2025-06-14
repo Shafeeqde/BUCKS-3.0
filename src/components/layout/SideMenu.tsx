@@ -7,20 +7,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
-  UserCog, 
   Settings, 
   Briefcase,
   Car,
   Building,
   LogOut,
   ChevronRight,
-  ShieldCheck,
-  Rocket,
-  Sparkles, // Main menu title icon
-  Home, // Home icon
-  MessageCircle, // Feeds icon
-  LayoutGrid, // Services/Menu icon
-  Star as StarIcon, // Recommended icon (renamed to avoid conflict)
+  Rocket, 
+  User // Icon for "Professional Account" title
 } from 'lucide-react';
 import type { TabName, UserBusinessProfile, UserDataForSideMenu } from '@/types';
 import Image from 'next/image'; 
@@ -49,14 +43,10 @@ const SideMenu: React.FC<SideMenuProps> = ({
   userData,
 }) => {
   const menuItems = [
-    { name: 'Home', tab: 'home' as TabName, icon: Home },
-    { name: 'Feeds', tab: 'feeds' as TabName, icon: MessageCircle },
-    { name: 'Services', tab: 'menu' as TabName, icon: LayoutGrid },
-    { name: 'Recommended', tab: 'recommended' as TabName, icon: StarIcon },
-    { name: 'Professional Profile', tab: 'professional-profile' as TabName, icon: UserCog },
     { name: 'Skillset Profiles', tab: 'user-skillsets' as TabName, icon: Rocket },
     { name: 'Vehicle Management', tab: 'vehicles' as TabName, icon: Car },
     { name: 'Business Profiles', tab: 'business-profiles' as TabName, icon: Briefcase },
+    { name: 'Account Settings', tab: 'account' as TabName, icon: Settings },
   ];
 
   const handleNavigation = (tab: TabName) => {
@@ -70,7 +60,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
   };
 
   const handleUserSectionClick = () => {
-    setActiveTab('professional-profile');
+    setActiveTab('professional-profile'); // Navigate to the main professional dashboard
     onClose();
   };
 
@@ -79,8 +69,8 @@ const SideMenu: React.FC<SideMenuProps> = ({
       <SheetContent side="left" className="w-[280px] sm:w-[320px] p-0 flex flex-col bg-card">
         <SheetHeader className="p-4 border-b">
           <SheetTitle className="text-xl font-bold text-primary font-headline flex items-center">
-            <Sparkles className="mr-2 h-6 w-6 text-primary"/>
-            bucks Menu
+            <User className="mr-2 h-6 w-6 text-primary"/> {/* Changed Icon */}
+            Professional Account {/* Changed Title */}
           </SheetTitle>
         </SheetHeader>
 
@@ -88,7 +78,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
           <Button
             variant="ghost"
             className="p-4 border-b flex items-center space-x-3 h-auto text-left w-full justify-start hover:bg-accent/50 rounded-none"
-            onClick={handleUserSectionClick}
+            onClick={handleUserSectionClick} // This navigates to the professional profile dashboard
           >
             <Avatar className="h-12 w-12">
               <AvatarImage src={userData.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar'} alt={userData.name} data-ai-hint={userData.avatarAiHint || "user avatar"} />
@@ -144,17 +134,6 @@ const SideMenu: React.FC<SideMenuProps> = ({
                 ))}
               </div>
             )}
-            
-            <div className="pt-4 space-y-1 border-t mt-2">
-                 <Button variant="ghost" className="w-full justify-start text-base h-12" onClick={() => handleNavigation('account')}>
-                    <Settings className="mr-3 h-5 w-5" />
-                    Account Settings
-                </Button>
-                <Button variant="ghost" className="w-full justify-start text-base h-12" onClick={() => { /* TODO: Navigate to privacy screen */ onClose(); }}>
-                    <ShieldCheck className="mr-3 h-5 w-5" />
-                    Privacy & Security
-                </Button>
-            </div>
           </nav>
         </ScrollArea>
         
