@@ -89,7 +89,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
 
 
   useEffect(() => {
-    const currentUserId = userData?.email || 'dummy-user-id-for-professional-profile'; 
+    const currentUserId = userData?.id || 'dummy-user-id-for-professional-profile'; 
     if (currentUserId) {
       fetchProfileData(currentUserId);
     } else {
@@ -145,7 +145,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
   
   const handleAddLink = () => {
     if (currentLinkPlatform.trim() && currentLinkUrl.trim() && editedData?.externalProfileLinks) {
-        if (!currentLinkUrl.match(/^(http|https):\/\//i)) { // Corrected Regex
+        if (!currentLinkUrl.match(/^(http|https):\/\/[^ "]+$/i)) { 
              toast({ title: "Invalid URL", description: "Please enter a valid URL starting with http:// or https://.", variant: "destructive"});
             return;
         }
@@ -322,9 +322,9 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
         <div className="p-4 text-center">
             <p className="text-destructive mb-4">{error || "Profile data unavailable."}</p>
             <Button 
-                onClick={() => fetchProfileData(userData?.email || 'dummy-user-id-123')} 
+                onClick={() => fetchProfileData(userData?.id || 'dummy-user-id-123')} 
                 variant="outline"
-                disabled={!userData?.email && !profileData?.userId}
+                disabled={!userData?.id && !profileData?.userId}
             >
                 Try Again
             </Button>
@@ -336,7 +336,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
     <ScrollArea className="h-full bg-muted/20">
       <div className="max-w-5xl mx-auto">
         <Card className="mb-6 shadow-none border-0 rounded-none sm:rounded-b-lg overflow-hidden">
-          <div className="relative h-48 sm:h-60 bg-muted">
+          <div className="relative h-48 sm:h-60 bg-muted group">
             {editedData.coverPhotoUrl ? (
               <Image src={editedData.coverPhotoUrl} alt="Cover photo" layout="fill" objectFit="cover" data-ai-hint={editedData.coverPhotoAiHint || "professional background"} />
             ) : (
@@ -344,13 +344,18 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                 <Camera className="h-16 w-16 text-muted-foreground/50" />
               </div>
             )}
-            <Button variant="outline" size="sm" className="absolute top-3 right-3 bg-background/70 hover:bg-background text-xs z-10">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="absolute top-3 right-3 bg-background/70 hover:bg-background text-xs z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={() => toast({ title: "Edit Cover Photo", description: "Image upload functionality will be available soon."})}
+            >
               <Edit2 className="mr-1.5 h-3 w-3" /> Edit Cover
             </Button>
           </div>
           <CardContent className="p-4 sm:p-6 relative">
             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-16 sm:-mt-20">
-              <div className="relative h-28 w-28 sm:h-36 sm:w-36 rounded-full border-4 border-background bg-card shadow-lg flex-shrink-0 z-10">
+              <div className="relative h-28 w-28 sm:h-36 sm:w-36 rounded-full border-4 border-background bg-card shadow-lg flex-shrink-0 z-10 group">
                 {editedData.avatarUrl ? (
                   <Image src={editedData.avatarUrl} alt={editedData.name || userData?.name || 'User Avatar'} layout="fill" objectFit="cover" className="rounded-full" data-ai-hint={editedData.avatarAiHint || "professional person"}/>
                 ) : (
@@ -358,13 +363,20 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                     <UserCircle className="h-16 w-16 text-muted-foreground" />
                   </div>
                 )}
-                <Button variant="outline" size="icon" className="absolute bottom-1 right-1 h-8 w-8 rounded-full bg-background/80 hover:bg-background text-xs z-20">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="absolute bottom-1 right-1 h-8 w-8 rounded-full bg-background/80 hover:bg-background text-xs z-20 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => toast({ title: "Edit Avatar", description: "Image upload functionality will be available soon."})}
+                  aria-label="Edit avatar"
+                >
                   <Edit2 className="h-4 w-4" />
                 </Button>
               </div>
               <div className="flex-grow mt-4 sm:mt-0 text-center sm:text-left">
                 <Input 
                     id="profileName" 
+                    name="name"
                     value={editedData.name || userData?.name || ''} 
                     onChange={(e) => handleInputChange('name', e.target.value)} 
                     placeholder="Your Name"
@@ -372,6 +384,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                 />
                 <Input 
                     id="professionalTitle"
+                    name="professionalTitle"
                     value={editedData.professionalTitle || ''}
                     onChange={(e) => handleInputChange('professionalTitle', e.target.value)}
                     placeholder="Your Professional Title or Headline"
@@ -389,6 +402,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
               <CardContent>
                 <Textarea
                   id="professionalBio"
+                  name="professionalBio"
                   placeholder="Write a summary about your professional background, skills, and aspirations..."
                   value={editedData.professionalBio || ''}
                   onChange={(e) => handleInputChange('professionalBio', e.target.value)}
