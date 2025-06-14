@@ -64,6 +64,15 @@ const FeedsScreen = () => {
   const [isPostingMoment, setIsPostingMoment] = useState(false);
 
   const handleInteraction = (id: number, type: 'recommend' | 'notRecommend') => {
+    const itemInteractedWith = feedItems.find(item => item.id === id);
+    if (!itemInteractedWith) return;
+
+    // Call toast before updating state
+    toast({
+      title: type === 'recommend' ? "Recommended!" : "Marked as Not Recommended",
+      description: `You ${type === 'recommend' ? 'recommended' : 'marked'} ${itemInteractedWith.user}'s post.`,
+    });
+
     setFeedItems(prevItems =>
       prevItems.map(item => {
         if (item.id === id) {
@@ -73,11 +82,6 @@ const FeedsScreen = () => {
           if (type === 'recommend') updatedRecommendations += 1;
           else if (type === 'notRecommend') updatedNotRecommendations += 1;
           
-          toast({
-            title: type === 'recommend' ? "Recommended!" : "Marked as Not Recommended",
-            description: `You ${type === 'recommend' ? 'recommended' : 'marked'} ${item.user}'s post.`,
-          });
-
           return {
             ...item,
             recommendations: updatedRecommendations,
@@ -239,3 +243,4 @@ const FeedsScreen = () => {
 };
 
 export default FeedsScreen;
+
