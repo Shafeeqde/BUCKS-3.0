@@ -293,13 +293,19 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
     if (!editedData || !profileData) return;
     setIsSaving(true);
     try {
-      const success = await simulateUpdateOverallProfessionalProfile({
-        ...profileData, 
-        ...editedData, 
-      } as OverallProfessionalProfileData); 
+      // Simulate updating the URLs directly in editedData for now
+      const updatedProfileWithImageUrls: OverallProfessionalProfileData = {
+        ...profileData,
+        ...editedData,
+        avatarUrl: editedData.avatarUrl || profileData.avatarUrl,
+        coverPhotoUrl: editedData.coverPhotoUrl || profileData.coverPhotoUrl,
+      };
+      
+      const success = await simulateUpdateOverallProfessionalProfile(updatedProfileWithImageUrls); 
 
       if (success) {
-        setProfileData(JSON.parse(JSON.stringify(editedData))); 
+        setProfileData(JSON.parse(JSON.stringify(updatedProfileWithImageUrls))); 
+        setEditedData(JSON.parse(JSON.stringify(updatedProfileWithImageUrls)));
         toast({ title: "Profile Saved", description: "Your professional profile has been updated." });
       } else {
         toast({ title: "Save Failed", description: "Could not update profile.", variant: "destructive" });
@@ -346,11 +352,12 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
             )}
             <Button 
               variant="outline" 
-              size="sm" 
-              className="absolute top-3 right-3 bg-background/70 hover:bg-background text-xs z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+              size="icon" 
+              className="absolute top-3 right-3 bg-background/70 hover:bg-background text-xs z-10 h-8 w-8"
               onClick={() => toast({ title: "Edit Cover Photo", description: "Image upload functionality will be available soon."})}
+              aria-label="Edit cover photo"
             >
-              <Edit2 className="mr-1.5 h-3 w-3" /> Edit Cover
+              <Edit2 className="h-4 w-4" />
             </Button>
           </div>
           <CardContent className="p-4 sm:p-6 relative">
@@ -366,7 +373,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                 <Button 
                   variant="outline" 
                   size="icon" 
-                  className="absolute bottom-1 right-1 h-8 w-8 rounded-full bg-background/80 hover:bg-background text-xs z-20 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute bottom-1 right-1 h-8 w-8 rounded-full bg-background/80 hover:bg-background text-xs z-20"
                   onClick={() => toast({ title: "Edit Avatar", description: "Image upload functionality will be available soon."})}
                   aria-label="Edit avatar"
                 >
@@ -558,7 +565,10 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
 
       <Dialog open={showWorkExperienceDialog} onOpenChange={setShowWorkExperienceDialog}>
         <DialogContent className="sm:max-w-lg">
-            <DialogHeader><DialogTitle>{currentWorkExperience?.id ? 'Edit' : 'Add'} Work Experience</DialogTitle></DialogHeader>
+            <DialogHeader>
+                <DialogTitle>{currentWorkExperience?.id ? 'Edit' : 'Add'} Work Experience</DialogTitle>
+                <DialogDescription>Provide details about your role and responsibilities.</DialogDescription>
+            </DialogHeader>
             <ScrollArea className="max-h-[70vh] pr-5 -mr-2"><div className="grid gap-4 py-4 pr-1">
                 <div className="space-y-1.5">
                     <Label htmlFor="exp-title">Title <span className="text-destructive">*</span></Label>
@@ -611,7 +621,10 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
 
       <Dialog open={showEducationDialog} onOpenChange={setShowEducationDialog}>
         <DialogContent className="sm:max-w-lg">
-            <DialogHeader><DialogTitle>{currentEducation?.id ? 'Edit' : 'Add'} Education</DialogTitle></DialogHeader>
+            <DialogHeader>
+                <DialogTitle>{currentEducation?.id ? 'Edit' : 'Add'} Education</DialogTitle>
+                <DialogDescription>Add your educational qualifications.</DialogDescription>
+            </DialogHeader>
             <ScrollArea className="max-h-[70vh] pr-5 -mr-2"><div className="grid gap-4 py-4 pr-1">
                 <div className="space-y-1.5"><Label htmlFor="edu-institution">Institution <span className="text-destructive">*</span></Label><Input id="edu-institution" name="institution" value={currentEducation?.institution || ''} onChange={handleEducationDialogChange} /></div>
                 <div className="space-y-1.5"><Label htmlFor="edu-degree">Degree</Label><Input id="edu-degree" name="degree" value={currentEducation?.degree || ''} onChange={handleEducationDialogChange} /></div>
@@ -637,7 +650,10 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
 
       <Dialog open={showLicenseDialog} onOpenChange={setShowLicenseDialog}>
         <DialogContent className="sm:max-w-lg">
-            <DialogHeader><DialogTitle>{currentLicense?.id ? 'Edit' : 'Add'} License/Certification</DialogTitle></DialogHeader>
+            <DialogHeader>
+                <DialogTitle>{currentLicense?.id ? 'Edit' : 'Add'} License/Certification</DialogTitle>
+                <DialogDescription>Add your professional licenses or certifications.</DialogDescription>
+            </DialogHeader>
             <ScrollArea className="max-h-[70vh] pr-5 -mr-2"><div className="grid gap-4 py-4 pr-1">
                 <div className="space-y-1.5"><Label htmlFor="lic-name">Name <span className="text-destructive">*</span></Label><Input id="lic-name" name="name" value={currentLicense?.name || ''} onChange={handleLicenseDialogChange} /></div>
                 <div className="space-y-1.5"><Label htmlFor="lic-issuingOrganization">Issuing Organization</Label><Input id="lic-issuingOrganization" name="issuingOrganization" value={currentLicense?.issuingOrganization || ''} onChange={handleLicenseDialogChange} /></div>
@@ -666,3 +682,5 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
 };
 
 export default ProfessionalProfileScreen;
+
+
