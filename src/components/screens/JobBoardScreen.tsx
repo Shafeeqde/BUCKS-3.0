@@ -25,7 +25,7 @@ interface JobBoardScreenProps {
 }
 
 const jobTypeOptions = [
-  { value: "", label: "All Job Types" },
+  { value: "all", label: "All Job Types" }, // Changed value from "" to "all"
   { value: "Full-time", label: "Full-time" },
   { value: "Part-time", label: "Part-time" },
   { value: "Contract", label: "Contract" },
@@ -35,7 +35,7 @@ const jobTypeOptions = [
 const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSelectJob }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
-  const [jobTypeFilter, setJobTypeFilter] = useState('');
+  const [jobTypeFilter, setJobTypeFilter] = useState(''); // Initial state is empty, placeholder will show
   const [filteredJobs, setFilteredJobs] = useState<BusinessJob[]>(initialJobs);
   const [loading, setLoading] = useState(false);
 
@@ -52,7 +52,11 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
       const searchCritMatch = searchTerm ? (titleMatch || companyMatch || descriptionMatch) : true;
       
       const locationMatch = locationFilter ? (job.location?.toLowerCase().includes(lowerLocationFilter) || false) : true;
-      const typeMatch = jobTypeFilter ? (job.type?.toLowerCase() === lowerJobTypeFilter) : true;
+      
+      // Updated typeMatch logic
+      const typeMatch = (jobTypeFilter && jobTypeFilter !== "all") 
+                          ? (job.type?.toLowerCase() === lowerJobTypeFilter) 
+                          : true;
       
       return searchCritMatch && locationMatch && typeMatch;
     });
@@ -98,7 +102,7 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
                 <Select value={jobTypeFilter} onValueChange={setJobTypeFilter}>
                   <SelectTrigger className="w-full">
                      <FilterIcon className="h-4 w-4 mr-2 text-muted-foreground" />
-                    <SelectValue placeholder="Select Job Type" />
+                    <SelectValue placeholder="Filter by Job Type" />
                   </SelectTrigger>
                   <SelectContent>
                     {jobTypeOptions.map(option => (
