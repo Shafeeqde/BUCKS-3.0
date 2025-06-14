@@ -7,41 +7,62 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Briefcase, MapPin, Search, Building, Loader2, ExternalLink } from 'lucide-react';
+import { Briefcase, MapPin, Search, Building, Loader2, ExternalLink, Filter as FilterIcon } from 'lucide-react';
 import type { BusinessJob } from '@/types';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface JobBoardScreenProps {
   jobs: BusinessJob[];
   onSelectJob: (jobId: string | number) => void;
 }
 
+const jobTypeOptions = [
+  { value: "", label: "All Job Types" },
+  { value: "Full-time", label: "Full-time" },
+  { value: "Part-time", label: "Part-time" },
+  { value: "Contract", label: "Contract" },
+  { value: "Internship", label: "Internship" },
+];
+
 const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSelectJob }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
+  const [jobTypeFilter, setJobTypeFilter] = useState('');
   const [filteredJobs, setFilteredJobs] = useState<BusinessJob[]>(initialJobs);
-  const [loading, setLoading] = useState(false); // For future async filtering
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     const lowerSearchTerm = searchTerm.toLowerCase();
     const lowerLocationFilter = locationFilter.toLowerCase();
+    const lowerJobTypeFilter = jobTypeFilter.toLowerCase();
 
     const results = initialJobs.filter(job => {
       const titleMatch = job.title.toLowerCase().includes(lowerSearchTerm);
       const companyMatch = job.businessName.toLowerCase().includes(lowerSearchTerm);
       const descriptionMatch = job.description?.toLowerCase().includes(lowerSearchTerm) || false;
-      const locationMatch = job.location?.toLowerCase().includes(lowerLocationFilter) || false;
+      const searchCritMatch = searchTerm ? (titleMatch || companyMatch || descriptionMatch) : true;
       
-      return (titleMatch || companyMatch || descriptionMatch) && (locationFilter ? locationMatch : true);
+      const locationMatch = locationFilter ? (job.location?.toLowerCase().includes(lowerLocationFilter) || false) : true;
+      const typeMatch = jobTypeFilter ? (job.type?.toLowerCase() === lowerJobTypeFilter) : true;
+      
+      return searchCritMatch && locationMatch && typeMatch;
     });
+    
     // Simulate loading delay
     setTimeout(() => {
       setFilteredJobs(results);
       setLoading(false);
     }, 300);
-  }, [searchTerm, locationFilter, initialJobs]);
+  }, [searchTerm, locationFilter, jobTypeFilter, initialJobs]);
 
   return (
     <ScrollArea className="h-full bg-background">
@@ -51,14 +72,14 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
             <CardTitle className="text-2xl font-headline flex items-center">
               <Briefcase className="mr-3 h-7 w-7 text-primary" /> Job Board
             </CardTitle>
-            <CardDescription>Find your next career opportunity.</CardDescription>
+            <CardDescription>Find your next career opportunity. Use the filters below to narrow your search.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
-                  placeholder="Search by title, company, keyword..."
+                  placeholder="Search by title, company..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -72,6 +93,21 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
                   onChange={(e) => setLocationFilter(e.target.value)}
                   className="pl-10"
                 />
+              </div>
+              <div>
+                <Select value={jobTypeFilter} onValueChange={setJobTypeFilter}>
+                  <SelectTrigger className="w-full">
+                     <FilterIcon className="h-4 w-4 mr-2 text-muted-foreground" />
+                    <SelectValue placeholder="Select Job Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {jobTypeOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>
@@ -105,6 +141,7 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
                       width={60}
                       height={60}
                       className="rounded-md border object-contain flex-shrink-0"
+                      data-ai-hint="business logo"
                     />
                   ) : (
                     <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center flex-shrink-0">
@@ -142,3 +179,4 @@ const JobBoardScreen: React.FC<JobBoardScreenProps> = ({ jobs: initialJobs, onSe
 };
 
 export default JobBoardScreen;
+
