@@ -16,6 +16,7 @@ import type { UserBusinessProfile, BusinessProduct, BusinessJob, BusinessFeedIte
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 
 interface UserBusinessProfileDetailScreenProps {
@@ -136,28 +137,34 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
             <Button variant="outline" onClick={handleMessage} className="flex-grow">
                 <MessageSquare className="mr-2 h-4 w-4" /> Message
             </Button>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">More options</span>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => toast({title: "Share Profile (Simulated)"})}>
-                        <ExternalLinkIcon className="mr-2 h-4 w-4" /> Share Profile
-                    </DropdownMenuItem>
-                     {profile.phone && 
-                        <DropdownMenuItem onClick={() => toast({title: `Calling ${profile.phone} (Simulated)`})}>
-                            <Phone className="mr-2 h-4 w-4" /> Call Business
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon" aria-label="More options">
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => toast({title: "Share Profile (Simulated)"})}>
+                            <ExternalLinkIcon className="mr-2 h-4 w-4" /> Share Profile
                         </DropdownMenuItem>
-                    }
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => toast({title: "Report Profile (Simulated)"})} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                        <Info className="mr-2 h-4 w-4" /> Report
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+                         {profile.phone && 
+                            <DropdownMenuItem onClick={() => toast({title: `Calling ${profile.phone} (Simulated)`})}>
+                                <Phone className="mr-2 h-4 w-4" /> Call Business
+                            </DropdownMenuItem>
+                        }
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => toast({title: "Report Profile (Simulated)"})} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                            <Info className="mr-2 h-4 w-4" /> Report
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>More Options</p>
+              </TooltipContent>
+            </Tooltip>
         </div>
 
         <Tabs defaultValue="products" className="w-full px-2 sm:px-4 md:px-6 pb-6">
@@ -291,5 +298,3 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 };
 
 export default UserBusinessProfileDetailScreen;
-
-    

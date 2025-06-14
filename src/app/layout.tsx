@@ -1,6 +1,8 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip"; // Added import
 
 export const metadata: Metadata = {
   title: 'Locality Hub',
@@ -21,7 +23,9 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning={true}>
-        {children}
+        <TooltipProvider> {/* Added TooltipProvider */}
+          {children}
+        </TooltipProvider>
         <Toaster />
       </body>
     </html>
