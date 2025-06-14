@@ -10,20 +10,22 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { PlusCircle, Edit3, Trash2, XCircle, Building, Search, ExternalLink } from 'lucide-react';
-import type { UserBusinessProfile, BusinessProduct, BusinessJob, BusinessFeedItem } from '@/types';
+import type { UserBusinessProfile } from '@/types'; // Removed unused imports
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+
 
 interface UserBusinessProfilesScreenProps {
   businessProfiles: UserBusinessProfile[];
   onSelectProfile: (id: string | number) => void;
-  // In a real app, these would come from a context or props to update global state
-  // For now, managing locally to demonstrate CRUD UI
+  onManageProfile: (id: string | number) => void; // New prop for navigation to management screen
 }
 
 const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
   businessProfiles: initialProfiles,
   onSelectProfile,
+  onManageProfile,
 }) => {
   const [profiles, setProfiles] = useState<UserBusinessProfile[]>(initialProfiles);
   const [showForm, setShowForm] = useState(false);
@@ -32,6 +34,7 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
     products: [], services: [], specialties: [], feed: [], jobs: []
   });
   const [searchTerm, setSearchTerm] = useState('');
+  const [profileToDelete, setProfileToDelete] = useState<UserBusinessProfile | null>(null);
   const { toast } = useToast();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -52,11 +55,16 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
     }
 
     if (editingProfile) {
-      setProfiles(profiles.map(p => p.id === editingProfile.id ? { ...p, ...currentProfile } as UserBusinessProfile : p));
+      const updatedProfiles = profiles.map(p => p.id === editingProfile.id ? { ...editingProfile, ...currentProfile } as UserBusinessProfile : p);
+      setProfiles(updatedProfiles);
       toast({ title: "Profile Updated", description: `${currentProfile.name} has been updated.` });
+      resetForm();
+      // Optionally, navigate to the updated profile's management screen or detail screen
+      onManageProfile(editingProfile.id);
+
     } else {
       const newProfileToAdd: UserBusinessProfile = {
-        id: Date.now().toString(),
+        id: Date.now(), // Using number for simplicity, could be string
         name: currentProfile.name,
         bio: currentProfile.bio,
         logo: currentProfile.logo || `https://placehold.co/80x80.png?text=${currentProfile.name.substring(0,2)}`,
@@ -66,6 +74,7 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
         location: currentProfile.location,
         website: currentProfile.website,
         phone: currentProfile.phone,
+        email: currentProfile.email,
         isActive: currentProfile.isActive === undefined ? true : currentProfile.isActive,
         followers: 0,
         following: 0,
@@ -73,32 +82,51 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
         services: currentProfile.services || [],
         specialties: currentProfile.specialties || [],
         feed: currentProfile.feed || [],
-        jobs: currentProfile.jobs || []
+        jobs: currentProfile.jobs || [],
+        reviews: currentProfile.reviews || [],
+        averageRating: currentProfile.averageRating || 0,
+        totalReviews: currentProfile.totalReviews || 0,
       };
-      setProfiles([...profiles, newProfileToAdd]);
-      toast({ title: "Profile Added", description: `${newProfileToAdd.name} has been added.` });
+      setProfiles(prev => [...prev, newProfileToAdd]);
+      toast({ title: "Profile Added", description: `${newProfileToAdd.name} has been added. You can now manage its details.` });
+      resetForm();
+      onManageProfile(newProfileToAdd.id); // Navigate to manage the newly created profile
     }
-    resetForm();
   };
 
   const handleEdit = (profile: UserBusinessProfile) => {
-    setEditingProfile(profile);
-    setCurrentProfile(profile);
-    setShowForm(true);
+    // Instead of setting editingProfile here, directly navigate to the management screen
+    onManageProfile(profile.id);
   };
 
-  const handleDelete = (profileId: string | number) => {
-    setProfiles(profiles.filter(p => p.id !== profileId));
-    toast({ title: "Profile Deleted", variant: "destructive" });
+  const confirmDelete = (profile: UserBusinessProfile) => {
+    setProfileToDelete(profile);
+  };
+
+  const executeDelete = () => {
+    if (profileToDelete) {
+      setProfiles(profiles.filter(p => p.id !== profileToDelete.id));
+      toast({ title: "Profile Deleted", description: `${profileToDelete.name} has been deleted.`, variant: "destructive" });
+      setProfileToDelete(null);
+    }
   };
 
   const toggleActive = (profileId: string | number) => {
-    setProfiles(profiles.map(p => p.id === profileId ? { ...p, isActive: !p.isActive } : p));
+    // Here, you'd typically make an API call to update the backend
+    // For simulation, we update local state and show a toast
+    setProfiles(profiles.map(p => {
+      if (p.id === profileId) {
+        const updatedProfile = { ...p, isActive: !p.isActive };
+        toast({ title: "Status Updated", description: `${updatedProfile.name} is now ${updatedProfile.isActive ? 'active' : 'inactive'}.`});
+        return updatedProfile;
+      }
+      return p;
+    }));
   };
   
   const filteredProfiles = profiles.filter(profile => 
     profile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    profile.bio.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (profile.bio && profile.bio.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (profile.location && profile.location.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
@@ -166,8 +194,11 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
                   <Label htmlFor="profilePhone">Phone Number</Label>
                   <Input id="profilePhone" name="phone" value={currentProfile.phone || ''} onChange={handleInputChange} />
                 </div>
+                 <div className="space-y-2">
+                  <Label htmlFor="profileEmail">Email Address</Label>
+                  <Input id="profileEmail" name="email" type="email" value={currentProfile.email || ''} onChange={handleInputChange} />
+                </div>
               </div>
-              {/* Add more fields like license, documentUrl, specialties, services if needed in simplified form */}
               
               <div className="flex items-center space-x-2 pt-2">
                 <Switch id="profileIsActive" name="isActive" checked={currentProfile.isActive === undefined ? true : currentProfile.isActive} onCheckedChange={(checked) => setCurrentProfile(prev => ({...prev, isActive: checked}))} />
@@ -195,43 +226,67 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
             )}
             <div className="space-y-4">
               {filteredProfiles.map(profile => (
-                <Card key={profile.id} className={cn("transition-all hover:shadow-md cursor-pointer", !profile.isActive && "bg-muted/50 opacity-70")} onClick={() => onSelectProfile(profile.id)}>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start space-x-4">
-                       <Image
-                        src={profile.logo || `https://placehold.co/60x60.png?text=${profile.name.substring(0,1)}`}
-                        alt={`${profile.name} Logo`}
-                        width={60}
-                        height={60}
-                        className="rounded-md object-cover border"
-                        data-ai-hint={profile.logoAiHint || "company logo"}
-                      />
-                      <div className="flex-grow">
-                        <CardTitle className="text-lg hover:text-primary">{profile.name}</CardTitle>
-                        {profile.location && <CardDescription>{profile.location}</CardDescription>}
-                         <p className="text-xs text-muted-foreground mt-1">Followers: {profile.followers || 0}</p>
-                      </div>
-                       <Switch checked={profile.isActive} onCheckedChange={(e) => { e.stopPropagation(); toggleActive(profile.id); }} aria-label={profile.isActive ? "Deactivate profile" : "Activate profile"} />
+                <Card key={profile.id} className={cn("transition-all", !profile.isActive && "bg-muted/50 opacity-70")}>
+                  <div className="flex items-start p-4 space-x-4">
+                    <Image
+                      src={profile.logo || `https://placehold.co/60x60.png?text=${profile.name.substring(0,1)}`}
+                      alt={`${profile.name} Logo`}
+                      width={60}
+                      height={60}
+                      className="rounded-md object-cover border flex-shrink-0"
+                      data-ai-hint={profile.logoAiHint || "company logo"}
+                      onClick={() => onSelectProfile(profile.id)}
+                    />
+                    <div className="flex-grow" onClick={() => onSelectProfile(profile.id)}>
+                      <CardTitle className="text-lg hover:text-primary cursor-pointer">{profile.name}</CardTitle>
+                      {profile.location && <CardDescription>{profile.location}</CardDescription>}
+                      <p className="text-xs text-muted-foreground mt-1">Followers: {profile.followers || 0}</p>
                     </div>
-                  </CardHeader>
-                  <CardContent className="pb-4">
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{profile.bio}</p>
-                    {profile.website && <a href={profile.website} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-primary hover:underline flex items-center"><ExternalLink className="h-3 w-3 mr-1"/>View Website</a>}
-                  </CardContent>
-                  <CardFooter className="flex justify-end space-x-2 pt-3 border-t">
-                    <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleEdit(profile); }}>
-                      <Edit3 className="mr-1 h-4 w-4" /> Edit
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={(e) => { e.stopPropagation(); handleDelete(profile.id); }}>
-                      <Trash2 className="mr-1 h-4 w-4" /> Delete
-                    </Button>
-                  </CardFooter>
+                    <div className="flex flex-col items-end space-y-2">
+                      <Switch 
+                        checked={!!profile.isActive} 
+                        onCheckedChange={(e) => toggleActive(profile.id)} 
+                        aria-label={profile.isActive ? "Deactivate profile" : "Activate profile"} 
+                      />
+                      <div className="flex space-x-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(profile)}>
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => confirmDelete(profile)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                      </div>
+                    </div>
+                  </div>
+                  {profile.website && 
+                    <CardContent className="pb-3 pt-0">
+                        <a href={profile.website} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-primary hover:underline flex items-center">
+                            <ExternalLink className="h-3 w-3 mr-1"/>View Website
+                        </a>
+                    </CardContent>
+                  }
                 </Card>
               ))}
             </div>
           </CardContent>
         )}
       </Card>
+      <AlertDialog open={!!profileToDelete} onOpenChange={(open) => !open && setProfileToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the business profile &quot;{profileToDelete?.name}&quot;.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setProfileToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={executeDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

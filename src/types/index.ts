@@ -12,6 +12,7 @@ export type TabName =
   | 'vehicles'
   | 'business-profiles'
   | 'business-detail'
+  | 'manage-business-profile' // New: For managing/editing a specific business profile
   | 'messages-notifications'
   | 'individual-profile' // Public view of a general professional profile
   | 'skillset-profile' // Public view of a specific skillset profile
@@ -161,8 +162,8 @@ export interface UserBusinessProfile {
   email?: string;
   location?: string;
   specialties?: string[];
-  followers?: number;
-  following?: number;
+  followers?: number; // Changed from followersCount
+  following?: number; // Changed from followingCount
   feed?: BusinessFeedItem[];
   products?: BusinessProduct[];
   services?: BusinessService[];
@@ -268,8 +269,8 @@ export interface IndividualProfileData {
   totalReviews: number;
   workExperienceEntries?: SkillsetSpecificWorkExperience[];
   portfolioItems?: SkillsetSpecificPortfolioItem[];
-  professionalFeed?: BusinessFeedItem[];
-  reviews?: BusinessReview[];
+  professionalFeed?: BusinessFeedItem[]; // Re-using BusinessFeedItem
+  reviews?: BusinessReview[]; // Re-using BusinessReview
 }
 
 // --- Types for Skillset-Specific Profiles ---
@@ -292,6 +293,16 @@ export interface SkillsetSpecificPortfolioItem {
   link?: string;
 }
 
+export interface SkillsetSpecificFeedItem { // Renamed from BusinessFeedItem for clarity if different structure needed
+  id: string;
+  content: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+  videoUrl?: string;
+  timestamp: string;
+}
+
+
 export interface SkillsetProfileData {
   id: string;
   skillName: string;
@@ -310,11 +321,12 @@ export interface SkillsetProfileData {
   };
   workExperienceEntries: SkillsetSpecificWorkExperience[];
   portfolioItems: SkillsetSpecificPortfolioItem[];
-  professionalFeed?: BusinessFeedItem[];
-  reviews: BusinessReview[];
+  professionalFeed: SkillsetSpecificFeedItem[]; // Using specific type
+  reviews: BusinessReview[]; // Re-using BusinessReview for skillset reviews
   recommendationsCount: number;
   averageRating: number;
   totalReviews: number;
+  isActive?: boolean;
 }
 
 export interface SkillsetProfileSummary {

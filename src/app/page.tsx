@@ -15,6 +15,7 @@ import UserSkillsetsScreen from '@/components/screens/UserSkillsetsScreen';
 import UserVehiclesScreen from '@/components/screens/UserVehiclesScreen';
 import UserBusinessProfilesScreen from '@/components/screens/UserBusinessProfilesScreen';
 import UserBusinessProfileDetailScreen from '@/components/screens/UserBusinessProfileDetailScreen';
+import BusinessProfileManagementScreen from '@/components/screens/BusinessProfileManagementScreen'; // New import
 import MessagesNotificationsScreen from '@/components/screens/MessagesNotificationsScreen';
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
 import ActiveActivityView from '@/components/activity/ActiveActivityView';
@@ -27,7 +28,7 @@ import type { TabName, UserBusinessProfile, ActivityDetails } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
 
-const initialBusinessProfiles: UserBusinessProfile[] = [
+export const initialBusinessProfiles: UserBusinessProfile[] = [
   {
     id: 1,
     name: 'Hot Griddle Restaurant',
@@ -123,8 +124,9 @@ export default function AppRoot() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState<any>(null); 
 
-  const [businessProfilesData, setBusinessProfilesData] = useState<UserBusinessProfile[]>(initialBusinessProfiles); // Renamed for clarity
+  const [businessProfilesData, setBusinessProfilesData] = useState<UserBusinessProfile[]>(initialBusinessProfiles);
   const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | number | null>(null);
+  const [businessProfileToManageId, setBusinessProfileToManageId] = useState<string | number | null>(null); // New state
   
   const [selectedIndividualProfileId, setSelectedIndividualProfileId] = useState<string | null>(null); 
   const [selectedSkillsetProfileId, setSelectedSkillsetProfileId] = useState<string | null>(null); 
@@ -162,6 +164,7 @@ export default function AppRoot() {
     setActivityDetails(null);
     setIsDriverOnlineSim(false);
     setSelectedBusinessProfileId(null);
+    setBusinessProfileToManageId(null); // Clear on logout
     setSelectedIndividualProfileId(null);
     setSelectedSkillsetProfileId(null);
     setSkillsetProfileToManageId(null);
@@ -171,8 +174,9 @@ export default function AppRoot() {
   const handleTabSelection = (tab: TabName) => {
     setActiveTab(tab);
     setShowSideMenu(false);
-    if (tab !== 'business-detail' && tab !== 'individual-profile' && tab !== 'skillset-profile' && tab !== 'manage-skillset-profile') {
+    if (tab !== 'business-detail' && tab !== 'individual-profile' && tab !== 'skillset-profile' && tab !== 'manage-skillset-profile' && tab !== 'manage-business-profile') {
         setSelectedBusinessProfileId(null);
+        setBusinessProfileToManageId(null);
         setSelectedIndividualProfileId(null);
         setSelectedSkillsetProfileId(null);
         setSkillsetProfileToManageId(null);
@@ -185,23 +189,31 @@ export default function AppRoot() {
     setShowSideMenu(false);
   };
 
+  const handleManageBusinessProfile = (profileId: string | number) => { // New handler
+    setBusinessProfileToManageId(profileId);
+    setActiveTab('manage-business-profile');
+    setShowSideMenu(false);
+  };
+
   const handleBackFromBusinessDetail = () => {
     setActiveTab('business-profiles'); 
     setSelectedBusinessProfileId(null);
+    setBusinessProfileToManageId(null); 
+  };
+
+  const handleBackFromManageBusinessProfile = () => { 
+    setBusinessProfileToManageId(null);
+    setActiveTab('business-profiles');
   };
   
   const handleSelectIndividualProfile = (profileId: string) => {
-    // This function might be deprecated or its purpose clarified
-    // For now, if it's an ID known to be a skillset, redirect to skillset profile view
     if(profileId === 'individual-jenson-1' || profileId === 'jenson-interior-stylist-123') { 
         handleSelectSkillsetProfile('jenson-interior-stylist-123'); 
     } else if (profileId === 'prof2' || profileId === 'prof2-ux-designer-skillset'){
-        handleSelectSkillsetProfile('prof2-ux-designer-skillset'); // Assuming this is the ID of Alicia's skillset
+        handleSelectSkillsetProfile('prof2-ux-designer-skillset'); 
     } else if (profileId === "currentUser" && userData) {
-        // Potentially show a generic "My Account" view or a general personal profile if that exists
         setActiveTab('account'); 
     } else {
-        // Fallback for other IDs - might be a placeholder or a different type of profile
         setSelectedIndividualProfileId(profileId);
         setActiveTab('individual-profile');
     }
@@ -237,12 +249,11 @@ export default function AppRoot() {
           status: 'Looking for driver...',
           pickup: rideData.pickup,
           dropoff: rideData.dropoff,
-          vehicle: rideData.vehicleId, // Store vehicleId or a more descriptive name
+          vehicle: rideData.vehicleId,
       };
       setActivityDetails(rideDetails);
       setIsActiveActivityViewVisible(true);
-      toast({ title: "Ride Requested", description: "Searching for drivers." });
-
+      
       setTimeout(() => {
           setActivityDetails(prev => {
             if (prev?.type === 'ride' && prev?.status === 'Looking for driver...') {
@@ -251,15 +262,13 @@ export default function AppRoot() {
                 ...prev,
                 status: 'Driver Assigned',
                 driverName: 'Sim Driver',
-                // Assuming vehicle was stored as vehicleId, you might resolve to a more descriptive name here
                 vehicle: `${prev.vehicle || 'Vehicle'} - XX00YZ0000 (Simulated)`, 
               };
             }
             return prev;
           });
-           toast({ title: "Driver Found!", description: "Your ride is on the way." });
       }, 6000);
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     if (isLoggedIn && (isDriverOnlineSim || activityDetails)) {
@@ -317,7 +326,6 @@ export default function AppRoot() {
                       vehicleType: 'Car (Mini)', 
                       distance: '5 km',      
                   });
-                  toast({ title: "New Ride Request! (Driver Sim)", description: "A user needs a ride." });
               } else {
                 console.log('[Driver Sim Effect] Condition 3 FAILED for simulating request. Details:', {
                     isDriverOnlineSim,
@@ -357,7 +365,9 @@ export default function AppRoot() {
     setIsActiveActivityViewVisible(false);
     if (activityDetails?.type === 'request' || activityDetails?.type === 'driver_status') {
       if (activityDetails?.status !== 'en_route' && activityDetails?.status !== 'arrived' && activityDetails?.status !== 'on_the_way') {
-         setActivityDetails(null);
+         if (activityDetails?.status !== 'completed' && activityDetails?.status !== 'cancelled') {
+            setActivityDetails(null);
+         }
       }
     }
   };
@@ -487,7 +497,7 @@ export default function AppRoot() {
       case 'feeds': return <FeedsScreen />;
       case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen />;
-      case 'account': return <AccountScreen onLogout={handleLogout} userData={userData} />;
+      case 'account': return <AccountScreen onLogout={handleLogout} />;
       case 'user-skillsets': return (
                             <UserSkillsetsScreen 
                                 setActiveTab={handleTabSelection} 
@@ -499,11 +509,23 @@ export default function AppRoot() {
         <UserBusinessProfilesScreen
           businessProfiles={businessProfilesData}
           onSelectProfile={handleSelectBusinessProfile}
+          onManageProfile={handleManageBusinessProfile} 
         />
       );
       case 'business-detail':
         const selectedProfile = businessProfilesData.find(p => p.id === selectedBusinessProfileId);
         return <UserBusinessProfileDetailScreen profile={selectedProfile} onBack={handleBackFromBusinessDetail} />;
+      
+      case 'manage-business-profile': 
+        if (businessProfileToManageId) {
+          return (
+            <BusinessProfileManagementScreen
+              businessProfileId={businessProfileToManageId}
+              onBack={handleBackFromManageBusinessProfile}
+            />
+          );
+        }
+        return <p className="p-4 text-center text-muted-foreground">No business profile selected for management.</p>;
       
       case 'individual-profile': 
         if (selectedIndividualProfileId === "currentUser" && userData) {
@@ -609,3 +631,4 @@ export default function AppRoot() {
   );
 }
     
+
