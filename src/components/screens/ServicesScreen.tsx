@@ -6,7 +6,21 @@ import ServiceCard from '@/components/services/ServiceCard';
 import { Input } from '@/components/ui/input';
 import type { Service, TabName, VehicleOption, ActivityDetails } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Search as SearchIcon, MapPin, Car, Bike, CarTaxiFront } from 'lucide-react'; // Replaced Building2 with CarTaxiFront
+import { 
+  ArrowLeft, 
+  Search as SearchIcon, 
+  MapPin, 
+  Car, 
+  Bike, 
+  CarTaxiFront,
+  Briefcase,
+  Utensils,
+  ShoppingBag,
+  CreditCard,
+  Ticket,
+  Truck,
+  Landmark // Replaced Building2 for Auto with CarTaxiFront, imported other icons
+} from 'lucide-react'; 
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,19 +28,19 @@ import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const initialServicesData: Service[] = [
-    { id: 'taxi', name: 'Taxi', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-car"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.8-2.8c-.7-.7-1.7-1.2-2.8-1.4L4 5v14"/><path d="M12 10H4v6h10"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>`, locked: false, dataAiHint: "car taxi ride" },
-    { id: 'jobs', name: 'Jobs', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-briefcase"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`, locked: false, dataAiHint: "briefcase work" }, // Unlocked Jobs
-    { id: 'foods', name: 'Foods', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-utensils"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M15 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><line x1="7" x2="7" y1="2" y2="22"/><line x1="17" x2="17" y1="2" y2="22"/></svg>`, locked: true, dataAiHint: "utensils restaurant" },
-    { id: 'shopping', name: 'Shopping', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`, locked: true, dataAiHint: "shopping bag" },
-    { id: 'pay', name: 'Pay', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-credit-card"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>`, locked: true, dataAiHint: "credit card" },
-    { id: 'tickets', name: 'Tickets', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-ticket"><path d="M2 9a3 3 0 0 1 0 6v-6Z"/><path d="M22 9a3 3 0 0 0 0 6v-6Z"/><path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h7"/><path d="M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7"/><path d="M13 11H7"/><path d="M13 15H7"/></svg>`, locked: true, dataAiHint: "ticket movie" },
-    { id: 'delivery', name: 'Delivery', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-truck"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M10 18H7"/><path d="M17 18h2a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-7.5L14 14z"/><circle cx="18" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>`, locked: true, dataAiHint: "truck delivery" },
-    { id: 'banking', name: 'Banking', icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-banknote"><rect width="20" height="12" x="2" y="6" rx="2"/><path d="M12 12V6"/><path d="M10 12h4"/><path d="M10 18h4"/><path d="M16 12V6"/><path d="M16 18V12"/><path d="M8 18V12"/><path d="M8 12V6"/></svg>`, locked: true, dataAiHint: "banknote money" },
+    { id: 'taxi', name: 'Taxi', icon: CarTaxiFront, locked: false, dataAiHint: "car taxi ride" },
+    { id: 'jobs', name: 'Jobs', icon: Briefcase, locked: false, dataAiHint: "briefcase work" },
+    { id: 'foods', name: 'Foods', icon: Utensils, locked: true, dataAiHint: "utensils restaurant" },
+    { id: 'shopping', name: 'Shopping', icon: ShoppingBag, locked: true, dataAiHint: "shopping bag" },
+    { id: 'pay', name: 'Pay', icon: CreditCard, locked: true, dataAiHint: "credit card" },
+    { id: 'tickets', name: 'Tickets', icon: Ticket, locked: true, dataAiHint: "ticket movie" },
+    { id: 'delivery', name: 'Delivery', icon: Truck, locked: true, dataAiHint: "truck delivery" },
+    { id: 'banking', name: 'Banking', icon: Landmark, locked: true, dataAiHint: "bank building" }, // Changed from banknote to Landmark for banking
 ];
 
 const taxiVehicleOptions: VehicleOption[] = [
   { id: 'bike', name: 'Bike', icon: Bike, priceRange: '₹ 50-80', estimatedETA: '5 mins', dataAiHint: "motorcycle transport" },
-  { id: 'auto', name: 'Auto', icon: CarTaxiFront, priceRange: '₹ 80-120', estimatedETA: '7 mins', dataAiHint: "auto rickshaw" }, // Changed icon
+  { id: 'auto', name: 'Auto', icon: CarTaxiFront, priceRange: '₹ 80-120', estimatedETA: '7 mins', dataAiHint: "auto rickshaw" },
   { id: 'car_mini', name: 'Car (Mini)', icon: Car, priceRange: '₹ 120-200', estimatedETA: '10 mins', dataAiHint: "small car" },
   { id: 'car_premium', name: 'Car (Premium)', icon: Car, priceRange: '₹ 200-350', estimatedETA: '12 mins', dataAiHint: "luxury car" },
 ];
@@ -205,4 +219,3 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
   );
 };
 export default ServicesScreen;
-

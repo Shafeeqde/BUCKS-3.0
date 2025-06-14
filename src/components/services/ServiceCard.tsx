@@ -1,6 +1,7 @@
+
 "use client";
 
-import { Lock } from 'lucide-react';
+import { Lock, type LucideIcon } from 'lucide-react'; // Added LucideIcon import
 import SvgRenderer from '@/components/ui/SvgRenderer';
 import type { Service } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +12,8 @@ interface ServiceCardProps {
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ service, onClick }) => {
+  const IconComponent = service.icon;
+
   return (
     <Card
       className="flex flex-col items-center p-3 bg-card hover:bg-accent/10 cursor-pointer transition-colors duration-200 relative shadow-sm"
@@ -21,7 +24,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onClick }) => {
     >
       <CardContent className="flex flex-col items-center p-0">
         <div className="w-12 h-12 flex items-center justify-center rounded-full bg-background shadow-md text-primary mb-2">
-          <SvgRenderer svgString={service.icon} className="w-6 h-6" />
+          {typeof IconComponent === 'string' ? (
+            <SvgRenderer svgString={IconComponent} className="w-6 h-6" />
+          ) : (
+            <IconComponent className="w-6 h-6" />
+          )}
         </div>
         <span className="text-xs sm:text-sm font-medium text-foreground text-center">{service.name}</span>
         {service.locked && (

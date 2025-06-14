@@ -52,7 +52,7 @@ export interface FeedItem {
 export interface Service {
   id: string;
   name: string;
-  icon: string; // SVG string
+  icon: string | LucideIcon; // Updated to allow LucideIcon type
   locked: boolean;
   dataAiHint?: string;
 }
