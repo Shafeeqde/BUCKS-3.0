@@ -8,8 +8,8 @@ export type TabName =
   | 'feeds'
   | 'menu' // Corresponds to ServicesScreen
   | 'recommended'
-  | 'account' // This will now be for "Personal Content Profile"
-  | 'professional-profile' 
+  | 'account' // This is the Personal Content Profile
+  | 'professional-profile' // The main professional identity dashboard
   | 'vehicles'
   | 'business-profiles'
   | 'business-detail'
@@ -20,7 +20,8 @@ export type TabName =
   | 'user-skillsets' 
   | 'manage-skillset-profile'
   | 'job-board' 
-  | 'job-detail'; 
+  | 'job-detail'
+  | 'account-settings'; // New tab for actual account settings
 
 export interface Category {
   id: string;
@@ -92,8 +93,6 @@ export interface VehicleOption {
   pricePerKm?: string;
 }
 
-// For basic user profile editing in the original AccountScreen.
-// This might be deprecated or merged with UserDataForSideMenu if professional profile handles all.
 export interface UserProfile {
   name: string;
   email: string;
@@ -406,7 +405,7 @@ export interface SkillsetProfileSummary {
 
 // For SideMenu User Data & AccountScreen user data
 export interface UserDataForSideMenu {
-  id: string; // Added ID
+  id: string; 
   name: string;
   email: string;
   avatarUrl?: string;
@@ -416,18 +415,18 @@ export interface UserDataForSideMenu {
 // --- Types for Personal Content Profile (AccountScreen) ---
 export interface ProfilePost {
   id: string | number;
-  type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text'; // 'post' renamed to 'text' for clarity
-  user: string; // User who posted (should be the logged-in user for this screen)
+  type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text'; 
+  user: string; 
   timestamp: string;
   likes: number;
   comments: number;
-  thumbnailUrl?: string; // For image, video, link previews
+  thumbnailUrl?: string; 
   thumbnailAiHint?: string;
-  imageUrl?: string; // For full image
+  imageUrl?: string; 
   imageAiHint?: string;
   videoUrl?: string;
-  content?: string; // For text, tweet, link title, file name
-  url?: string; // For links
-  fileIcon?: string; // For files (e.g., '📄' or a Lucide icon name)
+  content?: string; 
+  url?: string; 
+  fileIcon?: string; 
   fileName?: string;
 }

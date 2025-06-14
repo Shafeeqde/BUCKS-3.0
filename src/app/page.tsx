@@ -25,6 +25,7 @@ import SkillsetProfileScreen from '@/components/screens/SkillsetProfileScreen';
 import SkillsetProfileManagementScreen from '@/components/screens/SkillsetProfileManagementScreen';
 import JobBoardScreen from '@/components/screens/JobBoardScreen';
 import JobDetailScreen from '@/components/screens/JobDetailScreen';
+import AccountSettingsScreen from '@/components/screens/AccountSettingsScreen'; // Added import
 
 
 import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu } from '@/types';
@@ -149,7 +150,7 @@ export default function AppRoot() {
   const handleLoginSuccess = (user: UserDataForSideMenu) => { 
     setIsLoggedIn(true);
     setUserData({ 
-        id: user.id, // Ensure id is part of the user object from API/login
+        id: user.id, 
         name: user.name,
         email: user.email,
         avatarUrl: user.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar',
@@ -185,7 +186,14 @@ export default function AppRoot() {
   const handleTabSelection = (tab: TabName) => {
     setActiveTab(tab);
     setShowSideMenu(false);
-    if (tab !== 'business-detail' && tab !== 'individual-profile' && tab !== 'skillset-profile' && tab !== 'manage-skillset-profile' && tab !== 'manage-business-profile' && tab !== 'job-detail' && tab !== 'professional-profile') {
+    if (tab !== 'business-detail' && 
+        tab !== 'individual-profile' && 
+        tab !== 'skillset-profile' && 
+        tab !== 'manage-skillset-profile' && 
+        tab !== 'manage-business-profile' && 
+        tab !== 'job-detail' && 
+        tab !== 'professional-profile' &&
+        tab !== 'account-settings') { // Ensure account-settings also doesn't clear these
         setSelectedBusinessProfileId(null);
         setBusinessProfileToManageId(null);
         setSelectedIndividualProfileId(null);
@@ -224,7 +232,7 @@ export default function AppRoot() {
     } else if (profileId === 'prof2' || profileId === 'prof2-ux-designer-skillset'){
         handleSelectSkillsetProfile('prof2-ux-designer-skillset');
     } else if (profileId === "currentUser" && userData) {
-        setActiveTab('account'); // User's own content profile
+        setActiveTab('account'); 
     } else {
         setSelectedIndividualProfileId(profileId);
         setActiveTab('individual-profile');
@@ -520,7 +528,7 @@ export default function AppRoot() {
       case 'feeds': return <FeedsScreen />;
       case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen />;
-      case 'account': return <AccountScreen userData={userData} onLogout={handleLogout} setActiveTab={handleTabSelection} />;
+      case 'account': return <AccountScreen userData={userData} setActiveTab={handleTabSelection} />;
       case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={handleTabSelection} userData={userData} />;
       case 'user-skillsets': return (
                             <UserSkillsetsScreen
@@ -589,6 +597,9 @@ export default function AppRoot() {
             return <JobDetailScreen job={job} onBack={handleBackFromJobDetail} />;
         }
         return <p className="p-4 text-center text-muted-foreground">Job details not found.</p>;
+      
+      case 'account-settings': // New case
+        return <AccountSettingsScreen />;
 
 
       default: return <HomeScreen

@@ -1,3 +1,4 @@
+
 import { Home, MessageCircle, LayoutGrid, Star, User } from 'lucide-react';
 import BottomNavItem from './BottomNavItem';
 import type { TabName } from '@/types';
@@ -11,7 +12,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, setActiv
   const navItems = [
     { tabName: 'home' as TabName, label: 'Home', Icon: Home },
     { tabName: 'feeds' as TabName, label: 'Feeds', Icon: MessageCircle },
-    { tabName: 'menu' as TabName, label: 'Menu', Icon: LayoutGrid },
+    { tabName: 'menu' as TabName, label: 'Services', Icon: LayoutGrid }, // Changed label from "Menu" to "Services"
     { tabName: 'recommended' as TabName, label: 'Recommended', Icon: Star },
     { tabName: 'account' as TabName, label: 'Account', Icon: User },
   ];
