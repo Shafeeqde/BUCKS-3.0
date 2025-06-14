@@ -5,19 +5,21 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from '@/components/ui/sheet';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
-  User,
+  UserCog, // For Professional Profile
+  Settings, // For Account Settings
   Briefcase,
   Car,
   Building,
   LogOut,
   ChevronRight,
-  Settings,
   ShieldCheck,
-  Rocket
+  Rocket,
+  Sparkles
 } from 'lucide-react';
-import type { TabName, UserBusinessProfile } from '@/types';
-import Image from 'next/image';
+import type { TabName, UserBusinessProfile, UserDataForSideMenu } from '@/types';
+import Image from 'next/image'; // For business logos
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -26,8 +28,9 @@ interface SideMenuProps {
   setActiveTab: (tab: TabName) => void;
   businessProfiles: UserBusinessProfile[];
   onSelectBusinessProfile: (id: string | number) => void;
-  selectedBusinessProfileId: string | number | null; // Added prop
+  selectedBusinessProfileId: string | number | null;
   onLogout: () => void;
+  userData: UserDataForSideMenu | null; // Updated to use specific type
 }
 
 const SideMenu: React.FC<SideMenuProps> = ({
@@ -37,13 +40,15 @@ const SideMenu: React.FC<SideMenuProps> = ({
   setActiveTab,
   businessProfiles,
   onSelectBusinessProfile,
-  selectedBusinessProfileId, // Consuming prop
+  selectedBusinessProfileId,
   onLogout,
+  userData,
 }) => {
   const menuItems = [
-    { name: 'Professional Profile', tab: 'account' as TabName, icon: User },
-    { name: 'Skillsets', tab: 'user-skillsets' as TabName, icon: Rocket },
-    { name: 'Vehicles', tab: 'vehicles' as TabName, icon: Car },
+    { name: 'Professional Profile', tab: 'professional-profile' as TabName, icon: UserCog },
+    { name: 'Account Settings', tab: 'account' as TabName, icon: Settings },
+    { name: 'Skillset Profiles', tab: 'user-skillsets' as TabName, icon: Rocket },
+    { name: 'Vehicle Management', tab: 'vehicles' as TabName, icon: Car },
     { name: 'Business Profiles', tab: 'business-profiles' as TabName, icon: Briefcase },
   ];
 
@@ -62,13 +67,26 @@ const SideMenu: React.FC<SideMenuProps> = ({
       <SheetContent side="left" className="w-[280px] sm:w-[320px] p-0 flex flex-col bg-card">
         <SheetHeader className="p-4 border-b">
           <SheetTitle className="text-xl font-bold text-primary font-headline flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sparkles mr-2 text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+            <Sparkles className="mr-2 h-6 w-6 text-primary"/>
             bucks Menu
           </SheetTitle>
         </SheetHeader>
 
+        {userData && (
+          <div className="p-4 border-b flex items-center space-x-3">
+            <Avatar className="h-12 w-12">
+              <AvatarImage src={userData.avatarUrl || 'https://placehold.co/48x48.png'} alt={userData.name} data-ai-hint="user avatar" />
+              <AvatarFallback>{userData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-semibold text-foreground">{userData.name}</p>
+              <p className="text-xs text-muted-foreground">{userData.email}</p>
+            </div>
+          </div>
+        )}
+
         <ScrollArea className="flex-grow">
-          <nav className="p-4 space-y-2">
+          <nav className="p-4 space-y-1">
             {menuItems.map((item) => (
               <Button
                 key={item.tab}
@@ -87,7 +105,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
                 {businessProfiles.map((profile) => (
                   <Button
                     key={profile.id}
-                    variant={activeTab === 'business-detail' && profile.id === selectedBusinessProfileId ? 'secondary' : 'ghost'} // Corrected active state check
+                    variant={activeTab === 'business-detail' && profile.id === selectedBusinessProfileId ? 'secondary' : 'ghost'}
                     className="w-full justify-start text-sm h-11"
                     onClick={() => handleBusinessProfileClick(profile.id)}
                   >
@@ -110,18 +128,16 @@ const SideMenu: React.FC<SideMenuProps> = ({
               </div>
             )}
             
-            <div className="pt-4 space-y-2">
-                 <Button variant="ghost" className="w-full justify-start text-base h-12" onClick={() => { /* TODO */ onClose(); }}>
+            <div className="pt-4 space-y-1 border-t mt-2">
+                 <Button variant="ghost" className="w-full justify-start text-base h-12" onClick={() => { /* TODO: Navigate to actual settings screen */ onClose(); }}>
                     <Settings className="mr-3 h-5 w-5" />
-                    Settings
+                    App Settings
                 </Button>
-                <Button variant="ghost" className="w-full justify-start text-base h-12" onClick={() => { /* TODO */ onClose(); }}>
+                <Button variant="ghost" className="w-full justify-start text-base h-12" onClick={() => { /* TODO: Navigate to privacy screen */ onClose(); }}>
                     <ShieldCheck className="mr-3 h-5 w-5" />
                     Privacy & Security
                 </Button>
             </div>
-
-
           </nav>
         </ScrollArea>
         

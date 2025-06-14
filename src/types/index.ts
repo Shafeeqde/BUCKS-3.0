@@ -8,7 +8,8 @@ export type TabName =
   | 'feeds'
   | 'menu' // Corresponds to ServicesScreen
   | 'recommended'
-  | 'account'
+  | 'account' // This will now be for "Account Settings"
+  | 'professional-profile' // New tab for the overall professional profile
   | 'vehicles'
   | 'business-profiles'
   | 'business-detail'
@@ -52,7 +53,7 @@ export interface FeedItem {
 export interface Service {
   id: string;
   name: string;
-  icon: string | LucideIcon; // Updated to allow LucideIcon type
+  icon: LucideIcon; // Updated to LucideIcon type
   locked: boolean;
   dataAiHint?: string;
 }
@@ -96,6 +97,7 @@ export interface UserProfile {
   email: string;
   phone: string;
   address?: string;
+  avatarUrl?: string; // Added for side menu display
 }
 
 export interface UserVehicle {
@@ -345,4 +347,11 @@ export interface SkillsetProfileSummary {
   isActive: boolean;
   portfolioItemCount?: number;
   averageRating?: number;
+}
+
+// For SideMenu User Data
+export interface UserDataForSideMenu {
+  name: string;
+  email: string;
+  avatarUrl?: string;
 }

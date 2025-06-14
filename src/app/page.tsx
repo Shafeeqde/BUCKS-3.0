@@ -11,6 +11,7 @@ import FeedsScreen from '@/components/screens/FeedsScreen';
 import ServicesScreen from '@/components/screens/ServicesScreen';
 import RecommendedScreen from '@/components/screens/RecommendedScreen';
 import AccountScreen from '@/components/screens/AccountScreen';
+import ProfessionalProfileScreen from '@/components/screens/ProfessionalProfileScreen'; // New import
 import UserSkillsetsScreen from '@/components/screens/UserSkillsetsScreen';
 import UserVehiclesScreen from '@/components/screens/UserVehiclesScreen';
 import UserBusinessProfilesScreen from '@/components/screens/UserBusinessProfilesScreen';
@@ -26,7 +27,7 @@ import JobBoardScreen from '@/components/screens/JobBoardScreen';
 import JobDetailScreen from '@/components/screens/JobDetailScreen';
 
 
-import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob } from '@/types';
+import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, UserProfile } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -124,7 +125,7 @@ export default function AppRoot() {
   const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<UserDataForSideMenu | null>(null); // Use specific type
 
   const [businessProfilesData, setBusinessProfilesData] = useState<UserBusinessProfile[]>(initialBusinessProfiles);
   const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | number | null>(null);
@@ -145,14 +146,18 @@ export default function AppRoot() {
     setIsClient(true);
   }, []);
 
-  const handleLoginSuccess = (user: any) => {
+  const handleLoginSuccess = (user: UserProfile) => { // Assuming API returns a UserProfile like structure
     setIsLoggedIn(true);
-    setUserData(user);
+    setUserData({ // Adapt to UserDataForSideMenu
+        name: user.name,
+        email: user.email,
+        avatarUrl: user.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar', // Add a default avatar
+    });
     setActiveTab('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
   };
 
-  const handleRegistrationSuccess = (user: any) => {
+  const handleRegistrationSuccess = (user: {name: string; email: string}) => { // Basic user info from registration
     setActiveTab('login');
     toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in.` });
   };
@@ -178,7 +183,7 @@ export default function AppRoot() {
   const handleTabSelection = (tab: TabName) => {
     setActiveTab(tab);
     setShowSideMenu(false);
-    if (tab !== 'business-detail' && tab !== 'individual-profile' && tab !== 'skillset-profile' && tab !== 'manage-skillset-profile' && tab !== 'manage-business-profile' && tab !== 'job-detail') {
+    if (tab !== 'business-detail' && tab !== 'individual-profile' && tab !== 'skillset-profile' && tab !== 'manage-skillset-profile' && tab !== 'manage-business-profile' && tab !== 'job-detail' && tab !== 'professional-profile') {
         setSelectedBusinessProfileId(null);
         setBusinessProfileToManageId(null);
         setSelectedIndividualProfileId(null);
@@ -514,6 +519,7 @@ export default function AppRoot() {
       case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen />;
       case 'account': return <AccountScreen onLogout={handleLogout} />;
+      case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={handleTabSelection} userData={userData} />; // Pass userData
       case 'user-skillsets': return (
                             <UserSkillsetsScreen
                                 setActiveTab={handleTabSelection}
@@ -618,6 +624,7 @@ export default function AppRoot() {
           onSelectBusinessProfile={handleSelectBusinessProfile}
           selectedBusinessProfileId={selectedBusinessProfileId}
           onLogout={handleLogout}
+          userData={userData} // Pass userData to SideMenu
         />
       )}
 
@@ -660,5 +667,3 @@ export default function AppRoot() {
     </div>
   );
 }
-
-    
