@@ -18,6 +18,11 @@ import UserBusinessProfileDetailScreen from '@/components/screens/UserBusinessPr
 import MessagesNotificationsScreen from '@/components/screens/MessagesNotificationsScreen';
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
 import ActiveActivityView from '@/components/activity/ActiveActivityView';
+import IndividualProfileScreen from '@/components/screens/IndividualProfileScreen';
+import SkillsetProfileScreen from '@/components/screens/SkillsetProfileScreen';
+import SkillsetProfileManagementScreen from '@/components/screens/SkillsetProfileManagementScreen';
+
+
 import type { TabName, UserBusinessProfile, ActivityDetails } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
@@ -76,10 +81,15 @@ export default function AppRoot() {
   const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<any>(null); 
 
   const [businessProfiles, setBusinessProfiles] = useState<UserBusinessProfile[]>(initialBusinessProfiles);
   const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | number | null>(null);
+  
+  const [selectedIndividualProfileId, setSelectedIndividualProfileId] = useState<string | null>(null);
+  const [selectedSkillsetProfileId, setSelectedSkillsetProfileId] = useState<string | null>(null);
+  const [skillsetProfileToManageId, setSkillsetProfileToManageId] = useState<string | null>(null);
+
 
   const [isFabVisible, setIsFabVisible] = useState(false);
   const [isActiveActivityViewVisible, setIsActiveActivityViewVisible] = useState(false);
@@ -92,7 +102,7 @@ export default function AppRoot() {
 
   const handleLoginSuccess = (user: any) => {
     setIsLoggedIn(true);
-    setUserData(user);
+    setUserData(user); 
     setActiveTab('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
   };
@@ -111,14 +121,21 @@ export default function AppRoot() {
     setIsActiveActivityViewVisible(false);
     setActivityDetails(null);
     setIsDriverOnlineSim(false);
+    setSelectedBusinessProfileId(null);
+    setSelectedIndividualProfileId(null);
+    setSelectedSkillsetProfileId(null);
+    setSkillsetProfileToManageId(null);
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   };
 
   const handleTabSelection = (tab: TabName) => {
     setActiveTab(tab);
     setShowSideMenu(false);
-    if (tab !== 'business-detail') {
+    if (tab !== 'business-detail' && tab !== 'individual-profile' && tab !== 'skillset-profile' && tab !== 'manage-skillset-profile') {
         setSelectedBusinessProfileId(null);
+        setSelectedIndividualProfileId(null);
+        setSelectedSkillsetProfileId(null);
+        setSkillsetProfileToManageId(null);
     }
   };
 
@@ -132,6 +149,30 @@ export default function AppRoot() {
     setActiveTab('business-profiles');
     setSelectedBusinessProfileId(null);
   };
+  
+  const handleSelectIndividualProfile = (profileId: string) => {
+    setSelectedIndividualProfileId(profileId);
+    setActiveTab('individual-profile');
+    setShowSideMenu(false);
+  };
+
+  const handleSelectSkillsetProfile = (skillsetProfileId: string) => {
+    setSelectedSkillsetProfileId(skillsetProfileId);
+    setActiveTab('skillset-profile');
+    setShowSideMenu(false);
+  };
+
+  const handleManageSkillsetProfile = (skillsetProfileId: string) => {
+    setSkillsetProfileToManageId(skillsetProfileId);
+    setActiveTab('manage-skillset-profile');
+    setShowSideMenu(false);
+  };
+
+  const handleBackFromManageSkillsetProfile = () => {
+    setSkillsetProfileToManageId(null);
+    setActiveTab('user-skillsets');
+  };
+
 
   const handleRideRequest = useCallback((rideData: { pickup: string; dropoff: string; vehicleId: string }) => {
       console.log('Ride request received in page.tsx:', rideData);
@@ -140,7 +181,6 @@ export default function AppRoot() {
           status: 'Looking for driver...',
           pickup: rideData.pickup,
           dropoff: rideData.dropoff,
-          // vehicleId: rideData.vehicleId, // Store if needed for rider view
       });
       setIsActiveActivityViewVisible(true);
       toast({ title: "Ride Requested", description: "Searching for drivers." });
@@ -160,7 +200,7 @@ export default function AppRoot() {
           });
            toast({ title: "Driver Found!", description: "Your ride is on the way." });
       }, 6000);
-  }, [toast, activityDetails]); // Added activityDetails to dependency array for check inside setTimeout
+  }, [toast]);
 
   useEffect(() => {
     if (isLoggedIn && (isDriverOnlineSim || activityDetails)) {
@@ -190,7 +230,6 @@ export default function AppRoot() {
      }
   };
   
-  // Simulate driver going online and receiving a request
   useEffect(() => {
     console.log('[Driver Sim Effect] Running. State:', { isLoggedIn, isDriverOnlineSim, activityDetailsType: activityDetails?.type, isActiveActivityViewVisible });
     let onlineTimer: NodeJS.Timeout;
@@ -200,7 +239,7 @@ export default function AppRoot() {
       console.log('[Driver Sim Effect] Condition 1 MET. Starting onlineTimer (5s).');
       onlineTimer = setTimeout(() => {
         console.log('[Driver Sim Effect] onlineTimer FIRED. Re-checking conditions. State:', { isLoggedIn, isDriverOnlineSim, activityDetailsType: activityDetails?.type, isActiveActivityViewVisible });
-        if(isLoggedIn && !isDriverOnlineSim && !activityDetails && !isActiveActivityViewVisible) { // Condition 2
+        if(isLoggedIn && !isDriverOnlineSim && !activityDetails && !isActiveActivityViewVisible) { 
             console.log('[Driver Sim Effect] Condition 2 MET. Simulating driver going online.');
             setIsDriverOnlineSim(true);
             toast({ title: "You are Online (Driver Sim)", description: "Waiting for ride requests." });
@@ -208,7 +247,7 @@ export default function AppRoot() {
             console.log('[Driver Sim Effect] Starting requestTimeout (8s).');
             requestTimeout = setTimeout(() => {
               console.log('[Driver Sim Effect] requestTimeout FIRED. Checking conditions for request. State:', { isLoggedIn, isDriverOnlineSim, activityDetailsType: activityDetails?.type });
-              if (isDriverOnlineSim && (!activityDetails?.type || activityDetails?.type === 'driver_status') && isLoggedIn) { // Condition 3
+              if (isDriverOnlineSim && (!activityDetails?.type || activityDetails?.type === 'driver_status') && isLoggedIn) { 
                   console.log('[Driver Sim Effect] Condition 3 MET. Simulating driver receiving request.');
                   setActivityDetails({
                       type: 'request',
@@ -216,8 +255,8 @@ export default function AppRoot() {
                       pickup: '123 Frontend St',
                       dropoff: '456 Backend Ave',
                       fare: '₹180',
-                      vehicleType: 'Car (Mini)',
-                      distance: '5 km',
+                      vehicleType: 'Car (Mini)', 
+                      distance: '5 km',      
                   });
                   toast({ title: "New Ride Request! (Driver Sim)", description: "A user needs a ride." });
               } else {
@@ -258,10 +297,6 @@ export default function AppRoot() {
   const handleCloseActivityView = () => {
     setIsActiveActivityViewVisible(false);
     if (activityDetails?.type === 'request' || activityDetails?.type === 'driver_status') {
-      // Only nullify if it's a transient state like a request or just checking status.
-      // An active ride (rider or driver) should persist even if view is closed.
-      // The FAB click will bring it back.
-      // Rejection/Cancellation/Completion should explicitly set activityDetails to null.
       if (activityDetails?.status !== 'en_route' && activityDetails?.status !== 'arrived' && activityDetails?.status !== 'on_the_way') {
          setActivityDetails(null);
       }
@@ -332,7 +367,7 @@ export default function AppRoot() {
   const handleCancelRide = useCallback(() => {
       console.log("Ride cancelled (Simulated)");
       if (activityDetails?.type === 'ride' || activityDetails?.type === 'request') {
-        const currentRole = activityDetails.driverName ? 'rider' : (activityDetails.type === 'ride' ? 'driver' : 'driver'); // a bit complex, but tries to get role
+        const currentRole = activityDetails.driverName ? 'rider' : (activityDetails.type === 'ride' ? 'driver' : 'driver');
         toast({ title: "Ride Cancelled", description: `The ride has been cancelled. (${currentRole} perspective)` });
         setActivityDetails(prev => prev ? ({ ...prev, status: 'cancelled' }) : null);
         setTimeout(() => {
@@ -357,20 +392,24 @@ export default function AppRoot() {
 
   useEffect(() => {
     let autoAcceptTimer: NodeJS.Timeout;
-    if (isActiveActivityViewVisible && activityDetails?.type === 'request' && isLoggedIn) {
+    if (isActiveActivityViewVisible && activityDetails?.type === 'request' && isLoggedIn && (!activityDetails?.driverName)) { 
+      console.log("Setting up auto-accept timer for driver's request view.");
       autoAcceptTimer = setTimeout(() => {
-        if (activityDetails?.type === 'request' && isLoggedIn) {
-            console.log("Simulating driver auto-accept");
+        if (activityDetails?.type === 'request' && isLoggedIn && (!activityDetails?.driverName)) {
+            console.log("Simulating driver auto-accept due to timeout.");
             handleAcceptRequest();
         }
       }, 7000); 
-      return () => clearTimeout(autoAcceptTimer);
+      return () => {
+        console.log("Clearing auto-accept timer.");
+        clearTimeout(autoAcceptTimer);
+      }
     }
   }, [isActiveActivityViewVisible, activityDetails, isLoggedIn, handleAcceptRequest]);
 
 
   const renderScreenContent = () => {
-    if (!isClient) return null;
+    if (!isClient) return null; 
 
     if (!isLoggedIn) {
       if (activeTab === 'registration') {
@@ -380,13 +419,20 @@ export default function AppRoot() {
     }
 
     switch (activeTab) {
-      case 'home': return <HomeScreen />;
+      case 'home': return <HomeScreen 
+                            onSelectIndividualProfile={handleSelectIndividualProfile} 
+                            onSelectSkillsetProfile={handleSelectSkillsetProfile}
+                         />;
       case 'feeds': return <FeedsScreen />;
-      case 'menu': 
-        return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRideRequest} />;
+      case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen />;
-      case 'account': return <AccountScreen onLogout={handleLogout} />;
-      case 'skillsets': return <UserSkillsetsScreen />;
+      case 'account': return <AccountScreen onLogout={handleLogout} userData={userData} />;
+      case 'user-skillsets': return (
+                            <UserSkillsetsScreen 
+                                setActiveTab={handleTabSelection} 
+                                onManageSkillsetProfile={handleManageSkillsetProfile} 
+                            />
+                        );
       case 'vehicles': return <UserVehiclesScreen setActiveTab={handleTabSelection} />;
       case 'business-profiles': return (
         <UserBusinessProfilesScreen
@@ -397,7 +443,35 @@ export default function AppRoot() {
       case 'business-detail':
         const selectedProfile = businessProfiles.find(p => p.id === selectedBusinessProfileId);
         return <UserBusinessProfileDetailScreen profile={selectedProfile} onBack={handleBackFromBusinessDetail} />;
-      default: return <HomeScreen />;
+      
+      case 'individual-profile': 
+        if (selectedIndividualProfileId === "currentUser" && userData) {
+             return <IndividualProfileScreen currentUserData={userData} setActiveTab={handleTabSelection} />;
+        } else if (selectedIndividualProfileId) {
+             return <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={handleTabSelection} />;
+        }
+        return <p className="p-4 text-center text-muted-foreground">No individual profile selected or user data missing.</p>;
+
+
+      case 'skillset-profile':
+        if (selectedSkillsetProfileId) {
+          return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId} setActiveTab={handleTabSelection} />;
+        }
+        return <p className="p-4 text-center text-muted-foreground">No skillset profile selected.</p>; 
+
+      case 'manage-skillset-profile':
+        if (skillsetProfileToManageId) {
+          return (
+            <SkillsetProfileManagementScreen
+              skillsetProfileId={skillsetProfileToManageId}
+              setActiveTab={handleTabSelection}
+              onBack={handleBackFromManageSkillsetProfile}
+            />
+          );
+        }
+        return <p className="p-4 text-center text-muted-foreground">No skillset profile selected for management.</p>; 
+
+      default: return <HomeScreen onSelectIndividualProfile={handleSelectIndividualProfile} onSelectSkillsetProfile={handleSelectSkillsetProfile} />;
     }
   };
   

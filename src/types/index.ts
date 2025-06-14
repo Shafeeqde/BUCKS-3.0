@@ -9,12 +9,15 @@ export type TabName =
   | 'menu' // Corresponds to ServicesScreen
   | 'recommended'
   | 'account'
-  | 'skillsets'
+  // | 'skillsets' // Replaced by 'user-skillsets' for clarity
   | 'vehicles'
   | 'business-profiles'
   | 'business-detail'
-  | 'messages-notifications' // This is usually a modal/overlay
-  | 'individual-profile'; // Added for the new screen
+  | 'messages-notifications'
+  | 'individual-profile' // Public view of a general professional profile
+  | 'skillset-profile' // Public view of a specific skillset profile
+  | 'user-skillsets' // User's management screen for their skillset profiles
+  | 'manage-skillset-profile'; // Screen to edit/manage a specific skillset profile
 
 export interface Category {
   id: string;
@@ -78,7 +81,7 @@ export interface GeneralQueryOutput {
 export interface VehicleOption {
   id: string;
   name: string;
-  icon: string; // SVG string for SvgRenderer
+  icon: LucideIcon; // Changed to LucideIcon
   dataAiHint?: string;
   priceRange: string;
   estimatedETA: string;
@@ -93,15 +96,17 @@ export interface UserProfile {
   address?: string;
 }
 
-export interface UserSkill {
-  id: string;
-  name: string;
-  level?: string;
-  description: string;
-  media?: string;
-  mediaAiHint?: string;
-  isActive?: boolean;
-}
+// Represents a skill a user lists on their UserSkillsetsScreen (management view)
+// This is being replaced by SkillsetProfileSummary
+// export interface UserSkill {
+//   id: string;
+//   name: string;
+//   level?: string;
+//   description: string;
+//   media?: string;
+//   mediaAiHint?: string;
+//   isActive?: boolean;
+// }
 
 export interface UserVehicle {
   id: string;
@@ -187,35 +192,111 @@ export type ActivityDetails = {
     dropoff?: string;
     driverName?: string;
     riderName?: string;
-    vehicle?: string; // e.g., "Cool Car - XX00YZ0000"
+    vehicle?: string; 
     fare?: string;
-    distance?: string; // Added for request details (e.g. "5 km")
-    vehicleType?: string; // Added for request details (e.g. "Car (Mini)")
+    distance?: string; 
+    vehicleType?: string; 
 } | null;
 
-// Data structure for Individual Professional Profile Screen
+// Data structure for a user's GENERAL professional profile (if needed)
 export interface IndividualProfileData {
   id: string;
   name: string;
   avatarUrl?: string;
   avatarAiHint?: string;
+  professionalTitle?: string;
   bio?: string;
   contactInfo?: {
     phone?: string;
     email?: string;
     website?: string;
+    location?: string;
   };
-  skillsets: {
+  skillsets: { // This would be a list of skills on a general profile
     name: string;
     level: string;
     description?: string;
-    workExperience?: string;
-    portfolioUrls?: { url: string; title?: string; }[]; // Links to portfolio items for this skill
+    workExperience?: string; // General work experience related to this skill
+    portfolioUrls?: { url: string; title?: string; }[]; 
   }[];
   recommendationsCount: number;
   averageRating: number;
   totalReviews: number;
-  // In a real app, reviews would be an array of objects
-  // reviews: { reviewerName: string; rating: number; comment: string; date: string; }[];
-  // professionalFeed: any[]; // Placeholder for professional feed items
+  workExperienceEntries?: SkillsetSpecificWorkExperience[]; 
+  portfolioItems?: SkillsetSpecificPortfolioItem[]; 
+  professionalFeed?: SkillsetSpecificFeedItem[]; 
+  reviews?: SkillsetSpecificReview[];
+}
+
+// --- Types for Skillset-Specific Profiles ---
+
+export interface SkillsetSpecificWorkExperience {
+  id: string;
+  title: string;
+  company: string;
+  years: string; // e.g., "2018 - 2022"
+  description?: string;
+}
+
+export interface SkillsetSpecificPortfolioItem {
+  id: string;
+  title: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+  videoUrl?: string;
+  description?: string;
+  link?: string;
+}
+
+export interface SkillsetSpecificFeedItem {
+  id: string;
+  content: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+  timestamp: string;
+}
+
+export interface SkillsetSpecificReview {
+  id: string;
+  reviewerName: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
+// Data for the public-facing detailed view of a single Skillset Profile
+export interface SkillsetProfileData {
+  id: string; // Unique ID for this specific Skillset Profile
+  skillName: string;
+  skillLevel?: string;
+  skillDescription?: string;
+  userName: string; // The user who owns this skillset profile
+  userAvatarUrl?: string;
+  userAvatarAiHint?: string;
+  professionalTitle?: string; // User's overall professional title (can be overridden by skill-specific one)
+  skillSpecificBio?: string;
+  contactInfo?: {
+    phone?: string;
+    email?: string;
+    website?: string;
+    location?: string;
+  };
+  workExperienceEntries: SkillsetSpecificWorkExperience[];
+  portfolioItems: SkillsetSpecificPortfolioItem[];
+  professionalFeed?: SkillsetSpecificFeedItem[];
+  reviews: SkillsetSpecificReview[];
+  recommendationsCount: number; // Specific to this skillset
+  averageRating: number; // Specific to this skillset
+  totalReviews: number; // Specific to this skillset
+}
+
+// Summary of a Skillset Profile for listing in UserSkillsetsScreen (management view)
+export interface SkillsetProfileSummary {
+  id: string; 
+  skillName: string; 
+  skillLevel?: string; 
+  isActive: boolean; 
+  // Optional summary stats for display in list
+  portfolioItemCount?: number;
+  averageRating?: number; 
 }

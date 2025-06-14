@@ -1,93 +1,138 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { PlusCircle, Edit3, Trash2, XCircle, Rocket, Search } from 'lucide-react';
-import type { UserSkill } from '@/types';
+import { PlusCircle, Edit3, Rocket, Search, Loader2, Trash2 } from 'lucide-react';
+import type { TabName, SkillsetProfileSummary } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { cn } from '@/lib/utils'; // Added import
+import { cn } from '@/lib/utils';
 
-const initialSkills: UserSkill[] = [
-  { id: '1', name: 'React Development', level: 'Advanced', description: 'Building complex UIs and managing state with React.', media: 'https://placehold.co/100x100.png', mediaAiHint: 'react logo', isActive: true },
-  { id: '2', name: 'Tailwind CSS', level: 'Expert', description: 'Rapidly styling applications with utility-first CSS.', mediaAiHint: 'tailwind logo', isActive: true },
-  { id: '3', name: 'Node.js Backend', level: 'Intermediate', description: 'Developing REST APIs and server-side logic.', mediaAiHint: 'nodejs logo', isActive: false },
-];
+interface UserSkillsetsScreenProps {
+  setActiveTab: (tab: TabName) => void;
+  onManageSkillsetProfile: (skillsetProfileId: string) => void;
+  // userData: any; // TODO: For fetching profiles based on logged-in user
+}
 
-const UserSkillsetsScreen = () => {
-  const [skills, setSkills] = useState<UserSkill[]>(initialSkills);
-  const [showForm, setShowForm] = useState(false);
-  const [editingSkill, setEditingSkill] = useState<UserSkill | null>(null);
-  const [currentSkill, setCurrentSkill] = useState<Partial<UserSkill>>({});
-  const [searchTerm, setSearchTerm] = useState('');
+// --- Placeholder API Simulation Functions ---
+const simulateFetchSkillsetProfiles = async (): Promise<SkillsetProfileSummary[]> => {
+  console.log('Simulating fetching user skillset profiles...');
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const mockProfiles: SkillsetProfileSummary[] = [
+        { id: 'plumbing-profile-johndoe-123', skillName: 'Plumbing Services', skillLevel: 'Certified Professional', isActive: true, portfolioItemCount: 3, averageRating: 4.9 },
+        { id: 'graphic-design-profile-johndoe-456', skillName: 'Graphic Design', skillLevel: 'Advanced', isActive: true, portfolioItemCount: 10, averageRating: 4.7 },
+        { id: 'react-dev-profile-johndoe-789', skillName: 'React Development', skillLevel: 'Expert', isActive: false, portfolioItemCount: 5 },
+        { id: 'jenson-interior-stylist-123', skillName: 'Interior Home Styling by Jenson', skillLevel: 'Lead Stylist', isActive: true, portfolioItemCount: 8, averageRating: 4.8 },
+      ];
+      console.log('Simulated user skillset profiles fetched:', mockProfiles);
+      resolve(mockProfiles);
+    }, 1000);
+  });
+};
+
+const simulateCreateSkillsetProfile = async (skillName: string): Promise<SkillsetProfileSummary> => {
+  console.log('Simulating creating skillset profile for:', skillName);
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const newProfile: SkillsetProfileSummary = {
+        id: `skill-profile-${Date.now()}`,
+        skillName: skillName,
+        skillLevel: 'Beginner',
+        isActive: false,
+        portfolioItemCount: 0,
+      };
+      console.log('Simulated skillset profile created:', newProfile);
+      resolve(newProfile);
+    }, 1000);
+  });
+};
+
+const simulateToggleSkillsetProfileStatus = async (profileId: string, newStatus: boolean): Promise<boolean> => {
+  console.log(`Simulating toggling status for ${profileId} to ${newStatus}`);
+  return new Promise(resolve => setTimeout(() => resolve(true), 500)); // Simulate success
+};
+
+const simulateDeleteSkillsetProfile = async (profileId: string): Promise<boolean> => {
+  console.log(`Simulating deleting profile ${profileId}`);
+  return new Promise(resolve => setTimeout(() => resolve(true), 500)); // Simulate success
+};
+
+
+const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab, onManageSkillsetProfile }) => {
   const { toast } = useToast();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setCurrentSkill(prev => ({ ...prev, [name]: value }));
+  const [newSkillsetName, setNewSkillsetName] = useState('');
+  const [skillsetProfiles, setSkillsetProfiles] = useState<SkillsetProfileSummary[]>([]);
+  const [loadingProfiles, setLoadingProfiles] = useState(true);
+  const [creatingProfile, setCreatingProfile] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetchUserSkillsetProfiles();
+  }, []);
+
+  const fetchUserSkillsetProfiles = async () => {
+    setLoadingProfiles(true);
+    try {
+      const data = await simulateFetchSkillsetProfiles();
+      setSkillsetProfiles(data);
+    } catch (error) {
+      console.error('Error fetching skillset profiles:', error);
+      toast({ title: 'Error Fetching Profiles', description: 'Could not load skillset profiles.', variant: 'destructive' });
+    } finally {
+      setLoadingProfiles(false);
+    }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // For demo, we'll just store the placeholder URL or filename.
-    // In a real app, this would involve file upload logic.
-    setCurrentSkill(prev => ({ ...prev, media: e.target.files?.[0] ? `https://placehold.co/100x100.png?text=${e.target.files[0].name.substring(0,3)}` : undefined }));
-  };
-  
-  const resetForm = () => {
-    setCurrentSkill({});
-    setEditingSkill(null);
-    setShowForm(false);
-  };
-
-  const handleSubmit = () => {
-    if (!currentSkill.name || !currentSkill.description) {
-      toast({ title: "Missing Fields", description: "Skill name and description are required.", variant: "destructive" });
+  const handleCreateNewProfile = async () => {
+    if (!newSkillsetName.trim()) {
+      toast({ title: "Missing Name", description: "Please enter a name for the new skillset profile.", variant: "destructive" });
       return;
     }
-
-    if (editingSkill) {
-      setSkills(skills.map(s => s.id === editingSkill.id ? { ...s, ...currentSkill } as UserSkill : s));
-      toast({ title: "Skill Updated", description: `${currentSkill.name} has been updated.` });
-    } else {
-      const newSkillToAdd: UserSkill = {
-        id: Date.now().toString(),
-        name: currentSkill.name,
-        description: currentSkill.description,
-        level: currentSkill.level,
-        media: currentSkill.media,
-        mediaAiHint: currentSkill.mediaAiHint || 'skill related',
-        isActive: currentSkill.isActive === undefined ? true : currentSkill.isActive,
-      };
-      setSkills([...skills, newSkillToAdd]);
-      toast({ title: "Skill Added", description: `${newSkillToAdd.name} has been added.` });
+    setCreatingProfile(true);
+    try {
+      const newProfile = await simulateCreateSkillsetProfile(newSkillsetName);
+      setSkillsetProfiles(prev => [...prev, newProfile]);
+      toast({ title: "Profile Created", description: `Skillset profile "${newProfile.skillName}" created.` });
+      setNewSkillsetName('');
+      onManageSkillsetProfile(newProfile.id); // Navigate to manage the new profile
+    } catch (error) {
+      console.error('Error creating skillset profile:', error);
+      toast({ title: 'Creation Failed', description: 'Could not create skillset profile.', variant: 'destructive' });
+    } finally {
+      setCreatingProfile(false);
     }
-    resetForm();
   };
 
-  const handleEdit = (skill: UserSkill) => {
-    setEditingSkill(skill);
-    setCurrentSkill(skill);
-    setShowForm(true);
+  const handleToggleActive = async (profileId: string, currentStatus: boolean) => {
+    const success = await simulateToggleSkillsetProfileStatus(profileId, !currentStatus);
+    if (success) {
+      setSkillsetProfiles(prev => prev.map(p => p.id === profileId ? { ...p, isActive: !currentStatus } : p));
+      toast({ title: "Status Updated", description: `Profile status changed to ${!currentStatus ? 'Active' : 'Inactive'}.` });
+    } else {
+      toast({ title: 'Update Failed', description: 'Could not update profile status.', variant: 'destructive' });
+    }
   };
 
-  const handleDelete = (skillId: string) => {
-    setSkills(skills.filter(s => s.id !== skillId));
-    toast({ title: "Skill Deleted", variant: "destructive" });
+  const handleDeleteProfile = async (profileId: string, profileName: string) => {
+    // TODO: Add a confirmation dialog before deleting
+    const success = await simulateDeleteSkillsetProfile(profileId);
+    if (success) {
+      setSkillsetProfiles(prev => prev.filter(p => p.id !== profileId));
+      toast({ title: "Profile Deleted", description: `Skillset profile "${profileName}" has been deleted.`, variant: "destructive" });
+    } else {
+      toast({ title: 'Deletion Failed', description: 'Could not delete profile.', variant: 'destructive' });
+    }
   };
-
-  const toggleActive = (skillId: string) => {
-    setSkills(skills.map(s => s.id === skillId ? { ...s, isActive: !s.isActive } : s));
-  };
-
-  const filteredSkills = skills.filter(skill => 
-    skill.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    skill.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (skill.level && skill.level.toLowerCase().includes(searchTerm.toLowerCase()))
+  
+  const filteredProfiles = skillsetProfiles.filter(profile => 
+    profile.skillName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (profile.skillLevel && profile.skillLevel.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -97,114 +142,103 @@ const UserSkillsetsScreen = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <CardTitle className="text-2xl font-headline flex items-center">
-                <Rocket className="mr-2 h-6 w-6 text-primary" /> My Skillsets
+                <Rocket className="mr-2 h-6 w-6 text-primary" /> My Skillset Profiles
               </CardTitle>
-              <CardDescription>Manage your professional skills and expertise.</CardDescription>
+              <CardDescription>Manage your professional service profiles.</CardDescription>
             </div>
-            <Button onClick={() => { resetForm(); setShowForm(true); }} className="w-full sm:w-auto">
-              <PlusCircle className="mr-2 h-5 w-5" /> Add New Skill
-            </Button>
-          </div>
-           <div className="mt-4 relative">
-            <Input 
-              placeholder="Search skills..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           </div>
         </CardHeader>
 
-        {showForm && (
-          <CardContent className="border-t pt-6">
-            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
-              <h3 className="text-lg font-semibold text-foreground">{editingSkill ? 'Edit Skill' : 'Add New Skill'}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="skillName">Skill Name <span className="text-destructive">*</span></Label>
-                  <Input id="skillName" name="name" value={currentSkill.name || ''} onChange={handleInputChange} placeholder="e.g., JavaScript, Project Management" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="skillLevel">Proficiency Level</Label>
-                  <Input id="skillLevel" name="level" value={currentSkill.level || ''} onChange={handleInputChange} placeholder="e.g., Advanced, Intermediate" />
-                </div>
+        <CardContent className="border-t pt-6">
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="text-lg">Create New Skillset Profile</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="newSkillsetName">Skill/Service Name</Label>
+                <Input 
+                  id="newSkillsetName" 
+                  value={newSkillsetName} 
+                  onChange={(e) => setNewSkillsetName(e.target.value)} 
+                  placeholder="e.g., Plumbing Services, Graphic Design" 
+                />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="skillDescription">Description <span className="text-destructive">*</span></Label>
-                <Textarea id="skillDescription" name="description" value={currentSkill.description || ''} onChange={handleInputChange} placeholder="Describe your experience with this skill..." required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="skillMedia">Media URL / Placeholder</Label>
-                <Input id="skillMedia" name="media" value={currentSkill.media || ''} onChange={handleInputChange} placeholder="e.g., link to portfolio, certificate, or image URL" />
-              </div>
-               <div className="space-y-2">
-                <Label htmlFor="skillMediaAiHint">Media AI Hint (for placeholders)</Label>
-                <Input id="skillMediaAiHint" name="mediaAiHint" value={currentSkill.mediaAiHint || ''} onChange={handleInputChange} placeholder="e.g., programming logo, certificate design" />
-              </div>
-              <div className="flex items-center space-x-2 pt-2">
-                <Switch id="skillIsActive" name="isActive" checked={currentSkill.isActive === undefined ? true : currentSkill.isActive} onCheckedChange={(checked) => setCurrentSkill(prev => ({...prev, isActive: checked}))} />
-                <Label htmlFor="skillIsActive">Skill is Active</Label>
-              </div>
-              <CardFooter className="p-0 pt-6 flex justify-end space-x-3">
-                <Button variant="outline" type="button" onClick={resetForm}>
-                  <XCircle className="mr-2 h-4 w-4" /> Cancel
-                </Button>
-                <Button type="submit">
-                  <PlusCircle className="mr-2 h-4 w-4" /> {editingSkill ? 'Save Changes' : 'Add Skill'}
-                </Button>
-              </CardFooter>
-            </form>
-          </CardContent>
-        )}
+            </CardContent>
+            <CardFooter>
+              <Button onClick={handleCreateNewProfile} disabled={creatingProfile || !newSkillsetName.trim()} className="w-full sm:w-auto">
+                {creatingProfile ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+                {creatingProfile ? 'Creating...' : 'Create & Manage Profile'}
+              </Button>
+            </CardFooter>
+          </Card>
 
-        {!showForm && (
-          <CardContent className={filteredSkills.length > 0 ? "pt-6" : "pt-0"}>
-            {filteredSkills.length === 0 && !searchTerm && (
-              <p className="text-center text-muted-foreground py-6">No skills added yet. Click "Add New Skill" to get started.</p>
-            )}
-            {filteredSkills.length === 0 && searchTerm && (
-              <p className="text-center text-muted-foreground py-6">No skills found matching your search.</p>
-            )}
-            <div className="space-y-4">
-              {filteredSkills.map(skill => (
-                <Card key={skill.id} className={cn("transition-all hover:shadow-md", !skill.isActive && "bg-muted/50 opacity-70")}>
-                  <CardHeader className="flex flex-row justify-between items-start pb-3">
-                    <div>
-                      <CardTitle className="text-lg">{skill.name}</CardTitle>
-                      {skill.level && <CardDescription>{skill.level}</CardDescription>}
-                    </div>
-                    <div className="flex items-center space-x-2">
-                       <Switch checked={skill.isActive} onCheckedChange={() => toggleActive(skill.id)} aria-label={skill.isActive ? "Deactivate skill" : "Activate skill"} />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pb-4">
-                    <p className="text-sm text-muted-foreground mb-3">{skill.description}</p>
-                    {skill.media && (
-                      <div className="mt-2">
-                        {skill.media.startsWith('http') ? (
-                          skill.media.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-                            <img src={skill.media} alt="Skill media" className="w-24 h-24 object-cover rounded border" data-ai-hint={skill.mediaAiHint || "skill demonstration"} />
-                          ) : (
-                            <a href={skill.media} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">View Media/Certificate</a>
-                          )
-                        ) : <p className="text-xs text-muted-foreground">Media: {skill.media}</p>}
-                      </div>
-                    )}
-                  </CardContent>
-                  <CardFooter className="flex justify-end space-x-2 pt-3 border-t">
-                    <Button variant="ghost" size="sm" onClick={() => handleEdit(skill)}>
-                      <Edit3 className="mr-1 h-4 w-4" /> Edit
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(skill.id)}>
-                      <Trash2 className="mr-1 h-4 w-4" /> Delete
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
+          <div className="mt-8">
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-foreground">Your Existing Profiles</h3>
+                <div className="relative w-full sm:w-64">
+                    <Input 
+                    placeholder="Search profiles..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                    />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                </div>
             </div>
-          </CardContent>
-        )}
+
+            {loadingProfiles ? (
+              <div className="flex justify-center items-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="ml-2 text-muted-foreground">Loading profiles...</p>
+              </div>
+            ) : filteredProfiles.length === 0 ? (
+              <p className="text-center text-muted-foreground py-6">
+                {searchTerm ? 'No profiles found matching your search.' : 'No skillset profiles created yet. Create one above.'}
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {filteredProfiles.map(profile => (
+                  <Card key={profile.id} className={cn("transition-all hover:shadow-md", !profile.isActive && "bg-muted/50 opacity-80")}>
+                    <CardHeader className="pb-3">
+                      <div className="flex flex-col sm:flex-row justify-between items-start gap-2">
+                        <div>
+                          <CardTitle className="text-lg hover:text-primary cursor-pointer" onClick={() => onManageSkillsetProfile(profile.id)}>
+                            {profile.skillName}
+                          </CardTitle>
+                          {profile.skillLevel && <CardDescription>{profile.skillLevel}</CardDescription>}
+                        </div>
+                        <div className="flex items-center space-x-3 mt-2 sm:mt-0">
+                            <Label htmlFor={`status-${profile.id}`} className="text-xs text-muted-foreground whitespace-nowrap">
+                                {profile.isActive ? 'Active' : 'Inactive'}
+                            </Label>
+                            <Switch
+                                id={`status-${profile.id}`}
+                                checked={profile.isActive}
+                                onCheckedChange={() => handleToggleActive(profile.id, profile.isActive)}
+                                aria-label={profile.isActive ? "Deactivate profile" : "Activate profile"}
+                            />
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pb-4 text-sm text-muted-foreground">
+                        {profile.portfolioItemCount !== undefined && <p>Portfolio Items: {profile.portfolioItemCount}</p>}
+                        {profile.averageRating !== undefined && <p>Avg. Rating: {profile.averageRating.toFixed(1)} ★</p>}
+                    </CardContent>
+                    <CardFooter className="flex justify-end space-x-2 pt-3 border-t">
+                      <Button variant="outline" size="sm" onClick={() => onManageSkillsetProfile(profile.id)}>
+                        <Edit3 className="mr-1 h-4 w-4" /> Manage Details
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDeleteProfile(profile.id, profile.skillName)}>
+                        <Trash2 className="mr-1 h-4 w-4" /> Delete
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </CardContent>
       </Card>
     </div>
   );
