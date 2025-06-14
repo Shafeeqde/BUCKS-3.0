@@ -20,7 +20,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
+  // AlertDialogTrigger, // Removed - not needed for manually controlled dialog
 } from "@/components/ui/alert-dialog";
 
 interface UserSkillsetsScreenProps {
@@ -130,6 +130,11 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
     } else {
       toast({ title: 'Update Failed', description: 'Could not update profile status.', variant: 'destructive' });
     }
+  };
+
+  const openDeleteConfirmation = (profileId: string, profileName: string) => {
+    setSkillsetToDeleteId(profileId);
+    setSkillsetToDeleteName(profileName);
   };
 
   const executeDeleteProfile = async () => {
@@ -253,14 +258,9 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
                         <Button variant="outline" size="sm" onClick={() => onManageSkillsetProfile(profile.id)}>
                           <Edit3 className="mr-1 h-4 w-4" /> Manage Details
                         </Button>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm" onClick={() => {
-                            setSkillsetToDeleteId(profile.id);
-                            setSkillsetToDeleteName(profile.skillName);
-                          }}>
-                            <Trash2 className="mr-1 h-4 w-4" /> Delete
-                          </Button>
-                        </AlertDialogTrigger>
+                        <Button variant="destructive" size="sm" onClick={() => openDeleteConfirmation(profile.id, profile.skillName)}>
+                          <Trash2 className="mr-1 h-4 w-4" /> Delete
+                        </Button>
                       </CardFooter>
                     </Card>
                   ))}
@@ -293,3 +293,5 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
 };
 
 export default UserSkillsetsScreen;
+
+    
