@@ -2,17 +2,20 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, MapPin, X, User, Briefcase } from 'lucide-react'; // Added User and Briefcase
+import { Search, MapPin, X, User, Briefcase, Filter, ArrowDownUp, PocketKnife, ShoppingCart } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import SearchSuggestions from '@/components/home/SearchSuggestions';
 import { suggestSearchTerms, type SuggestSearchTermsInput } from '@/ai/flows/suggest-search-terms';
 import { answerGeneralQuery, type GeneralQueryInput, type GeneralQueryOutput, type LocationResult } from '@/ai/flows/answer-general-query-flow';
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
-import IndividualProfessionalCard from '@/components/search/IndividualProfessionalCard'; // Import the new card
-import { dummyProfessionalProfiles } from '@/lib/dummy-data/professionals'; // Import dummy data
+
+import IndividualProfessionalCard, { type IndividualProfessionalCardData } from '@/components/search/IndividualProfessionalCard';
+import BusinessProfileCard, { type BusinessProfileCardData as BusinessCardDataType } from '@/components/search/BusinessProfileCard'; // Renamed to avoid conflict
+import type { TabName } from '@/types';
 
 const initialPlaceholders = [
   "What are you looking for?",
@@ -22,7 +25,109 @@ const initialPlaceholders = [
   "Ask Locality Hub AI...",
 ];
 
-const HomeScreen = () => {
+type SearchResultItem =
+  | { type: 'individual'; data: IndividualProfessionalCardData }
+  | { type: 'business'; data: BusinessCardDataType };
+
+// Extended dummy data
+const simulatedSearchResults: SearchResultItem[] = [
+  {
+    type: 'individual',
+    data: {
+      id: 'individual-jenson-1',
+      name: 'Jenson Harris',
+      avatarUrl: 'https://placehold.co/80x80.png',
+      avatarAiHint: 'man smiling professional',
+      professionalTitle: 'Interior Home Stylist',
+      previewImages: [
+        { url: 'https://placehold.co/200x150.png', aiHint: 'modern living room' },
+        { url: 'https://placehold.co/200x150.png', aiHint: 'stylish kitchen' },
+        { url: 'https://placehold.co/200x150.png', aiHint: 'cozy bedroom' },
+        { url: 'https://placehold.co/200x150.png', aiHint: 'elegant dining area' },
+      ],
+      shortBio: "I'm a qualified interior designer and stylist with a keen eye for furniture, objects and art curation.",
+      averageRating: 4.8,
+      totalReviews: 125,
+      recommendationsCount: 98,
+      phone: '+1 987 654 3210',
+      email: 'jenson.h@example.com',
+    },
+  },
+  {
+    type: 'business',
+    data: {
+      id: 'business-hotgriddle-1',
+      name: 'Hot Griddle Restaurant',
+      logoUrl: 'https://placehold.co/80x80.png',
+      logoAiHint: 'restaurant logo',
+      briefInfo: '10-15 mins • 3km away • BTM layout',
+      tagline: "International, locally sourced specialties",
+      averageRating: 4.5,
+      totalReviews: 232,
+      products: [
+        { id: 'p-biryani-1', name: 'Mutton Biryani (Serves 2)', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'mutton biryani', price: '299', discountPrice: '229', discountPercentage: '22%' },
+        { id: 'p-biryani-2', name: 'Hyderabad Special Biryani', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'hyderabad biryani', price: '300', discountPrice: '249', discountPercentage: '17%' },
+        { id: 'p-chicken-1', name: 'Chicken Boneless Biryani (Serves 2)', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'chicken biryani', price: '250', discountPrice: '199', discountPercentage: '20%' },
+        { id: 'p-biryani-3', name: 'Veg Biryani', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'veg biryani', price: '180' },
+      ],
+      phone: '+91 9876543210',
+    },
+  },
+    {
+    type: 'individual',
+    data: {
+      id: 'prof2',
+      name: 'Alicia Keyson',
+      avatarUrl: 'https://placehold.co/80x80.png',
+      avatarAiHint: 'woman architect',
+      professionalTitle: 'Lead UX Designer',
+      previewImages: [
+        { url: 'https://placehold.co/200x150.png', aiHint: 'app interface' },
+        { url: 'https://placehold.co/200x150.png', aiHint: 'website mockup' },
+      ],
+      shortBio: 'Crafting intuitive and engaging digital experiences. Expert in user research, prototyping, and usability testing.',
+      averageRating: 4.9,
+      totalReviews: 210,
+      recommendationsCount: 180,
+      phone: '555-0102',
+      email: 'alicia.k@example.com',
+    },
+  },
+  {
+    type: 'business',
+    data: {
+      id: 'business-aromas-2',
+      name: 'Aromas of Biryani',
+      logoUrl: 'https://placehold.co/80x80.png',
+      logoAiHint: 'biryani shop',
+      briefInfo: '10-15 mins • 3km away • BTM layout',
+      tagline: 'Authentic Biryani Experience',
+      averageRating: 4.2,
+      totalReviews: 150,
+       products: [
+        { id: 'aroma-p1', name: 'Chicken Dum Biryani', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'dum biryani', price: '280' },
+        { id: 'aroma-p2', name: 'Paneer Biryani', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'paneer biryani', price: '250', discountPrice: '220', discountPercentage: '10%' },
+      ],
+      phone: '+91 9123456789',
+    },
+  },
+];
+
+interface HomeScreenProps {
+  setActiveTab: (tab: TabName) => void;
+  onSelectIndividualProfile: (profileId: string) => void;
+  onSelectBusinessProfile: (profileId: string | number) => void;
+  onSelectSkillsetProfile: (skillsetProfileId: string) => void; // Added for skillset profile navigation
+  onAddToCart: (businessId: string | number, productId: string) => void;
+}
+
+const HomeScreen: React.FC<HomeScreenProps> = ({
+  setActiveTab,
+  onSelectIndividualProfile,
+  onSelectBusinessProfile,
+  onSelectSkillsetProfile,
+  onAddToCart
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -42,13 +147,8 @@ const HomeScreen = () => {
   const [isLoadingAiSuggestions, setIsLoadingAiSuggestions] = useState(false);
   const { toast } = useToast();
 
-  // For IndividualProfessionalCard actions (placeholders)
-  const handleProfileCardPress = (id: string) => toast({ title: `Card Pressed: ${id}`});
-  const handleEnquiryClick = (id: string) => toast({ title: `Enquiry for: ${id}` });
-  const handleCallClick = (id: string, phone?: string) => toast({ title: `Call ${id}`, description: phone ? `Dialing ${phone}` : "No phone number." });
-  const handleRecommendClick = (id: string) => toast({ title: `Recommend: ${id}` });
-  const handleShareClick = (id: string) => toast({ title: `Share: ${id}` });
-  const handleFollowClick = (id: string) => toast({ title: `Follow: ${id}` });
+  const [displayedSearchResults, setDisplayedSearchResults] = useState<SearchResultItem[]>([]);
+  const [isLoadingSimulatedResults, setIsLoadingSimulatedResults] = useState(false);
 
 
   useEffect(() => {
@@ -72,6 +172,9 @@ const HomeScreen = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
+    if (e.target.value.trim() === '' && isSearchMode) { // If search cleared in search mode, reset
+        setDisplayedSearchResults([]);
+    }
   };
 
   const handleFocus = () => {
@@ -107,16 +210,11 @@ const HomeScreen = () => {
       setAiSuggestions(filteredSuggestions.slice(0, 5));
     } catch (error) {
       console.error("Error fetching AI suggestions:", error);
-      toast({
-        title: "Suggestion Error",
-        description: "Could not fetch AI suggestions. API rate limits might be exceeded.",
-        variant: "destructive",
-      });
       setAiSuggestions([]);
     } finally {
       setIsLoadingAiSuggestions(false);
     }
-  }, [recentSearches, toast]);
+  }, [recentSearches]);
 
   useEffect(() => {
     if (showSuggestions && searchTerm.trim() !== '' && !isAnsweringQuery && currentQueryType === null) {
@@ -129,6 +227,30 @@ const HomeScreen = () => {
     }
   }, [searchTerm, showSuggestions, fetchAiSuggestions, isAnsweringQuery, currentQueryType, isLoadingAiSuggestions]);
 
+  const performSimulatedSearch = (query: string) => {
+    setIsLoadingSimulatedResults(true);
+    setTimeout(() => { // Simulate API delay
+      if (query.trim() === '') {
+        setDisplayedSearchResults(simulatedSearchResults.slice(0,4)); // Show a few by default if search is cleared
+      } else {
+        const lowerQuery = query.toLowerCase();
+        const filtered = simulatedSearchResults.filter(item => {
+          if (item.type === 'individual') {
+            return item.data.name.toLowerCase().includes(lowerQuery) ||
+                   item.data.professionalTitle?.toLowerCase().includes(lowerQuery) ||
+                   item.data.shortBio?.toLowerCase().includes(lowerQuery);
+          } else { // business
+            return item.data.name.toLowerCase().includes(lowerQuery) ||
+                   item.data.tagline?.toLowerCase().includes(lowerQuery) ||
+                   item.data.products?.some(p => p.name.toLowerCase().includes(lowerQuery));
+          }
+        });
+        setDisplayedSearchResults(filtered);
+      }
+      setIsLoadingSimulatedResults(false);
+    }, 500);
+  };
+
   const handleQuerySubmit = async (event?: React.FormEvent<HTMLFormElement>, queryOverride?: string) => {
     if (event) event.preventDefault();
     const queryToSubmit = queryOverride || searchTerm.trim();
@@ -139,6 +261,8 @@ const HomeScreen = () => {
         description: "Please enter a query to search.",
         variant: "destructive",
       });
+      setIsSearchMode(true); // Still enter search mode to show default simulated results
+      performSimulatedSearch('');
       return;
     }
 
@@ -147,12 +271,15 @@ const HomeScreen = () => {
     setAiTextAnswer(null);
     setFoundLocations([]);
     setCurrentQueryType(null);
-    setIsAnsweringQuery(true);
     setAiSuggestions([]);
 
     if (!queryOverride) {
         setRecentSearches(prev => [queryToSubmit, ...prev.filter(s => s !== queryToSubmit)].slice(0, 10));
     }
+
+    // Perform both AI query and simulated card search
+    setIsAnsweringQuery(true);
+    performSimulatedSearch(queryToSubmit); // Start simulated search
 
     try {
       const input: GeneralQueryInput = { query: queryToSubmit };
@@ -165,17 +292,11 @@ const HomeScreen = () => {
       } else {
         setFoundLocations([]);
       }
-
     } catch (error) {
       console.error("Error answering query:", error);
-      setAiTextAnswer("Sorry, I couldn't get an answer for that. Please try again.");
+      setAiTextAnswer("Sorry, I couldn't get an AI answer for that. Please try again.");
       setCurrentQueryType('general');
       setFoundLocations([]);
-      toast({
-        title: "AI Query Error",
-        description: "There was an issue getting a response from the AI. API rate limits might be exceeded or there was a network problem.",
-        variant: "destructive",
-      });
     } finally {
       setIsAnsweringQuery(false);
     }
@@ -189,7 +310,7 @@ const HomeScreen = () => {
   const handleLocationItemClick = (location: LocationResult) => {
     toast({
         title: `Details for ${location.name}`,
-        description: "Map navigation and more details would be shown here in a full implementation.",
+        description: "Map navigation and more details would be shown here.",
     });
   };
 
@@ -201,6 +322,7 @@ const HomeScreen = () => {
     setCurrentQueryType(null);
     setShowSuggestions(false);
     setAiSuggestions([]);
+    setDisplayedSearchResults([]);
     setCurrentPlaceholderIndex(0);
   };
 
@@ -217,17 +339,36 @@ const HomeScreen = () => {
     } else {
       currentSuggestions = aiSuggestions;
       if (isLoadingAiSuggestions) {
-          currentSuggestionTitle = 'Loading suggestions...';
+          currentSuggestionTitle = 'Loading AI suggestions...';
       } else if (aiSuggestions.length > 0) {
           currentSuggestionTitle = 'AI Suggestions';
       }
     }
   }
-  const renderSuggestions = currentSuggestions.length > 0 && currentSuggestionTitle;
+  const renderAISuggestions = currentSuggestions.length > 0 && currentSuggestionTitle;
 
   const showMap = !isSearchMode;
-  // Modified to show professional profiles in search mode
-  const showResultsArea = isSearchMode && (isAnsweringQuery || aiTextAnswer || foundLocations.length > 0 || dummyProfessionalProfiles.length > 0);
+  const showResultsArea = isSearchMode; // Always show results area in search mode
+
+  // Card Click Handlers
+  const handleIndividualCardPress = (id: string) => onSelectSkillsetProfile(id); // Assuming individual cards link to skillset profiles now
+  const handleBusinessCardPress = (id: string | number) => onSelectBusinessProfile(id);
+  
+  const handleCardEnquiryClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Enquiry for ${type}: ${id}` });
+  const handleCardCallClick = (id: string | number, phone: string | undefined, type: 'individual' | 'business') => toast({ title: `Call ${type}: ${id}`, description: phone ? `Dialing ${phone}` : "No phone." });
+  const handleCardRecommendClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Recommend ${type}: ${id}` });
+  const handleCardShareClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Share ${type}: ${id}` });
+  const handleCardFollowClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Follow ${type}: ${id}` });
+  const handleCardProductClick = (businessId: string | number, productId: string) => toast({ title: `Product ${productId} from Business ${businessId} clicked.` });
+
+
+  useEffect(() => {
+    // Load initial set of diverse results if not in search mode and no results displayed
+    if (!isSearchMode && displayedSearchResults.length === 0) {
+        performSimulatedSearch(''); // Will load initial mixed results
+    }
+  }, [isSearchMode]);
+
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -239,7 +380,7 @@ const HomeScreen = () => {
             : "absolute bottom-0 left-0 right-0 px-4 pt-2 pb-0"
         )}
       >
-        {!isSearchMode && renderSuggestions && (
+        {!isSearchMode && renderAISuggestions && (
           <div className="pb-2">
             <SearchSuggestions
               suggestions={currentSuggestions}
@@ -283,7 +424,7 @@ const HomeScreen = () => {
               variant="ghost"
               size="icon"
               className="p-1 rounded-full text-muted-foreground hover:text-primary disabled:opacity-50"
-              disabled={(isAnsweringQuery && isSearchMode) || !searchTerm.trim()}
+              disabled={(isAnsweringQuery && isSearchMode) && !searchTerm.trim()}
               aria-label="Submit search query"
             >
               <Search className="w-5 h-5" />
@@ -291,7 +432,7 @@ const HomeScreen = () => {
           </form>
         </div>
 
-        {isSearchMode && renderSuggestions && (
+        {isSearchMode && renderAISuggestions && (
           <div className="px-4 pb-2 bg-card sm:bg-transparent">
              <SearchSuggestions
               suggestions={currentSuggestions}
@@ -300,11 +441,23 @@ const HomeScreen = () => {
             />
           </div>
         )}
+        
+        {isSearchMode && (
+          <div className="px-4 pt-2 pb-3 border-b bg-card sm:bg-transparent">
+            <div className="flex items-center space-x-2 overflow-x-auto custom-scrollbar pb-1">
+                <Button variant="outline" size="sm" className="rounded-full shrink-0"><Filter className="mr-1.5 h-3.5 w-3.5"/>Filters</Button>
+                <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary">Available Now</Button>
+                <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary">Most Recommend</Button>
+                <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary">Ratings</Button>
+                <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary"><ArrowDownUp className="mr-1.5 h-3.5 w-3.5"/>Sort</Button>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className={cn(
-          "flex-grow overflow-y-auto custom-scrollbar",
-           showResultsArea ? "p-4" : "relative"
+      <ScrollArea className={cn(
+          "flex-grow",
+           showResultsArea ? "pt-4 px-2 sm:px-4" : "relative" // Add padding when results area is shown
       )}>
         {showMap && (
           <iframe
@@ -321,7 +474,7 @@ const HomeScreen = () => {
         {showResultsArea && (
           <div className="space-y-6">
             {isAnsweringQuery && (
-               <div className="flex flex-col justify-center items-center h-full text-center">
+               <div className="flex flex-col justify-center items-center h-40 text-center">
                   <svg className="animate-spin h-8 w-8 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -333,8 +486,9 @@ const HomeScreen = () => {
             {!isAnsweringQuery && aiTextAnswer && (
               <Card className="shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-xl font-headline">
-                    {currentQueryType === 'location_search' ? "AI Summary:" : "Here is what Locality Hub AI found:"}
+                  <CardTitle className="text-xl font-headline flex items-center">
+                    <PocketKnife className="mr-2 h-5 w-5 text-primary"/>
+                    {currentQueryType === 'location_search' ? "AI Summary:" : "Locality Hub AI says:"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -345,7 +499,9 @@ const HomeScreen = () => {
 
             {!isAnsweringQuery && currentQueryType === 'location_search' && foundLocations.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-foreground font-headline mb-3">Places Found:</h3>
+                <h3 className="text-lg font-semibold text-foreground font-headline mb-3 flex items-center">
+                    <MapPin className="mr-2 h-5 w-5 text-primary"/> Places Found:
+                </h3>
                 <div className="space-y-3">
                   {foundLocations.map((location, index) => (
                     <Card
@@ -369,41 +525,71 @@ const HomeScreen = () => {
                 </div>
               </div>
             )}
-
-            {/* Display Individual Professional Cards */}
-            {!isAnsweringQuery && isSearchMode && dummyProfessionalProfiles.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold text-foreground font-headline mb-3 flex items-center">
-                  <User className="mr-2 h-5 w-5" /> Professionals Found:
-                </h3>
-                <div className="space-y-4">
-                  {dummyProfessionalProfiles.map((profile) => (
-                    <IndividualProfessionalCard
-                      key={profile.id}
-                      profile={profile}
-                      onPress={() => handleProfileCardPress(profile.id)}
-                      onEnquiryClick={() => handleEnquiryClick(profile.id)}
-                      onCallClick={() => handleCallClick(profile.id, profile.phone)}
-                      onRecommendClick={() => handleRecommendClick(profile.id)}
-                      onShareClick={() => handleShareClick(profile.id)}
-                      onFollowClick={() => handleFollowClick(profile.id)}
-                    />
-                  ))}
+            
+            {/* Display Simulated Search Results Cards */}
+            {isLoadingSimulatedResults && (
+                <div className="flex flex-col justify-center items-center h-40 text-center">
+                    <svg className="animate-spin h-8 w-8 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p className="text-muted-foreground">Loading results...</p>
                 </div>
+            )}
+
+            {!isLoadingSimulatedResults && displayedSearchResults.length > 0 && (
+              <div className="space-y-6">
+                {displayedSearchResults.map((item) => {
+                  if (item.type === 'individual') {
+                    return (
+                      <IndividualProfessionalCard
+                        key={item.data.id}
+                        profile={item.data}
+                        onPress={() => handleIndividualCardPress(item.data.id)}
+                        onEnquiryClick={() => handleCardEnquiryClick(item.data.id, 'individual')}
+                        onCallClick={() => handleCardCallClick(item.data.id, item.data.phone, 'individual')}
+                        onRecommendClick={() => handleCardRecommendClick(item.data.id, 'individual')}
+                        onShareClick={() => handleCardShareClick(item.data.id, 'individual')}
+                        onFollowClick={() => handleCardFollowClick(item.data.id, 'individual')}
+                      />
+                    );
+                  } else if (item.type === 'business') {
+                    return (
+                      <BusinessProfileCard
+                        key={item.data.id}
+                        business={item.data}
+                        onPress={() => handleBusinessCardPress(item.data.id)}
+                        onProductClick={(productId) => handleCardProductClick(item.data.id, productId)}
+                        onAddToCartClick={(productId) => onAddToCart(item.data.id, productId)}
+                        onEnquiryClick={() => handleCardEnquiryClick(item.data.id, 'business')}
+                        onCallClick={() => handleCardCallClick(item.data.id, item.data.phone, 'business')}
+                        onRecommendClick={() => handleCardRecommendClick(item.data.id, 'business')}
+                        onShareClick={() => handleCardShareClick(item.data.id, 'business')}
+                        onFollowClick={() => handleCardFollowClick(item.data.id, 'business')}
+                      />
+                    );
+                  }
+                  return null;
+                })}
               </div>
             )}
-            {/* TODO: Add BusinessProfileCard rendering here as well */}
 
-
-            {!isAnsweringQuery && !aiTextAnswer && foundLocations.length === 0 && currentQueryType!=='location_search' && (
-              <div className="text-center mt-8 text-muted-foreground">
-                <p>Ask a question or search for places, services, and more to see results here.</p>
-                 <p className="text-xs mt-2">(Currently showing dummy professional profiles for demonstration when search is active)</p>
-              </div>
+            {!isAnsweringQuery && !isLoadingSimulatedResults && displayedSearchResults.length === 0 && searchTerm.trim() !== '' && (
+                <div className="text-center py-10 text-muted-foreground">
+                    <p className="text-lg">No results found for "{searchTerm}".</p>
+                    <p className="text-sm">Try a different search term or check your spelling.</p>
+                </div>
             )}
+            
+            {!isAnsweringQuery && !isLoadingSimulatedResults && displayedSearchResults.length === 0 && !aiTextAnswer && foundLocations.length === 0 && searchTerm.trim() === '' && (
+                 <div className="text-center py-10 text-muted-foreground">
+                    <p className="text-lg">Search for professionals, businesses, or ask Locality Hub AI.</p>
+                </div>
+            )}
+
           </div>
         )}
-      </div>
+      </ScrollArea>
     </div>
   );
 };

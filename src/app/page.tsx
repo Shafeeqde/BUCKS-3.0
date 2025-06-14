@@ -46,12 +46,12 @@ const initialBusinessProfiles: UserBusinessProfile[] = [
       { id: 2, content: 'Happy Hour extended!', timestamp: '1 day ago' },
     ],
     products: [
-      { id: 101, name: 'Biryani', price: '250', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'biryani dish' },
-      { id: 102, name: 'Pizza', price: '350', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'pizza slice' },
+      { id: 'prod-biryani-101', name: 'Biryani', price: '250', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'biryani dish' },
+      { id: 'prod-pizza-102', name: 'Pizza', price: '350', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'pizza slice' },
     ],
     services: ['Dine-in', 'Takeaway', 'Catering', 'Home Delivery'],
     jobs: [
-      { id: 1, title: 'Head Chef', location: 'Bangalore', type: 'Full-time', postedDate: '2024-05-20' },
+      { id: 'job-chef-1', title: 'Head Chef', location: 'Bangalore', type: 'Full-time', postedDate: '2024-05-20' },
     ]
   },
   {
@@ -86,9 +86,9 @@ export default function AppRoot() {
   const [businessProfiles, setBusinessProfiles] = useState<UserBusinessProfile[]>(initialBusinessProfiles);
   const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | number | null>(null);
   
-  const [selectedIndividualProfileId, setSelectedIndividualProfileId] = useState<string | null>(null);
-  const [selectedSkillsetProfileId, setSelectedSkillsetProfileId] = useState<string | null>(null);
-  const [skillsetProfileToManageId, setSkillsetProfileToManageId] = useState<string | null>(null);
+  const [selectedIndividualProfileId, setSelectedIndividualProfileId] = useState<string | null>(null); // Legacy, might be removed if all individuals are SkillsetProfiles
+  const [selectedSkillsetProfileId, setSelectedSkillsetProfileId] = useState<string | null>(null); // For viewing a specific skillset profile
+  const [skillsetProfileToManageId, setSkillsetProfileToManageId] = useState<string | null>(null); // For editing a skillset profile
 
 
   const [isFabVisible, setIsFabVisible] = useState(false);
@@ -151,8 +151,21 @@ export default function AppRoot() {
   };
   
   const handleSelectIndividualProfile = (profileId: string) => {
-    setSelectedIndividualProfileId(profileId);
-    setActiveTab('individual-profile');
+    // This might be deprecated if all individuals are shown via Skillset Profiles
+    // For now, assuming it might show a general user profile if one exists.
+    // If not, it might also navigate to a primary skillset profile.
+    // For simplicity, let's assume it navigates to a general profile or their primary skillset.
+    // If your 'Individual' cards from search always represent a Skillset, this should call handleSelectSkillsetProfile.
+    toast({title: "Individual Profile Clicked (Legacy)", description: `ID: ${profileId}. Consider linking to skillset profile.`});
+    // setSelectedIndividualProfileId(profileId);
+    // setActiveTab('individual-profile');
+    // For now, let's direct to a skillset profile for consistency, assuming Jenson is a skillset
+    if(profileId === 'individual-jenson-1' || profileId === 'prof2' || profileId === 'prof1') { // prof1 is from old dummy data for HomeScreen
+        handleSelectSkillsetProfile(profileId === 'individual-jenson-1' ? 'jenson-interior-stylist-123' : 'prof2-ux-designer-skillset'); // Map to a dummy skillset ID
+    } else {
+        setSelectedIndividualProfileId(profileId); // Fallback if no direct skillset mapping
+        setActiveTab('individual-profile');
+    }
     setShowSideMenu(false);
   };
 
@@ -171,6 +184,11 @@ export default function AppRoot() {
   const handleBackFromManageSkillsetProfile = () => {
     setSkillsetProfileToManageId(null);
     setActiveTab('user-skillsets');
+  };
+
+  const handleAddToCart = (businessId: string | number, productId: string) => {
+    console.log('Add to Cart:', { businessId, productId });
+    toast({ title: "Added to Cart (Simulated)", description: `Product ${productId} from business ${businessId}` });
   };
 
 
@@ -420,8 +438,11 @@ export default function AppRoot() {
 
     switch (activeTab) {
       case 'home': return <HomeScreen 
+                            setActiveTab={handleTabSelection}
                             onSelectIndividualProfile={handleSelectIndividualProfile} 
+                            onSelectBusinessProfile={handleSelectBusinessProfile}
                             onSelectSkillsetProfile={handleSelectSkillsetProfile}
+                            onAddToCart={handleAddToCart}
                          />;
       case 'feeds': return <FeedsScreen />;
       case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRideRequest} />;
@@ -471,14 +492,20 @@ export default function AppRoot() {
         }
         return <p className="p-4 text-center text-muted-foreground">No skillset profile selected for management.</p>; 
 
-      default: return <HomeScreen onSelectIndividualProfile={handleSelectIndividualProfile} onSelectSkillsetProfile={handleSelectSkillsetProfile} />;
+      default: return <HomeScreen 
+                        setActiveTab={handleTabSelection}
+                        onSelectIndividualProfile={handleSelectIndividualProfile} 
+                        onSelectBusinessProfile={handleSelectBusinessProfile}
+                        onSelectSkillsetProfile={handleSelectSkillsetProfile}
+                        onAddToCart={handleAddToCart}
+                      />;
     }
   };
   
   if (!isClient) {
     return (
       <div className="flex flex-col h-screen bg-background items-center justify-center">
-        <p>Loading App...</p>
+        <p className="text-lg text-muted-foreground">Loading App...</p>
       </div>
     );
   }
@@ -542,4 +569,3 @@ export default function AppRoot() {
     </div>
   );
 }
-
