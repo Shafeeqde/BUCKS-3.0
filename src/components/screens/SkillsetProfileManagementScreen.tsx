@@ -9,22 +9,24 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, ArrowLeft, PlusCircle, Edit2, Trash2, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
+import { Loader2, ArrowLeft, PlusCircle, Edit2, Trash2, Image as ImageIcon, Link as LinkIcon, Briefcase } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, SkillsetProfileData, SkillsetSpecificWorkExperience, SkillsetSpecificPortfolioItem, SkillsetSpecificFeedItem } from '@/types';
-import Image from 'next/image'; // For displaying portfolio/feed images
+import Image from 'next/image'; 
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
-// Local interface for form data - can be slightly different from SkillsetProfileData if needed for editing
+
 interface SkillsetProfileFormData {
   id: string;
   skillName: string;
   skillLevel: string;
   skillDescription?: string;
   isActive: boolean;
-  userName: string; // Usually display-only
-  userAvatarUrl?: string; // Usually display-only
-  professionalTitle?: string; // User's overall title, display-only
+  userName: string; 
+  userAvatarUrl?: string; 
+  professionalTitle?: string; 
   skillSpecificBio?: string;
   contactInfo?: {
     phone?: string;
@@ -42,7 +44,6 @@ interface SkillsetProfileManagementScreenProps {
   setActiveTab: (tab: TabName) => void;
   skillsetProfileId: string;
   onBack: () => void;
-  // onSaveProfile: (skillsetProfileId: string, updatedData: SkillsetProfileData) => Promise<boolean>; // More specific type
 }
 
 const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: string): Promise<SkillsetProfileData | null> => {
@@ -57,8 +58,8 @@ const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: stri
           skillSpecificBio: 'Over 10 years of experience in residential and commercial plumbing. Committed to quality workmanship and customer satisfaction.',
           contactInfo: { phone: '+1 123 456 7890', email: 'john.doe.plumber@example.com', location: 'Local Service Area', website: 'https://plumbing.johndoe.com' },
           workExperienceEntries: [
-            { id: 'pw1', title: 'Lead Plumber', company: 'Local Plumbing Co.', years: '2015 - Present', description: 'Managed plumbing installations, repairs, and client consultations for residential and commercial projects.' },
-            { id: 'pw2', title: 'Apprentice Plumber', company: 'Pro Plumb Apprenticeships', years: '2013 - 2015', description: 'Assisted senior plumbers, learned pipe fitting, fixture installation, and diagnostic techniques.' },
+            { id: 'wx-1', title: 'Lead Plumber', company: 'Local Plumbing Co.', years: '2015 - Present', description: 'Managed plumbing installations, repairs, and client consultations for residential and commercial projects.' },
+            { id: 'wx-2', title: 'Apprentice Plumber', company: 'Pro Plumb Apprenticeships', years: '2013 - 2015', description: 'Assisted senior plumbers, learned pipe fitting, fixture installation, and diagnostic techniques.' },
           ],
           portfolioItems: [
             { id: 'pp1', title: 'Bathroom Renovation Project', imageUrl: 'https://placehold.co/600x400.png', imageAiHint: 'modern bathroom', description: 'Full plumbing overhaul for a luxury bathroom remodel.', link: '#' },
@@ -81,8 +82,8 @@ const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: stri
             skillSpecificBio: 'Passionate interior stylist with a keen eye for detail and a commitment to creating spaces that inspire. My approach is collaborative, ensuring your vision is at the heart of every design.',
             contactInfo: { phone: '+1 555 0101', email: 'jenson.stylist@example.com', location: 'New York, NY & Online Consultations', website: 'https://jensoninteriors.design' },
             workExperienceEntries: [
-                { id: 'jw1', title: 'Lead Interior Stylist', company: 'Chic Living Designs', years: '2018 - Present', description: 'Managed high-end residential styling projects from concept to completion.' },
-                { id: 'jw2', title: 'Junior Interior Designer', company: 'Urban Aesthetics Inc.', years: '2016 - 2018', description: 'Assisted in material sourcing, mood board creation, and client presentations.' },
+                { id: 'wx-j1', title: 'Lead Interior Stylist', company: 'Chic Living Designs', years: '2018 - Present', description: 'Managed high-end residential styling projects from concept to completion.' },
+                { id: 'wx-j2', title: 'Junior Interior Designer', company: 'Urban Aesthetics Inc.', years: '2016 - 2018', description: 'Assisted in material sourcing, mood board creation, and client presentations.' },
             ],
             portfolioItems: [
                 { id: 'jp1', title: 'Downtown Loft Transformation', imageUrl: 'https://placehold.co/600x400.png', imageAiHint: 'modern loft', description: 'Complete styling of a 2-bedroom downtown loft.', link: '#' },
@@ -94,7 +95,26 @@ const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: stri
         });
       }
       else {
-        resolve(null);
+        // Fallback for newly created profiles which might not have full data structure yet
+        resolve({
+            id: skillsetProfileId,
+            skillName: `New Skillset (${skillsetProfileId.substring(0,5)})`, // Default name
+            skillLevel: 'Beginner',
+            skillDescription: '',
+            userName: 'Current User', // Placeholder
+            userAvatarUrl: 'https://placehold.co/100x100.png',
+            userAvatarAiHint: 'person avatar',
+            professionalTitle: '',
+            skillSpecificBio: '',
+            contactInfo: { phone: '', email: '', location: '', website: '' },
+            workExperienceEntries: [],
+            portfolioItems: [],
+            professionalFeed: [],
+            reviews: [],
+            recommendationsCount: 0,
+            averageRating: 0,
+            totalReviews: 0,
+        });
       }
     }, 1000);
   });
@@ -118,6 +138,12 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // State for Work Experience CRUD
+  const [showWorkExperienceDialog, setShowWorkExperienceDialog] = useState(false);
+  const [currentWorkExperience, setCurrentWorkExperience] = useState<Partial<SkillsetSpecificWorkExperience> & { id?: string } | null>(null);
+  const [workExperienceToDeleteId, setWorkExperienceToDeleteId] = useState<string | null>(null);
+
+
   useEffect(() => {
     if (skillsetProfileId) {
       fetchProfileData(skillsetProfileId);
@@ -130,18 +156,17 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
       const data = await simulateFetchSkillsetProfileForManagement(id);
       if (data) {
         setProfileData(data);
-        // Initialize form data. Note: Ensure all fields in SkillsetProfileFormData are covered
         setEditedData({
             id: data.id,
             skillName: data.skillName,
             skillLevel: data.skillLevel || '',
             skillDescription: data.skillDescription,
-            isActive: data.reviews.length > 0, // Example: make active if has reviews
+            isActive: data.isActive === undefined ? (data.reviews && data.reviews.length > 0) : data.isActive,
             userName: data.userName,
             userAvatarUrl: data.userAvatarUrl,
             professionalTitle: data.professionalTitle,
             skillSpecificBio: data.skillSpecificBio,
-            contactInfo: data.contactInfo ? { ...data.contactInfo } : undefined,
+            contactInfo: data.contactInfo ? { ...data.contactInfo } : { phone: '', email: '', location: '', website: '' },
             workExperienceEntries: data.workExperienceEntries ? [...data.workExperienceEntries.map(w => ({...w}))] : [],
             portfolioItems: data.portfolioItems ? [...data.portfolioItems.map(p => ({...p}))] : [],
             professionalFeed: data.professionalFeed ? [...data.professionalFeed.map(f => ({...f}))] : [],
@@ -170,8 +195,64 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     } : null);
   };
 
-  // Placeholder for list item management (add, edit, delete)
-  const handleManageList = (listName: 'workExperienceEntries' | 'portfolioItems' | 'professionalFeed') => {
+  // --- Work Experience CRUD Functions ---
+  const openAddWorkExperienceDialog = () => {
+    setCurrentWorkExperience({}); // Empty object for new entry
+    setShowWorkExperienceDialog(true);
+  };
+
+  const openEditWorkExperienceDialog = (experience: SkillsetSpecificWorkExperience) => {
+    setCurrentWorkExperience({ ...experience });
+    setShowWorkExperienceDialog(true);
+  };
+
+  const handleWorkExperienceDialogChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setCurrentWorkExperience(prev => prev ? { ...prev, [name]: value } : null);
+  };
+  
+  const handleSaveWorkExperience = () => {
+    if (!currentWorkExperience || !currentWorkExperience.title || !currentWorkExperience.company || !currentWorkExperience.years) {
+        toast({ title: "Missing Fields", description: "Title, Company, and Years are required for work experience.", variant: "destructive"});
+        return;
+    }
+    if (!editedData) return;
+
+    if (currentWorkExperience.id) { // Editing existing
+      const updatedEntries = editedData.workExperienceEntries.map(exp =>
+        exp.id === currentWorkExperience!.id ? { ...exp, ...currentWorkExperience } as SkillsetSpecificWorkExperience : exp
+      );
+      setEditedData({ ...editedData, workExperienceEntries: updatedEntries });
+    } else { // Adding new
+      const newEntry: SkillsetSpecificWorkExperience = {
+        id: `wx-${Date.now()}`, // Simple unique ID generation
+        title: currentWorkExperience.title,
+        company: currentWorkExperience.company,
+        years: currentWorkExperience.years,
+        description: currentWorkExperience.description || '',
+      };
+      setEditedData({ ...editedData, workExperienceEntries: [...editedData.workExperienceEntries, newEntry] });
+    }
+    setShowWorkExperienceDialog(false);
+    setCurrentWorkExperience(null);
+    toast({ title: "Work Experience Saved", description: "Your work experience has been updated locally." });
+  };
+
+  const confirmDeleteWorkExperience = (id: string) => {
+    setWorkExperienceToDeleteId(id);
+  };
+
+  const executeDeleteWorkExperience = () => {
+    if (!editedData || !workExperienceToDeleteId) return;
+    const updatedEntries = editedData.workExperienceEntries.filter(exp => exp.id !== workExperienceToDeleteId);
+    setEditedData({ ...editedData, workExperienceEntries: updatedEntries });
+    setWorkExperienceToDeleteId(null); // Close dialog
+    toast({ title: "Work Experience Deleted", variant: "destructive" });
+  };
+  // --- End Work Experience CRUD ---
+
+
+  const handleManageList = (listName: 'portfolioItems' | 'professionalFeed') => {
     toast({ title: "Manage List (Not Implemented)", description: `UI for managing ${listName} would open here.`});
   }
 
@@ -179,11 +260,34 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     if (!editedData) return;
     setIsSaving(true);
     try {
+      // In a real app, you'd send editedData to your backend.
+      // For now, we just simulate the save and update the profileData state for optimistic UI.
       const success = await simulateUpdateSkillsetProfile(editedData.id, editedData);
       if (success) {
-        setProfileData(prev => prev ? ({...prev, ...editedData}) : editedData as SkillsetProfileData); // Update local state with saved data
+        // Update the main profileData state to reflect changes after "saving"
+        // This ensures that if the user navigates away and back, the changes (locally) persist.
+        setProfileData(prev => {
+            if (!prev) return null;
+            // Reconstruct profileData from editedData to ensure deep copy and correct structure
+            const updatedProfileData: SkillsetProfileData = {
+                ...prev, // Keep fields not in SkillsetProfileFormData (like reviews, counts)
+                id: editedData.id,
+                skillName: editedData.skillName,
+                skillLevel: editedData.skillLevel,
+                skillDescription: editedData.skillDescription,
+                isActive: editedData.isActive,
+                userName: editedData.userName,
+                userAvatarUrl: editedData.userAvatarUrl,
+                professionalTitle: editedData.professionalTitle,
+                skillSpecificBio: editedData.skillSpecificBio,
+                contactInfo: editedData.contactInfo ? { ...editedData.contactInfo } : undefined,
+                workExperienceEntries: [...editedData.workExperienceEntries.map(w => ({...w}))],
+                portfolioItems: [...editedData.portfolioItems.map(p => ({...p}))],
+                professionalFeed: editedData.professionalFeed ? [...editedData.professionalFeed.map(f => ({...f}))] : [],
+            };
+            return updatedProfileData;
+        });
         toast({ title: "Profile Saved", description: `Skillset profile "${editedData.skillName}" updated successfully.` });
-        // onBack(); // Optionally navigate back after save
       } else {
         toast({ title: "Save Failed", description: "Could not update skillset profile.", variant: "destructive" });
       }
@@ -194,6 +298,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
       setIsSaving(false);
     }
   };
+  
 
   if (loading) {
     return <div className="flex justify-center items-center h-full"><Loader2 className="h-12 w-12 animate-spin text-primary" /><p className="ml-3">Loading profile data...</p></div>;
@@ -205,7 +310,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     return <div className="p-4 text-center text-muted-foreground">Profile data unavailable for management.</div>;
   }
 
-  const hasChanges = JSON.stringify(profileData) !== JSON.stringify({...profileData, ...editedData}); // Simple deep compare for demo
+  const hasChanges = JSON.stringify(profileData) !== JSON.stringify({...profileData, ...editedData, isActive: profileData.isActive === editedData.isActive ? profileData.isActive : editedData.isActive });
 
   return (
     <ScrollArea className="h-full bg-background">
@@ -217,13 +322,12 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-2xl font-headline">Manage Skillset: {editedData.skillName}</CardTitle>
-            <CardDescription>Edit the details for this specific skillset profile.</CardDescription>
+            <CardDescription>Edit the details for this specific skillset profile. Your changes are saved locally until you click "Save Changes" below.</CardDescription>
           </CardHeader>
         </Card>
 
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
           <div className="grid md:grid-cols-3 gap-6">
-            {/* Left Column for primary details */}
             <div className="md:col-span-1 space-y-6">
               <Card>
                 <CardHeader><CardTitle>Basic Info</CardTitle></CardHeader>
@@ -256,7 +360,6 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
               </Card>
             </div>
 
-            {/* Right Column for contact and list management */}
             <div className="md:col-span-2 space-y-6">
               <Card>
                 <CardHeader><CardTitle>Contact Info (for this Skillset)</CardTitle></CardHeader>
@@ -270,19 +373,66 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
             </div>
           </div>
           
-          {/* Sections for managing lists - Work Experience, Portfolio, Feed */}
-          {['workExperienceEntries', 'portfolioItems', 'professionalFeed'].map((sectionKey) => {
-            const titleMap = {
-              workExperienceEntries: 'Work Experience',
+          {/* Work Experience Section */}
+            <Card className="mt-6">
+                <CardHeader className="flex flex-row justify-between items-center">
+                    <CardTitle className="flex items-center"><Briefcase className="mr-2 h-5 w-5 text-primary"/>Work Experience</CardTitle>
+                    <Button type="button" variant="outline" size="sm" onClick={openAddWorkExperienceDialog}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add New
+                    </Button>
+                </CardHeader>
+                <CardContent>
+                    {editedData.workExperienceEntries && editedData.workExperienceEntries.length > 0 ? (
+                    <ul className="space-y-4">
+                        {editedData.workExperienceEntries.map((exp) => (
+                        <li key={exp.id} className="p-4 border rounded-md hover:shadow-sm">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h4 className="font-semibold text-foreground">{exp.title}</h4>
+                                    <p className="text-sm text-muted-foreground">{exp.company} ({exp.years})</p>
+                                    {exp.description && <p className="text-xs text-muted-foreground mt-1">{exp.description}</p>}
+                                </div>
+                                <div className="space-x-2 flex-shrink-0 ml-2">
+                                    <Button type="button" variant="ghost" size="icon" onClick={() => openEditWorkExperienceDialog(exp)}>
+                                        <Edit2 className="h-4 w-4" />
+                                    </Button>
+                                    <AlertDialogTrigger asChild>
+                                        <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => confirmDeleteWorkExperience(exp.id)}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                </div>
+                            </div>
+                        </li>
+                        ))}
+                    </ul>
+                    ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">No work experience added yet for this skillset.</p>
+                    )}
+                </CardContent>
+            </Card>
+
+
+          {/* Sections for managing lists - Portfolio, Feed */}
+          {['portfolioItems', 'professionalFeed'].map((sectionKey) => {
+            const titleMap: Record<string, string> = {
               portfolioItems: 'Portfolio Items',
               professionalFeed: 'Professional Feed Updates'
             };
-            const items = editedData[sectionKey as keyof SkillsetProfileFormData] as any[];
+            const IconMap: Record<string, React.ElementType> = {
+                portfolioItems: ImageIcon,
+                professionalFeed: LinkIcon, // Placeholder, could be Rss
+            };
+            const items = editedData[sectionKey as keyof Pick<SkillsetProfileFormData, 'portfolioItems' | 'professionalFeed'>] as any[];
+            const SectionIcon = IconMap[sectionKey];
             
             return (
               <Card key={sectionKey} className="mt-6">
                 <CardHeader className="flex flex-row justify-between items-center">
-                  <CardTitle>{titleMap[sectionKey as keyof typeof titleMap]}</CardTitle>
+                  <CardTitle className="flex items-center">
+                    {SectionIcon && <SectionIcon className="mr-2 h-5 w-5 text-primary"/>}
+                    {titleMap[sectionKey]}
+                  </CardTitle>
                   <Button type="button" variant="outline" size="sm" onClick={() => handleManageList(sectionKey as any)}>
                     <PlusCircle className="mr-2 h-4 w-4" /> Add New
                   </Button>
@@ -294,7 +444,6 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                         <li key={item.id} className="p-3 border rounded-md flex justify-between items-center hover:bg-muted/50">
                           <div>
                             <p className="font-semibold">{item.title || item.content?.substring(0,50) + (item.content?.length > 50 ? '...' : '')}</p>
-                            {sectionKey === 'workExperienceEntries' && <p className="text-xs text-muted-foreground">{item.company} ({item.years})</p>}
                             {sectionKey === 'portfolioItems' && item.imageUrl && 
                                 <Image src={item.imageUrl} alt={item.title || "Portfolio item"} width={60} height={40} className="rounded object-cover mt-1" data-ai-hint={item.imageAiHint || "portfolio image"}/>}
                           </div>
@@ -310,7 +459,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-muted-foreground">No {titleMap[sectionKey as keyof typeof titleMap].toLowerCase()} added yet for this skillset.</p>
+                    <p className="text-sm text-muted-foreground text-center py-4">No {titleMap[sectionKey].toLowerCase()} added yet for this skillset.</p>
                   )}
                 </CardContent>
               </Card>
@@ -328,8 +477,62 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
           </CardFooter>
         </form>
       </div>
+
+    {/* Work Experience Add/Edit Dialog */}
+    <Dialog open={showWorkExperienceDialog} onOpenChange={setShowWorkExperienceDialog}>
+        <DialogContent className="sm:max-w-[525px]">
+            <DialogHeader>
+                <DialogTitle>{currentWorkExperience?.id ? 'Edit' : 'Add'} Work Experience</DialogTitle>
+                <DialogDescription>
+                    Provide details about your professional experience related to this skillset.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="wx-title" className="text-right">Title <span className="text-destructive">*</span></Label>
+                    <Input id="wx-title" name="title" value={currentWorkExperience?.title || ''} onChange={handleWorkExperienceDialogChange} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="wx-company" className="text-right">Company <span className="text-destructive">*</span></Label>
+                    <Input id="wx-company" name="company" value={currentWorkExperience?.company || ''} onChange={handleWorkExperienceDialogChange} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="wx-years" className="text-right">Years <span className="text-destructive">*</span></Label>
+                    <Input id="wx-years" name="years" value={currentWorkExperience?.years || ''} onChange={handleWorkExperienceDialogChange} placeholder="e.g., 2020 - Present or 3 years" className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="wx-description" className="text-right">Description</Label>
+                    <Textarea id="wx-description" name="description" value={currentWorkExperience?.description || ''} onChange={handleWorkExperienceDialogChange} className="col-span-3" placeholder="Briefly describe your role and responsibilities." />
+                </div>
+            </div>
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button type="button" variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button type="button" onClick={handleSaveWorkExperience}>Save Experience</Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+
+    {/* Work Experience Delete Confirmation Dialog */}
+    <AlertDialog open={!!workExperienceToDeleteId} onOpenChange={(open) => !open && setWorkExperienceToDeleteId(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete this work experience entry from your profile.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => setWorkExperienceToDeleteId(null)}>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={executeDeleteWorkExperience} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+
     </ScrollArea>
   );
 };
 
 export default SkillsetProfileManagementScreen;
+
