@@ -9,7 +9,55 @@ body {
 
 @layer base {
   :root {
-    /* Glowing Neon Teal Theme */
+    /* Light Mode with Vibrant Teal & Pink */
+    --background: 210 40% 98%;    /* Very Light Cool Gray */
+    --foreground: 210 10% 23%;    /* Dark Gray for text */
+
+    --card: 0 0% 100%;             /* White */
+    --card-foreground: 210 10% 23%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 10% 23%;
+
+    --primary: 170 100% 40%;       /* Vibrant Teal (slightly darker for light bg) */
+    --primary-foreground: 0 0% 100%; /* White text on Teal */
+
+    --secondary: 170 70% 65%;     /* Lighter Teal */
+    --secondary-foreground: 210 20% 20%; /* Darker text on Lighter Teal */
+
+    --muted: 210 40% 90%;          /* Light Muted Gray */
+    --muted-foreground: 210 15% 45%;  /* Muted Gray text */
+
+    --accent: 320 100% 55%;        /* Neon Pink/Magenta */
+    --accent-foreground: 0 0% 100%;  /* White text on Pink */
+
+    --destructive: 0 84% 60%;        /* Standard Red */
+    --destructive-foreground: 0 0% 100%; /* White text on Red */
+
+    --border: 210 20% 85%;         /* Light Gray border */
+    --input: 210 30% 94%;          /* Slightly darker input background */
+    --ring: 170 100% 45%;          /* Vibrant Teal for rings */
+
+    --chart-1: 170 100% 40%;       /* Vibrant Teal */
+    --chart-2: 320 100% 55%;       /* Neon Pink */
+    --chart-3: 50 100% 50%;        /* Vibrant Yellow */
+    --chart-4: 210 10% 50%;       /* Mid Grey for charts */
+    --chart-5: 170 80% 70%;       /* Lighter Teal */
+    --radius: 0.5rem;
+
+    /* Sidebar variables for light theme */
+    --sidebar-background: 210 30% 96%;    /* Slightly off-white for sidebar */
+    --sidebar-foreground: 210 10% 30%;    /* Darker gray text */
+    --sidebar-primary: 170 100% 40%;      /* Vibrant Teal */
+    --sidebar-primary-foreground: 0 0% 100%; /* White text */
+    --sidebar-accent: 320 90% 60%;        /* Bright Pink */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 210 20% 80%;        /* Light gray border */
+    --sidebar-ring: 170 100% 45%;
+  }
+
+  .dark {
+    /* Glowing Neon Teal Theme (Dark Mode) */
     --background: 240 10% 4%; /* Very Dark Blue/Almost Black */
     --foreground: 180 100% 95%; /* Bright Cyan-White for text */
 
@@ -43,9 +91,8 @@ body {
     --chart-3: 50 100% 50%;  /* Neon Yellow */
     --chart-4: 240 10% 50%; /* Mid Grey for charts */
     --chart-5: 170 80% 70%; /* Lighter Neon Teal */
-    --radius: 0.5rem;
 
-    /* Sidebar variables adapted to Neon Teal theme */
+    /* Sidebar dark theme variables - adapted to Neon Teal theme */
     --sidebar-background: 240 10% 3%; /* Even darker for sidebar */
     --sidebar-foreground: 180 80% 85%; /* Slightly dimmer cyan text */
     --sidebar-primary: 170 100% 50%; /* Neon Teal for active items */
@@ -53,52 +100,6 @@ body {
     --sidebar-accent: 320 100% 55%; /* Neon Pink for hover/accent */
     --sidebar-accent-foreground: 0 0% 100%; /* White text */
     --sidebar-border: 170 50% 20%; /* Darker Teal border */
-    --sidebar-ring: 170 100% 55%;
-  }
-
-  .dark {
-    --background: 0 0% 2%; /* Pure Black for deep contrast */
-    --foreground: 180 100% 95%; 
-
-    --card: 0 0% 6%; 
-    --card-foreground: 180 100% 95%;
-
-    --popover: 0 0% 4%;
-    --popover-foreground: 180 100% 95%;
-
-    --primary: 170 100% 50%; 
-    --primary-foreground: 210 100% 15%;
-
-    --secondary: 170 80% 30%;
-    --secondary-foreground: 180 100% 90%;
-
-    --muted: 0 0% 10%;
-    --muted-foreground: 180 20% 70%;
-
-    --accent: 320 100% 55%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 100% 55%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 170 50% 25%; 
-    --input: 0 0% 7%;
-    --ring: 170 100% 55%;
-
-    --chart-1: 170 100% 50%;
-    --chart-2: 320 100% 55%;
-    --chart-3: 50 100% 50%;
-    --chart-4: 0 0% 40%; /* Darker Grey for charts */
-    --chart-5: 170 80% 70%;
-
-    /* Sidebar dark theme variables - already dark, but can be tweaked if needed */
-    --sidebar-background: 0 0% 1%; 
-    --sidebar-foreground: 180 80% 85%;
-    --sidebar-primary: 170 100% 50%;
-    --sidebar-primary-foreground: 210 100% 10%;
-    --sidebar-accent: 320 100% 55%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 170 50% 15%;
     --sidebar-ring: 170 100% 55%;
   }
 }
@@ -118,14 +119,14 @@ body {
   width: 6px; /* For vertical scrollbars */
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: hsl(var(--background)); 
+  background: hsl(var(--background));
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: hsl(var(--accent) / 0.5); 
+  background: hsl(var(--accent) / 0.5);
   border-radius: 3px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--accent)); 
+  background: hsl(var(--accent));
 }
 /* For Firefox */
 .custom-scrollbar {
@@ -139,4 +140,3 @@ body {
   @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
 }
 */
-
