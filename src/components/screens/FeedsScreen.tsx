@@ -67,24 +67,33 @@ const FeedsScreen = () => {
     setFeedItems(prevItems =>
       prevItems.map(item => {
         if (item.id === id) {
-          const isOpeningCommentBox = !item.showCommentBox;
           let updatedRecommendations = item.recommendations;
           let updatedNotRecommendations = item.notRecommendations;
 
-          if (isOpeningCommentBox) {
-            if (type === 'recommend') updatedRecommendations += 1;
-            else if (type === 'notRecommend') updatedNotRecommendations += 1;
-          }
+          if (type === 'recommend') updatedRecommendations += 1;
+          else if (type === 'notRecommend') updatedNotRecommendations += 1;
+          
+          toast({
+            title: type === 'recommend' ? "Recommended!" : "Marked as Not Recommended",
+            description: `You ${type === 'recommend' ? 'recommended' : 'marked'} ${item.user}'s post.`,
+          });
+
           return {
             ...item,
             recommendations: updatedRecommendations,
             notRecommendations: updatedNotRecommendations,
-            showCommentBox: isOpeningCommentBox,
-            currentComment: ''
           };
         }
         return item;
       })
+    );
+  };
+
+  const handleToggleCommentBox = (id: number) => {
+    setFeedItems(prevItems =>
+      prevItems.map(item =>
+        item.id === id ? { ...item, showCommentBox: !item.showCommentBox, currentComment: '' } : item
+      )
     );
   };
 
@@ -140,8 +149,7 @@ const FeedsScreen = () => {
       return;
     }
     setIsPostingMoment(true);
-    // Simulate posting the moment
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000)); 
     console.log("Posting moment:", { imageUrl: momentImageUrl, text: momentText });
     toast({
       title: "Moment Posted! (Simulated)",
@@ -151,7 +159,6 @@ const FeedsScreen = () => {
     setMomentImageUrl('');
     setMomentText('');
     setIsPostingMoment(false);
-    // In a real app, you'd add this moment to a list and potentially update the "Your Moments" category visual
   };
 
   return (
@@ -171,6 +178,7 @@ const FeedsScreen = () => {
               onInteraction={handleInteraction}
               onCommentChange={handleCommentChange}
               onPostComment={handlePostComment}
+              onToggleCommentBox={handleToggleCommentBox} 
             />
           ))}
         </div>
@@ -231,4 +239,3 @@ const FeedsScreen = () => {
 };
 
 export default FeedsScreen;
-    
