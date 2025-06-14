@@ -10,15 +10,16 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, UserDataForSideMenu, ProfilePost } from '@/types';
-import { LogOut, Edit3, Grid, List, Camera, Video, Link as LinkIcon, FileText, MessageSquare, ThumbsUp, PlusCircle } from 'lucide-react';
+import { Edit3, Grid, List, Camera, Video, Link as LinkIcon, FileText, MessageSquare, ThumbsUp, PlusCircle, UserCog } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AccountScreenProps {
-  onLogout: () => void;
+  onLogout: () => void; // Kept for potential future use, though button removed
   userData: UserDataForSideMenu | null;
   setActiveTab: (tab: TabName) => void;
 }
 
+// Simulated content data for the logged-in user
 const allUserContent: ProfilePost[] = [
     { id: 1, type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?nature,landscape', thumbnailAiHint: 'nature landscape', likes: 120, comments: 15, user: 'Test User', timestamp: '2 hours ago', content: 'Enjoying the golden hour! What a beautiful sunset.' },
     { id: 2, type: 'video', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?tech,desk', thumbnailAiHint: 'tech desk', videoUrl: '#', likes: 85, comments: 10, user: 'Test User', timestamp: '5 hours ago', content: 'A quick tour of my new workspace setup. Loving the minimalist vibe!' },
@@ -34,9 +35,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setAc
     const { toast } = useToast();
     const [activeProfileTab, setActiveProfileTab] = useState('feed');
 
-    // Filter content for the current logged-in user (simulated)
-    // In a real app, you'd fetch content for userData.id
-    const userContent = userData ? allUserContent.filter(post => post.user === userData.name) : []; // Simple name match for simulation
+    const userContent = userData ? allUserContent.filter(post => post.user === userData.name) : [];
 
     const filteredPosts = userContent.filter(post => {
         switch (activeProfileTab) {
@@ -45,20 +44,18 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setAc
         case 'videos': return post.type === 'video';
         case 'links': return post.type === 'link';
         case 'files': return post.type === 'file';
-        case 'tweets': return post.type === 'tweet' || (post.type === 'text' && post.content.includes('#')); // Simple heuristic for tweets
+        case 'tweets': return post.type === 'tweet' || (post.type === 'text' && post.content && post.content.includes('#'));
         default: return false;
         }
     });
 
     const totalPosts = userContent.length;
-    const followersCount = userData ? (parseInt(userData.id.substring(userData.id.length - 3), 16) % 500) + 100 : 1234; // Dummy based on ID
+    const followersCount = userData ? (parseInt(userData.id.substring(userData.id.length - 3), 16) % 500) + 100 : 1234;
     const followingCount = userData ? (parseInt(userData.id.substring(userData.id.length - 2), 16) % 200) + 50 : 567;
 
-    const handleEditProfile = () => {
-      // For now, this can navigate to the more detailed ProfessionalProfileScreen
-      // or a simpler basic account info editing screen if we create one.
+    const handleManageProfessionalProfile = () => {
       setActiveTab('professional-profile');
-      toast({ title: "Navigate to Edit", description: "Opening detailed profile editor." });
+      toast({ title: "Navigating", description: "Opening your professional profile dashboard." });
     };
     
     const renderPostContent = (item: ProfilePost) => {
@@ -78,7 +75,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setAc
                     <a href={item.url} target="_blank" rel="noopener noreferrer" className="block my-2 p-3 border rounded-md hover:bg-muted transition-colors">
                         {item.thumbnailUrl && <Image src={item.thumbnailUrl} alt="Link preview" width={500} height={150} className="w-full h-auto object-cover rounded-md mb-2" data-ai-hint={item.thumbnailAiHint || "link preview"}/>}
                         <p className="font-semibold text-primary">{item.content}</p>
-                        <p className="text-xs text-muted-foreground truncate">{item.url}</p>
+                        {item.url && <p className="text-xs text-muted-foreground truncate">{item.url}</p>}
                     </a>
                 );
             case 'file':
@@ -110,7 +107,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setAc
                     <p className="font-semibold text-foreground">{item.user}</p>
                     <p className="text-xs text-muted-foreground">{item.timestamp}</p>
                 </div>
-                {/* TODO: Add options menu for edit/delete */}
             </CardHeader>
             <CardContent className="pb-2">
                 {renderPostContent(item)}
@@ -122,7 +118,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setAc
                 <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
                     <MessageSquare className="h-4 w-4 mr-1.5" /> {item.comments}
                 </Button>
-                {/* TODO: Add Share button */}
             </CardFooter>
         </Card>
     );
@@ -152,7 +147,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setAc
                     <p className="text-xs font-medium text-foreground line-clamp-2">{item.fileName || item.content}</p>
                 </div>
             )}
-            {/* Overlay for stats on hover */}
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 text-white text-sm">
                 <span className="flex items-center"><ThumbsUp className="h-4 w-4 mr-1" />{item.likes}</span>
                 <span className="flex items-center"><MessageSquare className="h-4 w-4 mr-1" />{item.comments}</span>
@@ -164,7 +158,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setAc
     return (
         <ScrollArea className="h-full bg-muted/20">
             <div className="max-w-4xl mx-auto">
-                {/* Profile Header */}
                 <Card className="rounded-none sm:rounded-b-lg shadow-md">
                     <CardContent className="pt-6">
                         <div className="flex flex-col items-center sm:flex-row sm:items-start gap-4">
@@ -182,21 +175,17 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setAc
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row gap-2">
-                            <Button variant="outline" onClick={handleEditProfile} className="w-full sm:w-auto">
-                                <Edit3 className="mr-2 h-4 w-4" /> Edit Profile
+                        <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row gap-2 justify-between items-center">
+                            <Button variant="outline" onClick={handleManageProfessionalProfile} className="w-full sm:w-auto">
+                                <UserCog className="mr-2 h-4 w-4" /> Manage Professional Profile
                             </Button>
-                            <Button variant="destructive" onClick={onLogout} className="w-full sm:w-auto">
-                                <LogOut className="mr-2 h-4 w-4" /> Logout
-                            </Button>
-                             <Button className="w-full sm:w-auto ml-auto" onClick={() => toast({ title: "Create Post (Simulated)", description: "Functionality to create a new post will be here."})}>
+                             <Button className="w-full sm:w-auto" onClick={() => toast({ title: "Create Post (Simulated)", description: "Functionality to create a new post will be here."})}>
                                 <PlusCircle className="mr-2 h-4 w-4"/> Create Post
                             </Button>
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Content Tabs */}
                 <Tabs value={activeProfileTab} onValueChange={(value) => setActiveProfileTab(value)} className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm py-2 px-2 sm:px-0">
                     <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
                         <TabsTrigger value="feed" className="py-2.5"><List className="mr-1.5 h-4 w-4"/>Feed</TabsTrigger>
@@ -208,7 +197,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setAc
                     </TabsList>
                 </Tabs>
 
-                {/* Content Area */}
                 <div className="p-2 sm:p-4">
                     {filteredPosts.length === 0 ? (
                         <div className="text-center py-10 text-muted-foreground">
