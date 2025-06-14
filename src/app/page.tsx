@@ -32,7 +32,7 @@ const initialBusinessProfiles: UserBusinessProfile[] = [
     id: 1,
     name: 'Hot Griddle Restaurant',
     logo: 'https://placehold.co/80x80.png', logoAiHint: 'restaurant logo',
-    coverPhoto: 'https://placehold.co/600x200.png', coverPhotoAiHint: 'restaurant food',
+    coverPhoto: 'https://placehold.co/600x300.png', coverPhotoAiHint: 'restaurant food noodles',
     bio: 'International, locally sourced specialties, breakfast & mocktails offered in a relaxed restaurant.',
     website: 'https://hotgriddle.in/',
     phone: '+91 9876543210',
@@ -48,10 +48,18 @@ const initialBusinessProfiles: UserBusinessProfile[] = [
       { id: 'bf3', content: 'Weekend special: Live music every Friday and Saturday night!', image: 'https://placehold.co/600x350.png', imageAiHint: 'live music band', timestamp: '3 days ago' },
     ],
     products: [
-      { id: 'prod-biryani-101', name: 'Signature Mutton Biryani (Serves 2)', price: '₹299', discountPrice: '₹229', discountPercentage: '23%', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'mutton biryani', description: 'Aromatic basmati rice cooked with tender mutton pieces and exotic spices. A house specialty.' },
-      { id: 'prod-pizza-102', name: 'Spicy Chicken Pizza (Medium)', price: '₹350', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'chicken pizza', description: 'Thin crust pizza topped with spicy chicken, bell peppers, onions, and mozzarella.' },
-      { id: 'prod-burger-103', name: 'Classic Griddle Veg Burger', price: '₹180', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'veg burger', description: 'A delicious veg patty with fresh lettuce, tomatoes, onions, and our special sauce.' },
-      { id: 'prod-pasta-104', name: 'Creamy Alfredo Pasta', price: '₹280', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'alfredo pasta', description: 'Fettuccine pasta tossed in a rich and creamy Alfredo sauce with mushrooms and herbs.' },
+      { id: 'prod-biryani-101', name: 'Biryani', price: '₹299', discountPrice: '₹229', discountPercentage: '23%', imageUrl: 'https://placehold.co/100x100.png', imageAiHint: 'biryani food', description: 'Aromatic basmati rice cooked with tender mutton pieces and exotic spices. A house specialty.' },
+      { id: 'prod-pizza-102', name: 'Pizza', price: '₹350', imageUrl: 'https://placehold.co/100x100.png', imageAiHint: 'pizza slice', description: 'Thin crust pizza topped with spicy chicken, bell peppers, onions, and mozzarella.' },
+      { id: 'prod-burger-103', name: 'Burger', price: '₹180', imageUrl: 'https://placehold.co/100x100.png', imageAiHint: 'burger meal', description: 'A delicious veg patty with fresh lettuce, tomatoes, onions, and our special sauce.' },
+      { id: 'prod-sandwich-104', name: 'Sandwich', price: '₹150', imageUrl: 'https://placehold.co/100x100.png', imageAiHint: 'club sandwich', description: 'Classic grilled sandwich with your choice of filling.' },
+      { id: 'prod-cakes-105', name: 'Cakes', price: '₹450', imageUrl: 'https://placehold.co/100x100.png', imageAiHint: 'chocolate cake', description: 'Delicious cakes for all occasions.' },
+      { id: 'prod-rolls-106', name: 'Rolls', price: '₹120', imageUrl: 'https://placehold.co/100x100.png', imageAiHint: 'spring rolls', description: 'Crispy and flavorful rolls.' },
+      { id: 'prod-samosas-107', name: 'Samosas', price: '₹80', imageUrl: 'https://placehold.co/100x100.png', imageAiHint: 'samosa snack', description: 'Traditional Indian savory pastry.' },
+      { id: 'prod-south-indian-108', name: 'South Indian', price: '₹160', imageUrl: 'https://placehold.co/100x100.png', imageAiHint: 'idli food', description: 'Authentic South Indian delicacies.' },
+      { id: 'prod-pastry-109', name: 'Pastry', price: '₹90', imageUrl: 'https://placehold.co/100x100.png', imageAiHint: 'dessert pastry', description: 'Assorted pastries and desserts.' },
+      { id: 'prod-momos-110', name: 'Momos', price: '₹130', imageUrl: 'https://placehold.co/100x100.png', imageAiHint: 'dumplings food', description: 'Steamed or fried dumplings.' },
+      { id: 'prod-shakes-111', name: 'Shakes', price: '₹150', imageUrl: 'https://placehold.co/100x100.png', imageAiHint: 'milkshake drink', description: 'Cool and refreshing milkshakes.' },
+      { id: 'prod-shawarma-112', name: 'Shawarma', price: '₹170', imageUrl: 'https://placehold.co/100x100.png', imageAiHint: 'shawarma wrap', description: 'Delicious and filling shawarma wraps.' },
     ],
     services: [
         {id: 'serv1', name: 'Dine-in Experience', description: 'Enjoy our comfortable and vibrant restaurant ambiance for a delightful meal.'},
@@ -68,14 +76,14 @@ const initialBusinessProfiles: UserBusinessProfile[] = [
         { id: 'rev2', reviewerName: 'Rohan S.', rating: 4, comment: 'Good food and quick service. The mocktails were refreshing. A bit crowded on weekends.', date: '2024-05-12'},
         { id: 'rev3', reviewerName: 'Priya M.', rating: 5, comment: 'Celebrated my birthday here. The staff was very accommodating and the food was delicious. Highly recommend!', date: '2024-05-10'},
     ],
-    averageRating: 4.7,
-    totalReviews: 120,
+    averageRating: 4.5,
+    totalReviews: 123,
   },
   {
     id: 2,
     name: 'Mikado UX UI & Branding Studio',
     logo: 'https://placehold.co/80x80.png', logoAiHint: 'design studio',
-    coverPhoto: 'https://placehold.co/600x200.png', coverPhotoAiHint: 'modern office design',
+    coverPhoto: 'https://placehold.co/600x300.png', coverPhotoAiHint: 'modern office design',
     bio: 'Curating digital experiences that connect with people. Global branding and user experience design consultancy dedicated to innovation and quality.',
     website: 'http://www.mikado.biz',
     phone: '+91 8197278080',
@@ -193,9 +201,8 @@ export default function AppRoot() {
     if(profileId === 'individual-jenson-1' || profileId === 'prof2' || profileId === 'prof1') { 
         handleSelectSkillsetProfile(profileId === 'individual-jenson-1' ? 'jenson-interior-stylist-123' : 'prof2-ux-designer-skillset'); 
     } else {
-        // Fallback for "My Profile" view from AccountScreen or direct general profile view
         if (profileId === "currentUser" && userData) {
-             setSelectedIndividualProfileId("currentUser"); // Keep special ID for current user
+             setSelectedIndividualProfileId("currentUser"); 
         } else {
             setSelectedIndividualProfileId(profileId);
         }
@@ -502,7 +509,7 @@ export default function AppRoot() {
       
       case 'individual-profile': 
         if (selectedIndividualProfileId === "currentUser" && userData) {
-             return <IndividualProfileScreen currentUserData={userData} setActiveTab={handleTabSelection} />;
+             return <IndividualProfileScreen profileId="currentUser" setActiveTab={handleTabSelection} />;
         } else if (selectedIndividualProfileId) {
              return <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={handleTabSelection} />;
         }

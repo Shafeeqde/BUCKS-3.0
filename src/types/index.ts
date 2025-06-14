@@ -104,12 +104,11 @@ export interface UserVehicle {
 
 // --- Types for Business Profiles ---
 
-// Product within a business profile (detailed view and card view can share this)
 export interface BusinessProduct {
-  id: string | number; // Changed to string | number to match UserBusinessProfile ID type
+  id: string | number;
   name: string;
   description?: string;
-  price: string; // Keep as string for display flexibility (e.g. "₹299")
+  price: string;
   discountPrice?: string;
   discountPercentage?: string;
   imageUrl?: string;
@@ -117,7 +116,7 @@ export interface BusinessProduct {
 }
 
 export interface BusinessJob {
-  id: string | number; // Changed to string | number
+  id: string | number;
   title: string;
   location?: string;
   type?: string;
@@ -126,7 +125,7 @@ export interface BusinessJob {
 }
 
 export interface BusinessFeedItem {
-  id: string | number; // Changed to string | number
+  id: string | number;
   content: string;
   image?: string;
   imageAiHint?: string;
@@ -135,36 +134,35 @@ export interface BusinessFeedItem {
 }
 
 export interface BusinessService {
-  id: string | number; // Changed to string | number
+  id: string | number;
   name: string;
   description?: string;
-  price?: string; // Optional service price
+  price?: string;
 }
 
 export interface BusinessReview {
-  id: string | number; // Changed to string | number
+  id: string | number;
   reviewerName: string;
-  rating: number; // e.g., 4.5
+  rating: number;
   comment: string;
-  date: string; // e.g., "2023-10-28"
+  date: string;
 }
 
-// Detailed Business Profile Data (for UserBusinessProfileDetailScreen)
 export interface UserBusinessProfile {
   id: string | number;
   name: string;
   logo?: string;
   logoAiHint?: string;
-  coverPhoto?: string; // URL for cover photo
+  coverPhoto?: string;
   coverPhotoAiHint?: string;
   bio: string;
   website?: string;
   phone?: string;
-  email?: string; // Added email
+  email?: string;
   location?: string;
   specialties?: string[];
-  followers?: number; // Renamed from followersCount for consistency
-  following?: number; // Renamed from followingCount for consistency
+  followers?: number;
+  following?: number;
   feed?: BusinessFeedItem[];
   products?: BusinessProduct[];
   services?: BusinessService[];
@@ -172,15 +170,14 @@ export interface UserBusinessProfile {
   reviews?: BusinessReview[];
   averageRating?: number;
   totalReviews?: number;
-  isActive?: boolean; // Kept from previous structure
-  licenseNumber?: string; // Kept from previous structure
-  documentUrl?: string; // Kept from previous structure
+  isActive?: boolean;
+  licenseNumber?: string;
+  documentUrl?: string;
 }
 
 
 // --- Types for Search Result Cards ---
 
-// Product item for display within a BusinessProfileCard
 export interface BusinessProductCardItem {
   id: string;
   name: string;
@@ -191,7 +188,6 @@ export interface BusinessProductCardItem {
   discountPercentage?: string;
 }
 
-// Data for BusinessProfileCard component (search results)
 export interface BusinessProfileCardData {
   id: string | number;
   name: string;
@@ -247,7 +243,6 @@ export type ActivityDetails = {
     vehicleType?: string;
 } | null;
 
-// Data structure for a user's GENERAL professional profile
 export interface IndividualProfileData {
   id: string;
   name: string;
@@ -273,8 +268,8 @@ export interface IndividualProfileData {
   totalReviews: number;
   workExperienceEntries?: SkillsetSpecificWorkExperience[];
   portfolioItems?: SkillsetSpecificPortfolioItem[];
-  professionalFeed?: SkillsetSpecificFeedItem[]; // Re-using BusinessFeedItem here, might need distinct type later
-  reviews?: BusinessReview[]; // Re-using BusinessReview here
+  professionalFeed?: BusinessFeedItem[];
+  reviews?: BusinessReview[];
 }
 
 // --- Types for Skillset-Specific Profiles ---
@@ -283,7 +278,7 @@ export interface SkillsetSpecificWorkExperience {
   id: string;
   title: string;
   company: string;
-  years: string; // e.g., "2018 - 2022"
+  years: string;
   description?: string;
 }
 
@@ -297,13 +292,6 @@ export interface SkillsetSpecificPortfolioItem {
   link?: string;
 }
 
-// SkillsetSpecificFeedItem is similar to BusinessFeedItem, can reuse or create specific if needed.
-// For now, can use BusinessFeedItem.
-
-// SkillsetSpecificReview is similar to BusinessReview, can reuse or create specific if needed.
-// For now, can use BusinessReview.
-
-// Data for the public-facing detailed view of a single Skillset Profile
 export interface SkillsetProfileData {
   id: string;
   skillName: string;
@@ -322,14 +310,13 @@ export interface SkillsetProfileData {
   };
   workExperienceEntries: SkillsetSpecificWorkExperience[];
   portfolioItems: SkillsetSpecificPortfolioItem[];
-  professionalFeed?: BusinessFeedItem[]; // Using BusinessFeedItem for now
-  reviews: BusinessReview[]; // Using BusinessReview for now
+  professionalFeed?: BusinessFeedItem[];
+  reviews: BusinessReview[];
   recommendationsCount: number;
   averageRating: number;
   totalReviews: number;
 }
 
-// Summary of a Skillset Profile for listing in UserSkillsetsScreen (management view)
 export interface SkillsetProfileSummary {
   id: string;
   skillName: string;
@@ -338,5 +325,3 @@ export interface SkillsetProfileSummary {
   portfolioItemCount?: number;
   averageRating?: number;
 }
-
-    
