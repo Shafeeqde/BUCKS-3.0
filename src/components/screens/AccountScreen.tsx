@@ -1,151 +1,233 @@
 
 "use client";
 
-import React from 'react';
-import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, User, Edit3, LogOut } from 'lucide-react';
-import type { UserProfile } from '@/types';
+import type { TabName, UserDataForSideMenu, ProfilePost } from '@/types';
+import { LogOut, Edit3, Grid, List, Camera, Video, Link as LinkIcon, FileText, MessageSquare, ThumbsUp, PlusCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface AccountScreenProps {
   onLogout: () => void;
-  // userRole prop removed
+  userData: UserDataForSideMenu | null;
+  setActiveTab: (tab: TabName) => void;
 }
 
-const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout }) => {
-  const { toast } = useToast();
-  const [profile, setProfile] = useState<UserProfile>({ name: 'Demo User', email: 'demo@example.com', phone: '9876543210', address: '123 Main St, Anytown' });
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSavingProfile, setIsSavingProfile] = useState(false);
+const allUserContent: ProfilePost[] = [
+    { id: 1, type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?nature,landscape', thumbnailAiHint: 'nature landscape', likes: 120, comments: 15, user: 'Test User', timestamp: '2 hours ago', content: 'Enjoying the golden hour! What a beautiful sunset.' },
+    { id: 2, type: 'video', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?tech,desk', thumbnailAiHint: 'tech desk', videoUrl: '#', likes: 85, comments: 10, user: 'Test User', timestamp: '5 hours ago', content: 'A quick tour of my new workspace setup. Loving the minimalist vibe!' },
+    { id: 3, type: 'text', content: 'Just finished reading "Atomic Habits" by James Clear. Highly recommend for anyone looking to build better routines! #books #productivity', likes: 75, comments: 8, user: 'Test User', timestamp: '1 day ago' },
+    { id: 4, type: 'link', content: 'My latest blog post on "The Future of AI in Design". Check it out!', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?ai,design', thumbnailAiHint: 'ai design', likes: 50, comments: 5, url: 'https://example.com/blog/ai-design', user: 'Test User', timestamp: '3 days ago' },
+    { id: 5, type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?food,healthy', thumbnailAiHint: 'food healthy', likes: 200, comments: 22, user: 'Test User', timestamp: '1 day ago', content: 'Healthy and delicious meal prep for the week.' },
+    { id: 6, type: 'file', content: 'Q3_Marketing_Report.pdf', fileName: 'Q3_Marketing_Report.pdf', fileIcon: 'FileText', likes: 30, comments: 2, user: 'Test User', timestamp: '3 weeks ago' },
+    { id: 7, type: 'tweet', content: 'Excited for the upcoming Next.js conference! Who else is attending? #NextJS #WebDev', likes: 45, comments: 7, user: 'Test User', timestamp: '2 months ago' },
+];
 
-  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
-  };
 
-  const handleSaveProfile = async () => {
-    if (!profile.name || !profile.email) {
-      toast({
-        title: "Missing Information",
-        description: "Please enter your name and email.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setIsSavingProfile(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const response = await fetch('/api/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(profile),
-      });
+const AccountScreen: React.FC<AccountScreenProps> = ({ onLogout, userData, setActiveTab }) => {
+    const { toast } = useToast();
+    const [activeProfileTab, setActiveProfileTab] = useState('feed');
 
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Failed to save profile.');
+    // Filter content for the current logged-in user (simulated)
+    // In a real app, you'd fetch content for userData.id
+    const userContent = userData ? allUserContent.filter(post => post.user === userData.name) : []; // Simple name match for simulation
 
-      toast({
-        title: "Profile Saved!",
-        description: "Your profile information has been updated.",
-      });
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error saving profile:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Could not save profile.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSavingProfile(false);
-    }
-  };
+    const filteredPosts = userContent.filter(post => {
+        switch (activeProfileTab) {
+        case 'feed': return true;
+        case 'images': return post.type === 'image';
+        case 'videos': return post.type === 'video';
+        case 'links': return post.type === 'link';
+        case 'files': return post.type === 'file';
+        case 'tweets': return post.type === 'tweet' || (post.type === 'text' && post.content.includes('#')); // Simple heuristic for tweets
+        default: return false;
+        }
+    });
 
-  return (
-    <div className="max-w-2xl mx-auto p-4 sm:p-6 overflow-y-auto h-full custom-scrollbar">
-      <Card className="shadow-lg">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-4 border-2 border-primary">
-            <User className="w-12 h-12 text-primary" />
-          </div>
-          <CardTitle className="text-2xl font-headline">{isEditing ? "Edit Profile" : profile.name}</CardTitle>
-          {/* Removed userRole display from CardDescription */}
-          <CardDescription>{profile.email}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {!isEditing ? (
-            <>
-              <div className="space-y-1">
-                <Label className="text-sm text-muted-foreground">Full Name</Label>
-                <p className="text-lg text-foreground">{profile.name}</p>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-sm text-muted-foreground">Email Address</Label>
-                <p className="text-lg text-foreground">{profile.email}</p>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-sm text-muted-foreground">Phone Number</Label>
-                <p className="text-lg text-foreground">{profile.phone || 'Not provided'}</p>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-sm text-muted-foreground">Address</Label>
-                <p className="text-lg text-foreground whitespace-pre-line">{profile.address || 'Not provided'}</p>
-              </div>
-              <Button className="w-full mt-6" onClick={() => setIsEditing(true)}>
-                <Edit3 className="mr-2 h-4 w-4" /> Edit Profile
-              </Button>
-            </>
-          ) : (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input id="name" name="name" placeholder="Full Name" value={profile.name} onChange={handleProfileChange} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input id="email" name="email" type="email" placeholder="Email" value={profile.email} onChange={handleProfileChange} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" name="phone" type="tel" placeholder="Phone (Optional)" value={profile.phone} onChange={handleProfileChange} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <textarea
-                  id="address"
-                  name="address"
-                  rows={3}
-                  placeholder="Your address"
-                  value={profile.address || ''}
-                  onChange={handleProfileChange}
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                />
-              </div>
-              <div className="flex flex-col sm:flex-row gap-2 mt-6">
-                <Button variant="outline" className="w-full sm:w-auto" onClick={() => setIsEditing(false)} disabled={isSavingProfile}>
-                  Cancel
+    const totalPosts = userContent.length;
+    const followersCount = userData ? (parseInt(userData.id.substring(userData.id.length - 3), 16) % 500) + 100 : 1234; // Dummy based on ID
+    const followingCount = userData ? (parseInt(userData.id.substring(userData.id.length - 2), 16) % 200) + 50 : 567;
+
+    const handleEditProfile = () => {
+      // For now, this can navigate to the more detailed ProfessionalProfileScreen
+      // or a simpler basic account info editing screen if we create one.
+      setActiveTab('professional-profile');
+      toast({ title: "Navigate to Edit", description: "Opening detailed profile editor." });
+    };
+    
+    const renderPostContent = (item: ProfilePost) => {
+        switch (item.type) {
+            case 'image':
+                return item.thumbnailUrl && <Image src={item.thumbnailUrl} alt={item.content || "Post image"} width={500} height={300} className="w-full h-auto object-cover rounded-md my-2" data-ai-hint={item.thumbnailAiHint || "user content"} />;
+            case 'video':
+                return (
+                    <div className="relative my-2 bg-black rounded-md aspect-video flex items-center justify-center">
+                        {item.thumbnailUrl && <Image src={item.thumbnailUrl} alt="Video thumbnail" layout="fill" objectFit="cover" className="rounded-md opacity-70" data-ai-hint={item.thumbnailAiHint || "video content"}/>}
+                        <Video className="h-12 w-12 text-white absolute z-10" />
+                        <p className="absolute bottom-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded">{item.content || "Video Post"}</p>
+                    </div>
+                );
+            case 'link':
+                return (
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="block my-2 p-3 border rounded-md hover:bg-muted transition-colors">
+                        {item.thumbnailUrl && <Image src={item.thumbnailUrl} alt="Link preview" width={500} height={150} className="w-full h-auto object-cover rounded-md mb-2" data-ai-hint={item.thumbnailAiHint || "link preview"}/>}
+                        <p className="font-semibold text-primary">{item.content}</p>
+                        <p className="text-xs text-muted-foreground truncate">{item.url}</p>
+                    </a>
+                );
+            case 'file':
+                return (
+                    <div className="my-2 p-3 border rounded-md flex items-center gap-2 bg-muted/50">
+                        <FileText className="h-6 w-6 text-primary" />
+                        <div>
+                            <p className="font-medium">{item.fileName || item.content}</p>
+                            <p className="text-xs text-muted-foreground">Shared a file.</p>
+                        </div>
+                    </div>
+                );
+            case 'tweet':
+            case 'text':
+                return <p className="my-2 py-1 whitespace-pre-line">{item.content}</p>;
+            default:
+                return <p className="my-2 py-1">{item.content}</p>;
+        }
+    };
+
+    const PostCard: React.FC<{ item: ProfilePost }> = ({ item }) => (
+        <Card className="shadow-md">
+            <CardHeader className="flex flex-row items-start space-x-3 pb-3">
+                <Avatar>
+                    <AvatarImage src={userData?.avatarUrl} alt={userData?.name} data-ai-hint={userData?.avatarAiHint || "user avatar"} />
+                    <AvatarFallback>{userData?.name?.substring(0, 2).toUpperCase() || 'U'}</AvatarFallback>
+                </Avatar>
+                <div>
+                    <p className="font-semibold text-foreground">{item.user}</p>
+                    <p className="text-xs text-muted-foreground">{item.timestamp}</p>
+                </div>
+                {/* TODO: Add options menu for edit/delete */}
+            </CardHeader>
+            <CardContent className="pb-2">
+                {renderPostContent(item)}
+            </CardContent>
+            <CardFooter className="flex justify-start items-center gap-2 pt-2 border-t">
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
+                    <ThumbsUp className="h-4 w-4 mr-1.5" /> {item.likes}
                 </Button>
-                <Button className="w-full sm:flex-1" onClick={handleSaveProfile} disabled={isSavingProfile}>
-                  {isSavingProfile && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {isSavingProfile ? 'Saving...' : 'Save Changes'}
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
+                    <MessageSquare className="h-4 w-4 mr-1.5" /> {item.comments}
                 </Button>
-              </div>
-            </>
-          )}
-        </CardContent>
-        <CardFooter>
-           <Button variant="destructive" className="w-full mt-4" onClick={onLogout}>
-            <LogOut className="mr-2 h-4 w-4" /> Logout
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
-  );
+                {/* TODO: Add Share button */}
+            </CardFooter>
+        </Card>
+    );
+
+    const GridItem: React.FC<{ item: ProfilePost }> = ({ item }) => (
+        <Card className="aspect-square overflow-hidden relative group cursor-pointer shadow-sm hover:shadow-lg transition-shadow">
+            {item.type === 'image' && item.thumbnailUrl && (
+                <Image src={item.thumbnailUrl} alt={item.content || "Grid item"} layout="fill" objectFit="cover" data-ai-hint={item.thumbnailAiHint || "gallery image"} />
+            )}
+            {item.type === 'video' && (
+                <>
+                    {item.thumbnailUrl && <Image src={item.thumbnailUrl} alt="Video thumbnail" layout="fill" objectFit="cover" className="opacity-80 group-hover:opacity-60 transition-opacity" data-ai-hint={item.thumbnailAiHint || "gallery video"}/>}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <Video className="h-8 w-8 text-white" />
+                    </div>
+                </>
+            )}
+             {item.type === 'link' && (
+                 <div className="w-full h-full bg-muted flex flex-col items-center justify-center p-2 text-center">
+                    <LinkIcon className="h-8 w-8 text-primary mb-1"/>
+                    <p className="text-xs font-medium text-foreground line-clamp-2">{item.content}</p>
+                 </div>
+            )}
+            {item.type === 'file' && (
+                <div className="w-full h-full bg-muted flex flex-col items-center justify-center p-2 text-center">
+                    <FileText className="h-8 w-8 text-primary mb-1"/>
+                    <p className="text-xs font-medium text-foreground line-clamp-2">{item.fileName || item.content}</p>
+                </div>
+            )}
+            {/* Overlay for stats on hover */}
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 text-white text-sm">
+                <span className="flex items-center"><ThumbsUp className="h-4 w-4 mr-1" />{item.likes}</span>
+                <span className="flex items-center"><MessageSquare className="h-4 w-4 mr-1" />{item.comments}</span>
+            </div>
+        </Card>
+    );
+
+
+    return (
+        <ScrollArea className="h-full bg-muted/20">
+            <div className="max-w-4xl mx-auto">
+                {/* Profile Header */}
+                <Card className="rounded-none sm:rounded-b-lg shadow-md">
+                    <CardContent className="pt-6">
+                        <div className="flex flex-col items-center sm:flex-row sm:items-start gap-4">
+                            <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-background ring-2 ring-primary">
+                                <AvatarImage src={userData?.avatarUrl} alt={userData?.name} data-ai-hint={userData?.avatarAiHint || "user avatar"} />
+                                <AvatarFallback>{userData?.name?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-grow text-center sm:text-left mt-2 sm:mt-0">
+                                <h1 className="text-2xl sm:text-3xl font-bold font-headline text-foreground">{userData?.name || 'User Profile'}</h1>
+                                {userData?.email && <p className="text-sm text-muted-foreground">{userData.email}</p>}
+                                <div className="flex justify-center sm:justify-start space-x-6 mt-3 text-sm">
+                                    <div><span className="font-semibold text-foreground">{totalPosts}</span> <span className="text-muted-foreground">Posts</span></div>
+                                    <div><span className="font-semibold text-foreground">{followersCount}</span> <span className="text-muted-foreground">Followers</span></div>
+                                    <div><span className="font-semibold text-foreground">{followingCount}</span> <span className="text-muted-foreground">Following</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row gap-2">
+                            <Button variant="outline" onClick={handleEditProfile} className="w-full sm:w-auto">
+                                <Edit3 className="mr-2 h-4 w-4" /> Edit Profile
+                            </Button>
+                            <Button variant="destructive" onClick={onLogout} className="w-full sm:w-auto">
+                                <LogOut className="mr-2 h-4 w-4" /> Logout
+                            </Button>
+                             <Button className="w-full sm:w-auto ml-auto" onClick={() => toast({ title: "Create Post (Simulated)", description: "Functionality to create a new post will be here."})}>
+                                <PlusCircle className="mr-2 h-4 w-4"/> Create Post
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Content Tabs */}
+                <Tabs value={activeProfileTab} onValueChange={(value) => setActiveProfileTab(value)} className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm py-2 px-2 sm:px-0">
+                    <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
+                        <TabsTrigger value="feed" className="py-2.5"><List className="mr-1.5 h-4 w-4"/>Feed</TabsTrigger>
+                        <TabsTrigger value="images" className="py-2.5"><Camera className="mr-1.5 h-4 w-4"/>Images</TabsTrigger>
+                        <TabsTrigger value="videos" className="py-2.5"><Video className="mr-1.5 h-4 w-4"/>Videos</TabsTrigger>
+                        <TabsTrigger value="links" className="py-2.5"><LinkIcon className="mr-1.5 h-4 w-4"/>Links</TabsTrigger>
+                        <TabsTrigger value="files" className="py-2.5"><FileText className="mr-1.5 h-4 w-4"/>Files</TabsTrigger>
+                        <TabsTrigger value="tweets" className="py-2.5"><MessageSquare className="mr-1.5 h-4 w-4"/>Tweets</TabsTrigger>
+                    </TabsList>
+                </Tabs>
+
+                {/* Content Area */}
+                <div className="p-2 sm:p-4">
+                    {filteredPosts.length === 0 ? (
+                        <div className="text-center py-10 text-muted-foreground">
+                            <p className="text-lg">No posts yet in this category.</p>
+                            <p className="text-sm">Start sharing your content!</p>
+                        </div>
+                    ) : (activeProfileTab === 'feed' || activeProfileTab === 'tweets' || activeProfileTab === 'links' || activeProfileTab === 'files' || (activeProfileTab === 'text' && !filteredPosts.some(p => p.thumbnailUrl))) ? (
+                        <div className="space-y-4">
+                            {filteredPosts.map(item => <PostCard key={item.id} item={item} />)}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-1 sm:gap-2">
+                           {filteredPosts.map(item => <GridItem key={item.id} item={item} />)}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </ScrollArea>
+    );
 };
 
 export default AccountScreen;

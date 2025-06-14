@@ -11,7 +11,7 @@ import FeedsScreen from '@/components/screens/FeedsScreen';
 import ServicesScreen from '@/components/screens/ServicesScreen';
 import RecommendedScreen from '@/components/screens/RecommendedScreen';
 import AccountScreen from '@/components/screens/AccountScreen';
-import ProfessionalProfileScreen from '@/components/screens/ProfessionalProfileScreen'; // New import
+import ProfessionalProfileScreen from '@/components/screens/ProfessionalProfileScreen';
 import UserSkillsetsScreen from '@/components/screens/UserSkillsetsScreen';
 import UserVehiclesScreen from '@/components/screens/UserVehiclesScreen';
 import UserBusinessProfilesScreen from '@/components/screens/UserBusinessProfilesScreen';
@@ -27,7 +27,7 @@ import JobBoardScreen from '@/components/screens/JobBoardScreen';
 import JobDetailScreen from '@/components/screens/JobDetailScreen';
 
 
-import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, UserProfile } from '@/types';
+import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -125,7 +125,7 @@ export default function AppRoot() {
   const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<UserDataForSideMenu | null>(null); // Use specific type
+  const [userData, setUserData] = useState<UserDataForSideMenu | null>(null); 
 
   const [businessProfilesData, setBusinessProfilesData] = useState<UserBusinessProfile[]>(initialBusinessProfiles);
   const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | number | null>(null);
@@ -146,18 +146,20 @@ export default function AppRoot() {
     setIsClient(true);
   }, []);
 
-  const handleLoginSuccess = (user: UserProfile) => { // Assuming API returns a UserProfile like structure
+  const handleLoginSuccess = (user: UserDataForSideMenu) => { 
     setIsLoggedIn(true);
-    setUserData({ // Adapt to UserDataForSideMenu
+    setUserData({ 
+        id: user.id, // Ensure id is part of the user object from API/login
         name: user.name,
         email: user.email,
-        avatarUrl: user.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar', // Add a default avatar
+        avatarUrl: user.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar',
+        avatarAiHint: user.avatarAiHint || 'user avatar',
     });
     setActiveTab('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
   };
 
-  const handleRegistrationSuccess = (user: {name: string; email: string}) => { // Basic user info from registration
+  const handleRegistrationSuccess = (user: {name: string; email: string}) => { 
     setActiveTab('login');
     toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in.` });
   };
@@ -222,7 +224,7 @@ export default function AppRoot() {
     } else if (profileId === 'prof2' || profileId === 'prof2-ux-designer-skillset'){
         handleSelectSkillsetProfile('prof2-ux-designer-skillset');
     } else if (profileId === "currentUser" && userData) {
-        setActiveTab('account');
+        setActiveTab('account'); // User's own content profile
     } else {
         setSelectedIndividualProfileId(profileId);
         setActiveTab('individual-profile');
@@ -518,8 +520,8 @@ export default function AppRoot() {
       case 'feeds': return <FeedsScreen />;
       case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen />;
-      case 'account': return <AccountScreen onLogout={handleLogout} />;
-      case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={handleTabSelection} userData={userData} />; // Pass userData
+      case 'account': return <AccountScreen userData={userData} onLogout={handleLogout} setActiveTab={handleTabSelection} />;
+      case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={handleTabSelection} userData={userData} />;
       case 'user-skillsets': return (
                             <UserSkillsetsScreen
                                 setActiveTab={handleTabSelection}
@@ -624,7 +626,7 @@ export default function AppRoot() {
           onSelectBusinessProfile={handleSelectBusinessProfile}
           selectedBusinessProfileId={selectedBusinessProfileId}
           onLogout={handleLogout}
-          userData={userData} // Pass userData to SideMenu
+          userData={userData} 
         />
       )}
 

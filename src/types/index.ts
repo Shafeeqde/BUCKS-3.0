@@ -8,24 +8,24 @@ export type TabName =
   | 'feeds'
   | 'menu' // Corresponds to ServicesScreen
   | 'recommended'
-  | 'account' // This will now be for "Account Settings"
-  | 'professional-profile' // New tab for the overall professional profile
+  | 'account' // This will now be for "Personal Content Profile"
+  | 'professional-profile' 
   | 'vehicles'
   | 'business-profiles'
   | 'business-detail'
   | 'manage-business-profile'
   | 'messages-notifications'
-  | 'individual-profile' // Public view of a general professional profile
-  | 'skillset-profile' // Public view of a specific skillset profile
-  | 'user-skillsets' // User's management screen for their skillset profiles
+  | 'individual-profile' 
+  | 'skillset-profile' 
+  | 'user-skillsets' 
   | 'manage-skillset-profile'
-  | 'job-board' // New: For viewing job listings
-  | 'job-detail'; // New: For viewing a specific job's details
+  | 'job-board' 
+  | 'job-detail'; 
 
 export interface Category {
   id: string;
   name?: string;
-  icon?: string | LucideIcon; // Can be SVG string or Lucide component
+  icon?: string | LucideIcon; 
   image?: string;
   type?: 'moments' | 'profile' | 'default';
   viewed: boolean;
@@ -92,6 +92,8 @@ export interface VehicleOption {
   pricePerKm?: string;
 }
 
+// For basic user profile editing in the original AccountScreen.
+// This might be deprecated or merged with UserDataForSideMenu if professional profile handles all.
 export interface UserProfile {
   name: string;
   email: string;
@@ -121,18 +123,18 @@ export interface BusinessProduct {
 }
 
 export interface BusinessJob {
-  id: string | number; // Unique ID for the job itself
-  businessId: string | number; // ID of the business posting the job
-  businessName: string; // Name of the business
-  businessLogoUrl?: string; // Logo of the business
+  id: string | number; 
+  businessId: string | number; 
+  businessName: string; 
+  businessLogoUrl?: string; 
   title: string;
   location?: string;
-  type?: 'Full-time' | 'Part-time' | 'Contract' | 'Internship' | string; // Allow other strings
+  type?: 'Full-time' | 'Part-time' | 'Contract' | 'Internship' | string; 
   description?: string;
-  postedDate?: string; // Consider using Date type if more manipulation is needed
+  postedDate?: string; 
   salaryRange?: string;
   requirements?: string[];
-  applyLink?: string; // External application link
+  applyLink?: string; 
 }
 
 
@@ -178,7 +180,7 @@ export interface UserBusinessProfile {
   feed?: BusinessFeedItem[];
   products?: BusinessProduct[];
   services?: BusinessService[];
-  jobs?: BusinessJob[]; // Uses the enhanced BusinessJob type
+  jobs?: BusinessJob[]; 
   reviews?: BusinessReview[];
   averageRating?: number;
   totalReviews?: number;
@@ -260,10 +262,10 @@ export interface WorkExperienceEntry {
     id: string;
     title: string;
     company: string;
-    employmentType?: string; // e.g., Full-time, Part-time, Contract
+    employmentType?: string; 
     location?: string;
-    startDate?: string; // Consider using Date type if complex date logic is needed
-    endDate?: string; // Or "Present"
+    startDate?: string; 
+    endDate?: string; 
     description?: string;
 }
 
@@ -274,7 +276,7 @@ export interface EducationEntry {
     fieldOfStudy?: string;
     startDate?: string;
     endDate?: string;
-    description?: string; // For honors, activities, etc.
+    description?: string; 
 }
 
 export interface LicenseCertificationEntry {
@@ -282,7 +284,7 @@ export interface LicenseCertificationEntry {
     name: string;
     issuingOrganization?: string;
     issueDate?: string;
-    expirationDate?: string; // Or "Does not expire"
+    expirationDate?: string; 
     credentialId?: string;
     credentialUrl?: string;
 }
@@ -290,27 +292,26 @@ export interface LicenseCertificationEntry {
 export interface OverallProfessionalProfileData {
     id: string;
     userId: string;
-    name?: string; // User's full name for display
-    professionalTitle?: string; // e.g., "Senior Software Engineer at Google"
-    avatarUrl?: string; // URL for the profile picture
+    name?: string; 
+    professionalTitle?: string; 
+    avatarUrl?: string; 
     avatarAiHint?: string;
-    coverPhotoUrl?: string; // URL for the cover image
+    coverPhotoUrl?: string; 
     coverPhotoAiHint?: string;
     professionalBio?: string;
     areasOfExpertise: string[];
     externalProfileLinks: {
         id: string;
-        platform: string; // e.g., LinkedIn, GitHub, Portfolio
+        platform: string; 
         url: string;
     }[];
     workExperience: WorkExperienceEntry[];
     education: EducationEntry[];
     licensesCertifications: LicenseCertificationEntry[];
-    // Potentially add: Skills (more granular), Projects, Recommendations
 }
 
 
-export interface IndividualProfileData { // Public view, less detailed than management
+export interface IndividualProfileData { 
   id: string;
   name: string;
   avatarUrl?: string;
@@ -323,8 +324,8 @@ export interface IndividualProfileData { // Public view, less detailed than mana
     website?: string;
     location?: string;
   };
-  skillsets: { // Links to specific skillset profiles
-    id: string; // ID of the skillset profile
+  skillsets: { 
+    id: string; 
     name: string;
     level: string;
     description?: string;
@@ -332,19 +333,19 @@ export interface IndividualProfileData { // Public view, less detailed than mana
   recommendationsCount: number;
   averageRating: number;
   totalReviews: number;
-  workExperienceEntries?: WorkExperienceEntry[]; // Summary of work experience
-  portfolioItems?: SkillsetSpecificPortfolioItem[]; // Highlights
+  workExperienceEntries?: WorkExperienceEntry[]; 
+  portfolioItems?: SkillsetSpecificPortfolioItem[]; 
   professionalFeed?: BusinessFeedItem[]; 
   reviews?: BusinessReview[]; 
 }
 
 // --- Types for Skillset-Specific Profiles ---
 
-export interface SkillsetSpecificWorkExperience { // Could be different from general work exp
+export interface SkillsetSpecificWorkExperience { 
   id: string;
   title: string;
   company: string;
-  years: string; // Simpler representation for skillset view
+  years: string; 
   description?: string;
 }
 
@@ -373,12 +374,12 @@ export interface SkillsetProfileData {
   skillName: string;
   skillLevel?: string;
   skillDescription?: string;
-  userName: string; // User who owns this skillset
+  userName: string; 
   userAvatarUrl?: string;
   userAvatarAiHint?: string;
-  professionalTitle?: string; // User's general professional title
-  skillSpecificBio?: string; // Bio specific to this skillset
-  contactInfo?: { // Contact info specifically for this skillset offering
+  professionalTitle?: string; 
+  skillSpecificBio?: string; 
+  contactInfo?: { 
     phone?: string;
     email?: string;
     website?: string;
@@ -403,10 +404,30 @@ export interface SkillsetProfileSummary {
   averageRating?: number;
 }
 
-// For SideMenu User Data
+// For SideMenu User Data & AccountScreen user data
 export interface UserDataForSideMenu {
+  id: string; // Added ID
   name: string;
   email: string;
   avatarUrl?: string;
-  avatarAiHint?: string; // For the default avatar
+  avatarAiHint?: string;
+}
+
+// --- Types for Personal Content Profile (AccountScreen) ---
+export interface ProfilePost {
+  id: string | number;
+  type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text'; // 'post' renamed to 'text' for clarity
+  user: string; // User who posted (should be the logged-in user for this screen)
+  timestamp: string;
+  likes: number;
+  comments: number;
+  thumbnailUrl?: string; // For image, video, link previews
+  thumbnailAiHint?: string;
+  imageUrl?: string; // For full image
+  imageAiHint?: string;
+  videoUrl?: string;
+  content?: string; // For text, tweet, link title, file name
+  url?: string; // For links
+  fileIcon?: string; // For files (e.g., '📄' or a Lucide icon name)
+  fileName?: string;
 }
