@@ -33,41 +33,79 @@ const initialBusinessProfiles: UserBusinessProfile[] = [
     name: 'Hot Griddle Restaurant',
     logo: 'https://placehold.co/80x80.png', logoAiHint: 'restaurant logo',
     coverPhoto: 'https://placehold.co/600x200.png', coverPhotoAiHint: 'restaurant food',
-    followers: 567,
-    following: 380,
     bio: 'International, locally sourced specialties, breakfast & mocktails offered in a relaxed restaurant.',
     website: 'https://hotgriddle.in/',
     phone: '+91 9876543210',
-    location: 'Bangalore, Karnataka',
-    specialties: ['International Cuisine', 'Local Specialties', 'Breakfast', 'Mocktails'],
+    email: 'contact@hotgriddle.in',
+    location: 'BTM Layout, Bangalore, Karnataka',
+    specialties: ['International Cuisine', 'Local Specialties', 'Breakfast', 'Mocktails', 'Grills'],
+    followers: 567,
+    following: 380,
     isActive: true,
     feed: [
-      { id: 1, content: 'Exciting new menu items just dropped!', image: 'https://placehold.co/300x200.png', imageAiHint: 'menu item', timestamp: '2 hours ago' },
-      { id: 2, content: 'Happy Hour extended!', timestamp: '1 day ago' },
+      { id: 'bf1', content: 'Exciting new menu items just dropped! Come try our new sizzlers and expanded mocktail selection.', image: 'https://placehold.co/600x350.png', imageAiHint: 'menu item food', timestamp: '2 hours ago' },
+      { id: 'bf2', content: 'Happy Hour extended! Enjoy 20% off on all beverages from 4 PM to 7 PM daily.', timestamp: '1 day ago' },
+      { id: 'bf3', content: 'Weekend special: Live music every Friday and Saturday night!', image: 'https://placehold.co/600x350.png', imageAiHint: 'live music band', timestamp: '3 days ago' },
     ],
     products: [
-      { id: 'prod-biryani-101', name: 'Biryani', price: '250', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'biryani dish' },
-      { id: 'prod-pizza-102', name: 'Pizza', price: '350', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'pizza slice' },
+      { id: 'prod-biryani-101', name: 'Signature Mutton Biryani (Serves 2)', price: '₹299', discountPrice: '₹229', discountPercentage: '23%', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'mutton biryani', description: 'Aromatic basmati rice cooked with tender mutton pieces and exotic spices. A house specialty.' },
+      { id: 'prod-pizza-102', name: 'Spicy Chicken Pizza (Medium)', price: '₹350', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'chicken pizza', description: 'Thin crust pizza topped with spicy chicken, bell peppers, onions, and mozzarella.' },
+      { id: 'prod-burger-103', name: 'Classic Griddle Veg Burger', price: '₹180', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'veg burger', description: 'A delicious veg patty with fresh lettuce, tomatoes, onions, and our special sauce.' },
+      { id: 'prod-pasta-104', name: 'Creamy Alfredo Pasta', price: '₹280', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'alfredo pasta', description: 'Fettuccine pasta tossed in a rich and creamy Alfredo sauce with mushrooms and herbs.' },
     ],
-    services: ['Dine-in', 'Takeaway', 'Catering', 'Home Delivery'],
+    services: [
+        {id: 'serv1', name: 'Dine-in Experience', description: 'Enjoy our comfortable and vibrant restaurant ambiance for a delightful meal.'},
+        {id: 'serv2', name: 'Takeaway & Pickup', description: 'Quick and convenient takeaway options available for all menu items.'},
+        {id: 'serv3', name: 'Event Catering', description: 'Professional catering services for parties, corporate events, and gatherings. Customizable menus available.', price: 'Starting from ₹500 per person'},
+        {id: 'serv4', name: 'Home Delivery (Partnered)', description: 'Get your favorite meals delivered to your doorstep through our delivery partners.'},
+    ],
     jobs: [
-      { id: 'job-chef-1', title: 'Head Chef', location: 'Bangalore', type: 'Full-time', postedDate: '2024-05-20' },
-    ]
+      { id: 'job-chef-1', title: 'Head Chef', location: 'Bangalore', type: 'Full-time', postedDate: '2024-05-20', description: 'Seeking an experienced Head Chef with expertise in multi-cuisine cooking and kitchen management.' },
+      { id: 'job-waiter-2', title: 'Service Staff / Waiter', location: 'Bangalore', type: 'Part-time', postedDate: '2024-05-18', description: 'Looking for energetic and customer-friendly service staff for weekend shifts.' },
+    ],
+    reviews: [
+        { id: 'rev1', reviewerName: 'Aisha K.', rating: 5, comment: 'The biryani was absolutely fantastic! Best I have had in Bangalore. Ambiance is great too.', date: '2024-05-15'},
+        { id: 'rev2', reviewerName: 'Rohan S.', rating: 4, comment: 'Good food and quick service. The mocktails were refreshing. A bit crowded on weekends.', date: '2024-05-12'},
+        { id: 'rev3', reviewerName: 'Priya M.', rating: 5, comment: 'Celebrated my birthday here. The staff was very accommodating and the food was delicious. Highly recommend!', date: '2024-05-10'},
+    ],
+    averageRating: 4.7,
+    totalReviews: 120,
   },
   {
     id: 2,
     name: 'Mikado UX UI & Branding Studio',
     logo: 'https://placehold.co/80x80.png', logoAiHint: 'design studio',
-    coverPhoto: 'https://placehold.co/600x200.png', coverPhotoAiHint: 'modern office',
-    followers: 5600,
-    following: 120,
-    bio: 'Curating digital experiences that connect with people. Global branding and user experience design consultancy.',
+    coverPhoto: 'https://placehold.co/600x200.png', coverPhotoAiHint: 'modern office design',
+    bio: 'Curating digital experiences that connect with people. Global branding and user experience design consultancy dedicated to innovation and quality.',
     website: 'http://www.mikado.biz',
     phone: '+91 8197278080',
-    location: 'Bengaluru, Karnataka',
-    specialties: ['User Experience Design', 'Product Design', 'Branding'],
+    email: 'hello@mikado.biz',
+    location: 'Indiranagar, Bengaluru, Karnataka',
+    specialties: ['User Experience Design (UX)', 'User Interface Design (UI)', 'Branding & Identity', 'Mobile App Design', 'Web Design'],
+    followers: 5600,
+    following: 120,
     isActive: true,
-    feed: [], products: [], services: ['UI/UX Consulting', 'Brand Strategy'], jobs: []
+    feed: [
+        {id: 'mfeed1', content: 'Excited to launch our new branding for a major e-commerce client! Check out the case study on our website.', image: 'https://placehold.co/600x350.png', imageAiHint: 'branding design project', timestamp: '1 week ago'},
+        {id: 'mfeed2', content: 'Hiring talented UX Designers! Visit our careers page for more details.', timestamp: '3 days ago'},
+    ],
+    products: [], // Design studios typically offer services, not products in this context
+    services: [
+        {id: 'mserv1', name: 'UI/UX Design Sprint', description: 'Intensive design sprint to rapidly prototype and validate your product ideas.', price: 'Contact for Quote'},
+        {id: 'mserv2', name: 'Brand Identity Package', description: 'Comprehensive branding package including logo, style guide, and marketing collateral design.'},
+        {id: 'mserv3', name: 'Website Design & Development', description: 'End-to-end website design and development services using modern technologies.'},
+        {id: 'mserv4', name: 'Mobile App Design (iOS & Android)', description: 'User-centric mobile application design for optimal engagement and usability.'},
+    ],
+    jobs: [
+        {id: 'mjob1', title: 'Senior UX Designer', location: 'Bengaluru (Remote option available)', type: 'Full-time', postedDate: '2024-05-15', description: 'Looking for a seasoned UX designer to lead projects and mentor junior designers. Strong portfolio required.'},
+        {id: 'mjob2', title: 'Graphic Design Intern', location: 'Bengaluru', type: 'Internship', postedDate: '2024-05-20', description: 'Opportunity for aspiring graphic designers to learn and contribute to real-world projects.'},
+    ],
+    reviews: [
+        {id: 'mrev1', reviewerName: 'Startup Founder X', rating: 5, comment: 'Mikado transformed our app! The new UX is intuitive and has significantly improved user engagement.', date: '2024-04-30'},
+        {id: 'mrev2', reviewerName: 'Marketing Manager Y', rating: 5, comment: 'The branding package they delivered was exceptional. Our new brand identity truly stands out.', date: '2024-03-15'},
+    ],
+    averageRating: 4.9,
+    totalReviews: 75,
   },
 ];
 
@@ -86,9 +124,9 @@ export default function AppRoot() {
   const [businessProfiles, setBusinessProfiles] = useState<UserBusinessProfile[]>(initialBusinessProfiles);
   const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | number | null>(null);
   
-  const [selectedIndividualProfileId, setSelectedIndividualProfileId] = useState<string | null>(null); // Legacy, might be removed if all individuals are SkillsetProfiles
-  const [selectedSkillsetProfileId, setSelectedSkillsetProfileId] = useState<string | null>(null); // For viewing a specific skillset profile
-  const [skillsetProfileToManageId, setSkillsetProfileToManageId] = useState<string | null>(null); // For editing a skillset profile
+  const [selectedIndividualProfileId, setSelectedIndividualProfileId] = useState<string | null>(null); 
+  const [selectedSkillsetProfileId, setSelectedSkillsetProfileId] = useState<string | null>(null); 
+  const [skillsetProfileToManageId, setSkillsetProfileToManageId] = useState<string | null>(null); 
 
 
   const [isFabVisible, setIsFabVisible] = useState(false);
@@ -146,24 +184,21 @@ export default function AppRoot() {
   };
 
   const handleBackFromBusinessDetail = () => {
-    setActiveTab('business-profiles');
+    setActiveTab('business-profiles'); // Or 'home' if navigating from search results on home
     setSelectedBusinessProfileId(null);
   };
   
   const handleSelectIndividualProfile = (profileId: string) => {
-    // This might be deprecated if all individuals are shown via Skillset Profiles
-    // For now, assuming it might show a general user profile if one exists.
-    // If not, it might also navigate to a primary skillset profile.
-    // For simplicity, let's assume it navigates to a general profile or their primary skillset.
-    // If your 'Individual' cards from search always represent a Skillset, this should call handleSelectSkillsetProfile.
     toast({title: "Individual Profile Clicked (Legacy)", description: `ID: ${profileId}. Consider linking to skillset profile.`});
-    // setSelectedIndividualProfileId(profileId);
-    // setActiveTab('individual-profile');
-    // For now, let's direct to a skillset profile for consistency, assuming Jenson is a skillset
-    if(profileId === 'individual-jenson-1' || profileId === 'prof2' || profileId === 'prof1') { // prof1 is from old dummy data for HomeScreen
-        handleSelectSkillsetProfile(profileId === 'individual-jenson-1' ? 'jenson-interior-stylist-123' : 'prof2-ux-designer-skillset'); // Map to a dummy skillset ID
+    if(profileId === 'individual-jenson-1' || profileId === 'prof2' || profileId === 'prof1') { 
+        handleSelectSkillsetProfile(profileId === 'individual-jenson-1' ? 'jenson-interior-stylist-123' : 'prof2-ux-designer-skillset'); 
     } else {
-        setSelectedIndividualProfileId(profileId); // Fallback if no direct skillset mapping
+        // Fallback for "My Profile" view from AccountScreen or direct general profile view
+        if (profileId === "currentUser" && userData) {
+             setSelectedIndividualProfileId("currentUser"); // Keep special ID for current user
+        } else {
+            setSelectedIndividualProfileId(profileId);
+        }
         setActiveTab('individual-profile');
     }
     setShowSideMenu(false);
@@ -569,3 +604,5 @@ export default function AppRoot() {
     </div>
   );
 }
+
+    
