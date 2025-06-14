@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, MapPin, X, PocketKnife, Filter, ArrowDownUp, ShoppingCart } from 'lucide-react'; // Added ShoppingCart
+import { Search, MapPin, X, PocketKnife, Filter, ArrowDownUp, ShoppingCart, LucideIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,8 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
 
 import IndividualProfessionalCard, { type IndividualProfessionalCardData } from '@/components/search/IndividualProfessionalCard';
-import BusinessProfileCard, { type BusinessProfileCardData as BusinessCardDataType } from '@/components/search/BusinessProfileCard'; // Renamed for clarity
-import type { TabName } from '@/types';
+import BusinessProfileCard from '@/components/search/BusinessProfileCard';
+import type { TabName, BusinessProfileCardData as BusinessCardDataType, BusinessProductCardItem } from '@/types';
 
 const initialPlaceholders = [
   "What are you looking for?",
@@ -33,7 +33,7 @@ const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'individual',
     data: {
-      id: 'individual-jenson-1',
+      id: 'individual-jenson-1', // Matches ID for SkillsetProfileScreen navigation
       name: 'Jenson Harris',
       avatarUrl: 'https://placehold.co/80x80.png',
       avatarAiHint: 'man smiling professional',
@@ -55,7 +55,7 @@ const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'business',
     data: {
-      id: 'business-hotgriddle-1',
+      id: 'business-hotgriddle-1', // Matches ID for UserBusinessProfileDetailScreen navigation
       name: 'Hot Griddle Restaurant',
       logoUrl: 'https://placehold.co/80x80.png',
       logoAiHint: 'restaurant logo',
@@ -74,7 +74,7 @@ const simulatedSearchResults: SearchResultItem[] = [
     {
     type: 'individual',
     data: {
-      id: 'prof2', // Matches dummy data for IndividualProfileScreen
+      id: 'prof2-ux-designer-skillset', // Made up ID for a skillset
       name: 'Alicia Keyson',
       avatarUrl: 'https://placehold.co/80x80.png',
       avatarAiHint: 'woman architect',
@@ -94,7 +94,7 @@ const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'business',
     data: {
-      id: 'business-aromas-2',
+      id: 'business-aromas-2', // Matches ID for UserBusinessProfileDetailScreen navigation (using 2 from page.tsx)
       name: 'Aromas of Biryani Cafe',
       logoUrl: 'https://placehold.co/80x80.png',
       logoAiHint: 'biryani shop',
@@ -114,9 +114,9 @@ const simulatedSearchResults: SearchResultItem[] = [
 
 interface HomeScreenProps {
   setActiveTab: (tab: TabName) => void;
-  onSelectIndividualProfile: (profileId: string) => void;
+  onSelectIndividualProfile: (profileId: string) => void; // Kept for potential general profiles
   onSelectBusinessProfile: (profileId: string | number) => void;
-  onSelectSkillsetProfile: (skillsetProfileId: string) => void;
+  onSelectSkillsetProfile: (skillsetProfileId: string) => void; // For specific skill profiles
   onAddToCart: (businessId: string | number, productId: string) => void;
 }
 
@@ -171,13 +171,19 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    if (e.target.value.trim() === '' && isSearchMode) {
-        setDisplayedSearchResults([]); // Clear results if search term is cleared in search mode
+    if (e.target.value.trim() === '' && isSearchMode) { // Clear results if search term cleared in search mode
+        setDisplayedSearchResults([]);
+        setAiTextAnswer(null);
+        setFoundLocations([]);
+        setCurrentQueryType(null);
     }
   };
 
   const handleFocus = () => {
     setShowSuggestions(true);
+    if (!isSearchMode) { // If focusing from map view, don't immediately set to search mode
+      // but allow suggestions to show
+    }
   };
 
   const handleBlur = () => {
@@ -228,41 +234,41 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
 
   const performSimulatedSearch = useCallback((query: string) => {
-    setIsLoadingSimulatedResults(true);
-    const trimmedQuery = query.trim(); // Trim the query here
+    const trimmedQuery = query.trim();
     const lowerQuery = trimmedQuery.toLowerCase();
     console.log('[HomeScreen] performSimulatedSearch called with query:', `"${trimmedQuery}" (lowercase: "${lowerQuery}")`);
 
+    if (trimmedQuery === '') {
+        console.log('[HomeScreen] Empty query, clearing simulated results.');
+        setDisplayedSearchResults([]);
+        setIsLoadingSimulatedResults(false);
+        return;
+    }
+
+    setIsLoadingSimulatedResults(true);
     setTimeout(() => {
-      let filtered: SearchResultItem[];
-      if (trimmedQuery === '') {
-        filtered = simulatedSearchResults.slice(0, 4); // Show a few by default
-        console.log('[HomeScreen] Empty query, showing initial results:', filtered.map(r => ({ id: r.data.id, type: r.type, name: r.data.name })));
-      } else {
-        console.log('[HomeScreen] Filtering with non-empty lowerQuery:', `"${lowerQuery}"`);
-        filtered = simulatedSearchResults.filter(item => {
-          let match = false;
-          if (item.type === 'individual') {
-            match = item.data.name.toLowerCase().includes(lowerQuery) ||
-                   (item.data.professionalTitle && item.data.professionalTitle.toLowerCase().includes(lowerQuery)) ||
-                   (item.data.shortBio && item.data.shortBio.toLowerCase().includes(lowerQuery));
-          } else if (item.type === 'business') {
-            const nameMatch = item.data.name.toLowerCase().includes(lowerQuery);
-            const taglineMatch = !!item.data.tagline && item.data.tagline.toLowerCase().includes(lowerQuery);
-            const productMatch = !!item.data.products && item.data.products.some(p => p.name.toLowerCase().includes(lowerQuery));
-            match = nameMatch || taglineMatch || productMatch;
-            
-            console.log(`[HomeScreen] Business Check: ${item.data.name}`);
-            console.log(`  Query: "${lowerQuery}"`);
-            console.log(`  Name (${item.data.name.toLowerCase()}): ${nameMatch}`);
-            console.log(`  Tagline (${item.data.tagline?.toLowerCase()}): ${taglineMatch}`);
-            console.log(`  Products: ${productMatch}`);
-            console.log(`  Overall Match: ${match}`);
-          }
-          return match;
-        });
-        console.log('[HomeScreen] Filtered results for query "' + trimmedQuery + '":', filtered.map(r => ({ id: r.data.id, type: r.type, name: r.data.name })));
-      }
+      const filtered = simulatedSearchResults.filter(item => {
+        let match = false;
+        if (item.type === 'individual') {
+          match = item.data.name.toLowerCase().includes(lowerQuery) ||
+                 (item.data.professionalTitle && item.data.professionalTitle.toLowerCase().includes(lowerQuery)) ||
+                 (item.data.shortBio && item.data.shortBio.toLowerCase().includes(lowerQuery));
+        } else if (item.type === 'business') {
+          const nameMatch = item.data.name.toLowerCase().includes(lowerQuery);
+          const taglineMatch = !!item.data.tagline && item.data.tagline.toLowerCase().includes(lowerQuery);
+          const productMatch = !!item.data.products && item.data.products.some(p => p.name.toLowerCase().includes(lowerQuery));
+          match = nameMatch || taglineMatch || productMatch;
+          
+          console.log(`[HomeScreen] Business Check: ${item.data.name}`);
+          console.log(`  Query: "${lowerQuery}"`);
+          console.log(`  Name (${item.data.name.toLowerCase()}): ${nameMatch}`);
+          console.log(`  Tagline (${item.data.tagline?.toLowerCase()}): ${taglineMatch}`);
+          console.log(`  Products: ${productMatch}`);
+          console.log(`  Overall Match: ${match}`);
+        }
+        return match;
+      });
+      console.log('[HomeScreen] Filtered results for query "' + trimmedQuery + '":', filtered.map(r => ({ id: r.data.id, type: r.type, name: r.data.name })));
       setDisplayedSearchResults(filtered);
       setIsLoadingSimulatedResults(false);
     }, 500);
@@ -271,26 +277,26 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
   const handleQuerySubmit = async (event?: React.FormEvent<HTMLFormElement>, queryOverride?: string) => {
     if (event) event.preventDefault();
-    const queryToSubmit = queryOverride || searchTerm.trim();
-
-    if (!queryToSubmit && !queryOverride) {
-      toast({
-        title: "Empty Search",
-        description: "Please enter a query to search.",
-        variant: "destructive",
-      });
-      setIsSearchMode(true);
-      performSimulatedSearch('');
-      return;
-    }
+    const queryToSubmit = (queryOverride || searchTerm).trim();
 
     setIsSearchMode(true);
     setShowSuggestions(false);
-    setAiTextAnswer(null);
-    setFoundLocations([]);
-    setCurrentQueryType(null);
-    setAiSuggestions([]);
+    setAiSuggestions([]); 
 
+    if (!queryToSubmit) {
+      toast({
+        title: "Empty Search",
+        description: "Please enter a query to search.",
+      });
+      setAiTextAnswer(null);
+      setFoundLocations([]);
+      setCurrentQueryType(null);
+      setDisplayedSearchResults([]);
+      setIsAnsweringQuery(false);
+      setIsLoadingSimulatedResults(false);
+      return;
+    }
+    
     if (!queryOverride && queryToSubmit) {
         setRecentSearches(prev => [queryToSubmit, ...prev.filter(s => s !== queryToSubmit)].slice(0, 10));
     }
@@ -298,28 +304,24 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     setIsAnsweringQuery(true);
     performSimulatedSearch(queryToSubmit);
 
-    if(queryToSubmit){
-        try {
-          const input: GeneralQueryInput = { query: queryToSubmit };
-          const result: GeneralQueryOutput = await answerGeneralQuery(input);
+    try {
+      const input: GeneralQueryInput = { query: queryToSubmit };
+      const result: GeneralQueryOutput = await answerGeneralQuery(input);
 
-          setAiTextAnswer(result.answer);
-          setCurrentQueryType(result.queryType);
-          if (result.queryType === 'location_search' && result.locations) {
-            setFoundLocations(result.locations);
-          } else {
-            setFoundLocations([]);
-          }
-        } catch (error) {
-          console.error("Error answering query:", error);
-          setAiTextAnswer("Sorry, I couldn't get an AI answer for that. Please try again.");
-          setCurrentQueryType('general');
-          setFoundLocations([]);
-        } finally {
-          setIsAnsweringQuery(false);
-        }
-    } else {
-        setIsAnsweringQuery(false);
+      setAiTextAnswer(result.answer);
+      setCurrentQueryType(result.queryType);
+      if (result.queryType === 'location_search' && result.locations) {
+        setFoundLocations(result.locations);
+      } else {
+        setFoundLocations([]);
+      }
+    } catch (error) {
+      console.error("Error answering query:", error);
+      setAiTextAnswer("Sorry, I couldn't get an AI answer for that. Please try again.");
+      setCurrentQueryType('general');
+      setFoundLocations([]);
+    } finally {
+      setIsAnsweringQuery(false);
     }
   };
 
@@ -345,7 +347,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     setAiSuggestions([]);
     setDisplayedSearchResults([]);
     setCurrentPlaceholderIndex(0);
-    performSimulatedSearch('');
   };
 
   let currentSuggestions: string[] = [];
@@ -370,13 +371,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   }
   const renderAISuggestions = currentSuggestions.length > 0 && currentSuggestionTitle;
 
-  const showMap = !isSearchMode && displayedSearchResults.length === 0; // Only show map if not searching AND no default results shown
-  const showResultsArea = isSearchMode || (!isSearchMode && displayedSearchResults.length > 0); // Show results if search mode OR if default results are present
-
+  const showMap = !isSearchMode;
+  const showResultsArea = isSearchMode;
 
   const handleIndividualCardPress = (profileId: string) => {
-    console.log(`Individual card pressed: ${profileId}`);
-    // Mapping logic from page.tsx is effectively what onSelectSkillsetProfile does
+    console.log(`Individual card pressed, navigating to skillset profile: ${profileId}`);
+    // Assuming individual cards always link to skillset profiles now
     onSelectSkillsetProfile(profileId);
   };
   const handleBusinessCardPress = (id: string | number) => {
@@ -390,13 +390,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const handleCardShareClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Share ${type}: ${id}` });
   const handleCardFollowClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Follow ${type}: ${id}` });
   const handleCardProductClick = (businessId: string | number, productId: string) => toast({ title: `Product ${productId} from Business ${businessId} clicked.` });
-
-
-  useEffect(() => {
-    if (!isSearchMode && displayedSearchResults.length === 0) {
-        performSimulatedSearch('');
-    }
-  }, [isSearchMode, performSimulatedSearch, displayedSearchResults.length]); // Added displayedSearchResults.length to dependencies
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -452,7 +445,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               variant="ghost"
               size="icon"
               className="p-1 rounded-full text-muted-foreground hover:text-primary disabled:opacity-50"
-              disabled={(isAnsweringQuery && isSearchMode) || (!searchTerm.trim() && !isSearchMode)} // Disable if AI query or empty non-searchmode
+              disabled={(isAnsweringQuery && isSearchMode)}
               aria-label="Submit search query"
             >
               <Search className="w-5 h-5" />
@@ -485,7 +478,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
       <ScrollArea className={cn(
           "flex-grow",
-           showResultsArea ? "pt-4 px-2 sm:px-4" : "relative"
+           showResultsArea ? "pt-4 px-2 sm:px-4" : "relative" 
       )}>
         {showMap && (
           <iframe
@@ -554,7 +547,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               </div>
             )}
             
-            {isLoadingSimulatedResults && !isAnsweringQuery && ( // Show loading for cards only if AI isn't already loading
+            {isLoadingSimulatedResults && !isAnsweringQuery && ( 
                 <div className="flex flex-col justify-center items-center h-40 text-center">
                     <svg className="animate-spin h-8 w-8 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -566,6 +559,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
             {!isLoadingSimulatedResults && displayedSearchResults.length > 0 && (
               <div className="space-y-6">
+                 <h3 className="text-lg font-semibold text-foreground font-headline mb-0 flex items-center">
+                    <Search className="mr-2 h-5 w-5 text-primary"/> Matching Profiles & Businesses:
+                </h3>
                 {displayedSearchResults.map((item) => {
                   if (item.type === 'individual') {
                     return (
@@ -602,20 +598,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               </div>
             )}
 
-            {!isAnsweringQuery && !isLoadingSimulatedResults && displayedSearchResults.length === 0 && searchTerm.trim() !== '' && (
+            {isSearchMode && !isAnsweringQuery && !isLoadingSimulatedResults && displayedSearchResults.length === 0 && searchTerm.trim() !== '' && (
                 <div className="text-center py-10 text-muted-foreground">
                     <p className="text-lg">No results found for "{searchTerm}".</p>
                     <p className="text-sm">Try a different search term or check your spelling.</p>
                 </div>
             )}
             
-            {!isAnsweringQuery && !isLoadingSimulatedResults && displayedSearchResults.length === 0 && searchTerm.trim() === '' && (isSearchMode) && (
+            {isSearchMode && !isAnsweringQuery && !isLoadingSimulatedResults && displayedSearchResults.length === 0 && searchTerm.trim() === '' && (
                  <div className="text-center py-10 text-muted-foreground">
-                    <p className="text-lg">Search for professionals, businesses, or ask Locality Hub AI.</p>
-                     <p className="text-sm mt-1">Initial dummy results are shown for demonstration when not searching.</p>
+                    <p className="text-lg">Please enter a search term to find professionals or businesses.</p>
                 </div>
             )}
-
           </div>
         )}
       </ScrollArea>
@@ -624,3 +618,5 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 };
 
 export default HomeScreen;
+
+    
