@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Briefcase, Building, MessageSquare, ShoppingBag, Users, Info, ExternalLink, Phone, MapPin, Rss, ThumbsUp, MessageCircle as CommentIcon, Star, Video, CalendarDays, DollarSign, PlusCircle, ExternalLinkIcon } from 'lucide-react';
 import type { UserBusinessProfile, BusinessProduct, BusinessJob, BusinessFeedItem, BusinessService, BusinessReview } from '@/types';
 import { cn } from '@/lib/utils';
+import { useToast } from "@/hooks/use-toast"; // Added missing import
 
 interface UserBusinessProfileDetailScreenProps {
   profile: UserBusinessProfile | undefined | null;
@@ -271,5 +272,3 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 };
 
 export default UserBusinessProfileDetailScreen;
-
-    
