@@ -9,97 +9,97 @@ body {
 
 @layer base {
   :root {
-    /* Updated to a Purple theme */
-    --background: 227 67% 96%; /* #F0F2F9 - Very light cool grey/off-white */
-    --foreground: 240 10% 3.9%; /* Default dark grey for text */
+    /* Teal and Warm Grey Theme */
+    --background: 200 20% 97%; /* Very light, slightly cool off-white */
+    --foreground: 210 10% 23%; /* Dark Desaturated Blue/Grey for text */
 
     --card: 0 0% 100%; /* White for cards */
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 210 10% 23%;
 
     --popover: 0 0% 100%; /* White for popovers */
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 210 10% 23%;
 
-    --primary: 270 60% 55%; /* Vibrant Purple */
+    --primary: 170 70% 45%; /* Teal */
     --primary-foreground: 0 0% 100%; /* White for text on primary */
 
-    --secondary: 270 50% 90%; /* Light Lavender - for subtle backgrounds or secondary elements */
-    --secondary-foreground: 270 60% 40%; /* Darker Purple for text on secondary */
+    --secondary: 170 50% 90%; /* Light Teal */
+    --secondary-foreground: 170 70% 30%; /* Darker Teal for text on secondary */
 
-    --muted: 240 20% 94%; /* Lighter grey for muted elements */
-    --muted-foreground: 240 10% 45%; 
+    --muted: 210 20% 94%; /* Lighter Cool Grey for muted elements */
+    --muted-foreground: 210 10% 45%; 
 
-    --accent: 270 50% 65%; /* Medium Purple Accent */
+    --accent: 30 90% 60%; /* Warm Orange/Coral for pop */
     --accent-foreground: 0 0% 100%; /* White for text on accent */
 
     --destructive: 0 70% 55%; /* Softer Red */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 20% 88%; /* Slightly darker border */
+    --border: 200 20% 88%; /* Slightly darker cool border */
     --input: 0 0% 100%; /* White inputs */
-    --ring: 270 60% 55%; /* Primary color for rings */
+    --ring: 170 70% 45%; /* Primary Teal for rings */
 
-    --chart-1: 270 70% 60%;
-    --chart-2: 300 65% 55%;
-    --chart-3: 240 60% 65%;
-    --chart-4: 280 75% 70%;
-    --chart-5: 260 55% 50%;
+    --chart-1: 170 70% 50%; /* Teal */
+    --chart-2: 30 85% 60%;  /* Orange */
+    --chart-3: 190 60% 60%; /* Lighter Teal/Cyan */
+    --chart-4: 210 20% 50%; /* Medium Grey */
+    --chart-5: 160 50% 40%; /* Darker Teal */
     --radius: 0.5rem;
 
-    /* Sidebar variables adapted to purple theme */
-    --sidebar-background: 270 30% 97%; /* Very light purple, almost white */
-    --sidebar-foreground: 270 50% 25%; /* Dark purple text */
-    --sidebar-primary: 270 60% 55%; /* Main purple for active items */
+    /* Sidebar variables adapted to Teal theme */
+    --sidebar-background: 170 30% 97%; /* Very light teal, almost white */
+    --sidebar-foreground: 170 50% 25%; /* Dark teal text */
+    --sidebar-primary: 170 70% 45%; /* Main Teal for active items */
     --sidebar-primary-foreground: 0 0% 100%; /* White text on primary */
-    --sidebar-accent: 270 50% 65%; /* Lighter purple for hover/accent */
+    --sidebar-accent: 170 60% 55%; /* Brighter Teal for hover/accent */
     --sidebar-accent-foreground: 0 0% 100%; /* White text on accent */
-    --sidebar-border: 270 20% 85%; /* Light purple border */
-    --sidebar-ring: 270 60% 55%; /* Main purple for rings */
+    --sidebar-border: 170 20% 85%; /* Light Teal border */
+    --sidebar-ring: 170 70% 45%; /* Main Teal for rings */
   }
 
   .dark {
-    --background: 270 15% 12%; /* Dark Purple/Indigo background */
-    --foreground: 270 30% 95%; /* Light grey/off-white text */
+    --background: 200 20% 12%; /* Dark Cool Grey/Blue background */
+    --foreground: 200 15% 95%; /* Light Off-white text */
 
-    --card: 270 15% 18%; /* Darker card background */
-    --card-foreground: 270 30% 95%;
+    --card: 200 20% 18%; /* Darker card background */
+    --card-foreground: 200 15% 95%;
 
-    --popover: 270 10% 15%;
-    --popover-foreground: 270 30% 95%;
+    --popover: 200 15% 15%;
+    --popover-foreground: 200 15% 95%;
 
-    --primary: 270 65% 65%; /* Lighter Purple for dark mode primary */
-    --primary-foreground: 270 10% 10%; /* Dark text on primary */
+    --primary: 170 65% 55%; /* Lighter Teal for dark mode primary */
+    --primary-foreground: 200 20% 10%; /* Very Dark Grey for text on primary */
 
-    --secondary: 270 20% 25%; /* Muted purple for secondary elements */
-    --secondary-foreground: 270 30% 85%;
+    --secondary: 170 30% 25%; /* Muted Dark Teal for secondary elements */
+    --secondary-foreground: 170 40% 85%; /* Lighter Teal text */
 
-    --muted: 270 15% 22%;
-    --muted-foreground: 270 20% 65%;
+    --muted: 200 15% 22%;
+    --muted-foreground: 200 10% 65%;
 
-    --accent: 270 55% 70%; /* Lighter purple accent for dark mode */
-    --accent-foreground: 270 10% 10%; /* Dark text on accent */
+    --accent: 30 80% 65%; /* Slightly lighter Orange/Coral for dark mode */
+    --accent-foreground: 20 20% 10%; /* Dark text on accent */
 
     --destructive: 0 60% 50%; /* Red for destructive actions */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 270 15% 28%;
-    --input: 270 15% 20%;
-    --ring: 270 65% 65%; /* Primary color for rings */
+    --border: 200 15% 28%;
+    --input: 200 15% 20%;
+    --ring: 170 65% 55%; /* Primary Teal for rings */
 
-    --chart-1: 270 60% 55%;
-    --chart-2: 300 55% 50%;
-    --chart-3: 240 50% 60%;
-    --chart-4: 280 65% 65%;
-    --chart-5: 260 45% 45%;
+    --chart-1: 170 60% 50%;
+    --chart-2: 30 75% 60%;
+    --chart-3: 190 50% 55%;
+    --chart-4: 210 15% 45%;
+    --chart-5: 160 40% 35%;
 
     /* Sidebar dark theme variables */
-    --sidebar-background: 270 15% 18%; /* Dark purple for sidebar */
-    --sidebar-foreground: 270 30% 90%; /* Light text */
-    --sidebar-primary: 270 65% 65%; /* Lighter purple for active items */
+    --sidebar-background: 200 20% 15%; /* Dark cool grey for sidebar */
+    --sidebar-foreground: 200 15% 90%; /* Light text */
+    --sidebar-primary: 170 65% 55%; /* Lighter Teal for active items */
     --sidebar-primary-foreground: 0 0% 100%; /* White text */
-    --sidebar-accent: 270 55% 70%; /* Lighter purple for hover */
-    --sidebar-accent-foreground: 270 10% 10%; /* Dark text */
-    --sidebar-border: 270 15% 25%; /* Darker border */
-    --sidebar-ring: 270 65% 65%; /* Primary purple for rings */
+    --sidebar-accent: 170 55% 65%; /* Lighter Teal for hover */
+    --sidebar-accent-foreground: 200 20% 10%; /* Dark text */
+    --sidebar-border: 200 15% 25%; /* Darker border */
+    --sidebar-ring: 170 65% 55%; /* Primary Teal for rings */
   }
 }
 
