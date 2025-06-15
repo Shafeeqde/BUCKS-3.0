@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { StarIcon, ChatBubbleOvalLeftEllipsisIcon, PhoneIcon, HandThumbUpIcon, ShareIcon, UserPlusIcon, ShoppingCartIcon } from '@heroicons/react/24/outline'; // Updated imports
+import { StarIcon, ChatBubbleOvalLeftEllipsisIcon, PhoneIcon, HandThumbUpIcon, ShareIcon, UserPlusIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 import type { BusinessProfileCardData, BusinessProductCardItem } from '@/types';
 
@@ -22,7 +22,7 @@ interface BusinessProfileCardProps {
   onFollowClick?: (id: string | number) => void;
 }
 
-const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 4, className }) => { // Renamed StarRating to avoid conflict
+const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 4, className }) => {
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.4;
   const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
@@ -52,9 +52,9 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
   onFollowClick,
 }) => {
   return (
-    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 w-full">
+    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 w-full overflow-hidden">
       <div
-        className="p-4 flex items-start space-x-3 cursor-pointer"
+        className="p-4 flex items-start space-x-4 cursor-pointer"
         onClick={() => onPress?.(business.id)}
         role="button"
         tabIndex={0}
@@ -63,18 +63,18 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
         <Image
           src={business.logoUrl || 'https://placehold.co/80x80.png'}
           alt={`${business.name} logo`}
-          width={60}
-          height={60}
-          className="rounded-md object-cover border"
+          width={72} // Slightly larger logo
+          height={72}
+          className="rounded-lg object-cover border flex-shrink-0"
           data-ai-hint={business.logoAiHint || "business logo"}
         />
-        <div className="flex-grow">
-          <CardTitle className="text-lg font-headline hover:text-primary">{business.name}</CardTitle>
-          {business.tagline && <CardDescription className="text-xs text-muted-foreground">{business.tagline}</CardDescription>}
+        <div className="flex-grow min-w-0"> {/* Added min-w-0 */}
+          <CardTitle className="text-lg font-headline hover:text-primary truncate">{business.name}</CardTitle>
+          {business.tagline && <CardDescription className="text-xs text-muted-foreground mt-0.5 truncate">{business.tagline}</CardDescription>}
           {business.briefInfo && <p className="text-xs text-muted-foreground mt-1">{business.briefInfo}</p>}
         </div>
         {onFollowClick && (
-          <Button variant="outline" size="sm" className="rounded-full self-start" onClick={(e) => { e.stopPropagation(); onFollowClick(business.id); }}>
+          <Button variant="outline" size="sm" className="rounded-full self-start whitespace-nowrap" onClick={(e) => { e.stopPropagation(); onFollowClick(business.id); }}>
             <UserPlusIcon className="h-4 w-4" />
             <span className="ml-1.5 hidden sm:inline">Follow</span>
           </Button>
@@ -82,65 +82,64 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
       </div>
 
       {business.products && business.products.length > 0 && (
-        <div className="px-4 pb-4 border-t mt-2 pt-3">
-          <h4 className="text-sm font-semibold text-foreground mb-2">Products</h4>
-          <div className="flex overflow-x-auto space-x-3 pb-2 custom-scrollbar">
+        <div className="pl-4 pr-1 pb-4 border-t mt-2 pt-3">
+          <h4 className="text-sm font-semibold text-foreground mb-2 px-0">Products</h4>
+          <div className="flex overflow-x-auto space-x-3 pb-2 custom-scrollbar -mr-3"> {/* Negative margin to hide scrollbar visually if needed */}
             {business.products.map((product) => (
               <Card
                 key={product.id}
-                className="min-w-[140px] max-w-[160px] flex-shrink-0 hover:shadow-md transition-shadow"
+                className="min-w-[150px] max-w-[170px] flex-shrink-0 hover:shadow-md transition-shadow cursor-pointer"
                 onClick={(e) => { e.stopPropagation(); onProductClick?.(business.id, product.id); }}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => e.key === 'Enter' && onProductClick?.(business.id, product.id)}
               >
-                <CardContent className="p-2">
-                  <div className="relative w-full aspect-[4/3] rounded-md overflow-hidden mb-2">
+                <CardContent className="p-2.5">
+                  <div className="relative w-full aspect-[4/3] rounded-md overflow-hidden mb-2 border">
                     <Image
-                      src={product.imageUrl || 'https://placehold.co/120x90.png'}
+                      src={product.imageUrl || 'https://placehold.co/150x112.png'}
                       alt={product.name}
                       layout="fill"
                       objectFit="cover"
                       data-ai-hint={product.imageAiHint || "product item"}
                     />
                     {product.discountPercentage && (
-                      <Badge variant="destructive" className="absolute top-1 right-1 text-xs px-1.5 py-0.5">
-                        {product.discountPercentage} Off
-                      </Badge>
+                      <Badge variant="destructive" className="absolute top-1.5 right-1.5 text-xs px-1.5 py-0.5">{product.discountPercentage}</Badge>
                     )}
                   </div>
-                  <h5 className="text-xs font-medium truncate text-foreground" title={product.name}>{product.name}</h5>
+                  <h5 className="text-xs font-semibold truncate text-foreground" title={product.name}>{product.name}</h5>
                   <div className="flex items-baseline gap-1 mt-0.5">
                     {product.discountPrice ? (
                       <>
-                        <p className="text-sm font-semibold text-primary">₹{product.discountPrice}</p>
+                        <p className="text-sm font-bold text-primary">₹{product.discountPrice}</p>
                         <p className="text-xs text-muted-foreground line-through">₹{product.price}</p>
                       </>
                     ) : (
-                      <p className="text-sm font-semibold text-foreground">₹{product.price}</p>
+                      <p className="text-sm font-bold text-foreground">₹{product.price}</p>
                     )}
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full mt-2 text-xs h-7"
+                    className="w-full mt-2 text-xs h-8"
                     onClick={(e) => { e.stopPropagation(); onAddToCartClick?.(business.id, product.id); }}
                   >
-                    <ShoppingCartIcon className="h-3.5 w-3.5 mr-1" /> Add
+                    <ShoppingCartIcon className="h-3.5 w-3.5 mr-1.5" /> Add
                   </Button>
                 </CardContent>
               </Card>
             ))}
+            <div className="w-1 flex-shrink-0"></div> {/* Spacer for right padding of scroll area */}
           </div>
         </div>
       )}
 
       {(business.averageRating !== undefined || business.totalReviews !== undefined) && (
-        <CardFooter className="text-xs text-muted-foreground pt-2 pb-3 px-4 border-t justify-start gap-3">
+        <CardFooter className="text-xs text-muted-foreground pt-2 pb-3 px-4 border-t justify-start gap-x-3 gap-y-1 flex-wrap">
           {business.averageRating !== undefined && (
             <div className="flex items-center">
               <StarRatingDisplay rating={business.averageRating} size={3} />
-              <span className="ml-1">({business.averageRating.toFixed(1)})</span>
+              <span className="ml-1 font-medium">{business.averageRating.toFixed(1)}</span>
             </div>
           )}
           {business.totalReviews !== undefined && (
@@ -150,24 +149,24 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
       )}
 
       {(onEnquiryClick || onCallClick || onRecommendClick || onShareClick) && (
-        <CardFooter className="pt-3 pb-4 px-2 border-t flex-wrap justify-start gap-1 sm:gap-2">
+        <CardFooter className="pt-3 pb-4 px-3 border-t flex flex-wrap justify-start gap-1.5 sm:gap-2">
           {onEnquiryClick && (
-            <Button variant="ghost" size="sm" className="text-xs" onClick={(e) => { e.stopPropagation(); onEnquiryClick(business.id); }}>
+            <Button variant="ghost" size="sm" className="text-xs px-2" onClick={(e) => { e.stopPropagation(); onEnquiryClick(business.id); }}>
               <ChatBubbleOvalLeftEllipsisIcon className="h-4 w-4 mr-1" /> Enquiry
             </Button>
           )}
           {business.phone && onCallClick && (
-            <Button variant="ghost" size="sm" className="text-xs" onClick={(e) => { e.stopPropagation(); onCallClick(business.id, business.phone); }}>
+            <Button variant="ghost" size="sm" className="text-xs px-2" onClick={(e) => { e.stopPropagation(); onCallClick(business.id, business.phone); }}>
               <PhoneIcon className="h-4 w-4 mr-1" /> Call
             </Button>
           )}
           {onRecommendClick && (
-            <Button variant="ghost" size="sm" className="text-xs" onClick={(e) => { e.stopPropagation(); onRecommendClick(business.id); }}>
+            <Button variant="ghost" size="sm" className="text-xs px-2" onClick={(e) => { e.stopPropagation(); onRecommendClick(business.id); }}>
               <HandThumbUpIcon className="h-4 w-4 mr-1" /> Recommend
             </Button>
           )}
           {onShareClick && (
-            <Button variant="ghost" size="sm" className="text-xs" onClick={(e) => { e.stopPropagation(); onShareClick(business.id); }}>
+            <Button variant="ghost" size="sm" className="text-xs px-2" onClick={(e) => { e.stopPropagation(); onShareClick(business.id); }}>
               <ShareIcon className="h-4 w-4 mr-1" /> Share
             </Button>
           )}
