@@ -26,6 +26,11 @@ const allUserContent: ProfilePost[] = [
     { id: 5, type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?food,healthy', thumbnailAiHint: 'food healthy', likes: 200, comments: 22, user: 'Test User', timestamp: '1 day ago', content: 'Healthy and delicious meal prep for the week.' },
     { id: 6, type: 'file', content: 'Q3_Marketing_Report.pdf', fileName: 'Q3_Marketing_Report.pdf', fileIcon: 'DocumentTextIcon', likes: 30, comments: 2, user: 'Test User', timestamp: '3 weeks ago' },
     { id: 7, type: 'tweet', content: 'Excited for the upcoming Next.js conference! Who else is attending? #NextJS #WebDev', likes: 45, comments: 7, user: 'Test User', timestamp: '2 months ago' },
+    { id: 8, type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?travel,mountains', thumbnailAiHint: 'travel mountains', likes: 150, comments: 18, user: 'Test User', timestamp: '1 week ago', content: 'Exploring the great outdoors.' },
+    { id: 9, type: 'video', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?music,concert', thumbnailAiHint: 'music concert', videoUrl: '#', likes: 100, comments: 12, user: 'Test User', timestamp: '5 days ago', content: 'Live music vibes from last night!' },
+    { id: 10, type: 'link', content: 'Useful CSS Tricks for Web Developers.', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?code,css', thumbnailAiHint: 'code css', likes: 65, comments: 9, url: 'https://example.com/blog/css-tricks', user: 'Test User', timestamp: '2 days ago' },
+    { id: 11, type: 'file', content: 'Project_Proposal.docx', fileName: 'Project_Proposal.docx', fileIcon: 'DocumentTextIcon', likes: 25, comments: 4, user: 'Test User', timestamp: '10 days ago' },
+    { id: 12, type: 'tweet', content: 'Just deployed a new feature! #developer #coding', likes: 88, comments: 14, user: 'Test User', timestamp: '6 hours ago' },
 ];
 
 
@@ -165,7 +170,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                         <div className="flex flex-col items-center sm:flex-row sm:items-start gap-4">
                             <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-background ring-2 ring-primary">
                                 <AvatarImage src={userData?.avatarUrl} alt={userData?.name} data-ai-hint={userData?.avatarAiHint || "user avatar"} />
-                                <AvatarFallback>{userData?.name?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
+                                <AvatarFallback className="text-3xl">{userData?.name?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
                             </Avatar>
                             <div className="flex-grow text-center sm:text-left mt-2 sm:mt-0">
                                 <div className="flex items-center justify-center sm:justify-start gap-2">
@@ -227,3 +232,5 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
 };
 
 export default AccountScreen;
+
+    
