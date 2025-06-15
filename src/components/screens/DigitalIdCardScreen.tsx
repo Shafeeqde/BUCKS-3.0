@@ -59,7 +59,7 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
     };
     
     // Simple Base64 encoded 1x1 transparent PNG for QR placeholder
-    const qrCodeDataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJySURBVHhe7dJBDQAgDAAx2P+FF7JgSRMAAAAAAAAAAAAAAAAAAAAAAABAQkmb/Vf2nAHtMkH+P3AGtMsE+f/AGdAuE+T/A2dAu0yQ/w+cAW0zQ0IWMiIiIzIicyIiIjMiIzIiIiMyIiMyIiIiMyIiMyIiIzIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiIiMyIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMxf3f4A9hMHg8gS7LwAAAAASUVORK5CYII=";
+    const qrCodeDataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJySURBVHhe7dJBDQAgDAAx2P+FF7JgSRMAAAAAAAAAAAAAAAAAAAAAAABAQkmb/Vf2nAHtMkH+P3AGtMsE+f/AGdAuE+T/A2dAu0yQ/w+cAW0zQ0IWMiIiIzIicyIiIjMiIzIiIiMyIiMyIiIiMyIiMyIiIzIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMxf3f4A9hMHg8gS7LwAAAAASUVORK5CYII=";
 
 
     return (
@@ -71,7 +71,7 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-1.5">
                                 <BuildingOfficeIcon className="h-5 w-5 text-primary" />
-                                <p className="text-sm font-semibold text-primary">BUCKS GOVT.</p>
+                                <p className="text-sm font-semibold text-primary">Digital user id</p>
                             </div>
                             <CheckBadgeIcon className="h-5 w-5 text-green-600" />
                         </div>
