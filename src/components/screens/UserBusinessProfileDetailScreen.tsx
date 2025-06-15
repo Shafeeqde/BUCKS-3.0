@@ -10,7 +10,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import {
     ArrowLeftIcon, BriefcaseIcon, BuildingOfficeIcon, ChatBubbleOvalLeftEllipsisIcon, ShoppingBagIcon, InformationCircleIcon, ArrowTopRightOnSquareIcon, PhoneIcon, MapPinIcon, RssIcon, HandThumbUpIcon,
-    StarIcon, VideoCameraIcon, CalendarDaysIcon, PlusCircleIcon, EllipsisHorizontalIcon, UserPlusIcon, GlobeAltIcon, EnvelopeIcon
+    StarIcon as StarIconOutline, 
+    VideoCameraIcon, CalendarDaysIcon, PlusCircleIcon, EllipsisHorizontalIcon, UserPlusIcon, GlobeAltIcon, EnvelopeIcon
 } from '@heroicons/react/24/outline';
 import type { UserBusinessProfile, BusinessProduct, BusinessJob, BusinessFeedItem, BusinessService, BusinessReview } from '@/types';
 import { cn } from '@/lib/utils';
@@ -18,22 +19,30 @@ import { useToast } from "@/hooks/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
+// Filled StarIcon for rating display
+const StarIcon = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={cn("h-5 w-5", className)} {...props}>
+    <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.116 3.986 1.242 5.855c.215 1.02.933 1.756 1.95 1.756 1.017 0 1.735-.736 1.95-1.756l1.242-5.855 4.116-3.986c.887-.76.415-2.212-.749-2.305l-5.404-.433L13.212 3.21z" clipRule="evenodd" />
+  </svg>
+);
+
 
 interface UserBusinessProfileDetailScreenProps {
   profile: UserBusinessProfile | undefined | null;
   onBack: () => void;
 }
 
-const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 5, className = "h-5 w-5"}) => {
+const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 5, className }) => {
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5;
   const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+  const iconSizeClass = `h-${size} w-${size}`;
 
   return (
     <div className={cn("flex items-center", className)}>
-      {[...Array(fullStars)].map((_, i) => <StarIcon key={`full-${i}`} className={cn(className, "text-yellow-400 fill-yellow-400")} />)}
-      {halfStar && <StarIcon key="half" className={cn(className, "text-yellow-400 fill-yellow-200")} />}
-      {[...Array(emptyStars)].map((_, i) => <StarIcon key={`empty-${i}`} className={cn(className, "text-muted-foreground/30")} />)}
+      {[...Array(fullStars)].map((_, i) => <StarIcon key={`full-${i}`} className={cn(iconSizeClass, "text-yellow-400")} />)}
+      {halfStar && <StarIcon key="half" className={cn(iconSizeClass, "text-yellow-400")} />}
+      {[...Array(emptyStars)].map((_, i) => <StarIconOutline key={`empty-${i}`} className={cn(iconSizeClass, "text-muted-foreground/50")} />)}
     </div>
   );
 };
@@ -65,7 +74,6 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
   const handleApplyJob = (job: BusinessJob) => toast({ title: "Apply for Job (Simulated)", description: `Applying for ${job.title}.`});
   const handleEnquireService = (service: BusinessService) => toast({ title: "Enquire Service (Simulated)", description: `Enquiring about ${service.name}.`});
 
-
   return (
     <ScrollArea className="h-full custom-scrollbar bg-background">
       <div className="max-w-5xl mx-auto">
@@ -96,7 +104,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
             )}
             {profile.averageRating && profile.totalReviews ? (
             <Badge variant="secondary" className="absolute top-4 right-4 bg-black/50 text-white backdrop-blur-sm text-sm py-1.5 px-3 rounded-lg shadow-md">
-                <StarIcon className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1.5"/> {profile.averageRating.toFixed(1)} ({profile.totalReviews} Reviews)
+                <StarIcon className="w-4 h-4 text-yellow-400 mr-1.5"/> {profile.averageRating.toFixed(1)} ({profile.totalReviews} Reviews)
             </Badge>
           ) : null}
         </div>
@@ -317,4 +325,3 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 
 export default UserBusinessProfileDetailScreen;
 
-    
