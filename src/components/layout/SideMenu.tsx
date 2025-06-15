@@ -15,7 +15,7 @@ import {
   ChevronRightIcon,
   RocketLaunchIcon, 
   UserCircleIcon, 
-  IdentificationIcon, // Added for ID card representation
+  IdentificationIcon, 
 } from '@heroicons/react/24/outline';
 import type { TabName, UserBusinessProfile, UserDataForSideMenu } from '@/types';
 import Image from 'next/image'; 
@@ -62,7 +62,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
   };
 
   const handleUserSectionClick = () => {
-    setActiveTab('account'); // Changed from 'professional-profile' to 'account'
+    setActiveTab('digital-id-card'); // Navigate to Digital ID Card screen
     onClose();
   };
 
@@ -70,7 +70,6 @@ const SideMenu: React.FC<SideMenuProps> = ({
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="left" className="w-[280px] sm:w-[320px] p-0 flex flex-col bg-sidebar text-sidebar-foreground">
         <SheetHeader className="p-4 border-b border-sidebar-border">
-          {/* Using IdentificationIcon or UserCircleIcon to represent viewing their ID/Account */}
           <SheetTitle className="text-xl font-bold text-sidebar-primary-foreground font-headline flex items-center">
             <IdentificationIcon className="mr-2 h-6 w-6"/> 
             My Account & ID
@@ -81,7 +80,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
           <Button
             variant="ghost"
             className="p-4 border-b border-sidebar-border flex items-center space-x-4 h-auto text-left w-full justify-start hover:bg-sidebar-accent/80 rounded-none"
-            onClick={handleUserSectionClick} // This click now navigates to the ID card view via 'account' tab
+            onClick={handleUserSectionClick} 
           >
             <Avatar className="h-14 w-14 border-2 border-sidebar-primary">
               <AvatarImage src={userData.avatarUrl || 'https://source.unsplash.com/random/64x64/?user,avatar'} alt={userData.name} data-ai-hint={userData.avatarAiHint || "user avatar"} />
@@ -156,4 +155,4 @@ const SideMenu: React.FC<SideMenuProps> = ({
 };
 
 export default SideMenu;
-
+    

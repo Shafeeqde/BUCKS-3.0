@@ -14,7 +14,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, setActiv
     { tabName: 'feeds' as TabName, label: 'Feeds', Icon: ChatBubbleOvalLeftEllipsisIcon },
     { tabName: 'menu' as TabName, label: 'Services', Icon: Squares2X2Icon },
     { tabName: 'recommended' as TabName, label: 'Recommended', Icon: StarIcon },
-    { tabName: 'account' as TabName, label: 'Account', Icon: UserIcon },
+    { tabName: 'account' as TabName, label: 'Account', Icon: UserIcon }, // This will now point to the new AccountScreen for content management
   ];
 
   return (
@@ -34,3 +34,4 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, setActiv
 };
 
 export default BottomNavigation;
+    

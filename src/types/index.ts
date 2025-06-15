@@ -25,7 +25,8 @@ export type TabName =
   | 'manage-skillset-profile'
   | 'job-board' 
   | 'job-detail'
-  | 'account-settings'; 
+  | 'account-settings'
+  | 'digital-id-card'; // Added new TabName
 
 export interface Category {
   id: string;
@@ -73,7 +74,7 @@ export interface RecommendedPost {
   thumbnail: string;
   thumbnailAiHint?: string;
   type: 'image' | 'video';
-  otherRecommendersCount?: number; // Added this field
+  otherRecommendersCount?: number;
 }
 
 export interface LocationResult {
@@ -410,12 +411,11 @@ export interface UserDataForSideMenu {
   avatarAiHint?: string;
 }
 
-// Updated Post type for AccountScreen.tsx to clarify its purpose
 export interface ProfilePost {
   id: string | number;
-  type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text' | 'post'; // 'post' for generic text/image combo
-  user: string; // User who created THIS post
-  userImage?: string; // Avatar of the user who created THIS post
+  type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text' | 'post'; 
+  user: string; 
+  userImage?: string; 
   userImageAiHint?: string;
   timestamp: string;
   likes: number;
@@ -423,10 +423,11 @@ export interface ProfilePost {
   content?: string; 
   thumbnailUrl?: string; 
   thumbnailAiHint?: string;
-  imageUrl?: string; // Can be used if type is 'image' or 'post'
+  imageUrl?: string; 
   imageAiHint?: string;
   videoUrl?: string;
-  url?: string; // For 'link' type
-  fileIcon?: string; // For 'file' type
-  fileName?: string; // For 'file' type
+  url?: string; 
+  fileIcon?: string; 
+  fileName?: string; 
 }
+    

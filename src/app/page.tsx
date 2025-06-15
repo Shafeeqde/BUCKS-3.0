@@ -10,7 +10,8 @@ import HomeScreen from '@/components/screens/HomeScreen';
 import FeedsScreen from '@/components/screens/FeedsScreen';
 import ServicesScreen from '@/components/screens/ServicesScreen';
 import RecommendedScreen from '@/components/screens/RecommendedScreen';
-import AccountScreen from '@/components/screens/AccountScreen';
+import AccountScreen from '@/components/screens/AccountScreen'; // This will be the new content management screen
+import DigitalIdCardScreen from '@/components/screens/DigitalIdCardScreen'; // This is the renamed ID card screen
 import ProfessionalProfileScreen from '@/components/screens/ProfessionalProfileScreen';
 import UserSkillsetsScreen from '@/components/screens/UserSkillsetsScreen';
 import UserVehiclesScreen from '@/components/screens/UserVehiclesScreen';
@@ -288,6 +289,7 @@ export default function AppRoot() {
   const handleTabSelection = (tab: TabName) => {
     setActiveTab(tab);
     setShowSideMenu(false);
+    // Reset selections if navigating to a main tab that isn't a detail/management view
     if (tab !== 'business-detail' && 
         tab !== 'individual-profile' && 
         tab !== 'skillset-profile' && 
@@ -295,7 +297,8 @@ export default function AppRoot() {
         tab !== 'manage-business-profile' && 
         tab !== 'job-detail' && 
         tab !== 'professional-profile' &&
-        tab !== 'account-settings') { 
+        tab !== 'account-settings' &&
+        tab !== 'digital-id-card') { 
         setSelectedBusinessProfileId(null);
         setBusinessProfileToManageId(null);
         setSelectedIndividualProfileId(null);
@@ -329,12 +332,13 @@ export default function AppRoot() {
   };
 
   const handleSelectIndividualProfile = (profileId: string) => {
+    // This logic might need review if 'individual-profile' tab has different meaning now
     if(profileId === 'individual-jenson-1' || profileId === 'jenson-interior-stylist-123') {
         handleSelectSkillsetProfile('jenson-interior-stylist-123');
     } else if (profileId === 'prof2' || profileId === 'prof2-ux-designer-skillset'){
         handleSelectSkillsetProfile('prof2-ux-designer-skillset');
     } else if (profileId === "currentUser" && userData) {
-        setActiveTab('account'); 
+        setActiveTab('account'); // Navigates to the content management AccountScreen
     } else {
         setSelectedIndividualProfileId(profileId);
         setActiveTab('individual-profile');
@@ -631,6 +635,7 @@ export default function AppRoot() {
       case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen />;
       case 'account': return <AccountScreen userData={userData} setActiveTab={handleTabSelection} />;
+      case 'digital-id-card': return <DigitalIdCardScreen userData={userData} setActiveTab={handleTabSelection} />;
       case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={handleTabSelection} userData={userData} />;
       case 'user-skillsets': return (
                             <UserSkillsetsScreen
@@ -663,7 +668,9 @@ export default function AppRoot() {
 
       case 'individual-profile':
         if (selectedIndividualProfileId === "currentUser" && userData) {
-             return <IndividualProfileScreen profileId="currentUser" setActiveTab={handleTabSelection} />;
+             // If current user is selected, show their main account content view
+             setActiveTab('account');
+             return <AccountScreen userData={userData} setActiveTab={handleTabSelection} />;
         } else if (selectedIndividualProfileId) {
              return <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={handleTabSelection} />;
         }
@@ -782,3 +789,4 @@ export default function AppRoot() {
     </div>
   );
 }
+    
