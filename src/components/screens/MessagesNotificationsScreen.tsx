@@ -79,7 +79,7 @@ const MessagesNotificationsScreen: React.FC<MessagesNotificationsScreenProps> = 
           <ScrollArea className="flex-grow custom-scrollbar">
             <TabsContent value="messages" className="m-0 p-3 space-y-3">
               {messages.length > 0 ? messages.map(msg => (
-                <Card key={msg.id} className={cn("hover:shadow-md transition-shadow", !msg.read && "border-primary ring-1 ring-primary/20")}>
+                <Card key={msg.id} className={cn("hover:shadow-md transition-shadow", !msg.read && "border-primary ring-1 ring-primary/20 bg-primary/5")}>
                   <CardContent className="p-3">
                     <div className="flex items-start space-x-3">
                       {msg.senderImage && (
@@ -102,7 +102,7 @@ const MessagesNotificationsScreen: React.FC<MessagesNotificationsScreenProps> = 
 
             <TabsContent value="notifications" className="m-0 p-3 space-y-3">
               {notifications.length > 0 ? notifications.map(notif => (
-                <Card key={notif.id} className={cn("hover:shadow-md transition-shadow", !notif.read && "border-primary ring-1 ring-primary/20")}>
+                <Card key={notif.id} className={cn("hover:shadow-md transition-shadow", !notif.read && "border-primary ring-1 ring-primary/20 bg-primary/5")}>
                    <CardContent className="p-3">
                     <div className="flex items-start space-x-3">
                       {notif.icon ? <notif.icon className={cn("h-5 w-5 mt-0.5 flex-shrink-0", !notif.read ? "text-primary" : "text-muted-foreground")} /> : <BellIcon className="h-5 w-5 mt-0.5 flex-shrink-0 text-muted-foreground"/>}
