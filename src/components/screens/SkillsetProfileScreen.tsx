@@ -19,11 +19,11 @@ import {
     RssIcon, 
     MapPinIcon, 
     ArrowTopRightOnSquareIcon, 
-    LinkIcon, 
+    LinkIcon as LinkIconOutline, 
     InformationCircleIcon 
 } from '@heroicons/react/24/outline';
 import { useToast } from "@/hooks/use-toast";
-import type { TabName, SkillsetProfileData, SkillsetSpecificWorkExperience, SkillsetSpecificPortfolioItem } from '@/types';
+import type { TabName, SkillsetProfileData, SkillsetSpecificWorkExperience, SkillsetSpecificPortfolioItem, BusinessReview, BusinessFeedItem } from '@/types'; // Added BusinessFeedItem, BusinessReview
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
@@ -32,7 +32,6 @@ interface SkillsetProfileScreenProps {
   skillsetProfileId: string | null; 
 }
 
-// --- Placeholder API Simulation Function ---
 const simulateFetchSkillsetProfile = async (profileId: string): Promise<SkillsetProfileData | null> => {
   console.log(`Simulating fetching skillset profile for ID: ${profileId}`);
   return new Promise((resolve) => {
@@ -206,40 +205,45 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
 
   return (
     <ScrollArea className="h-full bg-background">
-      <div className="max-w-5xl mx-auto p-4 sm:p-6 md:p-8">
-        <Card className="mb-6 shadow-lg">
+      <div className="max-w-5xl mx-auto"> {/* Removed p-4 sm:p-6 md:p-8 for global padding */}
+        <Card className="mb-6 shadow-lg rounded-b-lg">
           <CardContent className="pt-6 flex flex-col md:flex-row items-center md:items-start gap-6">
-            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-primary/20 flex-shrink-0">
+            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background ring-2 ring-primary flex-shrink-0">
               <AvatarImage src={profileData.userAvatarUrl} alt={profileData.userName} data-ai-hint={profileData.userAvatarAiHint || "professional person"} />
-              <AvatarFallback>{profileData.userName.substring(0, 2).toUpperCase()}</AvatarFallback>
+              <AvatarFallback className="text-3xl">{profileData.userName.substring(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
-            <div className="text-center md:text-left flex-grow">
+            <div className="text-center md:text-left flex-grow mt-4 md:mt-0">
               <h1 className="text-2xl sm:text-3xl font-bold font-headline text-primary mb-1">{profileData.skillName}</h1>
               <p className="text-lg text-muted-foreground mb-1">by {profileData.userName}</p>
               {profileData.professionalTitle && <p className="text-md text-muted-foreground font-medium mb-2">{profileData.professionalTitle}</p>}
               {profileData.skillLevel && <Badge variant="secondary" className="mb-2">{profileData.skillLevel}</Badge>}
-              {profileData.skillSpecificBio && <p className="text-muted-foreground mb-4 text-base">{profileData.skillSpecificBio}</p>}
-              {!profileData.skillSpecificBio && profileData.skillDescription && <p className="text-muted-foreground mb-4 text-base">{profileData.skillDescription}</p>}
+              
+              {profileData.skillSpecificBio ? (
+                <p className="text-muted-foreground mb-4 text-sm leading-relaxed">{profileData.skillSpecificBio}</p>
+              ) : profileData.skillDescription && (
+                <p className="text-muted-foreground mb-4 text-sm leading-relaxed">{profileData.skillDescription}</p>
+              )}
 
               <div className="flex flex-wrap justify-center md:justify-start items-center gap-x-4 gap-y-2 mb-4">
                 {profileData.averageRating > 0 && (
-                  <div className="flex items-center gap-1">
-                    <StarRatingDisplay rating={profileData.averageRating} />
-                    <span className="text-sm text-muted-foreground ml-1">({profileData.averageRating.toFixed(1)})</span>
-                    <span className="text-sm text-muted-foreground hidden sm:inline"> ({profileData.totalReviews} reviews)</span>
+                  <div className="flex items-center gap-1.5">
+                    <StarRatingDisplay rating={profileData.averageRating} size={4} className="h-4 w-4" />
+                    <span className="text-xs text-muted-foreground font-medium">{profileData.averageRating.toFixed(1)}</span>
+                    <span className="text-xs text-muted-foreground">({profileData.totalReviews} reviews)</span>
                   </div>
                 )}
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <HandThumbUpIcon className="h-4 w-4 text-green-500" />
-                  <span>{profileData.recommendationsCount} Recommendations</span>
-                </div>
-                {profileData.averageRating > 0 && <span className="text-sm text-muted-foreground sm:hidden"> ({profileData.totalReviews} reviews)</span>}
+                {profileData.recommendationsCount > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <HandThumbUpIcon className="h-4 w-4 text-green-500" />
+                    <span className="font-medium">{profileData.recommendationsCount}</span> Recommendations
+                  </div>
+                )}
               </div>
               <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                <Button size="lg">
+                <Button size="lg" className="w-full sm:w-auto">
                   <ChatBubbleOvalLeftEllipsisIcon className="mr-2 h-5 w-5" /> Enquire about {profileData.skillName.split(' ')[0]}
                 </Button>
-                {profileData.contactInfo?.phone && <Button size="lg" variant="outline"><PhoneIcon className="mr-2 h-5 w-5"/> Call</Button>}
+                {profileData.contactInfo?.phone && <Button size="lg" variant="outline" className="w-full sm:w-auto"><PhoneIcon className="mr-2 h-5 w-5"/> Call</Button>}
               </div>
             </div>
           </CardContent>
@@ -250,31 +254,31 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
             {profileData.contactInfo && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center"><EnvelopeIcon className="mr-2 h-5 w-5 text-primary" />Contact Information</CardTitle>
+                  <CardTitle className="text-xl flex items-center"><InformationCircleIcon className="mr-2 h-5 w-5 text-primary" />Contact Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
                   {profileData.contactInfo.phone && (
-                    <div className="flex items-center">
-                      <PhoneIcon className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
+                    <div className="flex items-center gap-3">
+                      <PhoneIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <a href={`tel:${profileData.contactInfo.phone}`} className="text-foreground hover:text-primary hover:underline">{profileData.contactInfo.phone}</a>
                     </div>
                   )}
                   {profileData.contactInfo.email && (
-                    <div className="flex items-center">
-                      <EnvelopeIcon className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
+                    <div className="flex items-center gap-3">
+                      <EnvelopeIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <a href={`mailto:${profileData.contactInfo.email}`} className="text-foreground hover:text-primary hover:underline">{profileData.contactInfo.email}</a>
                     </div>
                   )}
                   {profileData.contactInfo.location && (
-                    <div className="flex items-center">
-                      <MapPinIcon className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
+                    <div className="flex items-center gap-3">
+                      <MapPinIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <span className="text-foreground">{profileData.contactInfo.location}</span>
                     </div>
                   )}
                   {profileData.contactInfo.website && (
-                    <div className="flex items-center">
-                      <GlobeAltIcon className="h-4 w-4 mr-3 text-muted-foreground flex-shrink-0" />
-                      <a href={profileData.contactInfo.website} target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-primary hover:underline truncate">
+                    <div className="flex items-center gap-3">
+                      <GlobeAltIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <a href={profileData.contactInfo.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate">
                         {profileData.contactInfo.website.replace(/^https?:\/\//, '')}
                       </a>
                     </div>
@@ -282,9 +286,9 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
                 </CardContent>
               </Card>
             )}
-             {profileData.skillDescription && !profileData.skillSpecificBio && (
+            {profileData.skillDescription && profileData.skillSpecificBio && ( // Show general skill desc if specific bio is also present
                 <Card>
-                    <CardHeader><CardTitle className="text-xl flex items-center"><InformationCircleIcon className="mr-2 h-5 w-5 text-primary"/>Skill Description</CardTitle></CardHeader>
+                    <CardHeader><CardTitle className="text-xl flex items-center"><InformationCircleIcon className="mr-2 h-5 w-5 text-primary"/>Skill Overview</CardTitle></CardHeader>
                     <CardContent><p className="text-sm text-muted-foreground">{profileData.skillDescription}</p></CardContent>
                 </Card>
             )}
@@ -294,16 +298,11 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
             {profileData.workExperienceEntries && profileData.workExperienceEntries.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center"><BriefcaseIcon className="mr-2 h-5 w-5 text-primary" />Work Experience</CardTitle>
+                  <CardTitle className="text-xl flex items-center"><BriefcaseIcon className="mr-2 h-5 w-5 text-primary" />Relevant Experience</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {profileData.workExperienceEntries.map((item) => (
-                    <div key={item.id} className="pb-4 border-b last:border-b-0">
-                      <h4 className="text-md font-semibold text-foreground">{item.title}</h4>
-                      <p className="text-sm text-muted-foreground">{item.company} ({item.years})</p>
-                      {item.description && <p className="text-xs text-muted-foreground mt-1">{item.description}</p>}
-                    </div>
-                  ))}
+                   {/* Placeholder for Work Experience mapping - Phase 2d */}
+                   <p className="text-sm text-muted-foreground">Work experience details will appear here.</p>
                 </CardContent>
               </Card>
             )}
@@ -311,27 +310,11 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
             {profileData.portfolioItems && profileData.portfolioItems.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center"><BookOpenIcon className="mr-2 h-5 w-5 text-primary" />Portfolio</CardTitle>
+                  <CardTitle className="text-xl flex items-center"><BookOpenIcon className="mr-2 h-5 w-5 text-primary" />Skill Portfolio</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {profileData.portfolioItems.map((item) => (
-                    <div key={item.id} className="pb-4 border-b last:border-b-0">
-                      {item.imageUrl && (
-                        <div className="relative w-full aspect-video rounded-md overflow-hidden mb-2">
-                          <Image src={item.imageUrl} alt={item.title} layout="fill" objectFit="cover" data-ai-hint={item.imageAiHint || "portfolio project"} />
-                        </div>
-                      )}
-                      <h4 className="text-md font-semibold text-foreground">{item.title}</h4>
-                      {item.description && <p className="text-xs text-muted-foreground mt-1 mb-2">{item.description}</p>}
-                      {item.link && (
-                        <Button variant="link" size="sm" asChild className="p-0 h-auto">
-                          <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-xs">
-                            View Project <ArrowTopRightOnSquareIcon className="inline h-3 w-3 ml-1" />
-                          </a>
-                        </Button>
-                      )}
-                    </div>
-                  ))}
+                  {/* Placeholder for Portfolio mapping - Phase 2d */}
+                  <p className="text-sm text-muted-foreground">Portfolio items will appear here.</p>
                 </CardContent>
               </Card>
             )}
@@ -339,20 +322,11 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
             {profileData.professionalFeed && profileData.professionalFeed.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl flex items-center"><RssIcon className="mr-2 h-5 w-5 text-primary" />Professional Updates</CardTitle>
+                  <CardTitle className="text-xl flex items-center"><RssIcon className="mr-2 h-5 w-5 text-primary" />Skill-Related Updates</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {profileData.professionalFeed.map((item) => (
-                    <div key={item.id} className="pb-4 border-b last:border-b-0">
-                       {item.imageUrl && (
-                        <div className="relative w-full aspect-[16/7] rounded-md overflow-hidden mb-2">
-                          <Image src={item.imageUrl} alt="Feed image" layout="fill" objectFit="cover" data-ai-hint={item.imageAiHint || "social media update"} />
-                        </div>
-                      )}
-                      <p className="text-sm text-foreground mb-1">{item.content}</p>
-                      <p className="text-xs text-muted-foreground">{item.timestamp}</p>
-                    </div>
-                  ))}
+                  {/* Placeholder for Feed mapping - Phase 2d */}
+                  <p className="text-sm text-muted-foreground">Feed items will appear here.</p>
                 </CardContent>
               </Card>
             )}
@@ -361,21 +335,13 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
               <Card>
                 <CardHeader>
                   <CardTitle className="text-xl flex items-center">
-                    Reviews & Feedback
+                    Client Reviews
                     <Badge variant="outline" className="ml-2">{profileData.totalReviews}</Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {profileData.reviews.slice(0, 3).map((item) => ( // Show first 3 reviews
-                    <div key={item.id} className="pb-4 border-b last:border-b-0">
-                      <div className="flex justify-between items-center mb-1">
-                        <h5 className="text-sm font-semibold text-foreground">{item.reviewerName}</h5>
-                        <StarRatingDisplay rating={item.rating} size={4} className="h-4 w-4" />
-                      </div>
-                      <p className="text-xs text-muted-foreground mb-1 italic">{item.comment}</p>
-                      <p className="text-xs text-muted-foreground text-right">{item.date}</p>
-                    </div>
-                  ))}
+                   {/* Placeholder for Reviews mapping - Phase 2d */}
+                   <p className="text-sm text-muted-foreground">Reviews will appear here.</p>
                   {profileData.reviews.length > 3 && (
                     <Button variant="outline" className="w-full mt-2">View All {profileData.totalReviews} Reviews</Button>
                   )}
@@ -391,3 +357,4 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
 
 export default SkillsetProfileScreen;
     
+
