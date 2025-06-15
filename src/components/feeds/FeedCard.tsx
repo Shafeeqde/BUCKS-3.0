@@ -19,9 +19,17 @@ interface FeedCardProps {
   onCommentChange: (id: number, value: string) => void;
   onPostComment: (id: number) => void;
   onToggleCommentBox: (id: number) => void;
+  onViewUserProfile?: (profileId: string) => void; // New prop
 }
 
-const FeedCard: React.FC<FeedCardProps> = ({ item, onInteraction, onCommentChange, onPostComment, onToggleCommentBox }) => {
+const FeedCard: React.FC<FeedCardProps> = ({ item, onInteraction, onCommentChange, onPostComment, onToggleCommentBox, onViewUserProfile }) => {
+  
+  const handleUserClick = () => {
+    if (item.profileId && onViewUserProfile) {
+      onViewUserProfile(item.profileId);
+    }
+  };
+
   return (
     <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
       <CardHeader className="flex flex-row items-center space-x-3 pb-3">
@@ -30,7 +38,13 @@ const FeedCard: React.FC<FeedCardProps> = ({ item, onInteraction, onCommentChang
           <AvatarFallback>{item.user.substring(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="flex-grow">
-          <CardTitle className="text-base font-semibold text-foreground font-headline">{item.user}</CardTitle>
+          {item.profileId && onViewUserProfile ? (
+             <button onClick={handleUserClick} className="text-left focus:outline-none group">
+                <CardTitle className="text-base font-semibold text-foreground font-headline group-hover:text-primary group-hover:underline">{item.user}</CardTitle>
+             </button>
+          ) : (
+             <CardTitle className="text-base font-semibold text-foreground font-headline">{item.user}</CardTitle>
+          )}
           <p className="text-sm text-muted-foreground">{item.timestamp}</p>
         </div>
       </CardHeader>
@@ -46,7 +60,7 @@ const FeedCard: React.FC<FeedCardProps> = ({ item, onInteraction, onCommentChang
             <TooltipTrigger asChild>
               <button
                 onClick={() => onToggleCommentBox(item.id)}
-                className="flex items-center hover:text-primary focus:outline-none p-1 rounded-md hover:bg-accent"
+                className="flex items-center hover:text-primary focus:outline-none p-1 rounded-md hover:bg-accent/20"
                 aria-label={`View or add comments for ${item.user}'s post`}
               >
                 <ChatBubbleOvalLeftEllipsisIcon className="w-5 h-5 mr-1.5" />
@@ -110,3 +124,5 @@ const FeedCard: React.FC<FeedCardProps> = ({ item, onInteraction, onCommentChang
 };
 
 export default FeedCard;
+
+    

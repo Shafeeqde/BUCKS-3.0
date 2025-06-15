@@ -10,8 +10,8 @@ import HomeScreen from '@/components/screens/HomeScreen';
 import FeedsScreen from '@/components/screens/FeedsScreen';
 import ServicesScreen from '@/components/screens/ServicesScreen';
 import RecommendedScreen from '@/components/screens/RecommendedScreen';
-import AccountScreen from '@/components/screens/AccountScreen'; // This will be the new content management screen
-import DigitalIdCardScreen from '@/components/screens/DigitalIdCardScreen'; // This is the renamed ID card screen
+import AccountScreen from '@/components/screens/AccountScreen';
+import DigitalIdCardScreen from '@/components/screens/DigitalIdCardScreen';
 import ProfessionalProfileScreen from '@/components/screens/ProfessionalProfileScreen';
 import UserSkillsetsScreen from '@/components/screens/UserSkillsetsScreen';
 import UserVehiclesScreen from '@/components/screens/UserVehiclesScreen';
@@ -26,7 +26,7 @@ import SkillsetProfileScreen from '@/components/screens/SkillsetProfileScreen';
 import SkillsetProfileManagementScreen from '@/components/screens/SkillsetProfileManagementScreen';
 import JobBoardScreen from '@/components/screens/JobBoardScreen';
 import JobDetailScreen from '@/components/screens/JobDetailScreen';
-import AccountSettingsScreen from '@/components/screens/AccountSettingsScreen'; 
+import AccountSettingsScreen from '@/components/screens/AccountSettingsScreen';
 
 
 import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu } from '@/types';
@@ -160,7 +160,7 @@ export const initialBusinessProfiles: UserBusinessProfile[] = [
     phone: '+91 7766554433',
     email: 'contact@techforward.dev',
     location: 'Whitefield, Bangalore',
-    specialties: ['AI & Machine Learning', 'Cloud Solutions (AWS, Azure)', 'Custom Software Development', 'Mobile App Development', 'Data Analytics'],
+    specialties: ['AI & Machine Learning', 'Cloud Solutions (AWS, Azure)', 'Custom Software Development', 'Mobile App Design', 'Data Analytics'],
     followers: 1200,
     following: 250,
     isActive: true,
@@ -229,7 +229,7 @@ export default function AppRoot() {
   const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<UserDataForSideMenu | null>(null); 
+  const [userData, setUserData] = useState<UserDataForSideMenu | null>(null);
 
   const [businessProfilesData, setBusinessProfilesData] = useState<UserBusinessProfile[]>(initialBusinessProfiles);
   const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | number | null>(null);
@@ -250,10 +250,10 @@ export default function AppRoot() {
     setIsClient(true);
   }, []);
 
-  const handleLoginSuccess = (user: UserDataForSideMenu) => { 
+  const handleLoginSuccess = (user: UserDataForSideMenu) => {
     setIsLoggedIn(true);
-    setUserData({ 
-        id: user.id, 
+    setUserData({
+        id: user.id,
         name: user.name,
         email: user.email,
         avatarUrl: user.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar',
@@ -263,7 +263,7 @@ export default function AppRoot() {
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
   };
 
-  const handleRegistrationSuccess = (user: {name: string; email: string}) => { 
+  const handleRegistrationSuccess = (user: {name: string; email: string}) => {
     setActiveTab('login');
     toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in.` });
   };
@@ -290,15 +290,15 @@ export default function AppRoot() {
     setActiveTab(tab);
     setShowSideMenu(false);
     // Reset selections if navigating to a main tab that isn't a detail/management view
-    if (tab !== 'business-detail' && 
-        tab !== 'individual-profile' && 
-        tab !== 'skillset-profile' && 
-        tab !== 'manage-skillset-profile' && 
-        tab !== 'manage-business-profile' && 
-        tab !== 'job-detail' && 
+    if (tab !== 'business-detail' &&
+        tab !== 'individual-profile' &&
+        tab !== 'skillset-profile' &&
+        tab !== 'manage-skillset-profile' &&
+        tab !== 'manage-business-profile' &&
+        tab !== 'job-detail' &&
         tab !== 'professional-profile' &&
         tab !== 'account-settings' &&
-        tab !== 'digital-id-card') { 
+        tab !== 'digital-id-card') {
         setSelectedBusinessProfileId(null);
         setBusinessProfileToManageId(null);
         setSelectedIndividualProfileId(null);
@@ -332,13 +332,12 @@ export default function AppRoot() {
   };
 
   const handleSelectIndividualProfile = (profileId: string) => {
-    // This logic might need review if 'individual-profile' tab has different meaning now
     if(profileId === 'individual-jenson-1' || profileId === 'jenson-interior-stylist-123') {
         handleSelectSkillsetProfile('jenson-interior-stylist-123');
     } else if (profileId === 'prof2' || profileId === 'prof2-ux-designer-skillset'){
         handleSelectSkillsetProfile('prof2-ux-designer-skillset');
     } else if (profileId === "currentUser" && userData) {
-        setActiveTab('account'); // Navigates to the content management AccountScreen
+        setActiveTab('account');
     } else {
         setSelectedIndividualProfileId(profileId);
         setActiveTab('individual-profile');
@@ -631,7 +630,7 @@ export default function AppRoot() {
                             onSelectSkillsetProfile={handleSelectSkillsetProfile}
                             onAddToCart={handleAddToCart}
                          />;
-      case 'feeds': return <FeedsScreen />;
+      case 'feeds': return <FeedsScreen onViewUserProfile={handleSelectIndividualProfile} />;
       case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen />;
       case 'account': return <AccountScreen userData={userData} setActiveTab={handleTabSelection} />;
@@ -667,12 +666,13 @@ export default function AppRoot() {
         return <p className="p-4 text-center text-muted-foreground">No business profile selected for management.</p>;
 
       case 'individual-profile':
-        if (selectedIndividualProfileId === "currentUser" && userData) {
-             // If current user is selected, show their main account content view
-             setActiveTab('account');
-             return <AccountScreen userData={userData} setActiveTab={handleTabSelection} />;
-        } else if (selectedIndividualProfileId) {
+        if (selectedIndividualProfileId) {
              return <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={handleTabSelection} />;
+        }
+        // Fallback if current user is selected for 'individual-profile' but no specific ID: show their main account content view
+        if (userData && !selectedIndividualProfileId) {
+             setActiveTab('account'); // Should navigate to AccountScreen
+             return <AccountScreen userData={userData} setActiveTab={handleTabSelection} />;
         }
         return <p className="p-4 text-center text-muted-foreground">No individual profile selected or user data missing.</p>;
 
@@ -706,8 +706,8 @@ export default function AppRoot() {
             return <JobDetailScreen job={job} onBack={handleBackFromJobDetail} />;
         }
         return <p className="p-4 text-center text-muted-foreground">Job details not found.</p>;
-      
-      case 'account-settings': 
+
+      case 'account-settings':
         return <AccountSettingsScreen />;
 
 
@@ -746,7 +746,7 @@ export default function AppRoot() {
           onSelectBusinessProfile={handleSelectBusinessProfile}
           selectedBusinessProfileId={selectedBusinessProfileId}
           onLogout={handleLogout}
-          userData={userData} 
+          userData={userData}
         />
       )}
 
@@ -789,4 +789,5 @@ export default function AppRoot() {
     </div>
   );
 }
+
     

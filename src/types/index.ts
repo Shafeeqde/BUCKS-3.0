@@ -10,33 +10,34 @@ export type TabName =
   | 'registration'
   | 'home'
   | 'feeds'
-  | 'menu' 
+  | 'menu'
   | 'recommended'
-  | 'account' 
-  | 'professional-profile' 
+  | 'account'
+  | 'professional-profile'
   | 'vehicles'
   | 'business-profiles'
   | 'business-detail'
   | 'manage-business-profile'
   | 'messages-notifications'
-  | 'individual-profile' 
-  | 'skillset-profile' 
-  | 'user-skillsets' 
+  | 'individual-profile'
+  | 'skillset-profile'
+  | 'user-skillsets'
   | 'manage-skillset-profile'
-  | 'job-board' 
+  | 'job-board'
   | 'job-detail'
   | 'account-settings'
-  | 'digital-id-card'; // Added new TabName
+  | 'digital-id-card';
 
 export interface Category {
   id: string;
   name?: string;
-  icon?: string | HeroIconType; 
+  icon?: string | HeroIconType;
   image?: string;
   type?: 'moments' | 'profile' | 'default';
   viewed: boolean;
   color?: string;
   dataAiHint?: string;
+  profileId?: string; // Added for linking user categories to profiles
 }
 
 export interface FeedItem {
@@ -54,6 +55,7 @@ export interface FeedItem {
   notRecommendations: number;
   showCommentBox: boolean;
   currentComment: string;
+  profileId?: string; // Added for linking post authors to profiles
 }
 
 export interface Service {
@@ -104,7 +106,7 @@ export interface UserProfile {
   email: string;
   phone: string;
   address?: string;
-  avatarUrl?: string; 
+  avatarUrl?: string;
 }
 
 export interface UserVehicle {
@@ -126,18 +128,18 @@ export interface BusinessProduct {
 }
 
 export interface BusinessJob {
-  id: string | number; 
-  businessId: string | number; 
-  businessName: string; 
-  businessLogoUrl?: string; 
+  id: string | number;
+  businessId: string | number;
+  businessName: string;
+  businessLogoUrl?: string;
   title: string;
   location?: string;
-  type?: 'Full-time' | 'Part-time' | 'Contract' | 'Internship' | string; 
+  type?: 'Full-time' | 'Part-time' | 'Contract' | 'Internship' | string;
   description?: string;
-  postedDate?: string; 
+  postedDate?: string;
   salaryRange?: string;
   requirements?: string[];
-  applyLink?: string; 
+  applyLink?: string;
 }
 
 
@@ -178,12 +180,12 @@ export interface UserBusinessProfile {
   email?: string;
   location?: string;
   specialties?: string[];
-  followers?: number; 
-  following?: number; 
+  followers?: number;
+  following?: number;
   feed?: BusinessFeedItem[];
   products?: BusinessProduct[];
   services?: BusinessService[];
-  jobs?: BusinessJob[]; 
+  jobs?: BusinessJob[];
   reviews?: BusinessReview[];
   averageRating?: number;
   totalReviews?: number;
@@ -262,10 +264,10 @@ export interface WorkExperienceEntry {
     id: string;
     title: string;
     company: string;
-    employmentType?: string; 
+    employmentType?: string;
     location?: string;
-    startDate?: string; 
-    endDate?: string; 
+    startDate?: string;
+    endDate?: string;
     description?: string;
 }
 
@@ -276,7 +278,7 @@ export interface EducationEntry {
     fieldOfStudy?: string;
     startDate?: string;
     endDate?: string;
-    description?: string; 
+    description?: string;
 }
 
 export interface LicenseCertificationEntry {
@@ -284,7 +286,7 @@ export interface LicenseCertificationEntry {
     name: string;
     issuingOrganization?: string;
     issueDate?: string;
-    expirationDate?: string; 
+    expirationDate?: string;
     credentialId?: string;
     credentialUrl?: string;
 }
@@ -292,17 +294,17 @@ export interface LicenseCertificationEntry {
 export interface OverallProfessionalProfileData {
     id: string;
     userId: string;
-    name?: string; 
-    professionalTitle?: string; 
-    avatarUrl?: string; 
+    name?: string;
+    professionalTitle?: string;
+    avatarUrl?: string;
     avatarAiHint?: string;
-    coverPhotoUrl?: string; 
+    coverPhotoUrl?: string;
     coverPhotoAiHint?: string;
     professionalBio?: string;
     areasOfExpertise: string[];
     externalProfileLinks: {
         id: string;
-        platform: string; 
+        platform: string;
         url: string;
     }[];
     workExperience: WorkExperienceEntry[];
@@ -310,41 +312,41 @@ export interface OverallProfessionalProfileData {
     licensesCertifications: LicenseCertificationEntry[];
 }
 
-
-export interface IndividualProfileData { 
-  id: string;
+// Renamed from previous IndividualProfileData to avoid confusion,
+// this type is for VIEWING other users' profiles.
+export interface PublicProfileData {
+  id: string; // Unique ID for this user's profile
   name: string;
   avatarUrl?: string;
   avatarAiHint?: string;
   professionalTitle?: string;
   bio?: string;
+  // Simplified posts structure for their feed
+  posts: {
+    id: string;
+    content: string;
+    timestamp: string;
+    imageUrl?: string;
+    imageAiHint?: string;
+    likes: number;
+    comments: number;
+  }[];
+  followers?: number;
+  following?: number;
+  // Optional: Add other fields like contact info if they should be public
   contactInfo?: {
-    phone?: string;
     email?: string;
     website?: string;
     location?: string;
   };
-  skillsets: { 
-    id: string; 
-    name: string;
-    level: string;
-    description?: string;
-  }[];
-  recommendationsCount: number;
-  averageRating: number;
-  totalReviews: number;
-  workExperienceEntries?: WorkExperienceEntry[]; 
-  portfolioItems?: SkillsetSpecificPortfolioItem[]; 
-  professionalFeed?: BusinessFeedItem[]; 
-  reviews?: BusinessReview[]; 
 }
 
 
-export interface SkillsetSpecificWorkExperience { 
+export interface SkillsetSpecificWorkExperience {
   id: string;
   title: string;
   company: string;
-  years: string; 
+  years: string;
   description?: string;
 }
 
@@ -358,7 +360,7 @@ export interface SkillsetSpecificPortfolioItem {
   link?: string;
 }
 
-export interface SkillsetSpecificFeedItem { 
+export interface SkillsetSpecificFeedItem {
   id: string;
   content: string;
   imageUrl?: string;
@@ -373,12 +375,12 @@ export interface SkillsetProfileData {
   skillName: string;
   skillLevel?: string;
   skillDescription?: string;
-  userName: string; 
+  userName: string;
   userAvatarUrl?: string;
   userAvatarAiHint?: string;
-  professionalTitle?: string; 
-  skillSpecificBio?: string; 
-  contactInfo?: { 
+  professionalTitle?: string;
+  skillSpecificBio?: string;
+  contactInfo?: {
     phone?: string;
     email?: string;
     website?: string;
@@ -386,8 +388,8 @@ export interface SkillsetProfileData {
   };
   workExperienceEntries: SkillsetSpecificWorkExperience[];
   portfolioItems: SkillsetSpecificPortfolioItem[];
-  professionalFeed: SkillsetSpecificFeedItem[]; 
-  reviews: BusinessReview[]; 
+  professionalFeed: SkillsetSpecificFeedItem[];
+  reviews: BusinessReview[];
   recommendationsCount: number;
   averageRating: number;
   totalReviews: number;
@@ -404,30 +406,32 @@ export interface SkillsetProfileSummary {
 }
 
 export interface UserDataForSideMenu {
-  id: string; 
+  id: string;
   name: string;
   email: string;
   avatarUrl?: string;
   avatarAiHint?: string;
 }
 
+// This type is for the current user's content management screen (AccountScreen)
 export interface ProfilePost {
   id: string | number;
-  type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text' | 'post'; 
-  user: string; 
-  userImage?: string; 
+  type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text' | 'post';
+  user: string;
+  userImage?: string;
   userImageAiHint?: string;
   timestamp: string;
   likes: number;
   comments: number;
-  content?: string; 
-  thumbnailUrl?: string; 
+  content?: string;
+  thumbnailUrl?: string;
   thumbnailAiHint?: string;
-  imageUrl?: string; 
+  imageUrl?: string;
   imageAiHint?: string;
   videoUrl?: string;
-  url?: string; 
-  fileIcon?: string; 
-  fileName?: string; 
+  url?: string;
+  fileIcon?: string;
+  fileName?: string;
 }
+
     

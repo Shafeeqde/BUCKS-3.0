@@ -4,97 +4,48 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-    StarIcon, 
-    HandThumbUpIcon, 
-    EnvelopeIcon, 
-    PhoneIcon, 
-    GlobeAltIcon, 
-    BriefcaseIcon, 
-    LinkIcon as LinkIconOutline, 
-    ArrowTopRightOnSquareIcon, 
+import {
+    UserCircleIcon,
+    Cog6ToothIcon,
+    PlusCircleIcon,
+    PhotoIcon,
+    FilmIcon,
+    LinkIcon as LinkOutlineIcon,
+    DocumentTextIcon,
+    ChatBubbleLeftRightIcon,
+    QueueListIcon,
     InformationCircleIcon,
-    MapPinIcon, // Added for location if needed
-    BookOpenIcon, // Added for portfolio/skillsets
-    RssIcon // Added for feed/updates
+    MapPinIcon,
+    EnvelopeIcon,
+    GlobeAltIcon
 } from '@heroicons/react/24/outline';
+import type { TabName, PublicProfileData, ProfilePost } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import type { TabName, IndividualProfileData, WorkExperienceEntry, SkillsetSpecificPortfolioItem, BusinessFeedItem, BusinessReview } from '@/types'; // Added more types for later phases
-import { cn } from '@/lib/utils';
+import { individualProfiles } from '@/lib/dummy-data/individualProfiles'; // Import dummy data
 
 interface IndividualProfileScreenProps {
   setActiveTab: (tab: TabName) => void;
-  profileId: string;
+  profileId: string | null;
 }
 
-const simulateFetchIndividualProfile = async (profileId: string): Promise<IndividualProfileData | null> => {
-  console.log(`Simulating fetching individual profile for ID: ${profileId}`);
+const simulateFetchPublicProfile = async (profileId: string): Promise<PublicProfileData | null> => {
+  console.log(`Simulating fetching public profile for ID: ${profileId}`);
   return new Promise((resolve) => {
     setTimeout(() => {
-      const mockProfileData: IndividualProfileData = {
-        id: profileId,
-        name: 'Alice Wonderland',
-        avatarUrl: 'https://source.unsplash.com/random/120x120/?woman,smiling',
-        avatarAiHint: 'woman smiling',
-        professionalTitle: 'Creative UX/UI Designer & Frontend Developer',
-        bio: 'Creative UX/UI designer and frontend developer with a passion for crafting intuitive and engaging digital experiences. Proficient in modern design tools and web technologies, dedicated to user-centric solutions.',
-        contactInfo: {
-          phone: '+1-555-0101',
-          email: 'alice.wonderland@example.com',
-          website: 'https://alicewonder.design',
-          location: 'Wonderland, Digital Realm'
-        },
-        skillsets: [
-          { id: 'skill-uxui', name: 'UX/UI Design', level: 'Expert', description: 'User research, wireframing, prototyping, usability testing. Figma, Adobe XD.' },
-          { id: 'skill-frontend', name: 'Frontend Development', level: 'Advanced', description: 'React, Next.js, TypeScript, Tailwind CSS. Building responsive UIs.' },
-          { id: 'skill-illustration', name: 'Illustration', level: 'Intermediate', description: 'Digital illustrations for web and print media.' }
-        ],
-        workExperienceEntries: [
-            { id: 'exp1', title: 'Lead UX Designer', company: 'Digital Dreams Co.', years: '2020 - Present', description: 'Led UX strategy for key projects.'},
-            { id: 'exp2', title: 'Frontend Developer', company: 'Web Weavers Inc.', years: '2018 - 2020', description: 'Developed responsive web applications.'}
-        ],
-        portfolioItems: [
-            {id: 'port1', title: 'E-commerce App Redesign', imageUrl: 'https://source.unsplash.com/random/300x200/?app,design', imageAiHint: 'app design', description: 'Complete UX overhaul for a major e-commerce platform.'},
-            {id: 'port2', title: 'Portfolio Website', imageUrl: 'https://source.unsplash.com/random/300x200/?website,portfolio', imageAiHint: 'website portfolio', description: 'Personal portfolio showcasing various projects.', link: 'https://alicewonder.design'}
-        ],
-        professionalFeed: [
-            {id: 'feed1', content: 'Excited to share my latest article on accessible design principles!', timestamp: '2 days ago', imageUrl: 'https://source.unsplash.com/random/300x150/?blog,writing', imageAiHint: 'blog writing'}
-        ],
-        reviews: [
-            {id: 'rev1', reviewerName: 'John C.', rating: 5, comment: 'Alice is a fantastic designer, truly understood our needs!', date: '2024-03-15'}
-        ],
-        recommendationsCount: 78,
-        averageRating: 4.8,
-        totalReviews: 32,
-      };
-      console.log('Simulated profile fetched:', mockProfileData);
-      resolve(mockProfileData);
-    }, 1000);
+      const profile = individualProfiles.find(p => p.id === profileId);
+      resolve(profile || null);
+    }, 500);
   });
-};
-
-const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 5, className = "h-5 w-5" }) => {
-  const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 >= 0.5;
-  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-
-  return (
-    <div className="flex items-center">
-      {[...Array(fullStars)].map((_, i) => <StarIcon key={`full-${i}`} className={cn(className, "text-yellow-400 fill-yellow-400")} />)}
-      {halfStar && <StarIcon key="half" className={cn(className, "text-yellow-400 fill-yellow-200")} />}
-      {[...Array(emptyStars)].map((_, i) => <StarIcon key={`empty-${i}`} className={cn(className, "text-muted-foreground/50")} />)}
-    </div>
-  );
 };
 
 
 const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setActiveTab, profileId }) => {
   const { toast } = useToast();
-  const [profileData, setProfileData] = useState<IndividualProfileData | null>(null);
+  const [profileData, setProfileData] = useState<PublicProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -112,17 +63,17 @@ const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setAc
     setLoading(true);
     setError(null);
     try {
-      const data = await simulateFetchIndividualProfile(id);
+      const data = await simulateFetchPublicProfile(id);
       if (data) {
         setProfileData(data);
       } else {
         setError("Profile not found.");
-        toast({ title: "Error", description: "Individual profile not found.", variant: "destructive" });
+        toast({ title: "Error", description: "Profile not found.", variant: "destructive" });
       }
     } catch (err: any) {
-      console.error('Error fetching individual profile:', err);
+      console.error('Error fetching public profile:', err);
       setError("Failed to load profile data.");
-      toast({ title: "Error", description: "Failed to load individual profile.", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to load profile.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -158,161 +109,100 @@ const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setAc
   }
 
   return (
-    <ScrollArea className="h-full bg-background">
-      <div className="max-w-4xl mx-auto"> {/* Removed p-4 sm:p-6 md:p-8 for global padding */}
-        {/* Profile Header */}
-        <Card className="mb-6 shadow-lg rounded-b-lg"> {/* Ensure bottom rounding if top is covered by cover */}
-          <CardContent className="pt-6 flex flex-col sm:flex-row items-center sm:items-start gap-6">
-            <Avatar className="h-24 w-24 sm:h-32 sm:w-32 border-4 border-background ring-2 ring-primary flex-shrink-0">
-              <AvatarImage src={profileData.avatarUrl} alt={profileData.name} data-ai-hint={profileData.avatarAiHint || "person professional"} />
-              <AvatarFallback className="text-3xl">{profileData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-            </Avatar>
-            <div className="text-center sm:text-left flex-grow mt-4 sm:mt-0">
-              <h1 className="text-2xl sm:text-3xl font-bold font-headline text-foreground mb-1">{profileData.name}</h1>
-              {profileData.professionalTitle && <p className="text-md text-primary font-semibold mb-2">{profileData.professionalTitle}</p>}
-              {profileData.bio && <p className="text-muted-foreground mb-4 text-sm leading-relaxed">{profileData.bio}</p>}
-              
-              <div className="flex flex-wrap justify-center sm:justify-start items-center gap-x-4 gap-y-2 mb-4">
-                {profileData.averageRating > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <StarRatingDisplay rating={profileData.averageRating} size={4} className="h-4 w-4" />
-                    <span className="text-xs text-muted-foreground font-medium">{profileData.averageRating.toFixed(1)}</span>
-                    <span className="text-xs text-muted-foreground">({profileData.totalReviews} reviews)</span>
-                  </div>
-                )}
-                {profileData.recommendationsCount > 0 && (
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <HandThumbUpIcon className="h-4 w-4 text-green-500" />
-                    <span className="font-medium">{profileData.recommendationsCount}</span> Recommendations
-                  </div>
-                )}
+    <ScrollArea className="h-full bg-muted/20">
+      <div className="container mx-auto max-w-4xl py-0 px-0 sm:px-0">
+        <Card className="shadow-none sm:shadow-xl overflow-hidden border-0 sm:border rounded-none sm:rounded-lg">
+          <CardHeader className="bg-card p-4 sm:p-6 border-b">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-2 border-primary">
+                <AvatarImage src={profileData.avatarUrl || 'https://source.unsplash.com/random/100x100/?avatar'} alt={profileData.name} data-ai-hint={profileData.avatarAiHint || "user avatar"}/>
+                <AvatarFallback className="text-2xl">{profileData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="text-center sm:text-left flex-grow">
+                <h1 className="text-2xl font-bold font-headline text-foreground">{profileData.name}</h1>
+                {profileData.professionalTitle && <p className="text-md text-primary font-semibold">{profileData.professionalTitle}</p>}
+                <div className="flex items-center justify-center sm:justify-start space-x-4 mt-2 text-xs text-muted-foreground">
+                  <span><span className="font-semibold text-foreground">{profileData.posts?.length || 0}</span> Posts</span>
+                  <span><span className="font-semibold text-foreground">{profileData.followers || 0}</span> Followers</span>
+                  <span><span className="font-semibold text-foreground">{profileData.following || 0}</span> Following</span>
+                </div>
               </div>
-              <Button size="lg" className="w-full sm:w-auto">
-                <EnvelopeIcon className="mr-2 h-5 w-5" /> Contact {profileData.name.split(' ')[0]}
-              </Button>
             </div>
+             <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => toast({title: "Follow (Simulated)"})}>
+                   Follow
+                </Button>
+                <Button size="sm" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => toast({title: "Message (Simulated)"})}>
+                   Message
+                </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Tabs defaultValue="feed" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 rounded-none h-auto bg-muted/50">
+                <TabsTrigger value="feed" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><QueueListIcon className="h-4 w-4"/>Feed</TabsTrigger>
+                <TabsTrigger value="about" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><InformationCircleIcon className="h-4 w-4"/>About</TabsTrigger>
+                <TabsTrigger value="media" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><PhotoIcon className="h-4 w-4"/>Media</TabsTrigger>
+                <TabsTrigger value="links" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><LinkOutlineIcon className="h-4 w-4"/>Links</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="feed" className="p-4 min-h-[300px]">
+                 {profileData.posts && profileData.posts.length > 0 ? (
+                    <div className="space-y-4">
+                    {profileData.posts.map(post => (
+                        <Card key={post.id} className="shadow-sm">
+                        <CardHeader className="pb-2 pt-4 px-4">
+                            <div className="flex items-center space-x-3">
+                                <Avatar className="h-9 w-9">
+                                    <AvatarImage src={profileData.avatarUrl || undefined} alt={profileData.name} data-ai-hint={profileData.avatarAiHint || "user avatar"}/>
+                                    <AvatarFallback>{profileData.name.substring(0,1)}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="text-sm font-semibold text-foreground">{profileData.name}</p>
+                                    <p className="text-xs text-muted-foreground">{post.timestamp}</p>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="px-4 pb-3">
+                            {post.content && <p className="text-sm mb-2 text-foreground">{post.content}</p>}
+                            {post.imageUrl && <div className="relative aspect-video rounded-md overflow-hidden border"><Image src={post.imageUrl} alt="Post image" fill className="object-cover" data-ai-hint={post.imageAiHint || "feed post"}/></div>}
+                        </CardContent>
+                        <CardFooter className="text-xs text-muted-foreground px-4 pt-2 pb-3 border-t">
+                            <span>{post.likes} Likes</span>
+                            <span className="mx-2">•</span>
+                            <span>{post.comments} Comments</span>
+                        </CardFooter>
+                        </Card>
+                    ))}
+                    </div>
+                ) : (
+                    <p className="text-muted-foreground text-center py-10">No posts in {profileData.name}&apos;s feed yet.</p>
+                )}
+              </TabsContent>
+              <TabsContent value="about" className="p-4 min-h-[300px] space-y-4">
+                <h3 className="text-lg font-semibold text-foreground">About {profileData.name}</h3>
+                {profileData.bio ? <p className="text-sm text-muted-foreground whitespace-pre-line">{profileData.bio}</p> : <p className="text-sm text-muted-foreground">No bio available.</p>}
+                {profileData.contactInfo && (
+                  <div className="mt-4 pt-4 border-t">
+                    <h4 className="text-md font-semibold text-foreground mb-2">Contact</h4>
+                    <div className="space-y-1 text-sm">
+                      {profileData.contactInfo.email && <p className="flex items-center gap-2"><EnvelopeIcon className="h-4 w-4 text-muted-foreground"/> {profileData.contactInfo.email}</p>}
+                      {profileData.contactInfo.website && <p className="flex items-center gap-2"><GlobeAltIcon className="h-4 w-4 text-muted-foreground"/> <a href={profileData.contactInfo.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{profileData.contactInfo.website}</a></p>}
+                      {profileData.contactInfo.location && <p className="flex items-center gap-2"><MapPinIcon className="h-4 w-4 text-muted-foreground"/> {profileData.contactInfo.location}</p>}
+                    </div>
+                  </div>
+                )}
+              </TabsContent>
+              <TabsContent value="media" className="p-4 min-h-[300px]"><p className="text-muted-foreground text-center py-10">{profileData.name}&apos;s media gallery will appear here.</p></TabsContent>
+              <TabsContent value="links" className="p-4 min-h-[300px]"><p className="text-muted-foreground text-center py-10">{profileData.name}&apos;s shared links will appear here.</p></TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
-
-        {/* Contact Info & Main Content Grid */}
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* Left Column (Contact, etc.) */}
-          <div className="md:col-span-1 space-y-6">
-            {profileData.contactInfo && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl flex items-center"><InformationCircleIcon className="mr-2 h-5 w-5 text-primary" />Contact Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  {profileData.contactInfo.phone && (
-                    <div className="flex items-center gap-3">
-                      <PhoneIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <a href={`tel:${profileData.contactInfo.phone}`} className="text-foreground hover:text-primary hover:underline">{profileData.contactInfo.phone}</a>
-                    </div>
-                  )}
-                  {profileData.contactInfo.email && (
-                    <div className="flex items-center gap-3">
-                      <EnvelopeIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <a href={`mailto:${profileData.contactInfo.email}`} className="text-foreground hover:text-primary hover:underline">{profileData.contactInfo.email}</a>
-                    </div>
-                  )}
-                   {profileData.contactInfo.location && (
-                    <div className="flex items-center gap-3">
-                      <MapPinIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="text-foreground">{profileData.contactInfo.location}</span>
-                    </div>
-                  )}
-                  {profileData.contactInfo.website && (
-                    <div className="flex items-center gap-3">
-                      <GlobeAltIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <a href={profileData.contactInfo.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate">
-                        {profileData.contactInfo.website.replace(/^https?:\/\//, '')}
-                      </a>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-             <Card>
-                <CardHeader><CardTitle className="text-xl flex items-center"><LinkIconOutline className="mr-2 h-5 w-5 text-primary"/>Quick Links</CardTitle></CardHeader>
-                <CardContent><p className="text-sm text-muted-foreground">Portfolio, Certifications, etc. (Content coming in next phase)</p></CardContent>
-            </Card>
-          </div>
-
-          {/* Right Column (Skillsets, Reviews, Feed) */}
-          <div className="md:col-span-2 space-y-6">
-            {profileData.skillsets && profileData.skillsets.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl flex items-center"><BriefcaseIcon className="mr-2 h-5 w-5 text-primary" />Skillsets & Expertise</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  {profileData.skillsets.map((skill, index) => (
-                    <div key={skill.id} className={cn("pb-4", index < profileData.skillsets.length - 1 && "border-b")}>
-                      <div className="flex justify-between items-center mb-1">
-                        <h4 className="text-lg font-semibold text-foreground">{skill.name}</h4>
-                        <Badge variant="secondary">{skill.level}</Badge>
-                      </div>
-                      {skill.description && <p className="text-sm text-muted-foreground mb-2">{skill.description}</p>}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
-            
-            {profileData.workExperienceEntries && profileData.workExperienceEntries.length > 0 && (
-              <Card>
-                <CardHeader><CardTitle className="text-xl flex items-center"><BriefcaseIcon className="mr-2 h-5 w-5 text-primary" />Work Experience</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Placeholder for Work Experience mapping - Phase 2d */}
-                  <p className="text-sm text-muted-foreground">Work experience details will appear here.</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {profileData.portfolioItems && profileData.portfolioItems.length > 0 && (
-              <Card>
-                <CardHeader><CardTitle className="text-xl flex items-center"><BookOpenIcon className="mr-2 h-5 w-5 text-primary" />Portfolio</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Placeholder for Portfolio mapping - Phase 2d */}
-                  <p className="text-sm text-muted-foreground">Portfolio items will appear here.</p>
-                </CardContent>
-              </Card>
-            )}
-            
-            {profileData.professionalFeed && profileData.professionalFeed.length > 0 && (
-              <Card>
-                <CardHeader><CardTitle className="text-xl flex items-center"><RssIcon className="mr-2 h-5 w-5 text-primary" />Professional Updates</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Placeholder for Feed mapping - Phase 2d */}
-                  <p className="text-sm text-muted-foreground">Feed items will appear here.</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {profileData.reviews && profileData.reviews.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl flex items-center">
-                    Reviews & Feedback 
-                    <Badge variant="outline" className="ml-2">{profileData.totalReviews}</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">Detailed reviews will be listed here. (Content coming in Phase 2d)</p>
-                   <div className="mt-4 p-4 bg-muted/50 rounded-md text-center text-sm text-muted-foreground">
-                        Full review listing coming soon.
-                   </div>
-                   <Button variant="outline" className="mt-4 w-full sm:w-auto">View All Reviews</Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </div>
       </div>
     </ScrollArea>
   );
 };
 
 export default IndividualProfileScreen;
+
     
