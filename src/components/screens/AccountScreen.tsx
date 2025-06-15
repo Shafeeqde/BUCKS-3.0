@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, UserDataForSideMenu, ProfilePost } from '@/types';
-import { PencilSquareIcon, Squares2X2Icon, ListBulletIcon, CameraIcon, VideoCameraIcon, LinkIcon as LinkIconOutline, DocumentTextIcon, ChatBubbleOvalLeftEllipsisIcon as TweetIcon, HandThumbUpIcon, PlusCircleIcon, UserCircleIcon, EllipsisHorizontalIcon, PlayCircleIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, Squares2X2Icon, ListBulletIcon, CameraIcon, VideoCameraIcon, LinkIcon as LinkIconOutline, DocumentTextIcon, ChatBubbleOvalLeftEllipsisIcon, HandThumbUpIcon, PlusCircleIcon, UserCircleIcon, EllipsisHorizontalIcon, PlayCircleIcon } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 
 interface AccountScreenProps {
@@ -18,33 +18,46 @@ interface AccountScreenProps {
   setActiveTab: (tab: TabName) => void;
 }
 
+// Extended dummy content
 const allUserContent: ProfilePost[] = [
-    // --- Test User (Existing) ---
-    { id: 'tu-1', type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?nature,landscape', thumbnailAiHint: 'nature landscape', likes: 120, comments: 15, user: 'Test User', timestamp: '2 hours ago', content: 'Enjoying the golden hour! What a beautiful sunset.' },
-    { id: 'tu-2', type: 'video', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?tech,desk', thumbnailAiHint: 'tech desk', videoUrl: '#', likes: 85, comments: 10, user: 'Test User', timestamp: '5 hours ago', content: 'A quick tour of my new workspace setup. Loving the minimalist vibe!' },
-    { id: 'tu-3', type: 'text', content: 'Just finished reading "Atomic Habits" by James Clear. Highly recommend for anyone looking to build better routines! #books #productivity', likes: 75, comments: 8, user: 'Test User', timestamp: '1 day ago' },
-    { id: 'tu-4', type: 'link', content: 'My latest blog post on "The Future of AI in Design". Check it out!', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?ai,design', thumbnailAiHint: 'ai design', likes: 50, comments: 5, url: 'https://example.com/blog/ai-design', user: 'Test User', timestamp: '3 days ago' },
-    { id: 'tu-5', type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?food,healthy', thumbnailAiHint: 'food healthy', likes: 200, comments: 22, user: 'Test User', timestamp: '1 day ago', content: 'Healthy and delicious meal prep for the week.' },
-    { id: 'tu-6', type: 'file', content: 'Q3_Marketing_Report.pdf', fileName: 'Q3_Marketing_Report.pdf', fileIcon: 'DocumentTextIcon', likes: 30, comments: 2, user: 'Test User', timestamp: '3 weeks ago' },
-    { id: 'tu-7', type: 'tweet', content: 'Excited for the upcoming Next.js conference! Who else is attending? #NextJS #WebDev', likes: 45, comments: 7, user: 'Test User', timestamp: '2 months ago' },
-    { id: 'tu-8', type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?travel,mountains', thumbnailAiHint: 'travel mountains', likes: 150, comments: 18, user: 'Test User', timestamp: '1 week ago', content: 'Exploring the great outdoors.' },
-    { id: 'tu-9', type: 'video', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?music,concert', thumbnailAiHint: 'music concert', videoUrl: '#', likes: 100, comments: 12, user: 'Test User', timestamp: '5 days ago', content: 'Live music vibes from last night!' },
-    { id: 'tu-10', type: 'link', content: 'Useful CSS Tricks for Web Developers.', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?code,css', thumbnailAiHint: 'code css', likes: 65, comments: 9, url: 'https://example.com/blog/css-tricks', user: 'Test User', timestamp: '2 days ago' },
-    { id: 'tu-11', type: 'file', content: 'Project_Proposal.docx', fileName: 'Project_Proposal.docx', fileIcon: 'DocumentTextIcon', likes: 25, comments: 4, user: 'Test User', timestamp: '10 days ago' },
-    { id: 'tu-12', type: 'tweet', content: 'Just deployed a new feature! #developer #coding', likes: 88, comments: 14, user: 'Test User', timestamp: '6 hours ago' },
+    // --- Test User (Logged-in User - Existing) ---
+    { id: 'tu-1', type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?nature,landscape', thumbnailAiHint: 'nature landscape', likes: 120, comments: 15, user: 'Test User', timestamp: '2 hours ago', content: 'Enjoying the golden hour! What a beautiful sunset.', userImage: 'https://source.unsplash.com/random/48x48/?user,avatar&sig=1' },
+    { id: 'tu-2', type: 'video', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?tech,desk', thumbnailAiHint: 'tech desk', videoUrl: '#', likes: 85, comments: 10, user: 'Test User', timestamp: '5 hours ago', content: 'A quick tour of my new workspace setup. Loving the minimalist vibe!', userImage: 'https://source.unsplash.com/random/48x48/?user,avatar&sig=1' },
+    { id: 'tu-3', type: 'text', content: 'Just finished reading "Atomic Habits" by James Clear. Highly recommend for anyone looking to build better routines! #books #productivity', likes: 75, comments: 8, user: 'Test User', timestamp: '1 day ago', userImage: 'https://source.unsplash.com/random/48x48/?user,avatar&sig=1' },
+    { id: 'tu-4', type: 'link', content: 'My latest blog post on "The Future of AI in Design". Check it out!', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?ai,design', thumbnailAiHint: 'ai design', likes: 50, comments: 5, url: 'https://example.com/blog/ai-design', user: 'Test User', timestamp: '3 days ago', userImage: 'https://source.unsplash.com/random/48x48/?user,avatar&sig=1' },
+    { id: 'tu-5', type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?food,healthy', thumbnailAiHint: 'food healthy', likes: 200, comments: 22, user: 'Test User', timestamp: '1 day ago', content: 'Healthy and delicious meal prep for the week.', userImage: 'https://source.unsplash.com/random/48x48/?user,avatar&sig=1' },
+    { id: 'tu-6', type: 'file', content: 'Q3_Marketing_Report.pdf', fileName: 'Q3_Marketing_Report.pdf', fileIcon: 'DocumentTextIcon', likes: 30, comments: 2, user: 'Test User', timestamp: '3 weeks ago', userImage: 'https://source.unsplash.com/random/48x48/?user,avatar&sig=1' },
+    { id: 'tu-7', type: 'tweet', content: 'Excited for the upcoming Next.js conference! Who else is attending? #NextJS #WebDev', likes: 45, comments: 7, user: 'Test User', timestamp: '2 months ago', userImage: 'https://source.unsplash.com/random/48x48/?user,avatar&sig=1' },
 
-    // --- Shafeeq ---
-    { id: 'sh-1', type: 'image', user: 'Shafeeq', timestamp: 'Yesterday', likes: 150, comments: 20, content: 'Beautiful morning hike! The air was so fresh. #nature #weekendvibes', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?hike,mountain', thumbnailAiHint: 'hike mountain' },
-    { id: 'sh-2', type: 'text', user: 'Shafeeq', timestamp: '3 days ago', likes: 70, comments: 8, content: 'Learning to cook a new Italian dish today. Fingers crossed it turns out well! 🍝 #cooking #newrecipe' },
-    { id: 'sh-3', type: 'image', user: 'Shafeeq', timestamp: '1 week ago', likes: 210, comments: 35, content: 'Family time is precious. ❤️ Enjoying a lovely evening with my loved ones.', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?family,dinner', thumbnailAiHint: 'family dinner' },
-    { id: 'sh-4', type: 'tweet', user: 'Shafeeq', timestamp: '5 hours ago', likes: 40, comments: 5, content: 'Just finished a great book on mindfulness. Feeling very centered. #reading #mindfulness' },
+    // --- Shafeeq (Personal User - Existing) ---
+    { id: 'sh-1', type: 'image', user: 'Shafeeq', userImage: 'https://source.unsplash.com/random/40x40/?man,casual&sig=2', timestamp: 'Yesterday', likes: 150, comments: 20, content: 'Beautiful morning hike! The air was so fresh. #nature #weekendvibes', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?hike,mountain', thumbnailAiHint: 'hike mountain' },
+    { id: 'sh-2', type: 'text', user: 'Shafeeq', userImage: 'https://source.unsplash.com/random/40x40/?man,casual&sig=2', timestamp: '3 days ago', likes: 70, comments: 8, content: 'Learning to cook a new Italian dish today. Fingers crossed it turns out well! 🍝 #cooking #newrecipe' },
+    { id: 'sh-3', type: 'tweet', user: 'Shafeeq', userImage: 'https://source.unsplash.com/random/40x40/?man,casual&sig=2', timestamp: '5 hours ago', likes: 40, comments: 5, content: 'Just finished a great book on mindfulness. Feeling very centered. #reading #mindfulness' },
 
-    // --- Senthil Devaraj ---
-    { id: 'sd-1', type: 'text', user: 'Senthil Devaraj', timestamp: '2 days ago', likes: 55, comments: 12, content: 'Completed an online certification in Advanced Project Management. #upskilling #careergoals #projectmanagement' },
-    { id: 'sd-2', type: 'link', user: 'Senthil Devaraj', timestamp: '4 days ago', likes: 30, comments: 7, content: 'Found this insightful article on acing technical interviews. Sharing for others who might find it useful!', url: 'https://example.com/tech-interview-tips', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?interview,laptop', thumbnailAiHint: 'interview laptop' },
-    { id: 'sd-3', type: 'image', user: 'Senthil Devaraj', timestamp: '1 week ago', likes: 65, comments: 9, content: 'My updated home office setup. Productive and ready for new challenges! #remotework #homeoffice', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?homeoffice,desk', thumbnailAiHint: 'homeoffice desk' },
-    { id: 'sd-4', type: 'tweet', user: 'Senthil Devaraj', timestamp: '10 hours ago', likes: 20, comments: 3, content: 'Attending a virtual networking event for software engineers. Hope to make some good connections! #networking #techjobs' },
-    { id: 'sd-5', type: 'file', user: 'Senthil Devaraj', timestamp: '1 month ago', likes: 15, comments: 2, content: 'My_Resume_Senthil_Devaraj.pdf', fileName: 'My_Resume_Senthil_Devaraj.pdf', fileIcon: 'DocumentTextIcon', userImageAiHint: 'document resume' },
+    // --- Senthil Devaraj (Personal User - Existing) ---
+    { id: 'sd-1', type: 'text', user: 'Senthil Devaraj', userImage: 'https://source.unsplash.com/random/40x40/?man,professional&sig=3', timestamp: '2 days ago', likes: 55, comments: 12, content: 'Completed an online certification in Advanced Project Management. Looking for new opportunities! #upskilling #careergoals #projectmanagement #jobsearch' },
+    { id: 'sd-2', type: 'link', user: 'Senthil Devaraj', userImage: 'https://source.unsplash.com/random/40x40/?man,professional&sig=3', timestamp: '4 days ago', likes: 30, comments: 7, content: 'Found this insightful article on acing technical interviews. Sharing for others who might find it useful!', url: 'https://example.com/tech-interview-tips', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?interview,laptop', thumbnailAiHint: 'interview laptop' },
+    { id: 'sd-3', type: 'file', user: 'Senthil Devaraj', userImage: 'https://source.unsplash.com/random/40x40/?man,professional&sig=3', timestamp: '1 month ago', likes: 15, comments: 2, content: 'My_Resume_Senthil_Devaraj.pdf', fileName: 'My_Resume_Senthil_Devaraj.pdf', fileIcon: 'DocumentTextIcon', thumbnailAiHint: 'document resume' },
+
+    // --- Mikado UX UI (Business - Kept from previous) ---
+    { id: 'mikado-1', type: 'text', user: 'Mikado UX UI', userImage: 'https://source.unsplash.com/random/40x40/?design,studio,logo&sig=4', timestamp: 'Hiring Graphic Designer', content: 'Hi Design Enthusiast, we are in search of a Graphic Designer with illustrative and sketching skills. Check out our Job portal and share your resume. Please suggest known persons if you know someone as we expected. #jobopening #graphicdesign #hiring', likes: 20, comments: 3 },
+    { id: 'mikado-2', type: 'image', user: 'Mikado UX UI', userImage: 'https://source.unsplash.com/random/40x40/?design,studio,logo&sig=4', timestamp: '2 days ago', content: 'Proud to unveil our latest branding project for a leading tech startup! #branding #uidesign', thumbnailUrl: 'https://source.unsplash.com/random/600x350/?branding,portfolio', thumbnailAiHint: 'branding portfolio', likes: 150, comments: 12 },
+
+    // --- TVS Synergy (Business - Kept from previous) ---
+    { id: 'tvs-1', type: 'image', user: 'TVS Synergy', userImage: 'https://source.unsplash.com/random/40x40/?automotive,brand&sig=5', timestamp: 'Sponsored Ad', content: 'TVS Ntorq 125 Price: Check On-Road & Ex-Showroom Prices of All Variants. Limited time offer!', thumbnailUrl: 'https://source.unsplash.com/random/600x350/?scooter,advertisement', thumbnailAiHint: 'scooter advertisement', likes: 300, comments: 5 },
+    { id: 'tvs-2', type: 'video', user: 'TVS Synergy', userImage: 'https://source.unsplash.com/random/40x40/?automotive,brand&sig=5', timestamp: '3 days ago', content: 'Experience the thrill of the TVS Apache RR 310. Book a test ride today! #TVSracing #ApacheRR310', thumbnailUrl: 'https://source.unsplash.com/random/600x350/?motorcycle,race', thumbnailAiHint: 'motorcycle race', videoUrl: '#', likes: 250, comments: 18 },
+
+    // --- GreenScape Landscaping (New Dummy Business) ---
+    { id: 'gs-1', type: 'text', user: 'GreenScape Landscaping', userImage: 'https://source.unsplash.com/random/40x40/?landscape,company,logo&sig=6', timestamp: 'Now Hiring!', content: 'We are looking for a passionate Landscape Designer to join our team! 2+ years experience preferred. Apply via our website. #hiring #landscapedesign #job', likes: 35, comments: 4 },
+    { id: 'gs-2', type: 'image', user: 'GreenScape Landscaping', userImage: 'https://source.unsplash.com/random/40x40/?landscape,company,logo&sig=6', timestamp: 'Spring Offer', content: 'Get 20% off all Spring Cleanup services if you book by April 30th! 🌷 #springcleaning #gardening #discount', thumbnailUrl: 'https://source.unsplash.com/random/600x350/?garden,spring,flowers', thumbnailAiHint: 'garden spring flowers', likes: 78, comments: 9 },
+
+    // --- TechForward Solutions (New Dummy Business) ---
+    { id: 'tf-1', type: 'text', user: 'TechForward Solutions', userImage: 'https://source.unsplash.com/random/40x40/?tech,company,logo&sig=7', timestamp: 'Job Alert!', content: 'Seeking Senior Software Engineers (Remote)! Expertise in Node.js and cloud platforms required. Competitive salary and benefits. Link in bio. #softwarejobs #remotejobs #hiring', likes: 120, comments: 15 },
+    { id: 'tf-2', type: 'link', user: 'TechForward Solutions', userImage: 'https://source.unsplash.com/random/40x40/?tech,company,logo&sig=7', timestamp: 'Product Launch', content: 'Excited to announce the launch of AnalyticaPro, our new AI-powered analytics platform for businesses! Learn more on our website.', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?analytics,dashboard', thumbnailAiHint: 'analytics dashboard', url: 'https://example.com/analyticapro', likes: 95, comments: 7 },
+
+    // --- Local Bakery Cafe (New Dummy Business) ---
+    { id: 'lbc-1', type: 'image', user: 'Local Bakery Cafe', userImage: 'https://source.unsplash.com/random/40x40/?bakery,logo&sig=8', timestamp: 'Weekend Special!', content: 'This weekend only: Buy one croissant, get one FREE! 🥐 Freshly baked and delicious. #bakery #croissant #offer #BOGO', thumbnailUrl: 'https://source.unsplash.com/random/600x350/?croissants,bakery', thumbnailAiHint: 'croissants bakery', likes: 210, comments: 25 },
+    { id: 'lbc-2', type: 'image', user: 'Local Bakery Cafe', userImage: 'https://source.unsplash.com/random/40x40/?bakery,logo&sig=8', timestamp: 'Freshly Baked!', content: 'Our artisan sourdough bread, fresh out of the oven this morning. Come grab a loaf! #sourdough #freshbread #localbakery', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?bread,artisan', thumbnailAiHint: 'bread artisan', likes: 180, comments: 19 },
 ];
 
 
@@ -52,24 +65,36 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
     const { toast } = useToast();
     const [activeProfileTab, setActiveProfileTab] = useState('feed');
 
-    const userContent = userData?.name ? allUserContent.filter(post => post.user === userData.name) : allUserContent;
+    const loggedInUserName = userData?.name || 'Test User'; // Fallback to 'Test User' if userData is null
 
-    const filteredPosts = userContent.filter(post => {
-        if (!userData?.name && post.user !== 'Test User') return false; 
-        if (userData?.name && post.user !== userData.name) return false; 
-
+    const filteredPosts = allUserContent.filter(post => {
         switch (activeProfileTab) {
-        case 'feed': return true;
-        case 'images': return post.type === 'image';
-        case 'videos': return post.type === 'video';
-        case 'links': return post.type === 'link';
-        case 'files': return post.type === 'file';
-        case 'tweets': return post.type === 'tweet' || (post.type === 'text' && post.content && post.content.includes('#'));
-        default: return false;
+        case 'feed':
+             // The "Feed" tab for a user shows their posts AND posts from entities they follow (simulated by including all posts here)
+            return true;
+        case 'images':
+            return post.type === 'image' && post.user === loggedInUserName;
+        case 'videos':
+            return post.type === 'video' && post.user === loggedInUserName;
+        case 'links':
+            return post.type === 'link' && post.user === loggedInUserName;
+        case 'files':
+            return post.type === 'file' && post.user === loggedInUserName;
+        case 'tweets':
+            // Tweets tab can also show tweets from followed entities or just user's tweets.
+            // For this example, let's make it show all tweets in the general content,
+            // similar to how Twitter/X feed might work. If it should only be user's tweets:
+            // return post.type === 'tweet' && post.user === loggedInUserName;
+            return post.type === 'tweet';
+        default:
+            return false;
         }
     });
 
-    const totalPosts = userContent.length;
+    const userSpecificContent = allUserContent.filter(post => post.user === loggedInUserName);
+    const totalPostsByLoggedInUser = userSpecificContent.length;
+    
+    // These stats can remain generic for now, or be fetched dynamically in a real app
     const followersCount = userData?.id ? (parseInt(userData.id.replace(/[^0-9]/g, '').slice(-3) || "123", 10) % 500) + 100 : 1234;
     const followingCount = userData?.id ? (parseInt(userData.id.replace(/[^0-9]/g, '').slice(-2) || "56", 10) % 200) + 50 : 567;
 
@@ -82,75 +107,111 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
     const handleEditPersonalProfile = () => {
         toast({ title: "Edit Personal Profile (Simulated)", description: "This would open a form to edit your display name, avatar, etc. for this content profile." });
     };
-    
+
     const renderPostContent = (item: ProfilePost) => {
+        // Common user info part for feed items
+        const postUserInfo = (
+            <div className="flex items-center mb-3">
+                <Avatar className="h-10 w-10 mr-3">
+                    <AvatarImage src={item.userImage || `https://source.unsplash.com/random/40x40/?${item.user.split(' ')[0].toLowerCase()}`} alt={item.user} data-ai-hint={item.user.toLowerCase() + " avatar"} />
+                    <AvatarFallback>{item.user?.substring(0, 2).toUpperCase() || 'U'}</AvatarFallback>
+                </Avatar>
+                <div className="flex-grow">
+                    <p className="font-semibold text-foreground">{item.user}</p>
+                    <p className="text-xs text-muted-foreground">{item.timestamp}</p>
+                </div>
+                {item.user === loggedInUserName && ( // Only show options for posts by the logged-in user
+                    <Button variant="ghost" size="icon" className="ml-auto h-7 w-7 text-muted-foreground hover:text-primary">
+                        <EllipsisHorizontalIcon className="h-4 w-4" />
+                        <span className="sr-only">More options</span>
+                    </Button>
+                 )}
+            </div>
+        );
+
         switch (item.type) {
             case 'image':
-                return item.thumbnailUrl && <Image src={item.thumbnailUrl} alt={item.content || "Post image"} width={500} height={300} className="w-full h-auto object-cover rounded-md my-2" data-ai-hint={item.thumbnailAiHint || "user content"} />;
+                return (
+                    <>
+                        {postUserInfo}
+                        {item.content && <p className="text-foreground mb-3">{item.content}</p>}
+                        {item.thumbnailUrl && <Image src={item.thumbnailUrl} alt={item.content || "Post image"} width={500} height={300} className="w-full h-auto object-cover rounded-md my-2" data-ai-hint={item.thumbnailAiHint || "user content"} />}
+                    </>
+                );
             case 'video':
                 return (
-                    <div className="relative my-2 bg-black rounded-md aspect-video flex items-center justify-center">
-                        {item.thumbnailUrl && <Image src={item.thumbnailUrl} alt="Video thumbnail" layout="fill" objectFit="cover" className="rounded-md opacity-70" data-ai-hint={item.thumbnailAiHint || "video content"}/>}
-                        <PlayCircleIcon className="h-12 w-12 text-white absolute z-10" />
-                        <p className="absolute bottom-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded">{item.content || "Video Post"}</p>
-                    </div>
+                    <>
+                        {postUserInfo}
+                        {item.content && <p className="text-foreground mb-3">{item.content}</p>}
+                        <div className="relative my-2 bg-black rounded-md aspect-video flex items-center justify-center">
+                            {item.thumbnailUrl && <Image src={item.thumbnailUrl} alt="Video thumbnail" layout="fill" objectFit="cover" className="rounded-md opacity-70" data-ai-hint={item.thumbnailAiHint || "video content"}/>}
+                            <PlayCircleIcon className="h-12 w-12 text-white absolute z-10" />
+                        </div>
+                    </>
                 );
             case 'link':
                 return (
-                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="block my-2 p-3 border rounded-md hover:bg-muted transition-colors">
-                        {item.thumbnailUrl && <Image src={item.thumbnailUrl} alt="Link preview" width={500} height={150} className="w-full h-auto object-cover rounded-md mb-2" data-ai-hint={item.thumbnailAiHint || "link preview"}/>}
-                        <p className="font-semibold text-primary">{item.content}</p>
-                        {item.url && <p className="text-xs text-muted-foreground truncate">{item.url}</p>}
-                    </a>
+                    <>
+                        {postUserInfo}
+                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="block my-2 p-3 border rounded-md hover:bg-muted transition-colors">
+                            {item.thumbnailUrl && <Image src={item.thumbnailUrl} alt="Link preview" width={500} height={150} className="w-full h-auto object-cover rounded-md mb-2" data-ai-hint={item.thumbnailAiHint || "link preview"}/>}
+                            <p className="font-semibold text-primary">{item.content}</p>
+                            {item.url && <p className="text-xs text-muted-foreground truncate">{item.url}</p>}
+                        </a>
+                    </>
                 );
             case 'file':
                 return (
-                    <div className="my-2 p-3 border rounded-md flex items-center gap-2 bg-muted/50">
-                        <DocumentTextIcon className="h-6 w-6 text-primary" />
-                        <div>
-                            <p className="font-medium">{item.fileName || item.content}</p>
-                            <p className="text-xs text-muted-foreground">Shared a file.</p>
+                    <>
+                        {postUserInfo}
+                        <div className="my-2 p-3 border rounded-md flex items-center gap-2 bg-muted/50">
+                            <DocumentTextIcon className="h-6 w-6 text-primary" />
+                            <div>
+                                <p className="font-medium">{item.fileName || item.content}</p>
+                                <p className="text-xs text-muted-foreground">Shared a file.</p>
+                            </div>
                         </div>
-                    </div>
+                    </>
                 );
             case 'tweet':
                  return (
                     <div className="p-3 border border-blue-200 rounded-lg bg-blue-50/70 my-2">
                        <div className="flex items-center mb-2">
-                          <Image src="/assets/icons/twitter-x.svg" alt="Tweet icon" width={16} height={16} className="mr-2 opacity-80"/>
-                          <p className="font-semibold text-gray-900 text-sm">@{item.user?.replace(/\s/g, '').toLowerCase()}</p>
-                          <span className="text-xs text-gray-500 ml-auto">{item.timestamp}</span>
+                            <Avatar className="h-8 w-8 mr-2">
+                                <AvatarImage src={item.userImage || `https://source.unsplash.com/random/32x32/?${item.user.split(' ')[0].toLowerCase()}`} alt={item.user} data-ai-hint={item.user.toLowerCase() + " avatar"}/>
+                                <AvatarFallback>{item.user?.substring(0,1).toUpperCase()}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-grow">
+                                <p className="font-semibold text-gray-900 text-sm">{item.user}</p>
+                                <p className="text-xs text-gray-500">{item.timestamp}</p>
+                            </div>
                        </div>
                        <p className="text-gray-800 text-sm whitespace-pre-line">{item.content}</p>
                     </div>
                  );
             case 'text':
-                return <p className="my-2 py-1 whitespace-pre-line">{item.content}</p>;
+                return (
+                    <>
+                        {postUserInfo}
+                        <p className="my-2 py-1 whitespace-pre-line">{item.content}</p>
+                    </>
+                );
             default:
-                return <p className="my-2 py-1">{item.content}</p>;
+                return (
+                     <>
+                        {postUserInfo}
+                        <p className="my-2 py-1">{item.content}</p>
+                    </>
+                );
         }
     };
 
     const PostCard: React.FC<{ item: ProfilePost }> = ({ item }) => (
         <Card className="shadow-md">
-            <CardHeader className="flex flex-row items-start space-x-3 pb-3">
-                <Avatar>
-                    <AvatarImage src={userData?.avatarUrl || `https://source.unsplash.com/random/40x40/?${item.user.split(' ')[0]}`} alt={item.user} data-ai-hint={userData?.avatarAiHint || "user avatar"} />
-                    <AvatarFallback>{item.user?.substring(0, 2).toUpperCase() || 'U'}</AvatarFallback>
-                </Avatar>
-                <div>
-                    <p className="font-semibold text-foreground">{item.user}</p>
-                    <p className="text-xs text-muted-foreground">{item.timestamp}</p>
-                </div>
-                 <Button variant="ghost" size="icon" className="ml-auto h-7 w-7 text-muted-foreground hover:text-primary">
-                    <EllipsisHorizontalIcon className="h-4 w-4" />
-                    <span className="sr-only">More options</span>
-                 </Button>
-            </CardHeader>
-            <CardContent className="pb-2">
+            <CardContent className="pt-4 pb-2">
                 {renderPostContent(item)}
             </CardContent>
-            <CardFooter className="flex justify-start items-center gap-2 pt-2 border-t">
+            <CardFooter className="flex justify-start items-center gap-2 pt-2 pb-3 border-t">
                 <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
                     <HandThumbUpIcon className="h-4 w-4 mr-1.5" /> {item.likes}
                 </Button>
@@ -186,13 +247,13 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                     <p className="text-xs font-medium text-foreground line-clamp-2">{item.fileName || item.content}</p>
                 </div>
             )}
-             {item.type === 'tweet' && (
+             {item.type === 'tweet' && ( // Tweets in grid view will look simple, primarily for the 'Feed' tab
                 <div className="w-full h-full bg-blue-50 flex flex-col items-center justify-center p-2 text-center">
                     <Image src="/assets/icons/twitter-x.svg" alt="Tweet icon" width={32} height={32} className="mb-1 opacity-70"/>
                     <p className="text-xs font-medium text-blue-700 line-clamp-3">{item.content}</p>
                 </div>
             )}
-             {item.type === 'text' && ( // Fallback for text posts in grid view, though usually not shown here
+            {item.type === 'text' && (
                 <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center p-2 text-center">
                     <ChatBubbleOvalLeftEllipsisIcon className="h-8 w-8 text-gray-500 mb-1"/>
                     <p className="text-xs font-medium text-gray-700 line-clamp-3">{item.content}</p>
@@ -202,6 +263,11 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                 <span className="flex items-center"><HandThumbUpIcon className="h-4 w-4 mr-1" />{item.likes}</span>
                 <span className="flex items-center"><ChatBubbleOvalLeftEllipsisIcon className="h-4 w-4 mr-1" />{item.comments}</span>
             </div>
+            {item.user === loggedInUserName && ( // Only show options for posts by the logged-in user
+                <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6 text-white opacity-0 group-hover:opacity-100 z-10 hover:bg-black/50">
+                    <EllipsisHorizontalIcon className="h-3 w-3" />
+                </Button>
+            )}
         </Card>
     );
 
@@ -213,12 +279,12 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                     <CardContent className="pt-6">
                         <div className="flex flex-col items-center sm:flex-row sm:items-start gap-4">
                             <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-background ring-2 ring-primary">
-                                <AvatarImage src={userData?.avatarUrl || `https://source.unsplash.com/random/128x128/?${userData?.name?.split(' ')[0] || 'abstract'}`} alt={userData?.name} data-ai-hint={userData?.avatarAiHint || "user avatar"} />
-                                <AvatarFallback className="text-3xl">{userData?.name?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
+                                <AvatarImage src={userData?.avatarUrl || `https://source.unsplash.com/random/128x128/?${loggedInUserName.split(' ')[0].toLowerCase() || 'abstract'}`} alt={loggedInUserName} data-ai-hint={userData?.avatarAiHint || "user avatar"} />
+                                <AvatarFallback className="text-3xl">{loggedInUserName?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
                             </Avatar>
                             <div className="flex-grow text-center sm:text-left mt-2 sm:mt-0">
                                 <div className="flex items-center justify-center sm:justify-start gap-2">
-                                    <h1 className="text-2xl sm:text-3xl font-bold font-headline text-foreground">{userData?.name || 'User Profile'}</h1>
+                                    <h1 className="text-2xl sm:text-3xl font-bold font-headline text-foreground">{loggedInUserName}</h1>
                                     <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={handleEditPersonalProfile}>
                                         <PencilSquareIcon className="h-4 w-4" />
                                         <span className="sr-only">Edit Personal Profile</span>
@@ -226,7 +292,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                                 </div>
                                 {userData?.email && <p className="text-sm text-muted-foreground">{userData.email}</p>}
                                 <div className="flex justify-center sm:justify-start space-x-6 mt-3 text-sm">
-                                    <div><span className="font-semibold text-foreground">{totalPosts}</span> <span className="text-muted-foreground">Posts</span></div>
+                                    <div><span className="font-semibold text-foreground">{totalPostsByLoggedInUser}</span> <span className="text-muted-foreground">Posts</span></div>
                                     <div><span className="font-semibold text-foreground">{followersCount}</span> <span className="text-muted-foreground">Followers</span></div>
                                     <div><span className="font-semibold text-foreground">{followingCount}</span> <span className="text-muted-foreground">Following</span></div>
                                 </div>
@@ -258,9 +324,9 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                     {filteredPosts.length === 0 ? (
                         <div className="text-center py-10 text-muted-foreground">
                             <p className="text-lg">No posts yet in this category.</p>
-                            <p className="text-sm">Start sharing your content!</p>
+                            <p className="text-sm">Start sharing your content or follow others!</p>
                         </div>
-                    ) : (activeProfileTab === 'feed' || activeProfileTab === 'tweets') ? (
+                    ) : (activeProfileTab === 'feed') ? ( // The 'tweets' tab might also use feed view depending on preference
                         <div className="space-y-4">
                             {filteredPosts.map(item => <PostCard key={item.id} item={item} />)}
                         </div>
