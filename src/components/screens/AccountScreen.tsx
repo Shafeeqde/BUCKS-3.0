@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { UserCircleIcon, Cog6ToothIcon, PencilSquareIcon, PlusCircleIcon, PhotoIcon, LinkIcon as LinkOutlineIcon, FilmIcon } from '@heroicons/react/24/outline'; // Renamed LinkIcon to avoid conflict
+import { UserCircleIcon, Cog6ToothIcon, PlusCircleIcon, PhotoIcon, FilmIcon, LinkIcon as LinkOutlineIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, QueueListIcon } from '@heroicons/react/24/outline';
 import type { TabName, UserDataForSideMenu, ProfilePost } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
@@ -43,7 +43,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
   };
 
   const handleEditPersonalProfile = () => {
-    // This could navigate to AccountSettingsScreen or a dedicated edit profile screen
     setActiveTab('account-settings'); 
     toast({ title: "Navigating to Settings", description: "Opening account settings." });
   };
@@ -55,47 +54,45 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
 
   return (
     <ScrollArea className="h-full bg-muted/20">
-      <div className="container mx-auto max-w-4xl py-6 px-2 sm:px-4">
-        <Card className="shadow-xl overflow-hidden">
+      <div className="container mx-auto max-w-4xl py-0 px-0 sm:px-0">
+        <Card className="shadow-none sm:shadow-xl overflow-hidden border-0 sm:border rounded-none sm:rounded-lg">
           <CardHeader className="bg-card p-4 sm:p-6 border-b">
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-2 border-primary">
                 <AvatarImage src={userData.avatarUrl || 'https://source.unsplash.com/random/100x100/?avatar'} alt={userData.name} data-ai-hint={userData.avatarAiHint || "user avatar"} />
                 <AvatarFallback className="text-2xl">{userData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
-              <div className="text-center sm:text-left">
+              <div className="text-center sm:text-left flex-grow">
                 <h1 className="text-2xl font-bold font-headline text-foreground">{userData.name}</h1>
                 <p className="text-sm text-muted-foreground">{userData.email}</p>
                 <div className="flex items-center justify-center sm:justify-start space-x-4 mt-2 text-xs text-muted-foreground">
                   {/* Placeholder stats */}
-                  <span><span className="font-semibold text-foreground">123</span> Followers</span>
-                  <span><span className="font-semibold text-foreground">45</span> Following</span>
+                  <span><span className="font-semibold text-foreground">7</span> Posts</span>
+                  <span><span className="font-semibold text-foreground">391</span> Followers</span>
+                  <span><span className="font-semibold text-foreground">85</span> Following</span>
                 </div>
               </div>
-              <div className="sm:ml-auto flex flex-col sm:flex-row gap-2 w-full sm:w-auto mt-3 sm:mt-0">
+            </div>
+            <div className="mt-4 flex flex-col sm:flex-row gap-2">
                 <Button variant="outline" size="sm" onClick={handleManageProfessionalProfile} className="w-full sm:w-auto">
-                  <UserCircleIcon className="mr-2 h-4 w-4" /> Pro Dashboard
+                  <UserCircleIcon className="mr-2 h-4 w-4" /> Manage Professional Profile
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleEditPersonalProfile} className="w-full sm:w-auto">
-                  <Cog6ToothIcon className="mr-2 h-4 w-4" /> Account Settings
+                <Button size="sm" onClick={handleCreatePost} className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <PlusCircleIcon className="mr-2 h-4 w-4" /> Create Post
                 </Button>
-              </div>
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="p-4 border-b">
-              <Button className="w-full" onClick={handleCreatePost}>
-                <PlusCircleIcon className="mr-2 h-5 w-5" /> Create Post
-              </Button>
-            </div>
             <Tabs defaultValue="feed" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 rounded-none">
-                <TabsTrigger value="feed" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none"><PencilSquareIcon className="mr-1.5 h-4 w-4"/>Feed</TabsTrigger>
-                <TabsTrigger value="media" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none"><PhotoIcon className="mr-1.5 h-4 w-4"/>Media</TabsTrigger>
-                <TabsTrigger value="links" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none"><LinkOutlineIcon className="mr-1.5 h-4 w-4"/>Links</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 rounded-none h-auto bg-muted/50">
+                <TabsTrigger value="feed" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><QueueListIcon className="h-4 w-4"/>Feed</TabsTrigger>
+                <TabsTrigger value="images" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><PhotoIcon className="h-4 w-4"/>Images</TabsTrigger>
+                <TabsTrigger value="videos" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><FilmIcon className="h-4 w-4"/>Videos</TabsTrigger>
+                <TabsTrigger value="links" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><LinkOutlineIcon className="h-4 w-4"/>Links</TabsTrigger>
+                <TabsTrigger value="files" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><DocumentTextIcon className="h-4 w-4"/>Files</TabsTrigger>
+                <TabsTrigger value="tweets" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><ChatBubbleLeftRightIcon className="h-4 w-4"/>Tweets</TabsTrigger>
               </TabsList>
               <TabsContent value="feed" className="p-4 min-h-[300px]">
-                 <h3 className="text-lg font-semibold mb-3 text-foreground">My Feed</h3>
                  {dummyPosts.length > 0 ? (
                     <div className="space-y-4">
                     {dummyPosts.map(post => (
@@ -103,7 +100,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                         <CardHeader className="pb-2 pt-4 px-4">
                             <div className="flex items-center space-x-3">
                                 <Avatar className="h-9 w-9">
-                                    <AvatarImage src={userData.avatarUrl || undefined} alt={userData.name} data-ai-hint={userData.avatarAiHint}/>
+                                    <AvatarImage src={userData.avatarUrl || undefined} alt={userData.name} data-ai-hint={userData.avatarAiHint || "user avatar"}/>
                                     <AvatarFallback>{userData.name.substring(0,1)}</AvatarFallback>
                                 </Avatar>
                                 <div>
@@ -120,7 +117,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                             <span>{post.likes} Likes</span>
                             <span className="mx-2">•</span>
                             <span>{post.comments} Comments</span>
-                            {/* Add action buttons like Edit/Delete here if needed */}
                         </CardFooter>
                         </Card>
                     ))}
@@ -129,8 +125,11 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                     <p className="text-muted-foreground text-center py-10">No posts in your feed yet. Click "Create Post" to share something!</p>
                 )}
               </TabsContent>
-              <TabsContent value="media" className="p-4 min-h-[300px]"><p className="text-muted-foreground text-center py-10">Your media gallery will appear here.</p></TabsContent>
-              <TabsContent value="links" className="p-4 min-h-[300px]"><p className="text-muted-foreground text-center py-10">Your saved links and resources will appear here.</p></TabsContent>
+              <TabsContent value="images" className="p-4 min-h-[300px]"><p className="text-muted-foreground text-center py-10">Your image gallery will appear here.</p></TabsContent>
+              <TabsContent value="videos" className="p-4 min-h-[300px]"><p className="text-muted-foreground text-center py-10">Your video gallery will appear here.</p></TabsContent>
+              <TabsContent value="links" className="p-4 min-h-[300px]"><p className="text-muted-foreground text-center py-10">Your saved links will appear here.</p></TabsContent>
+              <TabsContent value="files" className="p-4 min-h-[300px]"><p className="text-muted-foreground text-center py-10">Your shared files will appear here.</p></TabsContent>
+              <TabsContent value="tweets" className="p-4 min-h-[300px]"><p className="text-muted-foreground text-center py-10">Your tweets/micro-posts will appear here.</p></TabsContent>
             </Tabs>
           </CardContent>
         </Card>
