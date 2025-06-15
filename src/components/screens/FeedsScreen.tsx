@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PlusIcon, PhotoIcon, PencilSquareIcon } from '@heroicons/react/24/outline'; // Replaced Image, Baseline, Loader2
+import { PlusIcon, PhotoIcon, PencilSquareIcon } from '@heroicons/react/24/outline'; 
 import CategoryItem from '@/components/feeds/CategoryItem';
 import FeedCard from '@/components/feeds/FeedCard';
 import type { Category, FeedItem as FeedItemType } from '@/types';
@@ -39,6 +39,7 @@ const initialFeedItems: FeedItemType[] = [
     content: 'Hi Guys, I have been Unemployed for 12 months now, please help by reviewing my resume and please help if there are any opportunities. Senthil Devaraj Resume.',
     comments: 12, recommendations: 5, notRecommendations: 1, showCommentBox: false, currentComment: ''
   },
+  // Business Posts in Aggregated Feed
   {
     id: 3, type: 'job', user: 'Mikado UX UI', userImage: 'https://source.unsplash.com/random/40x40/?design,studio,logo', userImageAiHint: 'design studio logo',
     timestamp: 'Hiring Graphic Designer',
@@ -50,7 +51,20 @@ const initialFeedItems: FeedItemType[] = [
     postImage: 'https://source.unsplash.com/random/600x350/?scooter,advertisement', postImageAiHint: 'scooter advertisement',
     content: 'TVS Ntorq 125 Price : Check On-Road & Ex-Showroom Prices of All Variants -',
     timestamp: 'Sponsored Ad', comments: 0, recommendations: 15, notRecommendations: 0, showCommentBox: false, currentComment: ''
-  }
+  },
+  {
+    id: 5, type: 'post', user: 'Hot Griddle Restaurant', userImage: 'https://source.unsplash.com/random/40x40/?restaurant,logo&sig=hg', userImageAiHint: 'restaurant logo',
+    timestamp: '4 days ago',
+    content: 'Special Offer: Combo meals starting at just ₹249 this week! Perfect for a quick and delicious lunch. #FoodDeals #LunchSpecial',
+    comments: 18, recommendations: 88, notRecommendations: 1, showCommentBox: false, currentComment: ''
+  },
+  {
+    id: 6, type: 'post', user: 'GreenScape Landscaping', userImage: 'https://source.unsplash.com/random/40x40/?landscape,company,logo&sig=gs', userImageAiHint: 'landscape company logo',
+    timestamp: '1 day ago',
+    content: 'Spring is here! 🌷 Time to get your garden ready. Contact us for a free consultation.',
+    postImage: 'https://source.unsplash.com/random/600x350/?garden,spring,flowers', postImageAiHint: 'garden spring flowers',
+    comments: 9, recommendations: 45, notRecommendations: 0, showCommentBox: false, currentComment: ''
+  },
 ];
 
 const FeedsScreen = () => {

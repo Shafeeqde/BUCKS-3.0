@@ -18,7 +18,7 @@ interface AccountScreenProps {
   setActiveTab: (tab: TabName) => void;
 }
 
-// Extended dummy content
+// Personal content for the logged-in user (Test User)
 const allUserContent: ProfilePost[] = [
     // --- Test User (Logged-in User - Existing) ---
     { id: 'tu-1', type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?nature,landscape', thumbnailAiHint: 'nature landscape', likes: 120, comments: 15, user: 'Test User', timestamp: '2 hours ago', content: 'Enjoying the golden hour! What a beautiful sunset.', userImage: 'https://source.unsplash.com/random/48x48/?user,avatar&sig=1' },
@@ -28,6 +28,9 @@ const allUserContent: ProfilePost[] = [
     { id: 'tu-5', type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?food,healthy', thumbnailAiHint: 'food healthy', likes: 200, comments: 22, user: 'Test User', timestamp: '1 day ago', content: 'Healthy and delicious meal prep for the week.', userImage: 'https://source.unsplash.com/random/48x48/?user,avatar&sig=1' },
     { id: 'tu-6', type: 'file', content: 'Q3_Marketing_Report.pdf', fileName: 'Q3_Marketing_Report.pdf', fileIcon: 'DocumentTextIcon', likes: 30, comments: 2, user: 'Test User', timestamp: '3 weeks ago', userImage: 'https://source.unsplash.com/random/48x48/?user,avatar&sig=1' },
     { id: 'tu-7', type: 'tweet', content: 'Excited for the upcoming Next.js conference! Who else is attending? #NextJS #WebDev', likes: 45, comments: 7, user: 'Test User', timestamp: '2 months ago', userImage: 'https://source.unsplash.com/random/48x48/?user,avatar&sig=1' },
+    { id: 'tu-8', type: 'post', content: 'Looking for recommendations for a good co-working space in downtown. Any suggestions?', user: 'Test User', timestamp: 'Today', likes: 15, comments: 4, userImage: 'https://source.unsplash.com/random/48x48/?user,avatar&sig=1'},
+    { id: 'tu-9', type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?city,night', thumbnailAiHint: 'city night', likes: 90, comments: 10, user: 'Test User', timestamp: '4 hours ago', content: 'Night city lights.', userImage: 'https://source.unsplash.com/random/48x48/?user,avatar&sig=1' },
+
 
     // --- Shafeeq (Personal User - Existing) ---
     { id: 'sh-1', type: 'image', user: 'Shafeeq', userImage: 'https://source.unsplash.com/random/40x40/?man,casual&sig=2', timestamp: 'Yesterday', likes: 150, comments: 20, content: 'Beautiful morning hike! The air was so fresh. #nature #weekendvibes', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?hike,mountain', thumbnailAiHint: 'hike mountain' },
@@ -38,26 +41,6 @@ const allUserContent: ProfilePost[] = [
     { id: 'sd-1', type: 'text', user: 'Senthil Devaraj', userImage: 'https://source.unsplash.com/random/40x40/?man,professional&sig=3', timestamp: '2 days ago', likes: 55, comments: 12, content: 'Completed an online certification in Advanced Project Management. Looking for new opportunities! #upskilling #careergoals #projectmanagement #jobsearch' },
     { id: 'sd-2', type: 'link', user: 'Senthil Devaraj', userImage: 'https://source.unsplash.com/random/40x40/?man,professional&sig=3', timestamp: '4 days ago', likes: 30, comments: 7, content: 'Found this insightful article on acing technical interviews. Sharing for others who might find it useful!', url: 'https://example.com/tech-interview-tips', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?interview,laptop', thumbnailAiHint: 'interview laptop' },
     { id: 'sd-3', type: 'file', user: 'Senthil Devaraj', userImage: 'https://source.unsplash.com/random/40x40/?man,professional&sig=3', timestamp: '1 month ago', likes: 15, comments: 2, content: 'My_Resume_Senthil_Devaraj.pdf', fileName: 'My_Resume_Senthil_Devaraj.pdf', fileIcon: 'DocumentTextIcon', thumbnailAiHint: 'document resume' },
-
-    // --- Mikado UX UI (Business - Kept from previous) ---
-    { id: 'mikado-1', type: 'text', user: 'Mikado UX UI', userImage: 'https://source.unsplash.com/random/40x40/?design,studio,logo&sig=4', timestamp: 'Hiring Graphic Designer', content: 'Hi Design Enthusiast, we are in search of a Graphic Designer with illustrative and sketching skills. Check out our Job portal and share your resume. Please suggest known persons if you know someone as we expected. #jobopening #graphicdesign #hiring', likes: 20, comments: 3 },
-    { id: 'mikado-2', type: 'image', user: 'Mikado UX UI', userImage: 'https://source.unsplash.com/random/40x40/?design,studio,logo&sig=4', timestamp: '2 days ago', content: 'Proud to unveil our latest branding project for a leading tech startup! #branding #uidesign', thumbnailUrl: 'https://source.unsplash.com/random/600x350/?branding,portfolio', thumbnailAiHint: 'branding portfolio', likes: 150, comments: 12 },
-
-    // --- TVS Synergy (Business - Kept from previous) ---
-    { id: 'tvs-1', type: 'image', user: 'TVS Synergy', userImage: 'https://source.unsplash.com/random/40x40/?automotive,brand&sig=5', timestamp: 'Sponsored Ad', content: 'TVS Ntorq 125 Price: Check On-Road & Ex-Showroom Prices of All Variants. Limited time offer!', thumbnailUrl: 'https://source.unsplash.com/random/600x350/?scooter,advertisement', thumbnailAiHint: 'scooter advertisement', likes: 300, comments: 5 },
-    { id: 'tvs-2', type: 'video', user: 'TVS Synergy', userImage: 'https://source.unsplash.com/random/40x40/?automotive,brand&sig=5', timestamp: '3 days ago', content: 'Experience the thrill of the TVS Apache RR 310. Book a test ride today! #TVSracing #ApacheRR310', thumbnailUrl: 'https://source.unsplash.com/random/600x350/?motorcycle,race', thumbnailAiHint: 'motorcycle race', videoUrl: '#', likes: 250, comments: 18 },
-
-    // --- GreenScape Landscaping (New Dummy Business) ---
-    { id: 'gs-1', type: 'text', user: 'GreenScape Landscaping', userImage: 'https://source.unsplash.com/random/40x40/?landscape,company,logo&sig=6', timestamp: 'Now Hiring!', content: 'We are looking for a passionate Landscape Designer to join our team! 2+ years experience preferred. Apply via our website. #hiring #landscapedesign #job', likes: 35, comments: 4 },
-    { id: 'gs-2', type: 'image', user: 'GreenScape Landscaping', userImage: 'https://source.unsplash.com/random/40x40/?landscape,company,logo&sig=6', timestamp: 'Spring Offer', content: 'Get 20% off all Spring Cleanup services if you book by April 30th! 🌷 #springcleaning #gardening #discount', thumbnailUrl: 'https://source.unsplash.com/random/600x350/?garden,spring,flowers', thumbnailAiHint: 'garden spring flowers', likes: 78, comments: 9 },
-
-    // --- TechForward Solutions (New Dummy Business) ---
-    { id: 'tf-1', type: 'text', user: 'TechForward Solutions', userImage: 'https://source.unsplash.com/random/40x40/?tech,company,logo&sig=7', timestamp: 'Job Alert!', content: 'Seeking Senior Software Engineers (Remote)! Expertise in Node.js and cloud platforms required. Competitive salary and benefits. Link in bio. #softwarejobs #remotejobs #hiring', likes: 120, comments: 15 },
-    { id: 'tf-2', type: 'link', user: 'TechForward Solutions', userImage: 'https://source.unsplash.com/random/40x40/?tech,company,logo&sig=7', timestamp: 'Product Launch', content: 'Excited to announce the launch of AnalyticaPro, our new AI-powered analytics platform for businesses! Learn more on our website.', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?analytics,dashboard', thumbnailAiHint: 'analytics dashboard', url: 'https://example.com/analyticapro', likes: 95, comments: 7 },
-
-    // --- Local Bakery Cafe (New Dummy Business) ---
-    { id: 'lbc-1', type: 'image', user: 'Local Bakery Cafe', userImage: 'https://source.unsplash.com/random/40x40/?bakery,logo&sig=8', timestamp: 'Weekend Special!', content: 'This weekend only: Buy one croissant, get one FREE! 🥐 Freshly baked and delicious. #bakery #croissant #offer #BOGO', thumbnailUrl: 'https://source.unsplash.com/random/600x350/?croissants,bakery', thumbnailAiHint: 'croissants bakery', likes: 210, comments: 25 },
-    { id: 'lbc-2', type: 'image', user: 'Local Bakery Cafe', userImage: 'https://source.unsplash.com/random/40x40/?bakery,logo&sig=8', timestamp: 'Freshly Baked!', content: 'Our artisan sourdough bread, fresh out of the oven this morning. Come grab a loaf! #sourdough #freshbread #localbakery', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?bread,artisan', thumbnailAiHint: 'bread artisan', likes: 180, comments: 19 },
 ];
 
 
@@ -65,36 +48,37 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
     const { toast } = useToast();
     const [activeProfileTab, setActiveProfileTab] = useState('feed');
 
-    const loggedInUserName = userData?.name || 'Test User'; // Fallback to 'Test User' if userData is null
+    const loggedInUserName = userData?.name || 'Test User'; 
 
     const filteredPosts = allUserContent.filter(post => {
-        switch (activeProfileTab) {
-        case 'feed':
-             // The "Feed" tab for a user shows their posts AND posts from entities they follow (simulated by including all posts here)
-            return true;
-        case 'images':
-            return post.type === 'image' && post.user === loggedInUserName;
-        case 'videos':
-            return post.type === 'video' && post.user === loggedInUserName;
-        case 'links':
-            return post.type === 'link' && post.user === loggedInUserName;
-        case 'files':
-            return post.type === 'file' && post.user === loggedInUserName;
-        case 'tweets':
-            // Tweets tab can also show tweets from followed entities or just user's tweets.
-            // For this example, let's make it show all tweets in the general content,
-            // similar to how Twitter/X feed might work. If it should only be user's tweets:
-            // return post.type === 'tweet' && post.user === loggedInUserName;
-            return post.type === 'tweet';
-        default:
-            return false;
+        // The "Feed" tab for a user's personal profile page might show an aggregation of their posts
+        // and posts from individuals they follow (though individual following isn't fully simulated here).
+        // For simplicity now, the 'feed' tab on AccountScreen will just show the loggedInUser's own content.
+        if (activeProfileTab === 'feed') {
+            return post.user === loggedInUserName;
         }
+        // Other tabs show specific content types from the logged-in user.
+        if (activeProfileTab === 'images') {
+            return post.type === 'image' && post.user === loggedInUserName;
+        }
+        if (activeProfileTab === 'videos') {
+            return post.type === 'video' && post.user === loggedInUserName;
+        }
+        if (activeProfileTab === 'links') {
+            return post.type === 'link' && post.user === loggedInUserName;
+        }
+        if (activeProfileTab === 'files') {
+            return post.type === 'file' && post.user === loggedInUserName;
+        }
+        if (activeProfileTab === 'tweets') {
+            return post.type === 'tweet' && post.user === loggedInUserName;
+        }
+        return false;
     });
 
     const userSpecificContent = allUserContent.filter(post => post.user === loggedInUserName);
     const totalPostsByLoggedInUser = userSpecificContent.length;
     
-    // These stats can remain generic for now, or be fetched dynamically in a real app
     const followersCount = userData?.id ? (parseInt(userData.id.replace(/[^0-9]/g, '').slice(-3) || "123", 10) % 500) + 100 : 1234;
     const followingCount = userData?.id ? (parseInt(userData.id.replace(/[^0-9]/g, '').slice(-2) || "56", 10) % 200) + 50 : 567;
 
@@ -109,7 +93,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
     };
 
     const renderPostContent = (item: ProfilePost) => {
-        // Common user info part for feed items
         const postUserInfo = (
             <div className="flex items-center mb-3">
                 <Avatar className="h-10 w-10 mr-3">
@@ -120,7 +103,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                     <p className="font-semibold text-foreground">{item.user}</p>
                     <p className="text-xs text-muted-foreground">{item.timestamp}</p>
                 </div>
-                {item.user === loggedInUserName && ( // Only show options for posts by the logged-in user
+                {item.user === loggedInUserName && (
                     <Button variant="ghost" size="icon" className="ml-auto h-7 w-7 text-muted-foreground hover:text-primary">
                         <EllipsisHorizontalIcon className="h-4 w-4" />
                         <span className="sr-only">More options</span>
@@ -247,7 +230,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                     <p className="text-xs font-medium text-foreground line-clamp-2">{item.fileName || item.content}</p>
                 </div>
             )}
-             {item.type === 'tweet' && ( // Tweets in grid view will look simple, primarily for the 'Feed' tab
+             {item.type === 'tweet' && ( 
                 <div className="w-full h-full bg-blue-50 flex flex-col items-center justify-center p-2 text-center">
                     <Image src="/assets/icons/twitter-x.svg" alt="Tweet icon" width={32} height={32} className="mb-1 opacity-70"/>
                     <p className="text-xs font-medium text-blue-700 line-clamp-3">{item.content}</p>
@@ -263,7 +246,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                 <span className="flex items-center"><HandThumbUpIcon className="h-4 w-4 mr-1" />{item.likes}</span>
                 <span className="flex items-center"><ChatBubbleOvalLeftEllipsisIcon className="h-4 w-4 mr-1" />{item.comments}</span>
             </div>
-            {item.user === loggedInUserName && ( // Only show options for posts by the logged-in user
+            {item.user === loggedInUserName && ( 
                 <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6 text-white opacity-0 group-hover:opacity-100 z-10 hover:bg-black/50">
                     <EllipsisHorizontalIcon className="h-3 w-3" />
                 </Button>
@@ -326,7 +309,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                             <p className="text-lg">No posts yet in this category.</p>
                             <p className="text-sm">Start sharing your content or follow others!</p>
                         </div>
-                    ) : (activeProfileTab === 'feed') ? ( // The 'tweets' tab might also use feed view depending on preference
+                    ) : (['feed', 'tweets'].includes(activeProfileTab)) ? ( 
                         <div className="space-y-4">
                             {filteredPosts.map(item => <PostCard key={item.id} item={item} />)}
                         </div>
@@ -342,5 +325,3 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
 };
 
 export default AccountScreen;
-
-    

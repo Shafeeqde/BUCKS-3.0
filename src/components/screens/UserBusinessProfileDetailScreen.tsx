@@ -9,8 +9,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import {
-    ArrowLeftIcon, BriefcaseIcon, BuildingOfficeIcon, ChatBubbleOvalLeftEllipsisIcon, ShoppingBagIcon, UsersIcon, InformationCircleIcon, ArrowTopRightOnSquareIcon, PhoneIcon, MapPinIcon, RssIcon, HandThumbUpIcon,
-    StarIcon, VideoCameraIcon, CalendarDaysIcon, CurrencyDollarIcon, PlusCircleIcon, EllipsisHorizontalIcon, UserPlusIcon, GlobeAltIcon, EnvelopeIcon
+    ArrowLeftIcon, BriefcaseIcon, BuildingOfficeIcon, ChatBubbleOvalLeftEllipsisIcon, ShoppingBagIcon, InformationCircleIcon, ArrowTopRightOnSquareIcon, PhoneIcon, MapPinIcon, RssIcon, HandThumbUpIcon,
+    StarIcon, VideoCameraIcon, CalendarDaysIcon, PlusCircleIcon, EllipsisHorizontalIcon, UserPlusIcon, GlobeAltIcon, EnvelopeIcon
 } from '@heroicons/react/24/outline';
 import type { UserBusinessProfile, BusinessProduct, BusinessJob, BusinessFeedItem, BusinessService, BusinessReview } from '@/types';
 import { cn } from '@/lib/utils';
@@ -94,8 +94,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                 <BuildingOfficeIcon className="w-16 h-16 text-muted-foreground" />
               </div>
             )}
-          </div>
-          {profile.averageRating && profile.totalReviews ? (
+            {profile.averageRating && profile.totalReviews ? (
             <Badge variant="secondary" className="absolute top-4 right-4 bg-black/50 text-white backdrop-blur-sm text-sm py-1.5 px-3 rounded-lg shadow-md">
                 <StarIcon className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1.5"/> {profile.averageRating.toFixed(1)} ({profile.totalReviews} Reviews)
             </Badge>
@@ -181,6 +180,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                                     src={product.imageUrl || 'https://source.unsplash.com/random/300x225/?food,item'}
                                     alt={product.name}
                                     fill
+                                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                                     data-ai-hint={product.imageAiHint || "menu food item"}
                                 />
@@ -232,7 +232,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
             {profile.feed && profile.feed.length > 0 ? profile.feed.map(item => (
               <Card key={item.id} className="shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="pt-6">
-                  {item.image && <div className="relative aspect-video w-full mb-3 rounded-md overflow-hidden"><Image src={item.image} alt="Feed image" layout="fill" objectFit="cover" data-ai-hint={item.imageAiHint || "social media post"}/></div>}
+                  {item.image && <div className="relative aspect-video w-full mb-3 rounded-md overflow-hidden"><Image src={item.image} alt="Feed image" fill sizes="(max-width: 768px) 100vw, 50vw" objectFit="cover" data-ai-hint={item.imageAiHint || "social media post"}/></div>}
                   {item.videoUrl && <div className="relative aspect-video w-full mb-3 rounded-md overflow-hidden bg-black flex items-center justify-center text-card-foreground"><VideoCameraIcon className="w-12 h-12 opacity-70" /> <span className="ml-2">Video Placeholder</span></div> }
                   <p className="text-foreground mb-2 whitespace-pre-line">{item.content}</p>
                   <p className="text-xs text-muted-foreground">{item.timestamp}</p>
