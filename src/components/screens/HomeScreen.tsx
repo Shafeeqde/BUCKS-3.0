@@ -19,11 +19,9 @@ import BusinessProfileCard from '@/components/search/BusinessProfileCard';
 import type { BusinessProfileCardData as BusinessCardDataType, BusinessProductCardItem, TabName } from '@/types';
 
 const initialPlaceholders = [
-  "What are you looking for?",
+  "What are you looking for, e.g., plumber, cafe?",
   "Search professionals, services, or businesses...",
-  "e.g., Interior Designer, Plumber, Cafe",
-  "Find local experts...",
-  "Ask Locality Hub AI...",
+  "Find local experts or ask Locality Hub AI...",
 ];
 
 export type SearchResultItem =
@@ -150,7 +148,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         setCurrentPlaceholderIndex(prevIndex => (prevIndex + 1) % initialPlaceholders.length);
       }, 3000);
     } else {
-      setCurrentPlaceholder("Ask or search again...");
+      setCurrentPlaceholder("Ask Locality Hub AI or search again...");
     }
     return () => clearInterval(intervalId);
   }, [isSearchMode, currentPlaceholderIndex]);
@@ -246,13 +244,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           const taglineMatch = !!item.data.tagline && item.data.tagline.toLowerCase().includes(lowerQuery);
           const productMatch = !!item.data.products && item.data.products.some(p => p.name.toLowerCase().includes(lowerQuery));
           match = nameMatch || taglineMatch || productMatch;
-          
-          console.log(`[HomeScreen] Business Check: ${item.data.name}`);
-          console.log(`  Query: "${lowerQuery}"`);
-          console.log(`  Name (${item.data.name.toLowerCase()}): ${nameMatch}`);
-          console.log(`  Tagline (${item.data.tagline?.toLowerCase()}): ${taglineMatch}`);
-          console.log(`  Products: ${productMatch}`);
-          console.log(`  Overall Match: ${match}`);
         }
         return match;
       });
@@ -405,16 +396,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               variant="ghost"
               size="icon"
               onClick={handleCloseSearchResults}
-              className="p-1 rounded-full text-muted-foreground hover:text-primary"
+              className="p-1 rounded-full text-foreground hover:text-primary hover:bg-primary/10"
               aria-label="Close search results"
               data-close-search="true"
             >
-              <XMarkIcon className="w-5 h-5" />
+              <XMarkIcon className="w-6 h-6" />
             </Button>
           )}
           <form onSubmit={handleQuerySubmit} className={cn(
               "flex items-center p-2 pr-3 flex-grow",
-              isSearchMode ? "bg-background rounded-md border" : "bg-card rounded-full shadow-lg"
+              isSearchMode ? "bg-background rounded-md border border-input" : "bg-card rounded-full shadow-lg"
           )}>
             <Input
               type="text"
@@ -458,7 +449,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                 <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary">Available Now</Button>
                 <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary">Most Recommend</Button>
                 <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary">Ratings</Button>
-                <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary"><ArrowUpOnSquareIcon className="mr-1.5 h-3.5 w-3.5"/>Sort</Button> {/* Replaced ArrowDownUp */}
+                <Button variant="ghost" size="sm" className="rounded-full shrink-0 text-muted-foreground hover:text-primary"><ArrowUpOnSquareIcon className="mr-1.5 h-3.5 w-3.5"/>Sort</Button>
             </div>
           </div>
         )}
@@ -496,7 +487,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-xl font-headline flex items-center">
-                    <ChatBubbleLeftEllipsisIcon className="mr-2 h-5 w-5 text-primary"/> {/* Replaced Bot */}
+                    <ChatBubbleLeftEllipsisIcon className="mr-2 h-5 w-5 text-primary"/>
                     {currentQueryType === 'location_search' ? "AI Summary:" : "Locality Hub AI says:"}
                   </CardTitle>
                 </CardHeader>
@@ -607,3 +598,4 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 };
 
 export default HomeScreen;
+
