@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 
 interface CategoryItemProps {
   category: Category;
-  onClick: (id: string) => void;
+  onClick: (id: string) => void; // This will be handleCategoryClick from FeedsScreen
 }
 
 const CategoryItem: React.FC<CategoryItemProps> = ({ category, onClick }) => {
@@ -17,10 +17,11 @@ const CategoryItem: React.FC<CategoryItemProps> = ({ category, onClick }) => {
   return (
     <div
       className="flex-shrink-0 flex flex-col items-center cursor-pointer w-20 group"
-      onClick={() => onClick(category.id)}
+      onClick={() => onClick(category.id)} // Directly use the passed onClick with category.id
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && onClick(category.id)}
+      aria-label={category.name || (category.type === 'moments' ? 'Add your moment' : 'View category')}
     >
       {category.type === 'moments' ? (
         <div className={cn(`w-14 h-14 rounded-full flex items-center justify-center text-primary border-2 ${borderColor} group-hover:scale-105 transition-transform duration-200 ease-in-out`, category.color || 'bg-primary/10')}>

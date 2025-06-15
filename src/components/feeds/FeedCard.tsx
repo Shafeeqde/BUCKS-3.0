@@ -19,7 +19,7 @@ interface FeedCardProps {
   onCommentChange: (id: number, value: string) => void;
   onPostComment: (id: number) => void;
   onToggleCommentBox: (id: number) => void;
-  onViewUserProfile?: (profileId: string) => void; // New prop
+  onViewUserProfile?: (profileId: string) => void;
 }
 
 const FeedCard: React.FC<FeedCardProps> = ({ item, onInteraction, onCommentChange, onPostComment, onToggleCommentBox, onViewUserProfile }) => {
@@ -30,21 +30,27 @@ const FeedCard: React.FC<FeedCardProps> = ({ item, onInteraction, onCommentChang
     }
   };
 
+  const isClickable = !!(item.profileId && onViewUserProfile);
+
   return (
     <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-      <CardHeader className="flex flex-row items-center space-x-3 pb-3">
+      <CardHeader 
+        className={cn(
+          "flex flex-row items-center space-x-3 pb-3",
+          isClickable && "cursor-pointer hover:bg-muted/50"
+        )}
+        onClick={isClickable ? handleUserClick : undefined}
+        onKeyDown={isClickable ? (e) => e.key === 'Enter' && handleUserClick() : undefined}
+        tabIndex={isClickable ? 0 : undefined}
+        role={isClickable ? "button" : undefined}
+        aria-label={isClickable ? `View ${item.user}'s profile` : undefined}
+      >
         <Avatar>
           <AvatarImage src={item.userImage} alt={item.user} data-ai-hint={item.userImageAiHint || "profile person"} />
           <AvatarFallback>{item.user.substring(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="flex-grow">
-          {item.profileId && onViewUserProfile ? (
-             <button onClick={handleUserClick} className="text-left focus:outline-none group">
-                <CardTitle className="text-base font-semibold text-foreground font-headline group-hover:text-primary group-hover:underline">{item.user}</CardTitle>
-             </button>
-          ) : (
-             <CardTitle className="text-base font-semibold text-foreground font-headline">{item.user}</CardTitle>
-          )}
+          <CardTitle className={cn("text-base font-semibold text-foreground font-headline", isClickable && "group-hover:text-primary group-hover:underline")}>{item.user}</CardTitle>
           <p className="text-sm text-muted-foreground">{item.timestamp}</p>
         </div>
       </CardHeader>
@@ -124,5 +130,3 @@ const FeedCard: React.FC<FeedCardProps> = ({ item, onInteraction, onCommentChang
 };
 
 export default FeedCard;
-
-    

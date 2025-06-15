@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PlusIcon, PhotoIcon, PencilSquareIcon } from '@heroicons/react/24/outline'; 
+import { PlusIcon, PhotoIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import CategoryItem from '@/components/feeds/CategoryItem';
 import FeedCard from '@/components/feeds/FeedCard';
 import type { Category, FeedItem as FeedItemType } from '@/types';
@@ -15,33 +15,32 @@ import { Label } from '@/components/ui/label';
 
 const initialCategories: Category[] = [
   { id: 'moments-0', name: 'Your Moments', icon: PlusIcon, type: 'moments', viewed: false, color: 'bg-primary/10 text-primary' },
-  { id: 'feed-deepthi', name: 'Deepthi', image: 'https://source.unsplash.com/random/100x100/?woman,portrait', dataAiHint: 'woman portrait', viewed: false },
-  { id: 'feed-maanisha', name: 'Maanisha', image: 'https://source.unsplash.com/random/100x100/?woman,smiling', dataAiHint: 'woman smiling', viewed: false },
-  { id: 'feed-subhesh', name: 'Subhesh', image: 'https://source.unsplash.com/random/100x100/?man,office', dataAiHint: 'man office', viewed: true },
-  { id: 'feed-seena', name: 'Seena', image: 'https://source.unsplash.com/random/100x100/?person,outdoor', dataAiHint: 'person outdoor', viewed: false },
-  { id: 'feed-1', name: 'Shafeeq', image: 'https://source.unsplash.com/random/100x100/?man,casual', dataAiHint: 'man casual', viewed: false },
-  { id: 'feed-2', name: 'Senthil', image: 'https://source.unsplash.com/random/100x100/?person,tech', dataAiHint: 'person tech', viewed: true },
-  { id: 'feed-3', name: 'Mikado', image: 'https://source.unsplash.com/random/100x100/?company,logo', dataAiHint: 'company logo', viewed: true },
-  { id: 'feed-4', name: 'TVS Synergy', image: 'https://source.unsplash.com/random/100x100/?vehicle,brand', dataAiHint: 'vehicle brand', viewed: false },
+  { id: 'cat-deepthi', name: 'Deepthi', image: 'https://source.unsplash.com/random/100x100/?woman,portrait,indian', dataAiHint: 'woman portrait indian', viewed: false, profileId: 'deepthi-profile' },
+  { id: 'cat-maanisha', name: 'Maanisha', image: 'https://source.unsplash.com/random/100x100/?woman,smiling,professional', dataAiHint: 'woman smiling professional', viewed: false, profileId: 'manisha-profile' },
+  { id: 'cat-subhesh', name: 'Subhesh', image: 'https://source.unsplash.com/random/100x100/?man,office,indian', dataAiHint: 'man office indian', viewed: true, profileId: 'subhesh-profile' },
+  { id: 'cat-seena', name: 'Seena', image: 'https://source.unsplash.com/random/100x100/?person,outdoor,female', dataAiHint: 'person outdoor female', viewed: false, profileId: 'seena-profile' },
+  { id: 'cat-shafeeq', name: 'Shafeeq', image: 'https://source.unsplash.com/random/100x100/?man,casual,beard', dataAiHint: 'man casual beard', viewed: false, profileId: 'shafeeq-profile' },
+  { id: 'cat-senthil', name: 'Senthil', image: 'https://source.unsplash.com/random/100x100/?person,tech,southindian', dataAiHint: 'person tech southindian', viewed: true, profileId: 'senthil-profile' },
+  { id: 'cat-mikado', name: 'Mikado', image: 'https://source.unsplash.com/random/100x100/?company,logo', dataAiHint: 'company logo', viewed: true, profileId: 'mikado-ux-ui-business-profile' }, // Example: business profile
+  { id: 'cat-tvs', name: 'TVS Synergy', image: 'https://source.unsplash.com/random/100x100/?vehicle,brand', dataAiHint: 'vehicle brand', viewed: false },
 ];
 
 const initialFeedItems: FeedItemType[] = [
   {
-    id: 1, type: 'post', user: 'Shafeeq', userImage: 'https://source.unsplash.com/random/40x40/?man,casual', userImageAiHint: 'man casual',
+    id: 1, type: 'post', user: 'Shafeeq A.', userImage: 'https://source.unsplash.com/random/40x40/?man,casual,beard', userImageAiHint: 'man casual beard', profileId: 'shafeeq-profile',
     timestamp: 'Wishing you a joyful and prosperous Diwali',
     content: 'May this festival of lights bring happiness, success, and warmth to your lives.',
     postImage: 'https://source.unsplash.com/random/600x350/?diwali,festival', postImageAiHint: 'diwali festival',
     comments: 7, recommendations: 10, notRecommendations: 2, showCommentBox: false, currentComment: ''
   },
   {
-    id: 2, type: 'post', user: 'Senthil Devaraj', userImage: 'https://source.unsplash.com/random/40x40/?man,professional', userImageAiHint: 'man professional',
+    id: 2, type: 'post', user: 'Senthil Devaraj', userImage: 'https://source.unsplash.com/random/40x40/?man,professional,southindian', userImageAiHint: 'man professional southindian', profileId: 'senthil-profile',
     timestamp: 'Unemployed for 12 months, seeking opportunities.',
     content: 'Hi Guys, I have been Unemployed for 12 months now, please help by reviewing my resume and please help if there are any opportunities. Senthil Devaraj Resume.',
     comments: 12, recommendations: 5, notRecommendations: 1, showCommentBox: false, currentComment: ''
   },
-  // Business Posts in Aggregated Feed
   {
-    id: 3, type: 'job', user: 'Mikado UX UI', userImage: 'https://source.unsplash.com/random/40x40/?design,studio,logo', userImageAiHint: 'design studio logo',
+    id: 3, type: 'job', user: 'Mikado UX UI', userImage: 'https://source.unsplash.com/random/40x40/?design,studio,logo', userImageAiHint: 'design studio logo', profileId: 'mikado-ux-ui-business-profile', // Example: This could link to a business profile
     timestamp: 'Hiring Graphic Designer',
     content: 'Hi Design Enthusiast , we are in search of the graphic Designer with Illustrative and sketching skills , check out your Job portal and share you resume and please suggest you known persons if you know someone as we expected.',
     comments: 20, recommendations: 25, notRecommendations: 3, showCommentBox: false, currentComment: ''
@@ -53,13 +52,13 @@ const initialFeedItems: FeedItemType[] = [
     timestamp: 'Sponsored Ad', comments: 0, recommendations: 15, notRecommendations: 0, showCommentBox: false, currentComment: ''
   },
   {
-    id: 5, type: 'post', user: 'Hot Griddle Restaurant', userImage: 'https://source.unsplash.com/random/40x40/?restaurant,logo&sig=hg', userImageAiHint: 'restaurant logo',
+    id: 5, type: 'post', user: 'Hot Griddle Restaurant', userImage: 'https://source.unsplash.com/random/40x40/?restaurant,logo&sig=hg', userImageAiHint: 'restaurant logo', profileId: 'hot-griddle-business-profile', // Example
     timestamp: '4 days ago',
     content: 'Special Offer: Combo meals starting at just ₹249 this week! Perfect for a quick and delicious lunch. #FoodDeals #LunchSpecial',
     comments: 18, recommendations: 88, notRecommendations: 1, showCommentBox: false, currentComment: ''
   },
   {
-    id: 6, type: 'post', user: 'GreenScape Landscaping', userImage: 'https://source.unsplash.com/random/40x40/?landscape,company,logo&sig=gs', userImageAiHint: 'landscape company logo',
+    id: 6, type: 'post', user: 'GreenScape Landscaping', userImage: 'https://source.unsplash.com/random/40x40/?landscape,company,logo&sig=gs', userImageAiHint: 'landscape company logo', profileId: 'greenscape-business-profile', // Example
     timestamp: '1 day ago',
     content: 'Spring is here! 🌷 Time to get your garden ready. Contact us for a free consultation.',
     postImage: 'https://source.unsplash.com/random/600x350/?garden,spring,flowers', postImageAiHint: 'garden spring flowers',
@@ -67,7 +66,11 @@ const initialFeedItems: FeedItemType[] = [
   },
 ];
 
-const FeedsScreen = () => {
+interface FeedsScreenProps {
+  onViewUserProfile?: (profileId: string) => void;
+}
+
+const FeedsScreen: React.FC<FeedsScreenProps> = ({ onViewUserProfile }) => {
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [feedItems, setFeedItems] = useState<FeedItemType[]>(initialFeedItems);
   const { toast } = useToast();
@@ -94,7 +97,7 @@ const FeedsScreen = () => {
 
           if (type === 'recommend') updatedRecommendations += 1;
           else if (type === 'notRecommend') updatedNotRecommendations += 1;
-          
+
           return {
             ...item,
             recommendations: updatedRecommendations,
@@ -105,7 +108,7 @@ const FeedsScreen = () => {
       })
     );
   };
-  
+
   const handleToggleCommentBox = (id: number) => {
     setFeedItems(prevItems =>
       prevItems.map(item =>
@@ -137,18 +140,17 @@ const FeedsScreen = () => {
     }
   };
 
-  const handleCategoryClick = (id: string) => {
-    const category = categories.find(c => c.id === id);
+  const handleCategoryClick = (categoryId: string) => { // Renamed id to categoryId for clarity
+    const category = categories.find(c => c.id === categoryId);
     if (category?.type === 'moments' && category.id === 'moments-0') {
       setMomentImageUrl('');
       setMomentText('');
       setShowCreateMomentDialog(true);
+    } else if (category?.profileId && onViewUserProfile) {
+      onViewUserProfile(category.profileId);
+      setCategories(prevCategories => prevCategories.map(cat => cat.id === categoryId ? { ...cat, viewed: true } : cat));
     } else {
-      setCategories(prevCategories =>
-        prevCategories.map(cat =>
-          cat.id === id ? { ...cat, viewed: true } : cat
-        )
-      );
+      setCategories(prevCategories => prevCategories.map(cat => cat.id === categoryId ? { ...cat, viewed: true } : cat));
       toast({
           title: `Viewing ${category?.name || 'Category'}`,
           description: "Content for this category would load here in a full app.",
@@ -166,7 +168,7 @@ const FeedsScreen = () => {
       return;
     }
     setIsPostingMoment(true);
-    await new Promise(resolve => setTimeout(resolve, 1000)); 
+    await new Promise(resolve => setTimeout(resolve, 1000));
     console.log("Posting moment:", { imageUrl: momentImageUrl, text: momentText });
     toast({
       title: "Moment Posted! (Simulated)",
@@ -195,7 +197,8 @@ const FeedsScreen = () => {
               onInteraction={handleInteraction}
               onCommentChange={handleCommentChange}
               onPostComment={handlePostComment}
-              onToggleCommentBox={handleToggleCommentBox} 
+              onToggleCommentBox={handleToggleCommentBox}
+              onViewUserProfile={onViewUserProfile}
             />
           ))}
         </div>
