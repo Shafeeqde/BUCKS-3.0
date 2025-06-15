@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, UserDataForSideMenu, ProfilePost } from '@/types';
-import { PencilSquareIcon, Squares2X2Icon, ListBulletIcon, CameraIcon, VideoCameraIcon, LinkIcon as LinkIconOutline, DocumentTextIcon, ChatBubbleOvalLeftEllipsisIcon, HandThumbUpIcon, PlusCircleIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, Squares2X2Icon, ListBulletIcon, CameraIcon, VideoCameraIcon, LinkIcon as LinkIconOutline, DocumentTextIcon, ChatBubbleOvalLeftEllipsisIcon as TweetIcon, HandThumbUpIcon, PlusCircleIcon, UserCircleIcon, EllipsisHorizontalIcon } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 
 interface AccountScreenProps {
@@ -19,18 +19,45 @@ interface AccountScreenProps {
 }
 
 const allUserContent: ProfilePost[] = [
-    { id: 1, type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?nature,landscape', thumbnailAiHint: 'nature landscape', likes: 120, comments: 15, user: 'Test User', timestamp: '2 hours ago', content: 'Enjoying the golden hour! What a beautiful sunset.' },
-    { id: 2, type: 'video', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?tech,desk', thumbnailAiHint: 'tech desk', videoUrl: '#', likes: 85, comments: 10, user: 'Test User', timestamp: '5 hours ago', content: 'A quick tour of my new workspace setup. Loving the minimalist vibe!' },
-    { id: 3, type: 'text', content: 'Just finished reading "Atomic Habits" by James Clear. Highly recommend for anyone looking to build better routines! #books #productivity', likes: 75, comments: 8, user: 'Test User', timestamp: '1 day ago' },
-    { id: 4, type: 'link', content: 'My latest blog post on "The Future of AI in Design". Check it out!', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?ai,design', thumbnailAiHint: 'ai design', likes: 50, comments: 5, url: 'https://example.com/blog/ai-design', user: 'Test User', timestamp: '3 days ago' },
-    { id: 5, type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?food,healthy', thumbnailAiHint: 'food healthy', likes: 200, comments: 22, user: 'Test User', timestamp: '1 day ago', content: 'Healthy and delicious meal prep for the week.' },
-    { id: 6, type: 'file', content: 'Q3_Marketing_Report.pdf', fileName: 'Q3_Marketing_Report.pdf', fileIcon: 'DocumentTextIcon', likes: 30, comments: 2, user: 'Test User', timestamp: '3 weeks ago' },
-    { id: 7, type: 'tweet', content: 'Excited for the upcoming Next.js conference! Who else is attending? #NextJS #WebDev', likes: 45, comments: 7, user: 'Test User', timestamp: '2 months ago' },
-    { id: 8, type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?travel,mountains', thumbnailAiHint: 'travel mountains', likes: 150, comments: 18, user: 'Test User', timestamp: '1 week ago', content: 'Exploring the great outdoors.' },
-    { id: 9, type: 'video', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?music,concert', thumbnailAiHint: 'music concert', videoUrl: '#', likes: 100, comments: 12, user: 'Test User', timestamp: '5 days ago', content: 'Live music vibes from last night!' },
-    { id: 10, type: 'link', content: 'Useful CSS Tricks for Web Developers.', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?code,css', thumbnailAiHint: 'code css', likes: 65, comments: 9, url: 'https://example.com/blog/css-tricks', user: 'Test User', timestamp: '2 days ago' },
-    { id: 11, type: 'file', content: 'Project_Proposal.docx', fileName: 'Project_Proposal.docx', fileIcon: 'DocumentTextIcon', likes: 25, comments: 4, user: 'Test User', timestamp: '10 days ago' },
-    { id: 12, type: 'tweet', content: 'Just deployed a new feature! #developer #coding', likes: 88, comments: 14, user: 'Test User', timestamp: '6 hours ago' },
+    // --- Test User (Existing) ---
+    { id: 'tu-1', type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?nature,landscape', thumbnailAiHint: 'nature landscape', likes: 120, comments: 15, user: 'Test User', timestamp: '2 hours ago', content: 'Enjoying the golden hour! What a beautiful sunset.' },
+    { id: 'tu-2', type: 'video', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?tech,desk', thumbnailAiHint: 'tech desk', videoUrl: '#', likes: 85, comments: 10, user: 'Test User', timestamp: '5 hours ago', content: 'A quick tour of my new workspace setup. Loving the minimalist vibe!' },
+    { id: 'tu-3', type: 'text', content: 'Just finished reading "Atomic Habits" by James Clear. Highly recommend for anyone looking to build better routines! #books #productivity', likes: 75, comments: 8, user: 'Test User', timestamp: '1 day ago' },
+    { id: 'tu-4', type: 'link', content: 'My latest blog post on "The Future of AI in Design". Check it out!', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?ai,design', thumbnailAiHint: 'ai design', likes: 50, comments: 5, url: 'https://example.com/blog/ai-design', user: 'Test User', timestamp: '3 days ago' },
+    { id: 'tu-5', type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?food,healthy', thumbnailAiHint: 'food healthy', likes: 200, comments: 22, user: 'Test User', timestamp: '1 day ago', content: 'Healthy and delicious meal prep for the week.' },
+    { id: 'tu-6', type: 'file', content: 'Q3_Marketing_Report.pdf', fileName: 'Q3_Marketing_Report.pdf', fileIcon: 'DocumentTextIcon', likes: 30, comments: 2, user: 'Test User', timestamp: '3 weeks ago' },
+    { id: 'tu-7', type: 'tweet', content: 'Excited for the upcoming Next.js conference! Who else is attending? #NextJS #WebDev', likes: 45, comments: 7, user: 'Test User', timestamp: '2 months ago' },
+    { id: 'tu-8', type: 'image', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?travel,mountains', thumbnailAiHint: 'travel mountains', likes: 150, comments: 18, user: 'Test User', timestamp: '1 week ago', content: 'Exploring the great outdoors.' },
+    { id: 'tu-9', type: 'video', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?music,concert', thumbnailAiHint: 'music concert', videoUrl: '#', likes: 100, comments: 12, user: 'Test User', timestamp: '5 days ago', content: 'Live music vibes from last night!' },
+    { id: 'tu-10', type: 'link', content: 'Useful CSS Tricks for Web Developers.', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?code,css', thumbnailAiHint: 'code css', likes: 65, comments: 9, url: 'https://example.com/blog/css-tricks', user: 'Test User', timestamp: '2 days ago' },
+    { id: 'tu-11', type: 'file', content: 'Project_Proposal.docx', fileName: 'Project_Proposal.docx', fileIcon: 'DocumentTextIcon', likes: 25, comments: 4, user: 'Test User', timestamp: '10 days ago' },
+    { id: 'tu-12', type: 'tweet', content: 'Just deployed a new feature! #developer #coding', likes: 88, comments: 14, user: 'Test User', timestamp: '6 hours ago' },
+
+    // --- Shafeeq ---
+    { id: 'sh-1', type: 'image', user: 'Shafeeq', timestamp: 'Yesterday', likes: 150, comments: 20, content: 'Beautiful morning hike! The air was so fresh. #nature #weekendvibes', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?hike,mountain', thumbnailAiHint: 'hike mountain' },
+    { id: 'sh-2', type: 'text', user: 'Shafeeq', timestamp: '3 days ago', likes: 70, comments: 8, content: 'Learning to cook a new Italian dish today. Fingers crossed it turns out well! 🍝 #cooking #newrecipe' },
+    { id: 'sh-3', type: 'image', user: 'Shafeeq', timestamp: '1 week ago', likes: 210, comments: 35, content: 'Family time is precious. ❤️ Enjoying a lovely evening with my loved ones.', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?family,dinner', thumbnailAiHint: 'family dinner' },
+    { id: 'sh-4', type: 'tweet', user: 'Shafeeq', timestamp: '5 hours ago', likes: 40, comments: 5, content: 'Just finished a great book on mindfulness. Feeling very centered. #reading #mindfulness' },
+
+    // --- Senthil Devaraj ---
+    { id: 'sd-1', type: 'text', user: 'Senthil Devaraj', timestamp: '2 days ago', likes: 55, comments: 12, content: 'Completed an online certification in Advanced Project Management. #upskilling #careergoals #projectmanagement' },
+    { id: 'sd-2', type: 'link', user: 'Senthil Devaraj', timestamp: '4 days ago', likes: 30, comments: 7, content: 'Found this insightful article on acing technical interviews. Sharing for others who might find it useful!', url: 'https://example.com/tech-interview-tips', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?interview,laptop', thumbnailAiHint: 'interview laptop' },
+    { id: 'sd-3', type: 'image', user: 'Senthil Devaraj', timestamp: '1 week ago', likes: 65, comments: 9, content: 'My updated home office setup. Productive and ready for new challenges! #remotework #homeoffice', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?homeoffice,desk', thumbnailAiHint: 'homeoffice desk' },
+    { id: 'sd-4', type: 'tweet', user: 'Senthil Devaraj', timestamp: '10 hours ago', likes: 20, comments: 3, content: 'Attending a virtual networking event for software engineers. Hope to make some good connections! #networking #techjobs' },
+    { id: 'sd-5', type: 'file', user: 'Senthil Devaraj', timestamp: '1 month ago', likes: 15, comments: 2, content: 'My_Resume_Senthil_Devaraj.pdf', fileName: 'My_Resume_Senthil_Devaraj.pdf', fileIcon: 'DocumentTextIcon', userImageAiHint: 'document resume' },
+
+
+    // --- Mikado UX UI ---
+    { id: 'mkd-1', type: 'image', user: 'Mikado UX UI', timestamp: 'Yesterday', likes: 180, comments: 25, content: 'Thrilled to unveil our latest branding project for a cutting-edge tech startup! ✨ Check out the full case study on our website. #branding #uidesign #casestudy', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?branding,design,portfolio', thumbnailAiHint: 'branding design portfolio' },
+    { id: 'mkd-2', type: 'link', user: 'Mikado UX UI', timestamp: '3 days ago', likes: 95, comments: 10, content: 'Our new blog post is live: "The Future of Voice User Interfaces". A must-read for designers!', url: 'https://mikado.biz/blog/voice-ui', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?voice,interface,tech', thumbnailAiHint: 'voice interface tech' },
+    { id: 'mkd-3', type: 'text', user: 'Mikado UX UI', timestamp: '1 week ago', likes: 120, comments: 15, content: 'We are hiring a Senior UX Researcher! If you\'re passionate about understanding users and shaping product strategy, apply now. Link in bio. #hiring #uxresearch #jobopening' },
+    { id: 'mkd-4', type: 'video', user: 'Mikado UX UI', timestamp: '2 weeks ago', likes: 250, comments: 40, content: 'A quick tour of our design studio and the collaborative process behind our award-winning work. #designstudio #behindthescenes', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?modern,office,design', thumbnailAiHint: 'modern office design', videoUrl: '#' },
+
+    // --- TVS Synergy ---
+    { id: 'tvs-1', type: 'image', user: 'TVS Synergy', timestamp: 'Today', likes: 300, comments: 50, content: 'Experience the thrill! The all-new TVS Apache RR 310 is here to redefine performance. Book yours today! #TVSApache #BornToRace #NewLaunch', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?motorcycle,sportbike,tvs', thumbnailAiHint: 'motorcycle sportbike tvs' },
+    { id: 'tvs-2', type: 'video', user: 'TVS Synergy', timestamp: '2 days ago', likes: 450, comments: 70, content: 'Watch the TVS Ntorq 125 XT conquer the city streets with its unmatched style and power. #TVSNtorq #SmartXonnect #ScooterLife', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?scooter,city,ride', thumbnailAiHint: 'scooter city ride', videoUrl: '#' },
+    { id: 'tvs-3', type: 'link', user: 'TVS Synergy', timestamp: '5 days ago', likes: 150, comments: 20, content: 'Special monsoon offer! Get exciting benefits on your favorite TVS two-wheelers. Visit our website to know more.', url: 'https://tvsmotor.com/offers', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?tvs,logo,offer', thumbnailAiHint: 'tvs logo offer' },
+    { id: 'tvs-4', type: 'text', user: 'TVS Synergy', timestamp: '1 week ago', likes: 200, comments: 30, content: 'Safety first! Always wear a helmet while riding. TVS promotes responsible riding. #RideSafe #HelmetUp' },
 ];
 
 
@@ -41,6 +68,9 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
     const userContent = userData?.name ? allUserContent.filter(post => post.user === userData.name) : allUserContent;
 
     const filteredPosts = userContent.filter(post => {
+        if (!userData?.name && post.user !== 'Test User') return false; // For guest view, only show Test User posts
+        if (userData?.name && post.user !== userData.name) return false; // For logged-in view, only show their posts
+
         switch (activeProfileTab) {
         case 'feed': return true;
         case 'images': return post.type === 'image';
@@ -53,8 +83,10 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
     });
 
     const totalPosts = userContent.length;
-    const followersCount = userData?.id ? (parseInt(userData.id.substring(userData.id.length - 3), 16) % 500) + 100 : 1234;
-    const followingCount = userData?.id ? (parseInt(userData.id.substring(userData.id.length - 2), 16) % 200) + 50 : 567;
+    // Simple dynamic follower/following count based on user ID hash for variety.
+    const followersCount = userData?.id ? (parseInt(userData.id.replace(/[^0-9]/g, '').slice(-3) || "123", 10) % 500) + 100 : 1234;
+    const followingCount = userData?.id ? (parseInt(userData.id.replace(/[^0-9]/g, '').slice(-2) || "56", 10) % 200) + 50 : 567;
+
 
     const handleManageProfessionalProfile = () => {
       setActiveTab('professional-profile');
@@ -107,13 +139,17 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
         <Card className="shadow-md">
             <CardHeader className="flex flex-row items-start space-x-3 pb-3">
                 <Avatar>
-                    <AvatarImage src={userData?.avatarUrl} alt={userData?.name} data-ai-hint={userData?.avatarAiHint || "user avatar"} />
-                    <AvatarFallback>{userData?.name?.substring(0, 2).toUpperCase() || 'U'}</AvatarFallback>
+                    <AvatarImage src={userData?.avatarUrl || `https://source.unsplash.com/random/40x40/?${item.user.split(' ')[0]}`} alt={item.user} data-ai-hint={userData?.avatarAiHint || "user avatar"} />
+                    <AvatarFallback>{item.user?.substring(0, 2).toUpperCase() || 'U'}</AvatarFallback>
                 </Avatar>
                 <div>
                     <p className="font-semibold text-foreground">{item.user}</p>
                     <p className="text-xs text-muted-foreground">{item.timestamp}</p>
                 </div>
+                 <Button variant="ghost" size="icon" className="ml-auto h-7 w-7 text-muted-foreground hover:text-primary">
+                    <EllipsisHorizontalIcon className="h-4 w-4" />
+                    <span className="sr-only">More options</span>
+                 </Button>
             </CardHeader>
             <CardContent className="pb-2">
                 {renderPostContent(item)}
@@ -154,6 +190,18 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                     <p className="text-xs font-medium text-foreground line-clamp-2">{item.fileName || item.content}</p>
                 </div>
             )}
+             {item.type === 'tweet' && (
+                <div className="w-full h-full bg-blue-50 flex flex-col items-center justify-center p-2 text-center">
+                    <TweetIcon className="h-8 w-8 text-blue-500 mb-1"/>
+                    <p className="text-xs font-medium text-blue-700 line-clamp-3">{item.content}</p>
+                </div>
+            )}
+             {item.type === 'text' && (
+                <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center p-2 text-center">
+                    <ChatBubbleOvalLeftEllipsisIcon className="h-8 w-8 text-gray-500 mb-1"/>
+                    <p className="text-xs font-medium text-gray-700 line-clamp-3">{item.content}</p>
+                </div>
+            )}
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 text-white text-sm">
                 <span className="flex items-center"><HandThumbUpIcon className="h-4 w-4 mr-1" />{item.likes}</span>
                 <span className="flex items-center"><ChatBubbleOvalLeftEllipsisIcon className="h-4 w-4 mr-1" />{item.comments}</span>
@@ -169,7 +217,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                     <CardContent className="pt-6">
                         <div className="flex flex-col items-center sm:flex-row sm:items-start gap-4">
                             <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-background ring-2 ring-primary">
-                                <AvatarImage src={userData?.avatarUrl} alt={userData?.name} data-ai-hint={userData?.avatarAiHint || "user avatar"} />
+                                <AvatarImage src={userData?.avatarUrl || `https://source.unsplash.com/random/128x128/?${userData?.name?.split(' ')[0] || 'abstract'}`} alt={userData?.name} data-ai-hint={userData?.avatarAiHint || "user avatar"} />
                                 <AvatarFallback className="text-3xl">{userData?.name?.substring(0, 2).toUpperCase() || "U"}</AvatarFallback>
                             </Avatar>
                             <div className="flex-grow text-center sm:text-left mt-2 sm:mt-0">
@@ -206,7 +254,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                         <TabsTrigger value="videos" className="py-2.5"><VideoCameraIcon className="mr-1.5 h-4 w-4"/>Videos</TabsTrigger>
                         <TabsTrigger value="links" className="py-2.5"><LinkIconOutline className="mr-1.5 h-4 w-4"/>Links</TabsTrigger>
                         <TabsTrigger value="files" className="py-2.5"><DocumentTextIcon className="mr-1.5 h-4 w-4"/>Files</TabsTrigger>
-                        <TabsTrigger value="tweets" className="py-2.5"><ChatBubbleOvalLeftEllipsisIcon className="mr-1.5 h-4 w-4"/>Tweets</TabsTrigger>
+                        <TabsTrigger value="tweets" className="py-2.5"><TweetIcon className="mr-1.5 h-4 w-4"/>Tweets</TabsTrigger>
                     </TabsList>
                 </Tabs>
 
@@ -232,5 +280,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
 };
 
 export default AccountScreen;
+
+    
 
     
