@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'; // Added CardFooter
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
@@ -33,7 +33,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
     const loggedInUserName = userData.name || 'Test User';
     const userUUID = userData.id || 'N/A';
     
-    // Simulate valid from and valid through dates
     const validFromDate = React.useMemo(() => {
         const oneYearAgo = new Date();
         oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
