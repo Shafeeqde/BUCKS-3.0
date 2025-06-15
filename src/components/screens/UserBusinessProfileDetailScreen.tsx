@@ -19,34 +19,34 @@ import { useToast } from "@/hooks/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-// Filled StarIcon for rating display
+// Filled StarIcon for rating display (defined at module level)
 const StarIcon = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={cn("h-5 w-5", className)} {...props}>
     <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.116 3.986 1.242 5.855c.215 1.02.933 1.756 1.95 1.756 1.017 0 1.735-.736 1.95-1.756l1.242-5.855 4.116-3.986c.887-.76.415-2.212-.749-2.305l-5.404-.433L13.212 3.21z" clipRule="evenodd" />
   </svg>
 );
 
+// StarRatingDisplay defined at module level
+const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 5, className }) => {
+  const fullStars = Math.floor(rating);
+  const halfStar = rating % 1 >= 0.5;
+  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+  // Construct size class directly to avoid issues if size is not a Tailwind pre-defined number
+  const iconDynamicStyle = { height: `${size / 4}rem`, width: `${size / 4}rem` }; // e.g. size 4 -> 1rem (h-4 w-4)
+
+  return (
+    <div className={cn("flex items-center", className)}>
+      {[...Array(fullStars)].map((_, i) => <StarIcon key={`full-${i}`} style={iconDynamicStyle} className={"text-yellow-400"} />)}
+      {halfStar && <StarIcon key="half" style={iconDynamicStyle} className={"text-yellow-400"} />} {/* Simplified half star for now */}
+      {[...Array(emptyStars)].map((_, i) => <StarIconOutline key={`empty-${i}`} style={iconDynamicStyle} className={"text-muted-foreground/50"} />)}
+    </div>
+  );
+};
 
 interface UserBusinessProfileDetailScreenProps {
   profile: UserBusinessProfile | undefined | null;
   onBack: () => void;
 }
-
-const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 5, className }) => {
-  const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 >= 0.5;
-  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-  const iconSizeClass = `h-${size} w-${size}`;
-
-  return (
-    <div className={cn("flex items-center", className)}>
-      {[...Array(fullStars)].map((_, i) => <StarIcon key={`full-${i}`} className={cn(iconSizeClass, "text-yellow-400")} />)}
-      {halfStar && <StarIcon key="half" className={cn(iconSizeClass, "text-yellow-400")} />}
-      {[...Array(emptyStars)].map((_, i) => <StarIconOutline key={`empty-${i}`} className={cn(iconSizeClass, "text-muted-foreground/50")} />)}
-    </div>
-  );
-};
-
 
 const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenProps> = ({
   profile,
@@ -69,8 +69,8 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 
   const handleFollow = () => toast({ title: "Follow Clicked (Simulated)", description: `Following ${profile.name}` });
   const handleMessage = () => toast({ title: "Message Clicked (Simulated)", description: `Messaging ${profile.name}` });
-  const handleAddToCart = (product: BusinessProduct) => toast({ title: "Added to Cart (Simulated)", description: `${product.name} added to cart.`});
-  const handleViewProduct = (product: BusinessProduct) => toast({ title: "View Product (Simulated)", description: `Viewing ${product.name}. This would ideally open a product detail view or modal.`});
+  const handleAddToCart = (product: BusinessProduct) => toast({ title: "Added to Cart (Simulated)", description: `Product ${product.name} added to cart.`});
+  const handleViewProduct = (product: BusinessProduct) => toast({ title: "View Product (Simulated)", description: `Viewing product ${product.name}. This would ideally open a product detail view or modal.`});
   const handleApplyJob = (job: BusinessJob) => toast({ title: "Apply for Job (Simulated)", description: `Applying for ${job.title}.`});
   const handleEnquireService = (service: BusinessService) => toast({ title: "Enquire Service (Simulated)", description: `Enquiring about ${service.name}.`});
 
@@ -240,7 +240,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
             {profile.feed && profile.feed.length > 0 ? profile.feed.map(item => (
               <Card key={item.id} className="shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="pt-6">
-                  {item.image && <div className="relative aspect-video w-full mb-3 rounded-md overflow-hidden"><Image src={item.image} alt="Feed image" fill sizes="(max-width: 768px) 100vw, 50vw" objectFit="cover" data-ai-hint={item.imageAiHint || "social media post"}/></div>}
+                  {item.image && <div className="relative aspect-video w-full mb-3 rounded-md overflow-hidden"><Image src={item.image} alt="Feed image" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" data-ai-hint={item.imageAiHint || "social media post"}/></div>}
                   {item.videoUrl && <div className="relative aspect-video w-full mb-3 rounded-md overflow-hidden bg-black flex items-center justify-center text-card-foreground"><VideoCameraIcon className="w-12 h-12 opacity-70" /> <span className="ml-2">Video Placeholder</span></div> }
                   <p className="text-foreground mb-2 whitespace-pre-line">{item.content}</p>
                   <p className="text-xs text-muted-foreground">{item.timestamp}</p>
@@ -305,7 +305,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                                 <h5 className="text-sm font-semibold text-foreground">{review.reviewerName}</h5>
                                 <p className="text-xs text-muted-foreground">{review.date}</p>
                             </div>
-                            <StarRatingDisplay rating={review.rating} size={4} className="h-4 w-4"/>
+                            <StarRatingDisplay rating={review.rating} size={4}/>
                             </div>
                             <p className="text-sm text-foreground">{review.comment}</p>
                         </div>
@@ -325,3 +325,4 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 
 export default UserBusinessProfileDetailScreen;
 
+    
