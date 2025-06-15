@@ -10,11 +10,13 @@ const recommendedPostsData: RecommendedPost[] = [
       id: 1, recommendedBy: 'Shafeeq', userImage: 'https://source.unsplash.com/random/40x40/?man,glasses', userImageAiHint: 'man glasses',
       title: 'Top 5 Productivity Hacks', content: 'Boost your daily efficiency with these simple yet effective tips.',
       thumbnail: 'https://source.unsplash.com/random/600x350/?desk,computer', thumbnailAiHint: 'desk computer', type: 'image',
+      otherRecommendersCount: 15,
     },
     {
       id: 2, recommendedBy: 'Senthil', userImage: 'https://source.unsplash.com/random/40x40/?man,smiling', userImageAiHint: 'man smiling',
       title: 'Exploring Hidden Gems in Bangalore', content: 'A travel vlog discovering lesser-known spots in the city.',
       thumbnail: 'https://source.unsplash.com/random/600x350/?city,street', thumbnailAiHint: 'city street', type: 'video',
+      otherRecommendersCount: 22,
     },
     {
       id: 3, recommendedBy: 'Deepthi', userImage: 'https://source.unsplash.com/random/40x40/?woman,nature', userImageAiHint: 'woman nature',
@@ -25,6 +27,7 @@ const recommendedPostsData: RecommendedPost[] = [
       id: 4, recommendedBy: 'Maanisha', userImage: 'https://source.unsplash.com/random/40x40/?woman,professional', userImageAiHint: 'woman professional',
       title: "Beginner's Guide to Investing", content: 'Understanding the basics of stock market and mutual funds.',
       thumbnail: 'https://source.unsplash.com/random/600x350/?finance,chart', thumbnailAiHint: 'finance chart', type: 'video',
+      otherRecommendersCount: 5,
     },
 ];
 

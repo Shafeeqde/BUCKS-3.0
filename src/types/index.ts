@@ -73,6 +73,7 @@ export interface RecommendedPost {
   thumbnail: string;
   thumbnailAiHint?: string;
   type: 'image' | 'video';
+  otherRecommendersCount?: number; // Added this field
 }
 
 export interface LocationResult {
@@ -409,20 +410,23 @@ export interface UserDataForSideMenu {
   avatarAiHint?: string;
 }
 
+// Updated Post type for AccountScreen.tsx to clarify its purpose
 export interface ProfilePost {
   id: string | number;
-  type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text'; 
-  user: string; 
+  type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text' | 'post'; // 'post' for generic text/image combo
+  user: string; // User who created THIS post
+  userImage?: string; // Avatar of the user who created THIS post
+  userImageAiHint?: string;
   timestamp: string;
   likes: number;
   comments: number;
+  content?: string; 
   thumbnailUrl?: string; 
   thumbnailAiHint?: string;
-  imageUrl?: string; 
+  imageUrl?: string; // Can be used if type is 'image' or 'post'
   imageAiHint?: string;
   videoUrl?: string;
-  content?: string; 
-  url?: string; 
-  fileIcon?: string; 
-  fileName?: string;
+  url?: string; // For 'link' type
+  fileIcon?: string; // For 'file' type
+  fileName?: string; // For 'file' type
 }
