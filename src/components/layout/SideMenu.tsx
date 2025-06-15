@@ -15,6 +15,7 @@ import {
   ChevronRightIcon,
   RocketLaunchIcon, 
   UserCircleIcon, 
+  IdentificationIcon, // Added for ID card representation
 } from '@heroicons/react/24/outline';
 import type { TabName, UserBusinessProfile, UserDataForSideMenu } from '@/types';
 import Image from 'next/image'; 
@@ -43,6 +44,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
   userData,
 }) => {
   const menuItems = [
+    { name: 'Professional Dashboard', tab: 'professional-profile' as TabName, icon: UserCircleIcon },
     { name: 'Skillset Profiles', tab: 'user-skillsets' as TabName, icon: RocketLaunchIcon },
     { name: 'Vehicle Management', tab: 'vehicles' as TabName, icon: TruckIcon },
     { name: 'Business Profiles', tab: 'business-profiles' as TabName, icon: BriefcaseIcon },
@@ -60,7 +62,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
   };
 
   const handleUserSectionClick = () => {
-    setActiveTab('professional-profile'); 
+    setActiveTab('account'); // Changed from 'professional-profile' to 'account'
     onClose();
   };
 
@@ -68,9 +70,10 @@ const SideMenu: React.FC<SideMenuProps> = ({
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="left" className="w-[280px] sm:w-[320px] p-0 flex flex-col bg-sidebar text-sidebar-foreground">
         <SheetHeader className="p-4 border-b border-sidebar-border">
+          {/* Using IdentificationIcon or UserCircleIcon to represent viewing their ID/Account */}
           <SheetTitle className="text-xl font-bold text-sidebar-primary-foreground font-headline flex items-center">
-            <UserCircleIcon className="mr-2 h-6 w-6"/>
-            Professional Account
+            <IdentificationIcon className="mr-2 h-6 w-6"/> 
+            My Account & ID
           </SheetTitle>
         </SheetHeader>
 
@@ -78,7 +81,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
           <Button
             variant="ghost"
             className="p-4 border-b border-sidebar-border flex items-center space-x-4 h-auto text-left w-full justify-start hover:bg-sidebar-accent/80 rounded-none"
-            onClick={handleUserSectionClick}
+            onClick={handleUserSectionClick} // This click now navigates to the ID card view via 'account' tab
           >
             <Avatar className="h-14 w-14 border-2 border-sidebar-primary">
               <AvatarImage src={userData.avatarUrl || 'https://source.unsplash.com/random/64x64/?user,avatar'} alt={userData.name} data-ai-hint={userData.avatarAiHint || "user avatar"} />
@@ -94,15 +97,6 @@ const SideMenu: React.FC<SideMenuProps> = ({
 
         <ScrollArea className="flex-grow">
           <nav className="p-4 space-y-1">
-            <Button
-                variant={activeTab === 'professional-profile' ? 'secondary' : 'ghost'}
-                className="w-full justify-start text-base h-12 bg-sidebar-primary/10 text-sidebar-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[variant=secondary]:bg-sidebar-primary data-[variant=secondary]:text-sidebar-primary-foreground"
-                onClick={() => handleNavigation('professional-profile')}
-            >
-                <UserCircleIcon className="mr-3 h-5 w-5" /> 
-                My Professional Dashboard
-            </Button>
-
             {menuItems.map((item) => (
               <Button
                 key={item.tab}
@@ -162,3 +156,4 @@ const SideMenu: React.FC<SideMenuProps> = ({
 };
 
 export default SideMenu;
+
