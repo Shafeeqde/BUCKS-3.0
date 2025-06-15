@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onMessagesClick, unreadCou
           </TooltipContent>
         </Tooltip>
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-destructive-foreground bg-destructive rounded-full">
+          <span className="absolute top-1 right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-destructive-foreground bg-destructive rounded-full">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
