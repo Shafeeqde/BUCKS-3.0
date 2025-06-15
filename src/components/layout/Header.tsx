@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onMessagesClick, unreadCou
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Messages" className="text-foreground hover:text-primary" onClick={onMessagesClick}>
-              <ChatBubbleOvalLeftEllipsisIcon className="w-6 h-6" />
+              <ChatBubbleOvalLeftEllipsisIcon className="w-[25px] h-[25px]" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
