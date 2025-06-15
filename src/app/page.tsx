@@ -250,7 +250,7 @@ export default function AppRoot() {
     setIsClient(true);
   }, []);
 
-  const handleLoginSuccess = (user: UserDataForSideMenu) => {
+  const handleLoginSuccess = useCallback((user: UserDataForSideMenu) => {
     setIsLoggedIn(true);
     setUserData({
         id: user.id,
@@ -261,14 +261,14 @@ export default function AppRoot() {
     });
     setActiveTab('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
-  };
+  }, [toast]);
 
-  const handleRegistrationSuccess = (user: {name: string; email: string}) => {
+  const handleRegistrationSuccess = useCallback((user: {name: string; email: string}) => {
     setActiveTab('login');
     toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in.` });
-  };
+  }, [toast]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setIsLoggedIn(false);
     setUserData(null);
     setActiveTab('login');
@@ -284,12 +284,11 @@ export default function AppRoot() {
     setSkillsetProfileToManageId(null);
     setSelectedJobId(null);
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
-  };
+  }, [toast]);
 
-  const handleTabSelection = (tab: TabName) => {
+  const handleTabSelection = useCallback((tab: TabName) => {
     setActiveTab(tab);
     setShowSideMenu(false);
-    // Reset selections if navigating to a main tab that isn't a detail/management view
     if (tab !== 'business-detail' &&
         tab !== 'individual-profile' &&
         tab !== 'skillset-profile' &&
@@ -306,32 +305,32 @@ export default function AppRoot() {
         setSkillsetProfileToManageId(null);
         setSelectedJobId(null);
     }
-  };
+  }, []);
 
-  const handleSelectBusinessProfile = (profileId: string | number) => {
+  const handleSelectBusinessProfile = useCallback((profileId: string | number) => {
     setSelectedBusinessProfileId(profileId);
     setActiveTab('business-detail');
     setShowSideMenu(false);
-  };
+  }, []);
 
-  const handleManageBusinessProfile = (profileId: string | number) => {
+  const handleManageBusinessProfile = useCallback((profileId: string | number) => {
     setBusinessProfileToManageId(profileId);
     setActiveTab('manage-business-profile');
     setShowSideMenu(false);
-  };
+  }, []);
 
-  const handleBackFromBusinessDetail = () => {
+  const handleBackFromBusinessDetail = useCallback(() => {
     setActiveTab('business-profiles');
     setSelectedBusinessProfileId(null);
     setBusinessProfileToManageId(null);
-  };
+  }, []);
 
-  const handleBackFromManageBusinessProfile = () => {
+  const handleBackFromManageBusinessProfile = useCallback(() => {
     setBusinessProfileToManageId(null);
     setActiveTab('business-profiles');
-  };
+  }, []);
 
-  const handleSelectIndividualProfile = (profileId: string) => {
+  const handleSelectIndividualProfile = useCallback((profileId: string) => {
     if(profileId === 'individual-jenson-1' || profileId === 'jenson-interior-stylist-123') {
         handleSelectSkillsetProfile('jenson-interior-stylist-123');
     } else if (profileId === 'prof2' || profileId === 'prof2-ux-designer-skillset'){
@@ -343,40 +342,41 @@ export default function AppRoot() {
         setActiveTab('individual-profile');
     }
     setShowSideMenu(false);
-  };
+  }, [userData]);
 
-  const handleSelectSkillsetProfile = (skillsetProfileId: string) => {
+  const handleSelectSkillsetProfile = useCallback((skillsetProfileId: string) => {
     setSelectedSkillsetProfileId(skillsetProfileId);
     setActiveTab('skillset-profile');
     setShowSideMenu(false);
-  };
+  }, []);
 
-  const handleManageSkillsetProfile = (skillsetProfileId: string) => {
+  const handleManageSkillsetProfile = useCallback((skillsetProfileId: string) => {
     setSkillsetProfileToManageId(skillsetProfileId);
     setActiveTab('manage-skillset-profile');
     setShowSideMenu(false);
-  };
+  }, []);
 
-  const handleBackFromManageSkillsetProfile = () => {
+  const handleBackFromManageSkillsetProfile = useCallback(() => {
     setSkillsetProfileToManageId(null);
     setActiveTab('user-skillsets');
-  };
+  }, []);
 
-  const handleSelectJob = (jobId: string | number) => {
+  const handleSelectJob = useCallback((jobId: string | number) => {
     setSelectedJobId(jobId);
     setActiveTab('job-detail');
     setShowSideMenu(false);
-  };
+  }, []);
 
-  const handleBackFromJobDetail = () => {
+  const handleBackFromJobDetail = useCallback(() => {
     setSelectedJobId(null);
     setActiveTab('job-board');
-  };
+  }, []);
 
-  const handleAddToCart = (businessId: string | number, productId: string) => {
+  const handleAddToCart = useCallback((businessId: string | number, productId: string) => {
     console.log('Add to Cart:', { businessId, productId });
     toast({ title: "Added to Cart (Simulated)", description: `Product ${productId} from business ${businessId}` });
-  };
+  }, [toast]);
+
 
   const handleRideRequest = useCallback((rideData: { pickup: string; dropoff: string; vehicleId: string }) => {
       console.log('Ride request received in page.tsx:', rideData);
@@ -497,7 +497,7 @@ export default function AppRoot() {
   }, [isLoggedIn, isDriverOnlineSim, activityDetails, isActiveActivityViewVisible, toast]);
 
 
-  const handleCloseActivityView = () => {
+  const handleCloseActivityView = useCallback(() => {
     setIsActiveActivityViewVisible(false);
     if (activityDetails?.type === 'request' || activityDetails?.type === 'driver_status') {
       if (activityDetails?.status !== 'en_route' && activityDetails?.status !== 'arrived' && activityDetails?.status !== 'on_the_way') {
@@ -506,7 +506,7 @@ export default function AppRoot() {
          }
       }
     }
-  };
+  }, [activityDetails]);
 
   useEffect(() => {
     if (isLoggedIn && activityDetails?.type === 'request' && !isActiveActivityViewVisible) {
@@ -789,5 +789,3 @@ export default function AppRoot() {
     </div>
   );
 }
-
-    
