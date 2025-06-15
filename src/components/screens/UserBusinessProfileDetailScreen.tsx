@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import {
     ArrowLeftIcon, BriefcaseIcon, BuildingOfficeIcon, ChatBubbleOvalLeftEllipsisIcon, ShoppingBagIcon, InformationCircleIcon, ArrowTopRightOnSquareIcon, PhoneIcon, MapPinIcon, RssIcon, HandThumbUpIcon,
-    StarIcon as StarIconOutline, 
+    StarIcon as StarIconOutline, // Heroicon outline star
     VideoCameraIcon, CalendarDaysIcon, PlusCircleIcon, EllipsisHorizontalIcon, UserPlusIcon, GlobeAltIcon, EnvelopeIcon
 } from '@heroicons/react/24/outline';
 import type { UserBusinessProfile, BusinessProduct, BusinessJob, BusinessFeedItem, BusinessService, BusinessReview } from '@/types';
@@ -19,29 +19,28 @@ import { useToast } from "@/hooks/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-// Filled StarIcon for rating display (defined at module level)
+// Filled StarIcon for rating display
 const StarIcon = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={cn("h-5 w-5", className)} {...props}>
     <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.116 3.986 1.242 5.855c.215 1.02.933 1.756 1.95 1.756 1.017 0 1.735-.736 1.95-1.756l1.242-5.855 4.116-3.986c.887-.76.415-2.212-.749-2.305l-5.404-.433L13.212 3.21z" clipRule="evenodd" />
   </svg>
 );
 
-// StarRatingDisplay defined at module level
 const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 5, className }) => {
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5;
   const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-  // Construct size class directly to avoid issues if size is not a Tailwind pre-defined number
-  const iconDynamicStyle = { height: `${size / 4}rem`, width: `${size / 4}rem` }; // e.g. size 4 -> 1rem (h-4 w-4)
+  const iconDynamicStyle = { height: `${size / 4}rem`, width: `${size / 4}rem` };
 
   return (
     <div className={cn("flex items-center", className)}>
       {[...Array(fullStars)].map((_, i) => <StarIcon key={`full-${i}`} style={iconDynamicStyle} className={"text-yellow-400"} />)}
-      {halfStar && <StarIcon key="half" style={iconDynamicStyle} className={"text-yellow-400"} />} {/* Simplified half star for now */}
+      {halfStar && <StarIcon key="half" style={iconDynamicStyle} className={"text-yellow-400"} />}
       {[...Array(emptyStars)].map((_, i) => <StarIconOutline key={`empty-${i}`} style={iconDynamicStyle} className={"text-muted-foreground/50"} />)}
     </div>
   );
 };
+
 
 interface UserBusinessProfileDetailScreenProps {
   profile: UserBusinessProfile | undefined | null;
@@ -53,6 +52,25 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
   onBack,
 }) => {
   const { toast } = useToast();
+
+  const handleFollow = () => {
+    return toast({ title: "Follow Clicked (Simulated)", description: "Following business." });
+  };
+  const handleMessage = () => {
+    return toast({ title: "Message Clicked (Simulated)", description: "Messaging business." });
+  };
+  const handleAddToCart = (product: BusinessProduct) => {
+    return toast({ title: "Added to Cart (Simulated)", description: "Product added to cart."});
+  };
+  const handleViewProduct = (product: BusinessProduct) => {
+    return toast({ title: "View Product (Simulated)", description: "Viewing product details."});
+  };
+  const handleApplyJob = (job: BusinessJob) => {
+    return toast({ title: "Apply for Job (Simulated)", description: "Applying for job."});
+  };
+  const handleEnquireService = (service: BusinessService) => {
+    return toast({ title: "Enquire Service (Simulated)", description: "Enquiring about service."});
+  };
 
   if (!profile) {
     return (
@@ -66,13 +84,6 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
       </div>
     );
   }
-
-  const handleFollow = () => toast({ title: "Follow Clicked (Simulated)", description: `Following ${profile.name}` });
-  const handleMessage = () => toast({ title: "Message Clicked (Simulated)", description: `Messaging ${profile.name}` });
-  const handleAddToCart = (product: BusinessProduct) => toast({ title: "Added to Cart (Simulated)", description: `Product ${product.name} added to cart.`});
-  const handleViewProduct = (product: BusinessProduct) => toast({ title: "View Product (Simulated)", description: `Viewing product ${product.name}. This would ideally open a product detail view or modal.`});
-  const handleApplyJob = (job: BusinessJob) => toast({ title: "Apply for Job (Simulated)", description: `Applying for ${job.title}.`});
-  const handleEnquireService = (service: BusinessService) => toast({ title: "Enquire Service (Simulated)", description: `Enquiring about ${service.name}.`});
 
   return (
     <ScrollArea className="h-full custom-scrollbar bg-background">
@@ -148,16 +159,16 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => toast({title: "Share Profile (Simulated)"})}>
+                        <DropdownMenuItem onClick={() => toast({title: "Share Profile (Simulated)", description: "Sharing profile."})}>
                             <ArrowTopRightOnSquareIcon className="mr-2 h-4 w-4" /> Share Profile
                         </DropdownMenuItem>
                          {profile.phone &&
-                            <DropdownMenuItem onClick={() => toast({title: `Calling ${profile.phone} (Simulated)`})}>
+                            <DropdownMenuItem onClick={() => toast({title: "Calling Business (Simulated)", description: `Calling ${profile.phone}.`})}>
                                 <PhoneIcon className="mr-2 h-4 w-4" /> Call Business
                             </DropdownMenuItem>
                         }
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => toast({title: "Report Profile (Simulated)"})} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                        <DropdownMenuItem onClick={() => toast({title: "Report Profile (Simulated)", description: "Reporting profile."})} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                             <InformationCircleIcon className="mr-2 h-4 w-4" /> Report
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -296,7 +307,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                 )}
                 {profile.reviews && profile.reviews.length > 0 && (
                     <Card className="shadow-sm">
-                        <CardHeader><CardTitle className="text-lg font-headline flex items-center"><ChatBubbleOvalLeftEllipsisIcon className="mr-2 h-5 w-5 text-primary"/>Customer Reviews ({profile.totalReviews})</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-lg font-headline flex items-center"><ChatBubbleOvalLeftEllipsisIcon className="mr-2 h-5 w-5 text-primary"/>Customer Reviews ({profile.totalReviews || 0})</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                         {profile.reviews.map(review => (
                         <div key={review.id} className="pb-3 border-b last:border-b-0">
@@ -325,4 +336,3 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 
 export default UserBusinessProfileDetailScreen;
 
-    
