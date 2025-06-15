@@ -71,16 +71,16 @@ const IndividualProfessionalCard: React.FC<IndividualProfessionalCardProps> = ({
     >
       <CardHeader className="pb-4">
         <div className="flex items-start space-x-4">
-          <Avatar className="h-16 w-16 border-2 border-primary/20 flex-shrink-0">
+          <Avatar className="h-20 w-20 border-2 border-primary/20 flex-shrink-0"> {/* Increased Avatar size */}
             <AvatarImage src={profile.avatarUrl} alt={profile.name} data-ai-hint={profile.avatarAiHint || "professional person"} />
-            <AvatarFallback>{profile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="text-xl">{profile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
-          <div className="flex-grow min-w-0"> {/* Added min-w-0 for better truncation handling */}
-            <CardTitle className="text-xl font-headline truncate">{profile.name}</CardTitle>
-            {profile.professionalTitle && <CardDescription className="text-sm text-primary truncate">{profile.professionalTitle}</CardDescription>}
+          <div className="flex-grow min-w-0">
+            <CardTitle className="text-xl font-headline truncate hover:text-primary">{profile.name}</CardTitle>
+            {profile.professionalTitle && <CardDescription className="text-sm text-primary font-medium truncate">{profile.professionalTitle}</CardDescription>}
           </div>
           {onFollowClick && (
-            <Button variant="outline" size="sm" className="rounded-full whitespace-nowrap" onClick={(e) => { e.stopPropagation(); onFollowClick(profile.id); }}>
+            <Button variant="outline" size="sm" className="rounded-full whitespace-nowrap self-start" onClick={(e) => { e.stopPropagation(); onFollowClick(profile.id); }}>
               <UserPlusIcon className="mr-1.5 h-4 w-4" /> Follow
             </Button>
           )}
@@ -91,12 +91,13 @@ const IndividualProfessionalCard: React.FC<IndividualProfessionalCardProps> = ({
         {profile.previewImages && profile.previewImages.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
             {profile.previewImages.slice(0, 4).map((image, index) => (
-              <div key={index} className="relative aspect-[4/3] rounded-md overflow-hidden border">
+              <div key={index} className="relative aspect-[4/3] rounded-md overflow-hidden border shadow-sm">
                 <Image
                   src={image.url}
                   alt={`${profile.name} preview ${index + 1}`}
-                  layout="fill"
-                  objectFit="cover"
+                  fill // Changed from layout="fill"
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 25vw, 150px" // Example sizes, adjust as needed
+                  className="object-cover" // Ensure this is used with fill
                   data-ai-hint={image.aiHint}
                 />
               </div>
@@ -104,21 +105,21 @@ const IndividualProfessionalCard: React.FC<IndividualProfessionalCardProps> = ({
           </div>
         )}
 
-        {profile.shortBio && <p className="text-sm text-muted-foreground mb-3 line-clamp-3">{profile.shortBio}</p>}
+        {profile.shortBio && <p className="text-sm text-foreground mb-3 line-clamp-3">{profile.shortBio}</p>}
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
           {profile.averageRating !== undefined && profile.totalReviews !== undefined && (
             <div className="flex items-center">
               <StarRatingDisplay rating={profile.averageRating} size={4} />
-              <span className="ml-1.5 font-medium">{profile.averageRating.toFixed(1)}</span>
+              <span className="ml-1.5 font-semibold text-foreground">{profile.averageRating.toFixed(1)}</span>
               <span className="ml-1">({profile.totalReviews} Reviews)</span>
             </div>
           )}
           {profile.recommendationsCount !== undefined && (
             <div className="flex items-center">
-              <HandThumbUpIcon className="w-4 h-4 mr-1 text-green-500" />
-              <span className="font-medium">{profile.recommendationsCount}</span>
-              <span className="ml-1">Recommended</span>
+              <HandThumbUpIcon className="w-4 h-4 mr-1.5 text-green-500" />
+              <span className="font-semibold text-foreground">{profile.recommendationsCount}</span>
+              <span className="ml-1">Recommendations</span>
             </div>
           )}
         </div>
@@ -153,3 +154,5 @@ const IndividualProfessionalCard: React.FC<IndividualProfessionalCardProps> = ({
 };
 
 export default IndividualProfessionalCard;
+
+    
