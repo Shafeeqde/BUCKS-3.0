@@ -76,7 +76,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
   return (
     <ScrollArea className="h-full custom-scrollbar bg-background">
       <div className="max-w-5xl mx-auto">
-        <div className="relative h-48 sm:h-60 md:h-72 group">
+        <div className="relative h-40 sm:h-52 md:h-64 group">
           {profile.coverPhoto ? (
             <Image
               src={profile.coverPhoto}
@@ -85,6 +85,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
               objectFit="cover"
               className="rounded-t-lg sm:rounded-t-xl"
               data-ai-hint={profile.coverPhotoAiHint || "business cover photo"}
+              priority // Consider adding priority for LCP
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 rounded-t-lg sm:rounded-t-xl flex items-center justify-center">
@@ -95,17 +96,17 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
             variant="ghost"
             size="icon"
             onClick={onBack}
-            className="absolute top-3 left-3 bg-black/30 hover:bg-black/50 text-white rounded-full z-10 h-9 w-9"
+            className="absolute top-3 left-3 bg-black/40 hover:bg-black/60 text-white rounded-full z-10 h-9 w-9"
             aria-label="Go back"
           >
             <ArrowLeftIcon className="h-5 w-5" />
           </Button>
         </div>
 
-        <Card className="shadow-xl -mt-12 sm:-mt-16 md:-mt-20 mx-2 sm:mx-4 md:mx-6 rounded-xl border-border overflow-hidden">
+        <Card className="shadow-xl -mt-10 sm:-mt-14 md:-mt-16 mx-2 sm:mx-4 rounded-xl border-border overflow-hidden">
           <CardHeader className="p-4 sm:p-6 border-b border-border">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-              <Avatar className="h-20 w-20 sm:h-28 sm:w-28 border-4 border-background ring-2 ring-primary flex-shrink-0 bg-card">
+              <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-4 border-background ring-2 ring-primary flex-shrink-0 bg-card">
                 {profile.logo ? (
                   <AvatarImage src={profile.logo} alt={profile.name} data-ai-hint={profile.logoAiHint || "business logo"}/>
                 ) : (
@@ -123,16 +124,16 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                   <span><span className="font-semibold text-foreground">{profile.following || 0}</span> Following</span>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row items-center gap-2 mt-3 sm:mt-0 self-center sm:self-start">
-                <Button size="sm" onClick={() => handleActionClick('Follow')}><UserPlusIcon className="mr-1.5 h-4 w-4"/>Follow</Button>
-                <Button size="sm" variant="outline" onClick={() => handleActionClick('Message')}><ChatBubbleLeftRightIcon className="mr-1.5 h-4 w-4"/>Message</Button>
+              <div className="flex flex-col sm:flex-row items-center gap-2 mt-3 sm:mt-0 self-center sm:self-start w-full sm:w-auto">
+                <Button size="sm" onClick={() => handleActionClick('Follow')} className="w-full sm:w-auto"><UserPlusIcon className="mr-1.5 h-4 w-4"/>Follow</Button>
+                <Button size="sm" variant="outline" onClick={() => handleActionClick('Message')} className="w-full sm:w-auto"><ChatBubbleLeftRightIcon className="mr-1.5 h-4 w-4"/>Message</Button>
               </div>
             </div>
-            {profile.bio && <CardDescription className="mt-4 text-sm sm:text-base text-foreground leading-relaxed whitespace-pre-line">{profile.bio}</CardDescription>}
+            {profile.bio && <CardDescription className="mt-4 text-sm text-foreground leading-relaxed whitespace-pre-line">{profile.bio}</CardDescription>}
              {profile.specialties && profile.specialties.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap gap-1.5 sm:gap-2">
                     {profile.specialties.map((specialty, index) => (
-                        <Badge key={index} variant="secondary">{specialty}</Badge>
+                        <Badge key={index} variant="secondary" className="text-xs">{specialty}</Badge>
                     ))}
                 </div>
             )}
@@ -140,20 +141,20 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 
           <CardContent className="p-0">
             <Tabs defaultValue="feed" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 rounded-none h-auto bg-card border-b">
-                <TabsTrigger value="feed" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><RssIcon className="h-4 w-4"/>Feed</TabsTrigger>
-                <TabsTrigger value="products" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><ShoppingBagIcon className="h-4 w-4"/>Products</TabsTrigger>
-                <TabsTrigger value="services" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><SparklesIcon className="h-4 w-4"/>Services</TabsTrigger>
-                <TabsTrigger value="jobs" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><BriefcaseIcon className="h-4 w-4"/>Jobs</TabsTrigger>
-                <TabsTrigger value="reviews" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><StarIcon className="h-4 w-4"/>Reviews</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 rounded-none h-auto bg-card border-b text-xs">
+                <TabsTrigger value="feed" className="py-2.5 sm:py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1 sm:gap-1.5"><RssIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4"/>Feed</TabsTrigger>
+                <TabsTrigger value="products" className="py-2.5 sm:py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1 sm:gap-1.5"><ShoppingBagIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4"/>Products</TabsTrigger>
+                <TabsTrigger value="services" className="py-2.5 sm:py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1 sm:gap-1.5"><SparklesIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4"/>Services</TabsTrigger>
+                <TabsTrigger value="jobs" className="py-2.5 sm:py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1 sm:gap-1.5"><BriefcaseIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4"/>Jobs</TabsTrigger>
+                <TabsTrigger value="reviews" className="py-2.5 sm:py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1 sm:gap-1.5"><StarIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4"/>Reviews</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="feed" className="p-4 min-h-[200px]">
+              <TabsContent value="feed" className="p-3 sm:p-4 min-h-[200px]">
                 {profile.feed && profile.feed.length > 0 ? (
                   <div className="space-y-4">
                     {profile.feed.map(item => (
                       <Card key={item.id} className="shadow-sm">
-                        <CardContent className="p-4">
+                        <CardContent className="p-3 sm:p-4">
                           {item.image && (
                             <div className="relative aspect-video rounded-md overflow-hidden mb-3 border">
                               <Image src={item.image} alt="Feed image" layout="fill" objectFit="cover" data-ai-hint={item.imageAiHint || "business feed item"}/>
@@ -168,9 +169,9 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                 ) : <p className="text-muted-foreground text-center py-10">No feed updates yet.</p>}
               </TabsContent>
 
-              <TabsContent value="products" className="p-4 min-h-[200px]">
+              <TabsContent value="products" className="p-3 sm:p-4 min-h-[200px]">
                 {profile.products && profile.products.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {profile.products.map(product => (
                       <Card key={product.id} className="shadow-sm">
                         {product.imageUrl && (
@@ -200,7 +201,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                 ) : <p className="text-muted-foreground text-center py-10">No products listed yet.</p>}
               </TabsContent>
 
-              <TabsContent value="services" className="p-4 min-h-[200px]">
+              <TabsContent value="services" className="p-3 sm:p-4 min-h-[200px]">
                 {profile.services && profile.services.length > 0 ? (
                   <div className="space-y-3">
                     {profile.services.map(service => (
@@ -216,20 +217,20 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                 ) : <p className="text-muted-foreground text-center py-10">No services listed yet.</p>}
               </TabsContent>
 
-              <TabsContent value="jobs" className="p-4 min-h-[200px]">
+              <TabsContent value="jobs" className="p-3 sm:p-4 min-h-[200px]">
                 {profile.jobs && profile.jobs.length > 0 ? (
                   <div className="space-y-4">
                     {profile.jobs.map(job => (
                       <Card key={job.id} className="shadow-sm">
-                        <CardHeader className="pb-2">
+                        <CardHeader className="pb-2 pt-3 px-4">
                           <CardTitle className="text-lg text-primary">{job.title}</CardTitle>
                           <CardDescription>{job.type} {job.location && `• ${job.location}`}</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-1">
+                        <CardContent className="px-4 pb-3 space-y-1">
                           {job.description && <p className="text-sm text-muted-foreground line-clamp-3">{job.description}</p>}
                           {job.salaryRange && <p className="text-sm font-medium">Salary: {job.salaryRange}</p>}
                         </CardContent>
-                        <CardFooter className="border-t pt-3">
+                        <CardFooter className="border-t pt-3 pb-3 px-4">
                           <Button size="sm" variant="outline" onClick={() => handleActionClick(`View Job: ${job.title}`)}>View Details</Button>
                         </CardFooter>
                       </Card>
@@ -238,7 +239,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                 ) : <p className="text-muted-foreground text-center py-10">No job openings currently.</p>}
               </TabsContent>
 
-              <TabsContent value="reviews" className="p-4 min-h-[200px]">
+              <TabsContent value="reviews" className="p-3 sm:p-4 min-h-[200px]">
                 {profile.reviews && profile.reviews.length > 0 ? (
                   <div className="space-y-4">
                     <div className="mb-4 flex items-center gap-2">
@@ -248,14 +249,14 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                     </div>
                     {profile.reviews.map(review => (
                       <Card key={review.id} className="shadow-sm">
-                        <CardHeader className="pb-2">
+                        <CardHeader className="pb-2 pt-3 px-4">
                           <div className="flex justify-between items-center">
                             <CardTitle className="text-md font-semibold">{review.reviewerName}</CardTitle>
                             <StarRatingDisplay rating={review.rating} size={4}/>
                           </div>
                           <p className="text-xs text-muted-foreground">{review.date}</p>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="px-4 pb-3">
                           <p className="text-sm text-muted-foreground">{review.comment}</p>
                         </CardContent>
                       </Card>
@@ -266,13 +267,13 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
             </Tabs>
           </CardContent>
           
-          <CardFooter className="p-4 sm:p-6 border-t border-border space-y-3 sm:space-y-0 sm:flex sm:justify-between sm:items-center">
-            <div className="grid grid-cols-2 gap-2 text-xs w-full sm:w-auto">
-                {profile.website && <a href={profile.website} target="_blank" rel="noopener noreferrer" className="flex items-center text-primary hover:underline"><GlobeAltIcon className="mr-1.5 h-4 w-4"/>Website</a>}
-                {profile.phone && <a href={`tel:${profile.phone}`} className="flex items-center text-primary hover:underline"><PhoneIcon className="mr-1.5 h-4 w-4"/>Call</a>}
-                {profile.email && <a href={`mailto:${profile.email}`} className="flex items-center text-primary hover:underline"><EnvelopeIcon className="mr-1.5 h-4 w-4"/>Email</a>}
+          <CardFooter className="p-3 sm:p-4 border-t border-border space-y-3 sm:space-y-0 sm:flex sm:justify-between sm:items-center">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 text-xs w-full sm:w-auto">
+                {profile.website && <a href={profile.website} target="_blank" rel="noopener noreferrer" className="flex items-center text-primary hover:underline p-1"><GlobeAltIcon className="mr-1.5 h-4 w-4"/>Website</a>}
+                {profile.phone && <a href={`tel:${profile.phone}`} className="flex items-center text-primary hover:underline p-1"><PhoneIcon className="mr-1.5 h-4 w-4"/>Call</a>}
+                {profile.email && <a href={`mailto:${profile.email}`} className="flex items-center text-primary hover:underline p-1"><EnvelopeIcon className="mr-1.5 h-4 w-4"/>Email</a>}
             </div>
-            <Button variant="outline" size="sm" onClick={() => handleActionClick('Share')}><ShareIcon className="mr-1.5 h-4 w-4"/>Share Profile</Button>
+            <Button variant="outline" size="sm" onClick={() => handleActionClick('Share')} className="w-full sm:w-auto"><ShareIcon className="mr-1.5 h-4 w-4"/>Share Profile</Button>
           </CardFooter>
         </Card>
       </div>
@@ -282,4 +283,3 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 
 export default UserBusinessProfileDetailScreen;
 
-    
