@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, UserDataForSideMenu, ProfilePost } from '@/types';
-import { PencilSquareIcon, Squares2X2Icon, ListBulletIcon, CameraIcon, VideoCameraIcon, LinkIcon as LinkIconOutline, DocumentTextIcon, ChatBubbleOvalLeftEllipsisIcon as TweetIcon, HandThumbUpIcon, PlusCircleIcon, UserCircleIcon, EllipsisHorizontalIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, Squares2X2Icon, ListBulletIcon, CameraIcon, VideoCameraIcon, LinkIcon as LinkIconOutline, DocumentTextIcon, ChatBubbleOvalLeftEllipsisIcon as TweetIcon, HandThumbUpIcon, PlusCircleIcon, UserCircleIcon, EllipsisHorizontalIcon, PlayCircleIcon } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 
 interface AccountScreenProps {
@@ -45,19 +45,6 @@ const allUserContent: ProfilePost[] = [
     { id: 'sd-3', type: 'image', user: 'Senthil Devaraj', timestamp: '1 week ago', likes: 65, comments: 9, content: 'My updated home office setup. Productive and ready for new challenges! #remotework #homeoffice', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?homeoffice,desk', thumbnailAiHint: 'homeoffice desk' },
     { id: 'sd-4', type: 'tweet', user: 'Senthil Devaraj', timestamp: '10 hours ago', likes: 20, comments: 3, content: 'Attending a virtual networking event for software engineers. Hope to make some good connections! #networking #techjobs' },
     { id: 'sd-5', type: 'file', user: 'Senthil Devaraj', timestamp: '1 month ago', likes: 15, comments: 2, content: 'My_Resume_Senthil_Devaraj.pdf', fileName: 'My_Resume_Senthil_Devaraj.pdf', fileIcon: 'DocumentTextIcon', userImageAiHint: 'document resume' },
-
-
-    // --- Mikado UX UI ---
-    { id: 'mkd-1', type: 'image', user: 'Mikado UX UI', timestamp: 'Yesterday', likes: 180, comments: 25, content: 'Thrilled to unveil our latest branding project for a cutting-edge tech startup! ✨ Check out the full case study on our website. #branding #uidesign #casestudy', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?branding,design,portfolio', thumbnailAiHint: 'branding design portfolio' },
-    { id: 'mkd-2', type: 'link', user: 'Mikado UX UI', timestamp: '3 days ago', likes: 95, comments: 10, content: 'Our new blog post is live: "The Future of Voice User Interfaces". A must-read for designers!', url: 'https://mikado.biz/blog/voice-ui', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?voice,interface,tech', thumbnailAiHint: 'voice interface tech' },
-    { id: 'mkd-3', type: 'text', user: 'Mikado UX UI', timestamp: '1 week ago', likes: 120, comments: 15, content: 'We are hiring a Senior UX Researcher! If you\'re passionate about understanding users and shaping product strategy, apply now. Link in bio. #hiring #uxresearch #jobopening' },
-    { id: 'mkd-4', type: 'video', user: 'Mikado UX UI', timestamp: '2 weeks ago', likes: 250, comments: 40, content: 'A quick tour of our design studio and the collaborative process behind our award-winning work. #designstudio #behindthescenes', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?modern,office,design', thumbnailAiHint: 'modern office design', videoUrl: '#' },
-
-    // --- TVS Synergy ---
-    { id: 'tvs-1', type: 'image', user: 'TVS Synergy', timestamp: 'Today', likes: 300, comments: 50, content: 'Experience the thrill! The all-new TVS Apache RR 310 is here to redefine performance. Book yours today! #TVSApache #BornToRace #NewLaunch', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?motorcycle,sportbike,tvs', thumbnailAiHint: 'motorcycle sportbike tvs' },
-    { id: 'tvs-2', type: 'video', user: 'TVS Synergy', timestamp: '2 days ago', likes: 450, comments: 70, content: 'Watch the TVS Ntorq 125 XT conquer the city streets with its unmatched style and power. #TVSNtorq #SmartXonnect #ScooterLife', thumbnailUrl: 'https://source.unsplash.com/random/300x300/?scooter,city,ride', thumbnailAiHint: 'scooter city ride', videoUrl: '#' },
-    { id: 'tvs-3', type: 'link', user: 'TVS Synergy', timestamp: '5 days ago', likes: 150, comments: 20, content: 'Special monsoon offer! Get exciting benefits on your favorite TVS two-wheelers. Visit our website to know more.', url: 'https://tvsmotor.com/offers', thumbnailUrl: 'https://source.unsplash.com/random/300x150/?tvs,logo,offer', thumbnailAiHint: 'tvs logo offer' },
-    { id: 'tvs-4', type: 'text', user: 'TVS Synergy', timestamp: '1 week ago', likes: 200, comments: 30, content: 'Safety first! Always wear a helmet while riding. TVS promotes responsible riding. #RideSafe #HelmetUp' },
 ];
 
 
@@ -68,8 +55,8 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
     const userContent = userData?.name ? allUserContent.filter(post => post.user === userData.name) : allUserContent;
 
     const filteredPosts = userContent.filter(post => {
-        if (!userData?.name && post.user !== 'Test User') return false; // For guest view, only show Test User posts
-        if (userData?.name && post.user !== userData.name) return false; // For logged-in view, only show their posts
+        if (!userData?.name && post.user !== 'Test User') return false; 
+        if (userData?.name && post.user !== userData.name) return false; 
 
         switch (activeProfileTab) {
         case 'feed': return true;
@@ -83,7 +70,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
     });
 
     const totalPosts = userContent.length;
-    // Simple dynamic follower/following count based on user ID hash for variety.
     const followersCount = userData?.id ? (parseInt(userData.id.replace(/[^0-9]/g, '').slice(-3) || "123", 10) % 500) + 100 : 1234;
     const followingCount = userData?.id ? (parseInt(userData.id.replace(/[^0-9]/g, '').slice(-2) || "56", 10) % 200) + 50 : 567;
 
@@ -105,7 +91,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                 return (
                     <div className="relative my-2 bg-black rounded-md aspect-video flex items-center justify-center">
                         {item.thumbnailUrl && <Image src={item.thumbnailUrl} alt="Video thumbnail" layout="fill" objectFit="cover" className="rounded-md opacity-70" data-ai-hint={item.thumbnailAiHint || "video content"}/>}
-                        <VideoCameraIcon className="h-12 w-12 text-white absolute z-10" />
+                        <PlayCircleIcon className="h-12 w-12 text-white absolute z-10" />
                         <p className="absolute bottom-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded">{item.content || "Video Post"}</p>
                     </div>
                 );
@@ -128,6 +114,16 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                     </div>
                 );
             case 'tweet':
+                 return (
+                    <div className="p-3 border border-blue-200 rounded-lg bg-blue-50/70 my-2">
+                       <div className="flex items-center mb-2">
+                          <Image src="/assets/icons/twitter-x.svg" alt="Tweet icon" width={16} height={16} className="mr-2 opacity-80"/>
+                          <p className="font-semibold text-gray-900 text-sm">@{item.user?.replace(/\s/g, '').toLowerCase()}</p>
+                          <span className="text-xs text-gray-500 ml-auto">{item.timestamp}</span>
+                       </div>
+                       <p className="text-gray-800 text-sm whitespace-pre-line">{item.content}</p>
+                    </div>
+                 );
             case 'text':
                 return <p className="my-2 py-1 whitespace-pre-line">{item.content}</p>;
             default:
@@ -174,7 +170,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                 <>
                     {item.thumbnailUrl && <Image src={item.thumbnailUrl} alt="Video thumbnail" layout="fill" objectFit="cover" className="opacity-80 group-hover:opacity-60 transition-opacity" data-ai-hint={item.thumbnailAiHint || "gallery video"}/>}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                        <VideoCameraIcon className="h-8 w-8 text-white" />
+                        <PlayCircleIcon className="h-8 w-8 text-white" />
                     </div>
                 </>
             )}
@@ -192,11 +188,11 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
             )}
              {item.type === 'tweet' && (
                 <div className="w-full h-full bg-blue-50 flex flex-col items-center justify-center p-2 text-center">
-                    <TweetIcon className="h-8 w-8 text-blue-500 mb-1"/>
+                    <Image src="/assets/icons/twitter-x.svg" alt="Tweet icon" width={32} height={32} className="mb-1 opacity-70"/>
                     <p className="text-xs font-medium text-blue-700 line-clamp-3">{item.content}</p>
                 </div>
             )}
-             {item.type === 'text' && (
+             {item.type === 'text' && ( // Fallback for text posts in grid view, though usually not shown here
                 <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center p-2 text-center">
                     <ChatBubbleOvalLeftEllipsisIcon className="h-8 w-8 text-gray-500 mb-1"/>
                     <p className="text-xs font-medium text-gray-700 line-clamp-3">{item.content}</p>
@@ -236,7 +232,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row gap-2 justify-between items-center">
+                         <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row gap-2 justify-between items-center">
                             <Button variant="outline" onClick={handleManageProfessionalProfile} className="w-full sm:w-auto">
                                 <UserCircleIcon className="mr-2 h-4 w-4" /> Manage Professional Profile
                             </Button>
@@ -249,12 +245,12 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
 
                 <Tabs value={activeProfileTab} onValueChange={(value) => setActiveProfileTab(value)} className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm py-2 px-2 sm:px-0">
                     <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
-                        <TabsTrigger value="feed" className="py-2.5"><ListBulletIcon className="mr-1.5 h-4 w-4"/>Feed</TabsTrigger>
-                        <TabsTrigger value="images" className="py-2.5"><CameraIcon className="mr-1.5 h-4 w-4"/>Images</TabsTrigger>
-                        <TabsTrigger value="videos" className="py-2.5"><VideoCameraIcon className="mr-1.5 h-4 w-4"/>Videos</TabsTrigger>
-                        <TabsTrigger value="links" className="py-2.5"><LinkIconOutline className="mr-1.5 h-4 w-4"/>Links</TabsTrigger>
-                        <TabsTrigger value="files" className="py-2.5"><DocumentTextIcon className="mr-1.5 h-4 w-4"/>Files</TabsTrigger>
-                        <TabsTrigger value="tweets" className="py-2.5"><TweetIcon className="mr-1.5 h-4 w-4"/>Tweets</TabsTrigger>
+                        <TabsTrigger value="feed" className="py-2.5 flex items-center gap-1.5"><ListBulletIcon className="h-4 w-4"/>Feed</TabsTrigger>
+                        <TabsTrigger value="images" className="py-2.5 flex items-center gap-1.5"><CameraIcon className="h-4 w-4"/>Images</TabsTrigger>
+                        <TabsTrigger value="videos" className="py-2.5 flex items-center gap-1.5"><VideoCameraIcon className="h-4 w-4"/>Videos</TabsTrigger>
+                        <TabsTrigger value="links" className="py-2.5 flex items-center gap-1.5"><LinkIconOutline className="h-4 w-4"/>Links</TabsTrigger>
+                        <TabsTrigger value="files" className="py-2.5 flex items-center gap-1.5"><DocumentTextIcon className="h-4 w-4"/>Files</TabsTrigger>
+                        <TabsTrigger value="tweets" className="py-2.5 flex items-center gap-1.5"><Image src="/assets/icons/twitter-x.svg" alt="Tweets" width={16} height={16} className="opacity-70"/>Tweets</TabsTrigger>
                     </TabsList>
                 </Tabs>
 
@@ -264,7 +260,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                             <p className="text-lg">No posts yet in this category.</p>
                             <p className="text-sm">Start sharing your content!</p>
                         </div>
-                    ) : (activeProfileTab === 'feed' || activeProfileTab === 'tweets' || activeProfileTab === 'links' || activeProfileTab === 'files' || (activeProfileTab === 'text' && !filteredPosts.some(p => p.thumbnailUrl))) ? (
+                    ) : (activeProfileTab === 'feed' || activeProfileTab === 'tweets') ? (
                         <div className="space-y-4">
                             {filteredPosts.map(item => <PostCard key={item.id} item={item} />)}
                         </div>
@@ -280,7 +276,5 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
 };
 
 export default AccountScreen;
-
-    
 
     
