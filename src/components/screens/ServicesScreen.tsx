@@ -10,13 +10,13 @@ import {
   ArrowLeftIcon, 
   MagnifyingGlassIcon, 
   MapPinIcon, 
-  TruckIcon, // Replaced Car, Bike, CarTaxiFront
+  TruckIcon, 
   BriefcaseIcon,
-  BuildingStorefrontIcon, // Replaced Utensils
+  BuildingStorefrontIcon, 
   ShoppingBagIcon,
   CreditCardIcon,
   TicketIcon,
-  BuildingLibraryIcon, // Replaced Landmark
+  BuildingLibraryIcon, 
 } from '@heroicons/react/24/outline'; 
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
@@ -35,8 +35,8 @@ const initialServicesData: Service[] = [
 ];
 
 const taxiVehicleOptions: VehicleOption[] = [
-  { id: 'bike', name: 'Bike', icon: TruckIcon, priceRange: '₹ 50-80', estimatedETA: '5 mins', dataAiHint: "motorcycle transport" }, // Using TruckIcon as placeholder
-  { id: 'auto', name: 'Auto', icon: TruckIcon, priceRange: '₹ 80-120', estimatedETA: '7 mins', dataAiHint: "auto rickshaw" }, // Using TruckIcon as placeholder
+  { id: 'bike', name: 'Bike', icon: TruckIcon, priceRange: '₹ 50-80', estimatedETA: '5 mins', dataAiHint: "motorcycle transport" }, 
+  { id: 'auto', name: 'Auto', icon: TruckIcon, priceRange: '₹ 80-120', estimatedETA: '7 mins', dataAiHint: "auto rickshaw" }, 
   { id: 'car_mini', name: 'Car (Mini)', icon: TruckIcon, priceRange: '₹ 120-200', estimatedETA: '10 mins', dataAiHint: "small car" },
   { id: 'car_premium', name: 'Car (Premium)', icon: TruckIcon, priceRange: '₹ 200-350', estimatedETA: '12 mins', dataAiHint: "luxury car" },
 ];
@@ -107,7 +107,7 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
   
   return (
     <ScrollArea className="h-full custom-scrollbar bg-background">
-      <main className="p-4">
+      <main className="p-0"> 
         <div className="flex items-center mb-6">
           {isTaxiBookingActive && (
             <Button variant="ghost" size="icon" onClick={() => setIsTaxiBookingActive(false)} className="mr-2 text-muted-foreground hover:text-primary">

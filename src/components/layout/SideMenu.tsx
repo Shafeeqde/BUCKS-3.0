@@ -9,12 +9,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Cog6ToothIcon, 
   BriefcaseIcon,
-  TruckIcon, // Replaced Car
-  BuildingOfficeIcon, // Replaced Building
-  ArrowLeftOnRectangleIcon, // Replaced LogOut
+  TruckIcon, 
+  BuildingOfficeIcon, 
+  ArrowLeftOnRectangleIcon, 
   ChevronRightIcon,
-  RocketLaunchIcon, // Replaced Rocket
-  UserCircleIcon, // Replaced UserCog and UserCircle
+  RocketLaunchIcon, 
+  UserCircleIcon, 
 } from '@heroicons/react/24/outline';
 import type { TabName, UserBusinessProfile, UserDataForSideMenu } from '@/types';
 import Image from 'next/image'; 
@@ -77,18 +77,18 @@ const SideMenu: React.FC<SideMenuProps> = ({
         {userData && (
           <Button
             variant="ghost"
-            className="p-4 border-b border-sidebar-border flex items-center space-x-3 h-auto text-left w-full justify-start hover:bg-sidebar-accent/80 rounded-none"
+            className="p-4 border-b border-sidebar-border flex items-center space-x-4 h-auto text-left w-full justify-start hover:bg-sidebar-accent/80 rounded-none"
             onClick={handleUserSectionClick}
           >
-            <Avatar className="h-12 w-12 border-2 border-sidebar-primary">
-              <AvatarImage src={userData.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar'} alt={userData.name} data-ai-hint={userData.avatarAiHint || "user avatar"} />
-              <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">{userData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+            <Avatar className="h-14 w-14 border-2 border-sidebar-primary">
+              <AvatarImage src={userData.avatarUrl || 'https://source.unsplash.com/random/64x64/?user,avatar'} alt={userData.name} data-ai-hint={userData.avatarAiHint || "user avatar"} />
+              <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground text-lg">{userData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="flex-grow">
-              <p className="font-semibold text-sidebar-foreground">{userData.name}</p>
-              <p className="text-xs text-sidebar-foreground/80">{userData.email}</p>
+              <p className="font-bold text-lg text-sidebar-foreground">{userData.name}</p>
+              <p className="text-sm text-sidebar-foreground/80">{userData.email}</p>
             </div>
-            <ChevronRightIcon className="h-4 w-4 text-sidebar-foreground/70" />
+            <ChevronRightIcon className="h-5 w-5 text-sidebar-foreground/70" />
           </Button>
         )}
 
@@ -99,7 +99,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
                 className="w-full justify-start text-base h-12 bg-sidebar-primary/10 text-sidebar-primary hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[variant=secondary]:bg-sidebar-primary data-[variant=secondary]:text-sidebar-primary-foreground"
                 onClick={() => handleNavigation('professional-profile')}
             >
-                <UserCircleIcon className="mr-3 h-5 w-5" /> {/* Using UserCircleIcon for dashboard too */}
+                <UserCircleIcon className="mr-3 h-5 w-5" /> 
                 My Professional Dashboard
             </Button>
 

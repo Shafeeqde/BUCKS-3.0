@@ -25,7 +25,7 @@ import SkillsetProfileScreen from '@/components/screens/SkillsetProfileScreen';
 import SkillsetProfileManagementScreen from '@/components/screens/SkillsetProfileManagementScreen';
 import JobBoardScreen from '@/components/screens/JobBoardScreen';
 import JobDetailScreen from '@/components/screens/JobDetailScreen';
-import AccountSettingsScreen from '@/components/screens/AccountSettingsScreen'; // Added import
+import AccountSettingsScreen from '@/components/screens/AccountSettingsScreen'; 
 
 
 import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu } from '@/types';
@@ -193,7 +193,7 @@ export default function AppRoot() {
         tab !== 'manage-business-profile' && 
         tab !== 'job-detail' && 
         tab !== 'professional-profile' &&
-        tab !== 'account-settings') { // Ensure account-settings also doesn't clear these
+        tab !== 'account-settings') { 
         setSelectedBusinessProfileId(null);
         setBusinessProfileToManageId(null);
         setSelectedIndividualProfileId(null);
@@ -598,7 +598,7 @@ export default function AppRoot() {
         }
         return <p className="p-4 text-center text-muted-foreground">Job details not found.</p>;
       
-      case 'account-settings': // New case
+      case 'account-settings': 
         return <AccountSettingsScreen />;
 
 
@@ -641,7 +641,7 @@ export default function AppRoot() {
         />
       )}
 
-      <div className="flex-grow overflow-hidden relative">
+      <div className="flex-grow overflow-hidden relative p-4">
         {renderScreenContent()}
       </div>
 

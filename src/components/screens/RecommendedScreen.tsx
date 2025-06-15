@@ -30,7 +30,7 @@ const recommendedPostsData: RecommendedPost[] = [
 
 const RecommendedScreen = () => {
   return (
-    <main className="flex-grow bg-background overflow-y-auto p-4 h-full custom-scrollbar">
+    <main className="flex-grow bg-background overflow-y-auto h-full custom-scrollbar"> {/* Removed p-4 */}
       <h2 className="text-2xl font-bold text-foreground mb-6 font-headline">Recommended for You</h2>
       <div className="space-y-4">
         {recommendedPostsData.map((post) => (
