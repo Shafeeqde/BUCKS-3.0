@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import {
     ArrowLeftIcon, BriefcaseIcon, BuildingOfficeIcon, ChatBubbleOvalLeftEllipsisIcon, ShoppingBagIcon, InformationCircleIcon, ArrowTopRightOnSquareIcon, PhoneIcon, MapPinIcon, RssIcon, HandThumbUpIcon,
-    StarIcon as StarIconOutline, // Heroicon outline star
+    StarIcon as StarIconOutline, 
     VideoCameraIcon, CalendarDaysIcon, PlusCircleIcon, EllipsisHorizontalIcon, UserPlusIcon, GlobeAltIcon, EnvelopeIcon
 } from '@heroicons/react/24/outline';
 import type { UserBusinessProfile, BusinessProduct, BusinessJob, BusinessFeedItem, BusinessService, BusinessReview } from '@/types';
@@ -54,22 +54,28 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
   const { toast } = useToast();
 
   const handleFollow = () => {
-    return toast({ title: "Follow Clicked (Simulated)", description: "Following business." });
+    console.log("Follow clicked");
+    toast({ title: "Follow Clicked (Simulated)" });
   };
   const handleMessage = () => {
-    return toast({ title: "Message Clicked (Simulated)", description: "Messaging business." });
+    console.log("Message clicked");
+    toast({ title: "Message Clicked (Simulated)" });
   };
   const handleAddToCart = (product: BusinessProduct) => {
-    return toast({ title: "Added to Cart (Simulated)", description: "Product added to cart."});
+    console.log("Add to cart:", product.name);
+    toast({ title: "Added to Cart (Simulated)"});
   };
   const handleViewProduct = (product: BusinessProduct) => {
-    return toast({ title: "View Product (Simulated)", description: "Viewing product details."});
+    console.log("View product:", product.name);
+    toast({ title: "View Product (Simulated)"});
   };
   const handleApplyJob = (job: BusinessJob) => {
-    return toast({ title: "Apply for Job (Simulated)", description: "Applying for job."});
+    console.log("Apply job:", job.title);
+    toast({ title: "Apply for Job (Simulated)"});
   };
   const handleEnquireService = (service: BusinessService) => {
-    return toast({ title: "Enquire Service (Simulated)", description: "Enquiring about service."});
+    console.log("Enquire service:", service.name);
+    toast({ title: "Enquire Service (Simulated)"});
   };
 
   if (!profile) {
@@ -159,16 +165,16 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => toast({title: "Share Profile (Simulated)", description: "Sharing profile."})}>
+                        <DropdownMenuItem onClick={() => toast({title: "Share Profile (Simulated)"})}>
                             <ArrowTopRightOnSquareIcon className="mr-2 h-4 w-4" /> Share Profile
                         </DropdownMenuItem>
                          {profile.phone &&
-                            <DropdownMenuItem onClick={() => toast({title: "Calling Business (Simulated)", description: `Calling ${profile.phone}.`})}>
+                            <DropdownMenuItem onClick={() => toast({title: `Calling ${profile.phone} (Simulated)`})}>
                                 <PhoneIcon className="mr-2 h-4 w-4" /> Call Business
                             </DropdownMenuItem>
                         }
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => toast({title: "Report Profile (Simulated)", description: "Reporting profile."})} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                        <DropdownMenuItem onClick={() => toast({title: "Report Profile (Simulated)"})} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                             <InformationCircleIcon className="mr-2 h-4 w-4" /> Report
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -307,7 +313,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                 )}
                 {profile.reviews && profile.reviews.length > 0 && (
                     <Card className="shadow-sm">
-                        <CardHeader><CardTitle className="text-lg font-headline flex items-center"><ChatBubbleOvalLeftEllipsisIcon className="mr-2 h-5 w-5 text-primary"/>Customer Reviews ({profile.totalReviews || 0})</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-lg font-headline flex items-center"><ChatBubbleOvalLeftEllipsisIcon className="mr-2 h-5 w-5 text-primary"/>Customer Reviews ({profile.totalReviews})</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                         {profile.reviews.map(review => (
                         <div key={review.id} className="pb-3 border-b last:border-b-0">
@@ -336,3 +342,4 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 
 export default UserBusinessProfileDetailScreen;
 
+    
