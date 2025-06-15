@@ -2,11 +2,11 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip"; // Added import
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
-  title: 'Locality Hub',
-  description: 'Your local community hub for maps, feeds, services, and recommendations.',
+  title: 'Bucks 3.0',
+  description: 'Your personal finance and lifestyle companion.',
 };
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning={true}>
-        <TooltipProvider> {/* Added TooltipProvider */}
+        <TooltipProvider>
           {children}
         </TooltipProvider>
         <Toaster />

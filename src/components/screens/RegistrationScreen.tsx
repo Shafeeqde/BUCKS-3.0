@@ -69,7 +69,7 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, o
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold text-primary font-headline">Create Account</CardTitle>
-          <CardDescription>Join Locality Hub today!</CardDescription>
+          <CardDescription>Join Bucks 3.0 today!</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
