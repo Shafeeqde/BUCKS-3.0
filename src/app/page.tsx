@@ -71,8 +71,19 @@ export default function AppRoot() {
     try {
       const response = await fetch('/api/business-profiles');
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Failed to fetch business profiles' }));
-        throw new Error(errorData.message || 'Failed to fetch business profiles');
+        let detailedErrorMessage = 'Failed to fetch business profiles due to a server error.';
+        try {
+          const errorData = await response.json();
+          if (errorData && typeof errorData.error === 'string') {
+            detailedErrorMessage = errorData.error;
+          } else if (errorData && typeof errorData.message === 'string') { // Fallback for other error structures
+            detailedErrorMessage = errorData.message;
+          }
+        } catch (jsonError) {
+          detailedErrorMessage = `Failed to fetch business profiles. Status: ${response.status} ${response.statusText}`;
+          console.error("Could not parse error response as JSON:", jsonError);
+        }
+        throw new Error(detailedErrorMessage);
       }
       const data: UserBusinessProfile[] = await response.json();
       setBusinessProfilesData(data);
@@ -110,7 +121,7 @@ export default function AppRoot() {
 
   const handleRegistrationSuccess = useCallback((user: {name: string; email: string}) => {
     setActiveTabInternal('login');
-    toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in to Bucks 3.0.` });
+    toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in to Bucks.` });
   }, [toast]);
 
   const handleLogout = useCallback(() => {
@@ -655,4 +666,3 @@ export default function AppRoot() {
     </div>
   );
 }
-
