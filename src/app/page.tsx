@@ -110,7 +110,7 @@ export default function AppRoot() {
 
   const handleRegistrationSuccess = useCallback((user: {name: string; email: string}) => {
     setActiveTabInternal('login');
-    toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in.` });
+    toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in to Bucks 3.0.` });
   }, [toast]);
 
   const handleLogout = useCallback(() => {
@@ -155,7 +155,7 @@ export default function AppRoot() {
         fetchBusinessProfiles();
     }
   }, [fetchBusinessProfiles]);
-  
+
   const setActiveTab = handleTabSelection;
 
 
