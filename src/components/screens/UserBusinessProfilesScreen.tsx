@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { PlusCircleIcon, PencilSquareIcon, TrashIcon, BuildingOfficeIcon, MagnifyingGlassIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
-import type { UserBusinessProfile } from '@/types'; 
+import type { UserBusinessProfile } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -18,63 +18,31 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 interface UserBusinessProfilesScreenProps {
   businessProfiles: UserBusinessProfile[];
   onSelectProfile: (id: string) => void;
-  onManageProfile: (id: string) => void; 
-  onProfileUpdate: () => Promise<void>; // Callback to refresh profiles
+  onManageProfile: (id: string) => void;
+  onDeleteProfile: (id: string) => void; // Changed from onProfileUpdate
+  onToggleProfileActive: (id: string) => void; // New prop for toggling
   isLoading: boolean;
 }
 
 const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
-  businessProfiles, 
+  businessProfiles,
   onSelectProfile,
   onManageProfile,
-  onProfileUpdate,
+  onDeleteProfile,
+  onToggleProfileActive,
   isLoading,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [profileToDelete, setProfileToDelete] = useState<UserBusinessProfile | null>(null);
-  const { toast } = useToast();
+  const [profileToConfirmDelete, setProfileToConfirmDelete] = useState<UserBusinessProfile | null>(null);
+  // const { toast } = useToast(); // Toasting will be handled by page.tsx
 
-  const handleDelete = async () => {
-    if (!profileToDelete) return;
-    try {
-      const response = await fetch(`/api/business-profiles/${profileToDelete.id}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Failed to delete profile' }));
-        throw new Error(errorData.message || 'Failed to delete profile');
-      }
-      toast({ title: "Profile Deleted", description: `${profileToDelete.name} has been deleted.`, variant: "destructive" });
-      await onProfileUpdate(); // Refresh the list
-    } catch (error) {
-      console.error("Error deleting profile:", error);
-      toast({ title: "Error", description: error instanceof Error ? error.message : "Could not delete profile.", variant: "destructive" });
-    } finally {
-      setProfileToDelete(null);
-    }
+  const handleDeleteConfirmation = () => {
+    if (!profileToConfirmDelete) return;
+    onDeleteProfile(profileToConfirmDelete.id);
+    setProfileToConfirmDelete(null);
   };
 
-  const toggleActive = async (profile: UserBusinessProfile) => {
-    const newStatus = !profile.isActive;
-    try {
-      const response = await fetch(`/api/business-profiles/${profile.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: newStatus }),
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Failed to update status' }));
-        throw new Error(errorData.message || 'Failed to update status');
-      }
-      toast({ title: "Status Updated", description: `${profile.name} is now ${newStatus ? 'active' : 'inactive'}.`});
-      await onProfileUpdate(); // Refresh the list
-    } catch (error) {
-      console.error("Error updating status:", error);
-      toast({ title: "Error", description: error instanceof Error ? error.message : "Could not update status.", variant: "destructive" });
-    }
-  };
-  
-  const filteredProfiles = businessProfiles.filter(profile => 
+  const filteredProfiles = businessProfiles.filter(profile =>
     profile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (profile.bio && profile.bio.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (profile.location && profile.location.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -96,7 +64,7 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
             </Button>
           </div>
            <div className="mt-4 relative">
-            <Input 
+            <Input
               placeholder="Search profiles..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -127,10 +95,10 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
             ) : (
               <div className="space-y-4">
                 {filteredProfiles.map(profile => (
-                  <Card 
-                    key={profile.id} 
+                  <Card
+                    key={profile.id}
                     className={cn(
-                      "transition-all duration-200 ease-in-out hover:shadow-lg hover:border-primary/50", 
+                      "transition-all duration-200 ease-in-out hover:shadow-lg hover:border-primary/50",
                       !profile.isActive && "bg-muted/50 opacity-70"
                     )}
                   >
@@ -154,24 +122,24 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
                           <Label htmlFor={`status-${profile.id}`} className="text-xs text-muted-foreground whitespace-nowrap">
                             {profile.isActive ? 'Active' : 'Inactive'}
                           </Label>
-                          <Switch 
+                          <Switch
                             id={`status-${profile.id}`}
-                            checked={!!profile.isActive} 
-                            onCheckedChange={() => toggleActive(profile)} 
-                            aria-label={profile.isActive ? "Deactivate profile" : "Activate profile"} 
+                            checked={!!profile.isActive}
+                            onCheckedChange={() => onToggleProfileActive(profile.id)} // Call prop
+                            aria-label={profile.isActive ? "Deactivate profile" : "Activate profile"}
                           />
                         </div>
                         <div className="flex space-x-1">
                           <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent" onClick={() => onManageProfile(profile.id)}>
                             <PencilSquareIcon className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8" onClick={() => setProfileToDelete(profile)}>
+                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8" onClick={() => setProfileToConfirmDelete(profile)}>
                             <TrashIcon className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
                     </div>
-                    {profile.website && 
+                    {profile.website &&
                       <CardContent className="pb-3 pt-0">
                           <a href={profile.website} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-primary hover:underline flex items-center">
                               <ArrowTopRightOnSquareIcon className="h-3 w-3 mr-1"/>View Website
@@ -184,17 +152,17 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
             )}
         </CardContent>
       </Card>
-      <AlertDialog open={!!profileToDelete} onOpenChange={(open) => !open && setProfileToDelete(null)}>
+      <AlertDialog open={!!profileToConfirmDelete} onOpenChange={(open) => !open && setProfileToConfirmDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the business profile &quot;{profileToDelete?.name}&quot;.
+              This action cannot be undone. This will permanently delete the business profile &quot;{profileToConfirmDelete?.name}&quot;.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setProfileToDelete(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+            <AlertDialogCancel onClick={() => setProfileToConfirmDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirmation} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

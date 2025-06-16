@@ -17,44 +17,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 interface BusinessProfileManagementScreenProps {
-  businessProfileId: string; // "new" or an existing ID
+  initialProfileData: Partial<UserBusinessProfile> | null; // Can be partial for new, or full for edit
+  onSave: (profileData: UserBusinessProfile) => void;
   onBack: () => void;
-  onProfileUpdate: () => Promise<void>;
 }
 
-const newProfileTemplate: Omit<UserBusinessProfile, 'id'> = {
-  name: '',
-  bio: '',
-  logo: '',
-  logoAiHint: '',
-  coverPhoto: '',
-  coverPhotoAiHint: '',
-  website: '',
-  phone: '',
-  email: '',
-  location: '',
-  specialties: [],
-  followers: 0,
-  following: 0,
-  feed: [],
-  products: [],
-  services: [],
-  jobs: [],
-  reviews: [],
-  averageRating: 0,
-  totalReviews: 0,
-  isActive: true,
-  licenseNumber: '',
-  documentUrl: '',
-};
-
-
-const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenProps> = ({ businessProfileId, onBack, onProfileUpdate }) => {
+const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenProps> = ({ initialProfileData, onSave, onBack }) => {
   const { toast } = useToast();
-  const [editedData, setEditedData] = useState<Partial<UserBusinessProfile>>(businessProfileId === 'new' ? { ...newProfileTemplate } : {});
-  const [originalProfileData, setOriginalProfileData] = useState<Partial<UserBusinessProfile> | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [editedData, setEditedData] = useState<Partial<UserBusinessProfile>>({});
+  const [originalSnapshot, setOriginalSnapshot] = useState<string>(''); // For change detection
+
   const [isSaving, setIsSaving] = useState(false);
 
   const [showProductDialog, setShowProductDialog] = useState(false);
@@ -65,87 +37,69 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
   const [currentService, setCurrentService] = useState<Partial<BusinessService> & { tempId?: string } | null>(null);
   const [serviceToDeleteId, setServiceToDeleteId] = useState<string | null>(null);
 
-  const isNewProfile = businessProfileId === 'new';
-
-  const fetchProfileData = useCallback(async (id: string) => {
-    if (isNewProfile) {
-      setEditedData({ ...newProfileTemplate });
-      setOriginalProfileData({ ...newProfileTemplate });
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/business-profiles/${id}`);
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Failed to fetch profile' }));
-        throw new Error(errorData.message || 'Profile not found');
-      }
-      const data: UserBusinessProfile = await response.json();
-      setEditedData(JSON.parse(JSON.stringify(data))); // Deep copy
-      setOriginalProfileData(JSON.parse(JSON.stringify(data))); // Deep copy for change detection
-    } catch (err) {
-      console.error('Error fetching business profile:', err);
-      setError(err instanceof Error ? err.message : "Failed to load profile for management.");
-      toast({ title: "Error Loading Profile", description: err instanceof Error ? err.message : "Failed to load profile for management.", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  }, [isNewProfile, toast]);
+  const isNewProfile = !initialProfileData?.id;
 
   useEffect(() => {
-    fetchProfileData(businessProfileId);
-  }, [businessProfileId, fetchProfileData]);
+    if (initialProfileData) {
+      const dataToEdit = JSON.parse(JSON.stringify(initialProfileData)); // Deep copy
+       // Ensure arrays are initialized if not present in partial data (for new profiles)
+      dataToEdit.products = dataToEdit.products || [];
+      dataToEdit.services = dataToEdit.services || [];
+      dataToEdit.jobs = dataToEdit.jobs || [];
+      dataToEdit.feed = dataToEdit.feed || [];
+      dataToEdit.reviews = dataToEdit.reviews || [];
+      dataToEdit.specialties = dataToEdit.specialties || [];
+      if (dataToEdit.isActive === undefined) dataToEdit.isActive = true;
+
+      setEditedData(dataToEdit);
+      setOriginalSnapshot(JSON.stringify(dataToEdit));
+    }
+  }, [initialProfileData]);
+
 
   const handleInputChange = (field: keyof UserBusinessProfile, value: any) => {
     setEditedData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSaveChanges = async () => {
-    if (!editedData || !editedData.name || !editedData.bio) {
+  const handleSaveChanges = () => {
+    if (!editedData.name || !editedData.bio) {
       toast({ title: "Validation Error", description: "Business Name and Bio are required.", variant: "destructive" });
       return;
     }
     setIsSaving(true);
-    try {
-      let response;
-      const payload = { ...editedData };
-      // Remove tempIds before saving
-      if (payload.products) payload.products = payload.products.map(({ tempId, ...p }) => p as BusinessProduct);
-      if (payload.services) payload.services = payload.services.map(({ tempId, ...s }) => s as BusinessService);
 
+    // Ensure all arrays are present even if empty, and other defaults
+    const profileToSave: UserBusinessProfile = {
+      id: editedData.id || `bp-local-${Date.now()}`, // Assign new ID if it's a new profile
+      name: editedData.name!,
+      bio: editedData.bio!,
+      logo: editedData.logo || '',
+      logoAiHint: editedData.logoAiHint || '',
+      coverPhoto: editedData.coverPhoto || '',
+      coverPhotoAiHint: editedData.coverPhotoAiHint || '',
+      website: editedData.website || '',
+      phone: editedData.phone || '',
+      email: editedData.email || '',
+      location: editedData.location || '',
+      specialties: editedData.specialties || [],
+      followers: editedData.followers || 0,
+      following: editedData.following || 0,
+      feed: (editedData.feed || []).map(f => ({ ...f, id: f.id || `feed-local-${Date.now()}` })),
+      products: (editedData.products || []).map(p => ({ ...p, id: p.id || `prod-local-${Date.now()}` })),
+      services: (editedData.services || []).map(s => ({ ...s, id: s.id || `serv-local-${Date.now()}` })),
+      jobs: (editedData.jobs || []).map(j => ({ ...j, id: j.id || `job-local-${Date.now()}`, businessId: editedData.id || `bp-local-${Date.now()}`, businessName: editedData.name! })), // Add businessId and name
+      reviews: (editedData.reviews || []).map(r => ({ ...r, id: r.id || `rev-local-${Date.now()}`})),
+      averageRating: editedData.averageRating || 0,
+      totalReviews: editedData.totalReviews || 0,
+      isActive: editedData.isActive === undefined ? true : editedData.isActive,
+      licenseNumber: editedData.licenseNumber || '',
+      documentUrl: editedData.documentUrl || '',
+    };
 
-      if (isNewProfile) {
-        response = await fetch('/api/business-profiles', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-      } else {
-        response = await fetch(`/api/business-profiles/${businessProfileId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Failed to save profile' }));
-        throw new Error(errorData.message || 'Could not save business profile.');
-      }
-      
-      const savedProfile = await response.json();
-      toast({ title: "Profile Saved", description: `Business profile "${savedProfile.name}" ${isNewProfile ? 'created' : 'updated'} successfully.` });
-      await onProfileUpdate(); // Refresh list in parent
-      onBack(); // Navigate back
-
-    } catch (err) {
-      console.error("Error saving profile:", err);
-      toast({ title: "Save Error", description: err instanceof Error ? err.message : "An unexpected error occurred.", variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
+    onSave(profileToSave); // Call the save handler from page.tsx
+    // Toasting is handled in page.tsx after state update
+    setIsSaving(false);
+    onBack();
   };
 
   const openAddProductDialog = () => {
@@ -171,23 +125,22 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
     if (!editedData) return;
 
     let updatedProducts = [...(editedData.products || [])];
-    const existingProductIndex = currentProduct.id 
-      ? updatedProducts.findIndex(p => p.id === currentProduct.id)
-      : (currentProduct.tempId ? updatedProducts.findIndex(p => (p as any).tempId === currentProduct.tempId) : -1);
-
+    const idToUse = currentProduct.id || currentProduct.tempId || `prod-local-${Date.now()}`;
 
     const productToSave: BusinessProduct = {
-      id: currentProduct.id || currentProduct.tempId || `prod-${Date.now()}`, // Ensure ID exists
+      id: idToUse,
       name: currentProduct.name,
       price: currentProduct.price,
       description: currentProduct.description || '',
       discountPrice: currentProduct.discountPrice || undefined,
-      discountPercentage: currentProduct.discountPrice && currentProduct.price ? 
-                            Math.round(((parseFloat(currentProduct.price) - parseFloat(currentProduct.discountPrice)) / parseFloat(currentProduct.price)) * 100) + '%' 
+      discountPercentage: currentProduct.discountPrice && currentProduct.price ?
+                            Math.round(((parseFloat(currentProduct.price) - parseFloat(currentProduct.discountPrice)) / parseFloat(currentProduct.price)) * 100) + '%'
                             : undefined,
       imageUrl: currentProduct.imageUrl || undefined,
       imageAiHint: currentProduct.imageAiHint || undefined,
     };
+
+    const existingProductIndex = updatedProducts.findIndex(p => (p.id || (p as any).tempId) === idToUse);
 
     if (existingProductIndex > -1) {
       updatedProducts[existingProductIndex] = productToSave;
@@ -206,7 +159,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
 
   const executeDeleteProduct = () => {
     if (!editedData || productToDeleteId === null) return;
-    const updatedProducts = (editedData.products || []).filter(prod => prod.id !== productToDeleteId && (prod as any).tempId !== productToDeleteId);
+    const updatedProducts = (editedData.products || []).filter(prod => (prod.id || (prod as any).tempId) !== productToDeleteId);
     setEditedData({ ...editedData, products: updatedProducts });
     setProductToDeleteId(null);
     toast({ title: "Product Deleted", variant: "destructive" });
@@ -221,7 +174,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
     setCurrentService({ ...service });
     setShowServiceDialog(true);
   };
-  
+
   const handleServiceDialogChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setCurrentService(prev => prev ? { ...prev, [name]: value } : null);
@@ -235,17 +188,17 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
     if (!editedData) return;
 
     let updatedServices = [...(editedData.services || [])];
-     const existingServiceIndex = currentService.id 
-      ? updatedServices.findIndex(s => s.id === currentService.id)
-      : (currentService.tempId ? updatedServices.findIndex(s => (s as any).tempId === currentService.tempId) : -1);
+    const idToUse = currentService.id || currentService.tempId || `serv-local-${Date.now()}`;
 
     const serviceToSave: BusinessService = {
-      id: currentService.id || currentService.tempId || `serv-${Date.now()}`,
+      id: idToUse,
       name: currentService.name,
       description: currentService.description || undefined,
       price: currentService.price || undefined,
     };
-    
+
+    const existingServiceIndex = updatedServices.findIndex(s => (s.id || (s as any).tempId) === idToUse);
+
     if (existingServiceIndex > -1) {
       updatedServices[existingServiceIndex] = serviceToSave;
     } else {
@@ -263,23 +216,18 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
 
   const executeDeleteService = () => {
     if (!editedData || serviceToDeleteId === null) return;
-    const updatedServices = (editedData.services || []).filter(serv => serv.id !== serviceToDeleteId && (serv as any).tempId !== serviceToDeleteId);
+    const updatedServices = (editedData.services || []).filter(serv => (serv.id || (serv as any).tempId) !== serviceToDeleteId);
     setEditedData({ ...editedData, services: updatedServices });
     setServiceToDeleteId(null);
     toast({ title: "Service Deleted", variant: "destructive" });
   };
-  
-  if (loading) {
+
+
+  if (!initialProfileData || !editedData) {
     return <div className="flex justify-center items-center h-full p-4"><span className="h-12 w-12 animate-spin border-2 border-primary border-t-transparent rounded-full"></span><p className="ml-3">Loading profile data...</p></div>;
   }
-  if (error) {
-    return <div className="p-4 text-center text-destructive">{error} <Button onClick={() => fetchProfileData(businessProfileId)} variant="outline">Try Again</Button></div>;
-  }
-  if (!editedData) { 
-    return <div className="p-4 text-center text-muted-foreground">Profile data is not available.</div>;
-  }
 
-  const hasChanges = JSON.stringify(originalProfileData) !== JSON.stringify(editedData);
+  const hasChanges = JSON.stringify(editedData) !== originalSnapshot;
 
   return (
     <ScrollArea className="h-full bg-background">
@@ -292,7 +240,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <BuildingOfficeIcon className="mr-2 h-6 w-6 text-primary"/>
-              {isNewProfile ? "Create New Business Profile" : `Manage Business: ${editedData.name || "Profile"}`}
+              {isNewProfile ? "Create New Business Profile" : `Manage Business: ${initialProfileData.name || "Profile"}`}
             </CardTitle>
             <CardDescription>Edit the details for this business profile. Changes are saved locally until you click "Save Changes".</CardDescription>
           </CardHeader>
@@ -339,7 +287,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
                 <div><Label htmlFor="coverPhotoAiHint">Cover Photo AI Hint</Label><Input id="coverPhotoAiHint" value={editedData.coverPhotoAiHint || ''} onChange={(e) => handleInputChange('coverPhotoAiHint', e.target.value)} placeholder="e.g., bustling cafe interior"/></div>
               </CardContent>
             </Card>
-            
+
             <Card>
                 <CardHeader className="flex flex-row justify-between items-center">
                     <CardTitle className="flex items-center"><ShoppingBagIcon className="mr-2 h-5 w-5 text-primary"/>Products/Menu Items</CardTitle>
@@ -418,7 +366,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
                     )}
                 </CardContent>
             </Card>
-            
+
             <Card>
                 <CardHeader><CardTitle>Job Openings</CardTitle></CardHeader>
                 <CardContent><p className="text-sm text-muted-foreground">Job posting management will be enabled soon.</p></CardContent>
@@ -428,7 +376,6 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
                 <CardHeader><CardTitle>Business Feed/Posts</CardTitle></CardHeader>
                 <CardContent><p className="text-sm text-muted-foreground">Feed post management will be enabled soon.</p></CardContent>
             </Card>
-
 
           </div>
 
@@ -448,7 +395,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
       <Dialog open={showProductDialog} onOpenChange={setShowProductDialog}>
         <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-                <DialogTitle>{currentProduct?.id ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+                <DialogTitle>{currentProduct?.id || currentProduct?.tempId ? 'Edit Product' : 'Add New Product'}</DialogTitle>
                 <DialogDescription>
                     Fill in the details for the product or menu item.
                 </DialogDescription>
@@ -503,7 +450,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                 <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete the product
-                    "{editedData?.products?.find(p => p.id === productToDeleteId || (p as any).tempId === productToDeleteId)?.name || 'this product'}".
+                    "{editedData?.products?.find(p => (p.id || (p as any).tempId) === productToDeleteId)?.name || 'this product'}".
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -516,7 +463,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
       <Dialog open={showServiceDialog} onOpenChange={setShowServiceDialog}>
         <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-                <DialogTitle>{currentService?.id ? 'Edit Service' : 'Add New Service'}</DialogTitle>
+                <DialogTitle>{currentService?.id || currentService?.tempId ? 'Edit Service' : 'Add New Service'}</DialogTitle>
                 <DialogDescription>
                     Fill in the details for the service offered.
                 </DialogDescription>
@@ -552,7 +499,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
                 <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                 <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete the service
-                    "{editedData?.services?.find(s => s.id === serviceToDeleteId || (s as any).tempId === serviceToDeleteId)?.name || 'this service'}".
+                    "{editedData?.services?.find(s => (s.id || (s as any).tempId) === serviceToDeleteId)?.name || 'this service'}".
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

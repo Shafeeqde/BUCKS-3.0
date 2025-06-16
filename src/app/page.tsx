@@ -28,10 +28,128 @@ import JobBoardScreen from '@/components/screens/JobBoardScreen';
 import JobDetailScreen from '@/components/screens/JobDetailScreen';
 import AccountSettingsScreen from '@/components/screens/AccountSettingsScreen';
 
-
 import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
+const initialBusinessProfilesData: UserBusinessProfile[] = [
+  {
+    id: 'bp-1-cafe-bliss',
+    name: 'Cafe Bliss',
+    logo: 'https://placehold.co/100x100.png',
+    logoAiHint: 'modern cafe logo',
+    coverPhoto: 'https://placehold.co/1200x400.png',
+    coverPhotoAiHint: 'cozy cafe interior',
+    bio: 'Your friendly neighborhood cafe serving artisanal coffee and delicious pastries. A perfect spot to relax or work.',
+    website: 'https://cafebliss.example.com',
+    phone: '+91 98765 43210',
+    email: 'hello@cafebliss.example.com',
+    location: '123 Coffee Lane, MG Road, Bangalore',
+    specialties: ['Artisanal Coffee', 'Fresh Pastries', 'Quiet Ambiance', 'Free Wi-Fi'],
+    followers: 1250,
+    following: 50,
+    feed: [
+      { id: 'feed-cb-1', content: 'Try our new seasonal Pumpkin Spice Latte! 🍂☕', timestamp: '2 days ago', image: 'https://placehold.co/600x400.png', imageAiHint: 'latte coffee' },
+      { id: 'feed-cb-2', content: 'Live music this Friday evening from 7 PM. Don\'t miss out!', timestamp: '5 days ago' },
+    ],
+    products: [
+      { id: 'prod-cb-cappuccino', name: 'Cappuccino', price: '180', description: 'Classic Italian cappuccino with rich espresso and steamed milk foam.', imageUrl: 'https://placehold.co/200x200.png', imageAiHint: 'cappuccino cup' },
+      { id: 'prod-cb-croissant', name: 'Butter Croissant', price: '120', discountPrice: '100', discountPercentage: '16%', description: 'Flaky, buttery, and freshly baked.', imageUrl: 'https://placehold.co/200x200.png', imageAiHint: 'croissant pastry' },
+    ],
+    services: [
+      { id: 'serv-cb-catering', name: 'Small Event Catering', description: 'We cater for small gatherings and office meetings. Contact us for a custom menu.', price: 'Enquire for quote' },
+    ],
+    jobs: [
+      { id: 'job-cb-barista', businessId: 'bp-1-cafe-bliss', businessName: 'Cafe Bliss', title: 'Barista (Part-Time)', location: 'MG Road, Bangalore', type: 'Part-time', description: 'Looking for an enthusiastic barista to join our team. Experience preferred.', postedDate: '2024-06-10', salaryRange: '₹10k-15k/month' },
+    ],
+    reviews: [
+      { id: 'rev-cb-1', reviewerName: 'Aisha R.', rating: 5, comment: 'Best coffee in town! Love the atmosphere.', date: '2024-06-01' },
+      { id: 'rev-cb-2', reviewerName: 'Rohan S.', rating: 4, comment: 'Great place to work. Pastries are a bit pricey but good.', date: '2024-05-28' },
+    ],
+    averageRating: 4.5,
+    totalReviews: 78,
+    isActive: true,
+  },
+  {
+    id: 'bp-2-techfix-solutions',
+    name: 'TechFix Solutions',
+    logo: 'https://placehold.co/100x100.png',
+    logoAiHint: 'tech repair logo',
+    coverPhoto: 'https://placehold.co/1200x400.png',
+    coverPhotoAiHint: 'computer repair workshop',
+    bio: 'Expert repairs for laptops, mobiles, and all your gadgets. Quick, reliable, and affordable services.',
+    website: 'https://techfix.example.com',
+    phone: '+91 90000 11111',
+    email: 'support@techfix.example.com',
+    location: 'Unit 5, Electronic City, Bangalore',
+    specialties: ['Laptop Repair', 'Mobile Screen Replacement', 'Data Recovery', 'Virus Removal'],
+    followers: 850,
+    following: 20,
+    feed: [
+      { id: 'feed-tf-1', content: 'Smashed phone screen? We can fix it today! Visit us for quick screen replacements.', timestamp: '1 day ago', image: 'https://placehold.co/600x400.png', imageAiHint: 'broken phone screen' },
+    ],
+    products: [], // No direct products, mostly services
+    services: [
+      { id: 'serv-tf-laptop', name: 'Laptop Motherboard Repair', description: 'Component-level repair for all major laptop brands.', price: 'Starting at ₹2500' },
+      { id: 'serv-tf-screen', name: 'Mobile Screen Replacement', description: 'Original and high-quality compatible screens available.', price: '₹1500 - ₹15000 (Varies by model)' },
+      { id: 'serv-tf-data', name: 'Data Recovery Service', description: 'Recover lost data from hard drives and SSDs.', price: 'Enquire for quote' },
+    ],
+    jobs: [],
+    reviews: [
+      { id: 'rev-tf-1', reviewerName: 'Vikram G.', rating: 5, comment: 'Saved my laptop! Fast and professional service.', date: '2024-06-05' },
+    ],
+    averageRating: 4.8,
+    totalReviews: 120,
+    isActive: true,
+  },
+  {
+    id: 'bp-3-greenscape-gardens',
+    name: 'GreenScape Gardens',
+    logo: 'https://placehold.co/100x100.png',
+    logoAiHint: 'gardening service logo',
+    coverPhoto: 'https://placehold.co/1200x400.png',
+    coverPhotoAiHint: 'lush green garden',
+    bio: 'Professional landscaping and garden maintenance services. We create and maintain beautiful green spaces.',
+    location: 'Jayanagar, Bangalore',
+    specialties: ['Landscaping Design', 'Garden Maintenance', 'Organic Gardening', 'Plant Nursery'],
+    followers: 600,
+    following: 30,
+    products: [
+        { id: 'prod-gs-rose', name: 'Hybrid Tea Rose Plant', price: '350', description: 'Healthy, blooming rose plant in various colors.', imageUrl: 'https://placehold.co/200x200.png', imageAiHint: 'rose plant' },
+    ],
+    services: [
+      { id: 'serv-gs-landscape', name: 'Full Landscaping Design', description: 'Custom garden design from concept to installation.', price: 'Starts at ₹50,000' },
+    ],
+    averageRating: 4.2,
+    totalReviews: 45,
+    isActive: false, // Example of an inactive profile
+  }
+];
+
+const newBusinessProfileTemplate: Omit<UserBusinessProfile, 'id'> = {
+  name: '',
+  bio: '',
+  logo: '',
+  logoAiHint: '',
+  coverPhoto: '',
+  coverPhotoAiHint: '',
+  website: '',
+  phone: '',
+  email: '',
+  location: '',
+  specialties: [],
+  followers: 0,
+  following: 0,
+  feed: [],
+  products: [],
+  services: [],
+  jobs: [],
+  reviews: [],
+  averageRating: 0,
+  totalReviews: 0,
+  isActive: true,
+  licenseNumber: '',
+  documentUrl: '',
+};
 
 export default function AppRoot() {
   const { toast } = useToast();
@@ -45,7 +163,7 @@ export default function AppRoot() {
   const [userData, setUserData] = useState<UserDataForSideMenu | null>(null);
 
   const [businessProfilesData, setBusinessProfilesData] = useState<UserBusinessProfile[]>([]);
-  const [isLoadingBusinessProfiles, setIsLoadingBusinessProfiles] = useState(false);
+  const [isLoadingBusinessProfiles, setIsLoadingBusinessProfiles] = useState(true); // Start true
   const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | null>(null);
   const [businessProfileToManageId, setBusinessProfileToManageId] = useState<string | null>(null);
 
@@ -66,30 +184,20 @@ export default function AppRoot() {
   }, []);
 
   const fetchBusinessProfiles = useCallback(async () => {
-    if (!isLoggedIn) return;
+    if (!isLoggedIn) {
+      setBusinessProfilesData([]); // Clear data if not logged in
+      setIsLoadingBusinessProfiles(false);
+      return;
+    }
     setIsLoadingBusinessProfiles(true);
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 750));
     try {
-      const response = await fetch('/api/business-profiles');
-      if (!response.ok) {
-        let detailedErrorMessage = 'Failed to fetch business profiles due to a server error.';
-        try {
-          const errorData = await response.json();
-          if (errorData && typeof errorData.error === 'string') {
-            detailedErrorMessage = errorData.error;
-          } else if (errorData && typeof errorData.message === 'string') { // Fallback for other error structures
-            detailedErrorMessage = errorData.message;
-          }
-        } catch (jsonError) {
-          detailedErrorMessage = `Failed to fetch business profiles. Status: ${response.status} ${response.statusText}`;
-          console.error("Could not parse error response as JSON:", jsonError);
-        }
-        throw new Error(detailedErrorMessage);
-      }
-      const data: UserBusinessProfile[] = await response.json();
-      setBusinessProfilesData(data);
+      setBusinessProfilesData(initialBusinessProfilesData); // Use mock data
+      console.log("Mock business profiles loaded into state.");
     } catch (error) {
-      console.error("Error fetching business profiles:", error);
-      toast({ title: "Error Loading Profiles", description: error instanceof Error ? error.message : "Could not load business profiles.", variant: "destructive" });
+      console.error("Error setting mock business profiles:", error);
+      toast({ title: "Error Loading Profiles", description: "Could not load mock business profiles.", variant: "destructive" });
       setBusinessProfilesData([]);
     } finally {
       setIsLoadingBusinessProfiles(false);
@@ -102,8 +210,50 @@ export default function AppRoot() {
       fetchBusinessProfiles();
     } else {
       setBusinessProfilesData([]);
+      setIsLoadingBusinessProfiles(false);
     }
   }, [isLoggedIn, fetchBusinessProfiles]);
+
+  const handleSaveBusinessProfile = useCallback((profileData: UserBusinessProfile) => {
+    setBusinessProfilesData(prevProfiles => {
+      const existingIndex = prevProfiles.findIndex(p => p.id === profileData.id);
+      if (existingIndex > -1) {
+        // Update existing
+        const updatedProfiles = [...prevProfiles];
+        updatedProfiles[existingIndex] = profileData;
+        toast({ title: "Profile Updated", description: `"${profileData.name}" has been updated locally.` });
+        return updatedProfiles;
+      } else {
+        // Add new
+        const newProfileWithId = { ...profileData, id: profileData.id || `bp-local-${Date.now()}` }; // Ensure ID for local
+        toast({ title: "Profile Created", description: `"${newProfileWithId.name}" has been created locally.` });
+        return [...prevProfiles, newProfileWithId];
+      }
+    });
+  }, [toast]);
+
+  const handleDeleteBusinessProfile = useCallback((profileId: string) => {
+    setBusinessProfilesData(prevProfiles => {
+      const profileToDelete = prevProfiles.find(p => p.id === profileId);
+      if (profileToDelete) {
+        toast({ title: "Profile Deleted", description: `"${profileToDelete.name}" has been deleted locally.`, variant: "destructive" });
+      }
+      return prevProfiles.filter(p => p.id !== profileId);
+    });
+  }, [toast]);
+
+  const handleToggleBusinessProfileActive = useCallback((profileId: string) => {
+    setBusinessProfilesData(prevProfiles => {
+      const profileToToggle = prevProfiles.find(p => p.id === profileId);
+      const newProfiles = prevProfiles.map(p =>
+        p.id === profileId ? { ...p, isActive: !p.isActive } : p
+      );
+      if (profileToToggle) {
+        toast({ title: "Status Updated", description: `"${profileToToggle.name}" is now ${!profileToToggle.isActive ? 'active' : 'inactive'}.` });
+      }
+      return newProfiles;
+    });
+  }, [toast]);
 
 
   const handleLoginSuccess = useCallback((user: UserDataForSideMenu) => {
@@ -139,7 +289,7 @@ export default function AppRoot() {
     setSelectedSkillsetProfileId(null);
     setSkillsetProfileToManageId(null);
     setSelectedJobId(null);
-    setBusinessProfilesData([]);
+    setBusinessProfilesData([]); // Clear business profiles on logout
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   }, [toast]);
 
@@ -162,13 +312,12 @@ export default function AppRoot() {
         setSkillsetProfileToManageId(null);
         setSelectedJobId(null);
     }
-    if (tab === 'business-profiles') {
+    if (tab === 'business-profiles' && isLoggedIn) { // Fetch only if logged in
         fetchBusinessProfiles();
     }
-  }, [fetchBusinessProfiles]);
+  }, [fetchBusinessProfiles, isLoggedIn]);
 
   const setActiveTab = handleTabSelection;
-
 
   const handleSelectBusinessProfile = useCallback((profileId: string) => {
     setSelectedBusinessProfileId(profileId);
@@ -176,7 +325,7 @@ export default function AppRoot() {
     setShowSideMenu(false);
   }, [setActiveTab]);
 
-  const handleManageBusinessProfile = useCallback((profileId: string) => {
+  const handleManageBusinessProfile = useCallback((profileId: string) => { // profileId can be "new"
     setBusinessProfileToManageId(profileId);
     setActiveTab('manage-business-profile');
     setShowSideMenu(false);
@@ -185,14 +334,14 @@ export default function AppRoot() {
   const handleBackFromBusinessDetail = useCallback(() => {
     setActiveTab('business-profiles');
     setSelectedBusinessProfileId(null);
-    setBusinessProfileToManageId(null);
+    // No need to set businessProfileToManageId to null here, that's for management screen
   }, [setActiveTab]);
 
   const handleBackFromManageBusinessProfile = useCallback(() => {
     setBusinessProfileToManageId(null);
     setActiveTab('business-profiles');
-    fetchBusinessProfiles();
-  }, [setActiveTab, fetchBusinessProfiles]);
+    // fetchBusinessProfiles(); // Data is local, so no explicit fetch needed, re-render will use current state
+  }, [setActiveTab]);
 
   const handleSelectSkillsetProfile = useCallback((skillsetProfileId: string) => {
     setSelectedSkillsetProfileId(skillsetProfileId);
@@ -237,7 +386,7 @@ export default function AppRoot() {
     setActiveTab('job-board');
   }, [setActiveTab]);
 
-  const handleAddToCart = useCallback((businessId: string, productId: string) => {
+  const handleAddToCart = useCallback((businessId: string | number, productId: string) => {
     console.log('Add to Cart:', { businessId, productId });
     toast({ title: "Added to Cart (Simulated)", description: `Product ${productId} from business ${businessId}` });
   }, [toast]);
@@ -514,7 +663,8 @@ export default function AppRoot() {
           businessProfiles={businessProfilesData}
           onSelectProfile={handleSelectBusinessProfile}
           onManageProfile={handleManageBusinessProfile}
-          onProfileUpdate={fetchBusinessProfiles}
+          onDeleteProfile={handleDeleteBusinessProfile}
+          onToggleProfileActive={handleToggleBusinessProfileActive}
           isLoading={isLoadingBusinessProfiles}
         />
       );
@@ -523,16 +673,26 @@ export default function AppRoot() {
         return <UserBusinessProfileDetailScreen profile={selectedProfile} onBack={handleBackFromBusinessDetail} />;
 
       case 'manage-business-profile':
-        if (businessProfileToManageId) {
+        const profileDataToManage = businessProfileToManageId === 'new'
+          ? { ...newBusinessProfileTemplate } // Pass a copy of the template for new
+          : businessProfilesData.find(p => p.id === businessProfileToManageId);
+        if (businessProfileToManageId && profileDataToManage) {
           return (
             <BusinessProfileManagementScreen
-              businessProfileId={businessProfileToManageId}
+              key={businessProfileToManageId} // Re-mount component if ID changes (e.g. from new to an ID)
+              initialProfileData={profileDataToManage} // Now passing the full object or template
+              onSave={handleSaveBusinessProfile} // New prop for saving
               onBack={handleBackFromManageBusinessProfile}
-              onProfileUpdate={fetchBusinessProfiles}
             />
           );
         }
-        return <p className="p-4 text-center text-muted-foreground">No business profile selected for management.</p>;
+        // Fallback or error if profile not found for management and it's not "new"
+        if (businessProfileToManageId !== 'new') {
+            toast({ title: "Error", description: "Could not find business profile to manage.", variant: "destructive" });
+            setActiveTab('business-profiles'); // Navigate back if profile not found
+        }
+        return <p className="p-4 text-center text-muted-foreground">Loading management screen...</p>;
+
 
       case 'individual-profile':
         if (selectedIndividualProfileId) {
@@ -593,7 +753,9 @@ export default function AppRoot() {
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
     handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
-    handleSelectJob, handleBackFromJobDetail, handleAddToCart, handleRideRequest, fetchBusinessProfiles
+    handleSelectJob, handleBackFromJobDetail, handleAddToCart, handleRideRequest,
+    handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive, // Added local data handlers
+    toast
   ]);
 
 
