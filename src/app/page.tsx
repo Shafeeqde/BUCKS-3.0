@@ -37,7 +37,7 @@ export default function AppRoot() {
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<TabName>('login');
+  const [activeTab, setActiveTabInternal] = useState<TabName>('login');
   const [showSideMenu, setShowSideMenu] = useState(false);
   const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
 
@@ -104,19 +104,19 @@ export default function AppRoot() {
         avatarUrl: user.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar',
         avatarAiHint: user.avatarAiHint || 'user avatar',
     });
-    setActiveTab('home');
+    setActiveTabInternal('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
   }, [toast]);
 
   const handleRegistrationSuccess = useCallback((user: {name: string; email: string}) => {
-    setActiveTab('login');
+    setActiveTabInternal('login');
     toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in.` });
   }, [toast]);
 
   const handleLogout = useCallback(() => {
     setIsLoggedIn(false);
     setUserData(null);
-    setActiveTab('login');
+    setActiveTabInternal('login');
     setShowSideMenu(false);
     setIsFabVisible(false);
     setIsActiveActivityViewVisible(false);
@@ -133,7 +133,7 @@ export default function AppRoot() {
   }, [toast]);
 
   const handleTabSelection = useCallback((tab: TabName) => {
-    setActiveTab(tab);
+    setActiveTabInternal(tab);
     setShowSideMenu(false);
     if (tab !== 'business-detail' &&
         tab !== 'individual-profile' &&
@@ -155,36 +155,39 @@ export default function AppRoot() {
         fetchBusinessProfiles();
     }
   }, [fetchBusinessProfiles]);
+  
+  const setActiveTab = handleTabSelection;
+
 
   const handleSelectBusinessProfile = useCallback((profileId: string) => {
     setSelectedBusinessProfileId(profileId);
     setActiveTab('business-detail');
     setShowSideMenu(false);
-  }, []);
+  }, [setActiveTab]);
 
   const handleManageBusinessProfile = useCallback((profileId: string) => {
     setBusinessProfileToManageId(profileId);
     setActiveTab('manage-business-profile');
     setShowSideMenu(false);
-  }, []);
+  }, [setActiveTab]);
 
   const handleBackFromBusinessDetail = useCallback(() => {
     setActiveTab('business-profiles');
     setSelectedBusinessProfileId(null);
     setBusinessProfileToManageId(null);
-  }, []);
+  }, [setActiveTab]);
 
   const handleBackFromManageBusinessProfile = useCallback(() => {
     setBusinessProfileToManageId(null);
     setActiveTab('business-profiles');
     fetchBusinessProfiles();
-  }, [fetchBusinessProfiles]);
+  }, [setActiveTab, fetchBusinessProfiles]);
 
   const handleSelectSkillsetProfile = useCallback((skillsetProfileId: string) => {
     setSelectedSkillsetProfileId(skillsetProfileId);
     setActiveTab('skillset-profile');
     setShowSideMenu(false);
-  }, []);
+  }, [setActiveTab]);
 
   const handleSelectIndividualProfile = useCallback((profileId: string) => {
     if(profileId === 'individual-jenson-1' || profileId === 'jenson-interior-stylist-123') {
@@ -198,30 +201,30 @@ export default function AppRoot() {
         setActiveTab('individual-profile');
     }
     setShowSideMenu(false);
-  }, [userData, handleSelectSkillsetProfile]);
+  }, [userData, handleSelectSkillsetProfile, setActiveTab]);
 
 
   const handleManageSkillsetProfile = useCallback((skillsetProfileId: string) => {
     setSkillsetProfileToManageId(skillsetProfileId);
     setActiveTab('manage-skillset-profile');
     setShowSideMenu(false);
-  }, []);
+  }, [setActiveTab]);
 
   const handleBackFromManageSkillsetProfile = useCallback(() => {
     setSkillsetProfileToManageId(null);
     setActiveTab('user-skillsets');
-  }, []);
+  }, [setActiveTab]);
 
   const handleSelectJob = useCallback((jobId: string) => {
     setSelectedJobId(jobId);
     setActiveTab('job-detail');
     setShowSideMenu(false);
-  }, []);
+  }, [setActiveTab]);
 
   const handleBackFromJobDetail = useCallback(() => {
     setSelectedJobId(null);
     setActiveTab('job-board');
-  }, []);
+  }, [setActiveTab]);
 
   const handleAddToCart = useCallback((businessId: string, productId: string) => {
     console.log('Add to Cart:', { businessId, productId });
@@ -477,24 +480,24 @@ export default function AppRoot() {
 
     switch (activeTab) {
       case 'home': return <HomeScreen
-                            setActiveTab={handleTabSelection}
+                            setActiveTab={setActiveTab}
                             onSelectBusinessProfile={handleSelectBusinessProfile}
                             onSelectSkillsetProfile={handleSelectSkillsetProfile}
                             onAddToCart={handleAddToCart}
                          />;
       case 'feeds': return <FeedsScreen onViewUserProfile={handleSelectIndividualProfile} />;
-      case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRideRequest} />;
+      case 'menu': return <ServicesScreen setActiveTab={setActiveTab} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen />;
-      case 'account': return <AccountScreen userData={userData} setActiveTab={handleTabSelection} />;
-      case 'digital-id-card': return <DigitalIdCardScreen userData={userData} setActiveTab={handleTabSelection} />;
-      case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={handleTabSelection} userData={userData} />;
+      case 'account': return <AccountScreen userData={userData} setActiveTab={setActiveTab} />;
+      case 'digital-id-card': return <DigitalIdCardScreen userData={userData} setActiveTab={setActiveTab} />;
+      case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={setActiveTab} userData={userData} />;
       case 'user-skillsets': return (
                             <UserSkillsetsScreen
-                                setActiveTab={handleTabSelection}
+                                setActiveTab={setActiveTab}
                                 onManageSkillsetProfile={handleManageSkillsetProfile}
                             />
                         );
-      case 'vehicles': return <UserVehiclesScreen setActiveTab={handleTabSelection} />;
+      case 'vehicles': return <UserVehiclesScreen setActiveTab={setActiveTab} />;
       case 'business-profiles': return (
         <UserBusinessProfilesScreen
           businessProfiles={businessProfilesData}
@@ -522,18 +525,18 @@ export default function AppRoot() {
 
       case 'individual-profile':
         if (selectedIndividualProfileId) {
-             return <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={handleTabSelection} />;
+             return <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={setActiveTab} />;
         }
         if (userData && !selectedIndividualProfileId) {
              setActiveTab('account');
-             return <AccountScreen userData={userData} setActiveTab={handleTabSelection} />;
+             return <AccountScreen userData={userData} setActiveTab={setActiveTab} />;
         }
         return <p className="p-4 text-center text-muted-foreground">No individual profile selected or user data missing.</p>;
 
 
       case 'skillset-profile':
         if (selectedSkillsetProfileId) {
-          return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId} setActiveTab={handleTabSelection} />;
+          return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId} setActiveTab={setActiveTab} />;
         }
         return <p className="p-4 text-center text-muted-foreground">No skillset profile selected.</p>;
 
@@ -542,7 +545,7 @@ export default function AppRoot() {
           return (
             <SkillsetProfileManagementScreen
               skillsetProfileId={skillsetProfileToManageId}
-              setActiveTab={handleTabSelection}
+              setActiveTab={setActiveTab}
               onBack={handleBackFromManageSkillsetProfile}
             />
           );
@@ -566,7 +569,7 @@ export default function AppRoot() {
 
 
       default: return <HomeScreen
-                        setActiveTab={handleTabSelection}
+                        setActiveTab={setActiveTab}
                         onSelectBusinessProfile={handleSelectBusinessProfile}
                         onSelectSkillsetProfile={handleSelectSkillsetProfile}
                         onAddToCart={handleAddToCart}
@@ -576,7 +579,7 @@ export default function AppRoot() {
     isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles,
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId,
-    handleLoginSuccess, handleRegistrationSuccess, handleTabSelection,
+    handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
     handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
     handleSelectJob, handleBackFromJobDetail, handleAddToCart, handleRideRequest, fetchBusinessProfiles
@@ -604,7 +607,7 @@ export default function AppRoot() {
           isOpen={showSideMenu}
           onClose={() => setShowSideMenu(false)}
           activeTab={activeTab}
-          setActiveTab={handleTabSelection}
+          setActiveTab={setActiveTab}
           businessProfiles={businessProfilesData}
           onSelectBusinessProfile={handleSelectBusinessProfile}
           selectedBusinessProfileId={selectedBusinessProfileId}
@@ -618,7 +621,7 @@ export default function AppRoot() {
       </div>
 
       {isLoggedIn && (
-        <BottomNavigation activeTab={activeTab} setActiveTab={handleTabSelection} />
+        <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
 
       {isClient && isLoggedIn && isFabVisible && (
@@ -652,3 +655,4 @@ export default function AppRoot() {
     </div>
   );
 }
+
