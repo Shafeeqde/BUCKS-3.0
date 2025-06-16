@@ -2,10 +2,10 @@
 # See https://firebase.google.com/docs/app-hosting/configure#cloud-run
 runConfig:
   minInstances: 0
-  # maxInstances: 100
-  # concurrency: 80
-  # cpu: 1
-  # memoryMiB: 512
+  memoryMiB: 1024
+  cpu: 1
+  # maxInstances: 100 # Default, uncomment to change
+  # concurrency: 80 # Default, uncomment to change
 
 # Environment variables and secrets.
 # env:
