@@ -33,193 +33,6 @@ import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDa
 import { useToast } from "@/hooks/use-toast";
 
 
-export const initialBusinessProfiles: UserBusinessProfile[] = [
-  {
-    id: 1,
-    name: 'Hot Griddle Restaurant',
-    logo: 'https://source.unsplash.com/random/80x80/?restaurant,logo', logoAiHint: 'restaurant logo',
-    coverPhoto: 'https://source.unsplash.com/random/1200x300/?restaurant,food,noodles', coverPhotoAiHint: 'restaurant food noodles',
-    bio: 'International, locally sourced specialties, breakfast & mocktails offered in a relaxed restaurant. We pride ourselves on fresh ingredients and a vibrant atmosphere perfect for any occasion. Come taste the difference!',
-    website: 'https://hotgriddle.in/',
-    phone: '+91 9876543210',
-    email: 'contact@hotgriddle.in',
-    location: 'BTM Layout, Bangalore, Karnataka',
-    specialties: ['International Cuisine', 'Local Specialties', 'Breakfast', 'Mocktails', 'Grills', 'Sizzlers'],
-    followers: 567,
-    following: 380,
-    isActive: true,
-    feed: [
-      { id: 'bf1-hg', content: 'Exciting new menu items just dropped! Come try our new sizzlers and expanded mocktail selection. Photos coming soon!', image: 'https://source.unsplash.com/random/600x350/?menu,item,food', imageAiHint: 'menu item food', timestamp: '2 hours ago' },
-      { id: 'bf2-hg', content: 'Happy Hour extended! Enjoy 20% off on all beverages from 4 PM to 7 PM daily. Bring your friends!', timestamp: '1 day ago' },
-      { id: 'bf3-hg', content: 'Weekend special: Live music every Friday and Saturday night! Experience great food with amazing tunes.', image: 'https://source.unsplash.com/random/600x350/?live,music,band', imageAiHint: 'live music band', timestamp: '3 days ago' },
-      { id: 'bf4-hg', content: 'Special Offer: Combo meals starting at just ₹249 this week! Perfect for a quick and delicious lunch.', timestamp: '4 days ago' },
-    ],
-    products: [
-      { id: 'prod-biryani-101', name: 'Biryani', price: '₹299', discountPrice: '₹229', discountPercentage: '23%', imageUrl: 'https://source.unsplash.com/random/100x100/?biryani,food', imageAiHint: 'biryani food', description: 'Aromatic basmati rice cooked with tender mutton pieces and exotic spices. A house specialty, perfect for a hearty meal.' },
-      { id: 'prod-pizza-102', name: 'Pizza', price: '₹350', imageUrl: 'https://source.unsplash.com/random/100x100/?pizza,slice', imageAiHint: 'pizza slice', description: 'Thin crust pizza topped with spicy chicken, bell peppers, onions, and mozzarella. Customizable toppings available.' },
-      { id: 'prod-burger-103', name: 'Burger', price: '₹180', imageUrl: 'https://source.unsplash.com/random/100x100/?burger,meal', imageAiHint: 'burger meal', description: 'A delicious veg patty (or chicken option) with fresh lettuce, tomatoes, onions, and our special sauce. Served with fries.' },
-      { id: 'prod-sandwich-104', name: 'Sandwich', price: '₹150', imageUrl: 'https://source.unsplash.com/random/100x100/?club,sandwich', imageAiHint: 'club sandwich', description: 'Classic grilled sandwich with your choice of filling - veg, chicken, or paneer. Perfect for a quick bite.' },
-      { id: 'prod-cakes-105', name: 'Cakes', price: '₹450', imageUrl: 'https://source.unsplash.com/random/100x100/?chocolate,cake', imageAiHint: 'chocolate cake', description: 'Delicious cakes for all occasions. Order in advance for custom designs. Slices also available.' },
-      { id: 'prod-rolls-106', name: 'Rolls', price: '₹120', imageUrl: 'https://source.unsplash.com/random/100x100/?spring,rolls', imageAiHint: 'spring rolls', description: 'Crispy and flavorful rolls with various fillings like veg, chicken, or paneer. Served with dipping sauce.' },
-    ],
-    services: [
-        {id: 'serv1-hg', name: 'Dine-in Experience', description: 'Enjoy our comfortable and vibrant restaurant ambiance for a delightful meal with family and friends.', price: 'Varies'},
-        {id: 'serv2-hg', name: 'Takeaway & Pickup', description: 'Quick and convenient takeaway options available for all menu items. Call ahead or order online.', price: 'Varies'},
-        {id: 'serv3-hg', name: 'Event Catering', description: 'Professional catering services for parties, corporate events, and gatherings. Customizable menus available to suit your needs.', price: 'Starting from ₹500 per person'},
-        {id: 'serv4-hg', name: 'Home Delivery (Partnered)', description: 'Get your favorite meals delivered to your doorstep through our delivery partners (Swiggy, Zomato).', price: 'Varies'},
-    ],
-    jobs: [
-      { id: 'job-chef-1', businessId: 1, businessName: 'Hot Griddle Restaurant', businessLogoUrl: 'https://source.unsplash.com/random/80x80/?restaurant,logo', title: 'Head Chef', location: 'BTM Layout, Bangalore', type: 'Full-time', postedDate: '2024-05-20', salaryRange: '₹60,000 - ₹80,000 per month', description: 'Seeking an experienced Head Chef with expertise in multi-cuisine cooking and kitchen management. Must have a passion for creating innovative dishes and leading a team. Competitive salary and benefits package.', requirements: ['5+ years experience as Head Chef', 'Proven kitchen management skills', 'Degree in Culinary Arts preferred'] },
-      { id: 'job-waiter-2', businessId: 1, businessName: 'Hot Griddle Restaurant', businessLogoUrl: 'https://source.unsplash.com/random/80x80/?restaurant,logo', title: 'Service Staff / Waiter', location: 'BTM Layout, Bangalore', type: 'Part-time', postedDate: '2024-05-18', salaryRange: '₹12,000 - ₹15,000 per month (pro-rata)', description: 'Looking for energetic and customer-friendly service staff for weekend shifts. Good communication skills and ability to work in a fast-paced environment required.', requirements: ['Excellent communication skills', 'Previous F&B experience a plus', 'Ability to work evenings and weekends'] },
-    ],
-    reviews: [
-        { id: 'rev1-hg', reviewerName: 'Aisha K.', rating: 5, comment: 'The biryani was absolutely fantastic! Best I have had in Bangalore. Ambiance is great too. Will visit again!', date: '2024-05-15'},
-        { id: 'rev2-hg', reviewerName: 'Rohan S.', rating: 4, comment: 'Good food and quick service. The mocktails were refreshing. A bit crowded on weekends, so book ahead.', date: '2024-05-12'},
-        { id: 'rev3-hg', reviewerName: 'Priya M.', rating: 5, comment: 'Celebrated my birthday here. The staff was very accommodating and the food was delicious. They even arranged a small cake! Highly recommend!', date: '2024-05-10'},
-    ],
-    averageRating: 4.5,
-    totalReviews: 123,
-  },
-  {
-    id: 2,
-    name: 'Mikado UX UI & Branding Studio',
-    logo: 'https://source.unsplash.com/random/80x80/?design,studio', logoAiHint: 'design studio',
-    coverPhoto: 'https://source.unsplash.com/random/1200x300/?modern,office,design', coverPhotoAiHint: 'modern office design',
-    bio: 'Curating digital experiences that connect with people. Global branding and user experience design consultancy dedicated to innovation and quality. We partner with startups and enterprises to create impactful digital products.',
-    website: 'http://www.mikado.biz',
-    phone: '+91 8197278080',
-    email: 'hello@mikado.biz',
-    location: 'Indiranagar, Bengaluru, Karnataka',
-    specialties: ['User Experience Design (UX)', 'User Interface Design (UI)', 'Branding & Identity', 'Mobile App Design', 'Web Design', 'Design Sprints'],
-    followers: 5600,
-    following: 120,
-    isActive: true,
-    feed: [
-        {id: 'mfeed1-mkd', content: 'Excited to launch our new branding for a major e-commerce client! Check out the case study on our website for a deep dive into our process.', image: 'https://source.unsplash.com/random/600x350/?branding,design,project', imageAiHint: 'branding design project', timestamp: '1 week ago'},
-        {id: 'mfeed2-mkd', content: 'We are hiring talented UX Designers! If you are passionate about creating user-centric solutions, visit our careers page for more details. #UXJobs #DesignCareers', timestamp: '3 days ago'},
-        {id: 'mfeed3-mkd', content: 'Our latest blog post: "The Future of AI in UI/UX Design". A thought-provoking read!', image: 'https://source.unsplash.com/random/600x350/?ai,design,future', imageAiHint: 'ai design future', timestamp: '5 days ago'},
-    ],
-    products: [],
-    services: [
-        {id: 'mserv1-mkd', name: 'UI/UX Design Sprint', description: 'Intensive design sprint to rapidly prototype and validate your product ideas. Ideal for startups and new product development.', price: 'Contact for Quote'},
-        {id: 'mserv2-mkd', name: 'Brand Identity Package', description: 'Comprehensive branding package including logo design, style guide creation, and marketing collateral design.', price: 'Starting at ₹50,000'},
-        {id: 'mserv3-mkd', name: 'Website Design & Development', description: 'End-to-end website design and development services using modern technologies like Next.js and Webflow.'},
-        {id: 'mserv4-mkd', name: 'Mobile App Design (iOS & Android)', description: 'User-centric mobile application design for optimal engagement and usability, covering both iOS and Android platforms.'},
-    ],
-    jobs: [
-        {id: 'mjob1-mkd', businessId: 2, businessName: 'Mikado UX UI & Branding Studio', businessLogoUrl: 'https://source.unsplash.com/random/80x80/?design,studio', title: 'Senior UX Designer', location: 'Bengaluru (Remote option available)', type: 'Full-time', postedDate: '2024-05-15', salaryRange: '₹1,20,000 - ₹1,80,000 per month', description: 'Looking for a seasoned UX designer to lead projects and mentor junior designers. Strong portfolio showcasing complex problem-solving required.', requirements: ['5+ years UX design experience', 'Proficiency in Figma, Adobe XD', 'Strong communication skills'] },
-        {id: 'mjob2-mkd', businessId: 2, businessName: 'Mikado UX UI & Branding Studio', businessLogoUrl: 'https://source.unsplash.com/random/80x80/?design,studio', title: 'Graphic Design Intern', location: 'Bengaluru', type: 'Internship', postedDate: '2024-05-20', salaryRange: '₹20,000 per month stipend', description: 'Opportunity for aspiring graphic designers to learn and contribute to real-world projects. Paid internship with potential for full-time conversion.', requirements: ['Portfolio of design work', 'Familiarity with Adobe Creative Suite', 'Eagerness to learn'] },
-    ],
-    reviews: [
-        {id: 'mrev1-mkd', reviewerName: 'Startup Founder X', rating: 5, comment: 'Mikado transformed our app! The new UX is intuitive and has significantly improved user engagement. Their team is top-notch.', date: '2024-04-30'},
-        {id: 'mrev2-mkd', reviewerName: 'Marketing Manager Y', rating: 5, comment: 'The branding package they delivered was exceptional. Our new brand identity truly stands out and resonates with our target audience.', date: '2024-03-15'},
-    ],
-    averageRating: 4.9,
-    totalReviews: 75,
-  },
-  {
-    id: 3,
-    name: 'GreenScape Landscaping',
-    logo: 'https://source.unsplash.com/random/80x80/?landscape,company,logo&sig=6', logoAiHint: 'landscape company logo',
-    coverPhoto: 'https://source.unsplash.com/random/1200x300/?beautiful,garden,landscape', coverPhotoAiHint: 'beautiful garden landscape',
-    bio: 'Creating beautiful and sustainable outdoor spaces. We offer a full range of landscaping services from design to maintenance.',
-    website: 'https://greenscapeland.com',
-    phone: '+91 9988776655',
-    email: 'info@greenscapeland.com',
-    location: 'Jayanagar, Bangalore',
-    specialties: ['Garden Design', 'Lawn Care', 'Tree Planting', 'Hardscaping', 'Irrigation Systems'],
-    followers: 350,
-    following: 80,
-    isActive: true,
-    feed: [
-        {id: 'gsfeed1', content: 'Spring is here! 🌷 Time to get your garden ready. Contact us for a free consultation.', image: 'https://source.unsplash.com/random/600x350/?garden,spring,flowers', imageAiHint: 'garden spring flowers', timestamp: '1 day ago'},
-        {id: 'gsfeed2', content: 'Just completed a stunning backyard transformation for a client in Koramangala. Check out these before & after shots!', image: 'https://source.unsplash.com/random/600x350/?backyard,makeover', imageAiHint: 'backyard makeover', timestamp: '4 days ago'},
-    ],
-    products: [],
-    services: [
-        {id: 'gsserv1', name: 'Full Garden Design', description: 'Custom garden design plans tailored to your space and preferences.', price: 'Starting at ₹25,000'},
-        {id: 'gsserv2', name: 'Lawn Maintenance Package', description: 'Regular mowing, fertilization, and weed control for a healthy lawn.', price: '₹3,000 per month'},
-        {id: 'gsserv3', name: 'Tree Planting & Care', description: 'Expert tree planting services and ongoing care advice.'},
-    ],
-    jobs: [
-        {id: 'gsjob1', businessId: 3, businessName: 'GreenScape Landscaping', businessLogoUrl: 'https://source.unsplash.com/random/80x80/?landscape,company,logo&sig=6', title: 'Landscape Designer', location: 'Jayanagar, Bangalore', type: 'Full-time', postedDate: '2024-05-10', salaryRange: '₹45,000 - ₹60,000 per month', description: 'We are looking for a creative Landscape Designer to join our team! 2+ years experience preferred. Apply via our website. #hiring #landscapedesign #job', requirements: ['Degree in Landscape Architecture or similar', 'Proficiency in design software (AutoCAD, SketchUp)', 'Portfolio of previous work']},
-    ],
-    reviews: [
-        {id: 'gsrev1', reviewerName: 'Anita R.', rating: 5, comment: 'GreenScape did an amazing job with our garden. It looks beautiful!', date: '2024-04-20'},
-    ],
-    averageRating: 5,
-    totalReviews: 45,
-  },
-  {
-    id: 4,
-    name: 'TechForward Solutions',
-    logo: 'https://source.unsplash.com/random/80x80/?tech,company,logo&sig=7', logoAiHint: 'tech company logo',
-    coverPhoto: 'https://source.unsplash.com/random/1200x300/?futuristic,technology,office', coverPhotoAiHint: 'futuristic technology office',
-    bio: 'Innovative software solutions for modern businesses. We specialize in AI, cloud computing, and custom application development.',
-    website: 'https://techforward.dev',
-    phone: '+91 7766554433',
-    email: 'contact@techforward.dev',
-    location: 'Whitefield, Bangalore',
-    specialties: ['AI & Machine Learning', 'Cloud Solutions (AWS, Azure)', 'Custom Software Development', 'Mobile App Design', 'Data Analytics'],
-    followers: 1200,
-    following: 250,
-    isActive: true,
-    feed: [
-        {id: 'tffeed1', content: 'Excited to announce the launch of AnalyticaPro, our new AI-powered analytics platform for businesses! Learn more on our website. #AI #DataAnalytics', image: 'https://source.unsplash.com/random/600x350/?analytics,dashboard', imageAiHint: 'analytics dashboard', timestamp: '2 days ago'},
-        {id: 'tffeed2', content: 'We\'re expanding our team! Looking for talented Senior Software Engineers. Check our careers page. #TechJobs #Hiring #RemoteWork', timestamp: '6 days ago'},
-    ],
-    products: [
-        {id: 'tfprod1', name: 'AnalyticaPro Subscription', description: 'AI-powered business analytics platform.', price: 'Contact for pricing', imageUrl: 'https://source.unsplash.com/random/100x100/?software,dashboard', imageAiHint: 'software dashboard'},
-    ],
-    services: [
-        {id: 'tfserv1', name: 'Custom Software Development', description: 'Tailored software solutions to meet your specific business needs.', price: 'Project-based'},
-        {id: 'tfserv2', name: 'AI Model Integration', description: 'Integrate cutting-edge AI models into your existing systems.'},
-    ],
-    jobs: [
-        {id: 'tfjob1', businessId: 4, businessName: 'TechForward Solutions', businessLogoUrl: 'https://source.unsplash.com/random/80x80/?tech,company,logo&sig=7', title: 'Senior Software Engineer (Remote)', location: 'Remote (India)', type: 'Full-time', postedDate: '2024-05-05', salaryRange: '₹1,50,000 - ₹2,50,000 per month', description: 'Seeking Senior Software Engineers! Expertise in Node.js and cloud platforms required. Competitive salary and benefits. Link in bio. #softwarejobs #remotejobs #hiring', requirements: ['5+ years in software development', 'Strong Node.js skills', 'Experience with AWS/Azure/GCP']},
-    ],
-    reviews: [
-        {id: 'tfrev1', reviewerName: 'CIO Magazine', rating: 4.5, comment: 'TechForward Solutions is at the forefront of AI innovation.', date: '2024-03-01'},
-    ],
-    averageRating: 4.7,
-    totalReviews: 90,
-  },
-  {
-    id: 5,
-    name: 'Local Bakery Cafe',
-    logo: 'https://source.unsplash.com/random/80x80/?bakery,logo&sig=8', logoAiHint: 'bakery logo',
-    coverPhoto: 'https://source.unsplash.com/random/1200x300/?cozy,cafe,interior', coverPhotoAiHint: 'cozy cafe interior',
-    bio: 'Freshly baked goods, aromatic coffee, and a cozy atmosphere. Your neighborhood spot for delicious treats!',
-    website: 'https://localbakery.cafe',
-    phone: '+91 8877665544',
-    email: 'hello@localbakery.cafe',
-    location: 'Koramangala, Bangalore',
-    specialties: ['Artisan Bread', 'Custom Cakes', 'Pastries', 'Specialty Coffee', 'Sandwiches'],
-    followers: 850,
-    following: 150,
-    isActive: true,
-    feed: [
-        {id: 'lbcfeed1', content: 'Weekend Special! 🥐 Buy one croissant, get one FREE! Valid Saturday & Sunday. #bakery #offer #BOGO', image: 'https://source.unsplash.com/random/600x350/?croissants,bakery', imageAiHint: 'croissants bakery', timestamp: 'Just now'},
-        {id: 'lbcfeed2', content: 'Our artisan sourdough bread, fresh out of the oven this morning. Come grab a loaf! #sourdough #freshbread', image: 'https://source.unsplash.com/random/600x350/?bread,artisan,loaf', imageAiHint: 'bread artisan loaf', timestamp: '3 hours ago'},
-    ],
-    products: [
-        {id: 'lbcprod1', name: 'Chocolate Croissant', price: '₹120', imageUrl: 'https://source.unsplash.com/random/100x100/?chocolate,croissant', imageAiHint: 'chocolate croissant'},
-        {id: 'lbcprod2', name: 'Sourdough Loaf', price: '₹250', imageUrl: 'https://source.unsplash.com/random/100x100/?sourdough,bread', imageAiHint: 'sourdough bread'},
-        {id: 'lbcprod3', name: 'Cappuccino', price: '₹150', imageUrl: 'https://source.unsplash.com/random/100x100/?cappuccino,coffee', imageAiHint: 'cappuccino coffee'},
-    ],
-    services: [
-      {id: 'lbcserv1', name: 'Custom Cake Orders', description: 'Beautifully designed cakes for birthdays, anniversaries, and all special occasions.'}
-    ],
-    jobs: [],
-    reviews: [
-      {id: 'lbcrev1', reviewerName: 'Foodie Bangalore', rating: 5, comment: 'Best croissants in town! And the coffee is amazing too.', date: '2024-05-18'}
-    ],
-    averageRating: 4.9,
-    totalReviews: 150,
-  },
-];
-
-
 export default function AppRoot() {
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
@@ -231,15 +44,17 @@ export default function AppRoot() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState<UserDataForSideMenu | null>(null);
 
-  const [businessProfilesData, setBusinessProfilesData] = useState<UserBusinessProfile[]>(initialBusinessProfiles);
-  const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | number | null>(null);
-  const [businessProfileToManageId, setBusinessProfileToManageId] = useState<string | number | null>(null);
+  const [businessProfilesData, setBusinessProfilesData] = useState<UserBusinessProfile[]>([]);
+  const [isLoadingBusinessProfiles, setIsLoadingBusinessProfiles] = useState(false);
+  const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | null>(null);
+  const [businessProfileToManageId, setBusinessProfileToManageId] = useState<string | null>(null);
+
 
   const [selectedIndividualProfileId, setSelectedIndividualProfileId] = useState<string | null>(null);
   const [selectedSkillsetProfileId, setSelectedSkillsetProfileId] = useState<string | null>(null);
   const [skillsetProfileToManageId, setSkillsetProfileToManageId] = useState<string | null>(null);
 
-  const [selectedJobId, setSelectedJobId] = useState<string | number | null>(null);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
   const [isFabVisible, setIsFabVisible] = useState(false);
   const [isActiveActivityViewVisible, setIsActiveActivityViewVisible] = useState(false);
@@ -249,6 +64,35 @@ export default function AppRoot() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const fetchBusinessProfiles = useCallback(async () => {
+    if (!isLoggedIn) return; // Don't fetch if not logged in
+    setIsLoadingBusinessProfiles(true);
+    try {
+      const response = await fetch('/api/business-profiles');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to fetch business profiles' }));
+        throw new Error(errorData.message || 'Failed to fetch business profiles');
+      }
+      const data: UserBusinessProfile[] = await response.json();
+      setBusinessProfilesData(data);
+    } catch (error) {
+      console.error("Error fetching business profiles:", error);
+      toast({ title: "Error Loading Profiles", description: error instanceof Error ? error.message : "Could not load business profiles.", variant: "destructive" });
+      setBusinessProfilesData([]); // Set to empty array on error
+    } finally {
+      setIsLoadingBusinessProfiles(false);
+    }
+  }, [toast, isLoggedIn]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchBusinessProfiles();
+    } else {
+      setBusinessProfilesData([]); // Clear profiles on logout
+    }
+  }, [isLoggedIn, fetchBusinessProfiles]);
+
 
   const handleLoginSuccess = useCallback((user: UserDataForSideMenu) => {
     setIsLoggedIn(true);
@@ -283,6 +127,7 @@ export default function AppRoot() {
     setSelectedSkillsetProfileId(null);
     setSkillsetProfileToManageId(null);
     setSelectedJobId(null);
+    setBusinessProfilesData([]); // Clear profiles on logout
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   }, [toast]);
 
@@ -305,15 +150,19 @@ export default function AppRoot() {
         setSkillsetProfileToManageId(null);
         setSelectedJobId(null);
     }
-  }, []);
+    // Refetch business profiles if navigating to the list view
+    if (tab === 'business-profiles') {
+        fetchBusinessProfiles();
+    }
+  }, [fetchBusinessProfiles]);
 
-  const handleSelectBusinessProfile = useCallback((profileId: string | number) => {
+  const handleSelectBusinessProfile = useCallback((profileId: string) => {
     setSelectedBusinessProfileId(profileId);
     setActiveTab('business-detail');
     setShowSideMenu(false);
   }, []);
 
-  const handleManageBusinessProfile = useCallback((profileId: string | number) => {
+  const handleManageBusinessProfile = useCallback((profileId: string) => {
     setBusinessProfileToManageId(profileId);
     setActiveTab('manage-business-profile');
     setShowSideMenu(false);
@@ -328,7 +177,9 @@ export default function AppRoot() {
   const handleBackFromManageBusinessProfile = useCallback(() => {
     setBusinessProfileToManageId(null);
     setActiveTab('business-profiles');
-  }, []);
+    fetchBusinessProfiles(); // Refresh list after potential update
+  }, [fetchBusinessProfiles]);
+
 
   const handleSelectIndividualProfile = useCallback((profileId: string) => {
     if(profileId === 'individual-jenson-1' || profileId === 'jenson-interior-stylist-123') {
@@ -342,7 +193,7 @@ export default function AppRoot() {
         setActiveTab('individual-profile');
     }
     setShowSideMenu(false);
-  }, [userData]);
+  }, [userData, handleSelectSkillsetProfile]); // Added handleSelectSkillsetProfile to dependencies
 
   const handleSelectSkillsetProfile = useCallback((skillsetProfileId: string) => {
     setSelectedSkillsetProfileId(skillsetProfileId);
@@ -361,7 +212,7 @@ export default function AppRoot() {
     setActiveTab('user-skillsets');
   }, []);
 
-  const handleSelectJob = useCallback((jobId: string | number) => {
+  const handleSelectJob = useCallback((jobId: string) => {
     setSelectedJobId(jobId);
     setActiveTab('job-detail');
     setShowSideMenu(false);
@@ -372,7 +223,7 @@ export default function AppRoot() {
     setActiveTab('job-board');
   }, []);
 
-  const handleAddToCart = useCallback((businessId: string | number, productId: string) => {
+  const handleAddToCart = useCallback((businessId: string, productId: string) => {
     console.log('Add to Cart:', { businessId, productId });
     toast({ title: "Added to Cart (Simulated)", description: `Product ${productId} from business ${businessId}` });
   }, [toast]);
@@ -417,7 +268,7 @@ export default function AppRoot() {
     }
   }, [isLoggedIn, isDriverOnlineSim, activityDetails]);
 
-  const handleFabClick = () => {
+  const handleFabClick = useCallback(() => {
     if (!isLoggedIn) return;
 
     if (isDriverOnlineSim && !activityDetails) {
@@ -432,7 +283,8 @@ export default function AppRoot() {
      if (activityDetails) {
          setIsActiveActivityViewVisible(true);
      }
-  };
+  }, [isLoggedIn, isDriverOnlineSim, activityDetails]);
+
 
   useEffect(() => {
     console.log('[Driver Sim Effect] Running. State:', { isLoggedIn, isDriverOnlineSim, activityDetailsType: activityDetails?.type, isActiveActivityViewVisible });
@@ -613,7 +465,7 @@ export default function AppRoot() {
   }, [isActiveActivityViewVisible, activityDetails, isLoggedIn, handleAcceptRequest]);
 
 
-  const renderScreenContent = () => {
+  const renderScreenContent = useCallback(() => {
     if (!isClient) return null;
 
     if (!isLoggedIn) {
@@ -648,6 +500,8 @@ export default function AppRoot() {
           businessProfiles={businessProfilesData}
           onSelectProfile={handleSelectBusinessProfile}
           onManageProfile={handleManageBusinessProfile}
+          onProfileUpdate={fetchBusinessProfiles}
+          isLoading={isLoadingBusinessProfiles}
         />
       );
       case 'business-detail':
@@ -660,6 +514,7 @@ export default function AppRoot() {
             <BusinessProfileManagementScreen
               businessProfileId={businessProfileToManageId}
               onBack={handleBackFromManageBusinessProfile}
+              onProfileUpdate={fetchBusinessProfiles}
             />
           );
         }
@@ -669,9 +524,8 @@ export default function AppRoot() {
         if (selectedIndividualProfileId) {
              return <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={handleTabSelection} />;
         }
-        // Fallback if current user is selected for 'individual-profile' but no specific ID: show their main account content view
         if (userData && !selectedIndividualProfileId) {
-             setActiveTab('account'); // Should navigate to AccountScreen
+             setActiveTab('account'); 
              return <AccountScreen userData={userData} setActiveTab={handleTabSelection} />;
         }
         return <p className="p-4 text-center text-muted-foreground">No individual profile selected or user data missing.</p>;
@@ -696,10 +550,12 @@ export default function AppRoot() {
         return <p className="p-4 text-center text-muted-foreground">No skillset profile selected for management.</p>;
 
       case 'job-board':
+        // TODO: Jobs should be fetched from a backend or a more robust source eventually
         const allJobs = businessProfilesData.flatMap(bp => bp.jobs?.map(job => ({...job, businessId: bp.id, businessName: bp.name, businessLogoUrl: bp.logo})) || []);
         return <JobBoardScreen jobs={allJobs} onSelectJob={handleSelectJob} />;
 
       case 'job-detail':
+        // TODO: Jobs should be fetched from a backend or a more robust source eventually
         const allJobsForDetail = businessProfilesData.flatMap(bp => bp.jobs?.map(job => ({...job, businessId: bp.id, businessName: bp.name, businessLogoUrl: bp.logo})) || []);
         const job = allJobsForDetail.find(j => j.id === selectedJobId);
         if (job) {
@@ -718,7 +574,16 @@ export default function AppRoot() {
                         onAddToCart={handleAddToCart}
                       />;
     }
-  };
+  }, [
+    isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles,
+    selectedBusinessProfileId, businessProfileToManageId,
+    selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId,
+    handleLoginSuccess, handleRegistrationSuccess, handleTabSelection,
+    handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
+    handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
+    handleSelectJob, handleBackFromJobDetail, handleAddToCart, handleRideRequest, fetchBusinessProfiles
+  ]);
+
 
   if (!isClient) {
     return (

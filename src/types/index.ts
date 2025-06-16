@@ -41,7 +41,7 @@ export interface Category {
 }
 
 export interface FeedItem {
-  id: number;
+  id: number; // Keeping as number for this specific mock data, could be string if from backend
   type: 'post' | 'job' | 'ad';
   user: string;
   userImage: string;
@@ -67,7 +67,7 @@ export interface Service {
 }
 
 export interface RecommendedPost {
-  id: number;
+  id: number; // Keeping as number for this specific mock data
   recommendedBy: string;
   userImage: string;
   userImageAiHint?: string;
@@ -117,7 +117,7 @@ export interface UserVehicle {
 }
 
 export interface BusinessProduct {
-  id: string | number;
+  id: string; // Standardizing to string for Firestore consistency
   name: string;
   description?: string;
   price: string;
@@ -128,8 +128,8 @@ export interface BusinessProduct {
 }
 
 export interface BusinessJob {
-  id: string | number;
-  businessId: string | number;
+  id: string; // Standardizing to string
+  businessId: string; // Standardizing to string
   businessName: string;
   businessLogoUrl?: string;
   title: string;
@@ -144,7 +144,7 @@ export interface BusinessJob {
 
 
 export interface BusinessFeedItem {
-  id: string | number;
+  id: string; // Standardizing to string
   content: string;
   image?: string;
   imageAiHint?: string;
@@ -153,14 +153,14 @@ export interface BusinessFeedItem {
 }
 
 export interface BusinessService {
-  id: string | number;
+  id: string; // Standardizing to string
   name:string;
   description?: string;
   price?: string;
 }
 
 export interface BusinessReview {
-  id: string | number;
+  id: string; // Standardizing to string
   reviewerName: string;
   rating: number;
   comment: string;
@@ -168,7 +168,7 @@ export interface BusinessReview {
 }
 
 export interface UserBusinessProfile {
-  id: string | number;
+  id: string; // Standardized to string for Firestore
   name: string;
   logo?: string;
   logoAiHint?: string;
@@ -192,6 +192,9 @@ export interface UserBusinessProfile {
   isActive?: boolean;
   licenseNumber?: string;
   documentUrl?: string;
+  // Timestamps that Firestore might add automatically
+  createdAt?: any; // Firestore Timestamp type
+  updatedAt?: any; // Firestore Timestamp type
 }
 
 
@@ -206,7 +209,7 @@ export interface BusinessProductCardItem {
 }
 
 export interface BusinessProfileCardData {
-  id: string | number;
+  id: string; // Standardized to string
   name: string;
   logoUrl?: string;
   logoAiHint?: string;
@@ -433,5 +436,3 @@ export interface ProfilePost {
   fileIcon?: string;
   fileName?: string;
 }
-
-    
