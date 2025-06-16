@@ -66,7 +66,7 @@ export default function AppRoot() {
   }, []);
 
   const fetchBusinessProfiles = useCallback(async () => {
-    if (!isLoggedIn) return; // Don't fetch if not logged in
+    if (!isLoggedIn) return;
     setIsLoadingBusinessProfiles(true);
     try {
       const response = await fetch('/api/business-profiles');
@@ -79,17 +79,18 @@ export default function AppRoot() {
     } catch (error) {
       console.error("Error fetching business profiles:", error);
       toast({ title: "Error Loading Profiles", description: error instanceof Error ? error.message : "Could not load business profiles.", variant: "destructive" });
-      setBusinessProfilesData([]); // Set to empty array on error
+      setBusinessProfilesData([]);
     } finally {
       setIsLoadingBusinessProfiles(false);
     }
   }, [toast, isLoggedIn]);
 
+
   useEffect(() => {
     if (isLoggedIn) {
       fetchBusinessProfiles();
     } else {
-      setBusinessProfilesData([]); // Clear profiles on logout
+      setBusinessProfilesData([]);
     }
   }, [isLoggedIn, fetchBusinessProfiles]);
 
@@ -127,7 +128,7 @@ export default function AppRoot() {
     setSelectedSkillsetProfileId(null);
     setSkillsetProfileToManageId(null);
     setSelectedJobId(null);
-    setBusinessProfilesData([]); // Clear profiles on logout
+    setBusinessProfilesData([]);
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   }, [toast]);
 
@@ -150,7 +151,6 @@ export default function AppRoot() {
         setSkillsetProfileToManageId(null);
         setSelectedJobId(null);
     }
-    // Refetch business profiles if navigating to the list view
     if (tab === 'business-profiles') {
         fetchBusinessProfiles();
     }
@@ -177,9 +177,14 @@ export default function AppRoot() {
   const handleBackFromManageBusinessProfile = useCallback(() => {
     setBusinessProfileToManageId(null);
     setActiveTab('business-profiles');
-    fetchBusinessProfiles(); // Refresh list after potential update
+    fetchBusinessProfiles();
   }, [fetchBusinessProfiles]);
 
+  const handleSelectSkillsetProfile = useCallback((skillsetProfileId: string) => {
+    setSelectedSkillsetProfileId(skillsetProfileId);
+    setActiveTab('skillset-profile');
+    setShowSideMenu(false);
+  }, []);
 
   const handleSelectIndividualProfile = useCallback((profileId: string) => {
     if(profileId === 'individual-jenson-1' || profileId === 'jenson-interior-stylist-123') {
@@ -193,13 +198,8 @@ export default function AppRoot() {
         setActiveTab('individual-profile');
     }
     setShowSideMenu(false);
-  }, [userData, handleSelectSkillsetProfile]); // Added handleSelectSkillsetProfile to dependencies
+  }, [userData, handleSelectSkillsetProfile]);
 
-  const handleSelectSkillsetProfile = useCallback((skillsetProfileId: string) => {
-    setSelectedSkillsetProfileId(skillsetProfileId);
-    setActiveTab('skillset-profile');
-    setShowSideMenu(false);
-  }, []);
 
   const handleManageSkillsetProfile = useCallback((skillsetProfileId: string) => {
     setSkillsetProfileToManageId(skillsetProfileId);
@@ -525,7 +525,7 @@ export default function AppRoot() {
              return <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={handleTabSelection} />;
         }
         if (userData && !selectedIndividualProfileId) {
-             setActiveTab('account'); 
+             setActiveTab('account');
              return <AccountScreen userData={userData} setActiveTab={handleTabSelection} />;
         }
         return <p className="p-4 text-center text-muted-foreground">No individual profile selected or user data missing.</p>;
@@ -550,12 +550,10 @@ export default function AppRoot() {
         return <p className="p-4 text-center text-muted-foreground">No skillset profile selected for management.</p>;
 
       case 'job-board':
-        // TODO: Jobs should be fetched from a backend or a more robust source eventually
         const allJobs = businessProfilesData.flatMap(bp => bp.jobs?.map(job => ({...job, businessId: bp.id, businessName: bp.name, businessLogoUrl: bp.logo})) || []);
         return <JobBoardScreen jobs={allJobs} onSelectJob={handleSelectJob} />;
 
       case 'job-detail':
-        // TODO: Jobs should be fetched from a backend or a more robust source eventually
         const allJobsForDetail = businessProfilesData.flatMap(bp => bp.jobs?.map(job => ({...job, businessId: bp.id, businessName: bp.name, businessLogoUrl: bp.logo})) || []);
         const job = allJobsForDetail.find(j => j.id === selectedJobId);
         if (job) {
