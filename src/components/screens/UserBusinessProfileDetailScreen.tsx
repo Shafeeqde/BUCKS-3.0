@@ -89,7 +89,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
               objectFit="cover"
               className="rounded-t-lg sm:rounded-t-xl"
               data-ai-hint={profile.coverPhotoAiHint || "business cover photo"}
-              priority 
+              
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 rounded-t-lg sm:rounded-t-xl flex items-center justify-center">
@@ -196,9 +196,9 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                             {product.description && <p className="text-xs text-muted-foreground line-clamp-3 mb-2">{product.description}</p>}
                             <div className="flex items-baseline gap-2">
                                <p className={cn("font-bold text-lg", product.discountPrice ? "text-primary" : "text-foreground")}>
-                                  {product.discountPrice || product.price}
+                                  ₹{product.discountPrice || product.price}
                               </p>
-                              {product.discountPrice && <p className="text-sm text-muted-foreground line-through">{product.price}</p>}
+                              {product.discountPrice && <p className="text-sm text-muted-foreground line-through">₹{product.price}</p>}
                             </div>
                           </CardContent>
                           <CardFooter className="p-3 pt-0">
@@ -220,7 +220,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                           <CardContent className="p-4">
                             <h4 className="font-semibold text-md text-foreground">{service.name}</h4>
                             {service.description && <p className="text-sm text-muted-foreground mt-1">{service.description}</p>}
-                            {service.price && <p className="text-sm font-medium text-primary mt-2">{service.price}</p>}
+                            {service.price && <p className="text-sm font-medium text-primary mt-2">₹{service.price}</p>}
                           </CardContent>
                         </Card>
                       ))}
