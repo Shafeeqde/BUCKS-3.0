@@ -17,7 +17,8 @@ interface RecommendedPostCardProps {
 
 const RecommendedPostCard: React.FC<RecommendedPostCardProps> = ({ post, onViewUserMoments, onViewUserProfile }) => {
   
-  const handleRecommenderClick = () => {
+  const handleRecommenderClick = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
     if (post.recommenderProfileId && onViewUserMoments) {
       onViewUserMoments(post.recommenderProfileId, post.recommendedBy, post.userImage, post.userImageAiHint);
     } else if (post.recommenderProfileId && onViewUserProfile) {
@@ -36,9 +37,9 @@ const RecommendedPostCard: React.FC<RecommendedPostCardProps> = ({ post, onViewU
             isRecommenderClickable && "cursor-pointer ring-offset-2 ring-offset-card hover:ring-2 hover:ring-primary transition-all"
           )}
           onClick={isRecommenderClickable ? handleRecommenderClick : undefined}
+          onKeyDown={isRecommenderClickable ? (e) => e.key === 'Enter' && handleRecommenderClick(e) : undefined}
           role={isRecommenderClickable ? "button" : undefined}
           tabIndex={isRecommenderClickable ? 0 : undefined}
-          onKeyDown={isRecommenderClickable ? (e) => e.key === 'Enter' && handleRecommenderClick() : undefined}
           aria-label={isRecommenderClickable ? `View ${post.recommendedBy}'s moments or profile` : `${post.recommendedBy}'s avatar`}
         >
           <AvatarImage src={post.userImage} alt={post.recommendedBy} data-ai-hint={post.userImageAiHint || "person avatar"} />
@@ -51,9 +52,9 @@ const RecommendedPostCard: React.FC<RecommendedPostCardProps> = ({ post, onViewU
                 isRecommenderClickable && "cursor-pointer"
               )}
               onClick={isRecommenderClickable ? handleRecommenderClick : undefined}
+              onKeyDown={isRecommenderClickable ? (e) => e.key === 'Enter' && handleRecommenderClick(e) : undefined}
               role={isRecommenderClickable ? "button" : undefined}
               tabIndex={isRecommenderClickable ? 0 : undefined}
-              onKeyDown={isRecommenderClickable ? (e) => e.key === 'Enter' && handleRecommenderClick() : undefined}
               aria-label={isRecommenderClickable ? `View ${post.recommendedBy}'s moments or profile` : undefined}
             >
                  <HandThumbUpIcon className="w-4 h-4 mr-1.5 text-primary" />
@@ -86,3 +87,5 @@ const RecommendedPostCard: React.FC<RecommendedPostCardProps> = ({ post, onViewU
 };
 
 export default RecommendedPostCard;
+
+    

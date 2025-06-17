@@ -39,16 +39,18 @@ const FeedCard: React.FC<FeedCardProps> = ({
     }
   };
 
-  const handleAvatarClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click if avatar has specific action
+  const handleAvatarClick = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation(); 
     if (item.profileId && onViewUserMoments) {
       onViewUserMoments(item.profileId, item.user, item.userImage, item.userImageAiHint);
-    } else if (item.profileId && onViewUserProfile) { // Fallback to profile if no moment handler
+    } else if (item.profileId && onViewUserProfile) { 
       onViewUserProfile(item.profileId);
     }
   };
 
   const isNameClickable = !!(item.profileId && onViewUserProfile);
+  const isAvatarClickable = !!(item.profileId && (onViewUserMoments || onViewUserProfile));
+
 
   return (
     <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
@@ -57,13 +59,13 @@ const FeedCard: React.FC<FeedCardProps> = ({
       >
         <Avatar 
           className={cn(
-            (item.profileId && onViewUserMoments) && "cursor-pointer ring-offset-2 ring-offset-card hover:ring-2 hover:ring-primary transition-all"
+            isAvatarClickable && "cursor-pointer ring-offset-2 ring-offset-card hover:ring-2 hover:ring-primary transition-all"
           )}
-          onClick={handleAvatarClick}
-          role={(item.profileId && onViewUserMoments) ? "button" : undefined}
-          tabIndex={(item.profileId && onViewUserMoments) ? 0 : undefined}
-          onKeyDown={(e) => e.key === 'Enter' && handleAvatarClick(e)}
-          aria-label={(item.profileId && onViewUserMoments) ? `View ${item.user}'s moments` : `${item.user}'s avatar`}
+          onClick={isAvatarClickable ? handleAvatarClick : undefined}
+          onKeyDown={isAvatarClickable ? (e) => e.key === 'Enter' && handleAvatarClick(e) : undefined}
+          role={isAvatarClickable ? "button" : undefined}
+          tabIndex={isAvatarClickable ? 0 : undefined}
+          aria-label={isAvatarClickable ? `View ${item.user}'s moments or profile` : `${item.user}'s avatar`}
         >
           <AvatarImage src={item.userImage} alt={item.user} data-ai-hint={item.userImageAiHint || "profile person"} />
           <AvatarFallback>{item.user.substring(0, 2).toUpperCase()}</AvatarFallback>
@@ -159,3 +161,5 @@ const FeedCard: React.FC<FeedCardProps> = ({
 };
 
 export default FeedCard;
+
+    

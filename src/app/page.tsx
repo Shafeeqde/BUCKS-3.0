@@ -193,7 +193,7 @@ export default function AppRoot() {
   const [isDriverOnlineSim, setIsDriverOnlineSim] = useState(false);
 
   const [userPosts, setUserPosts] = useState<ProfilePost[]>([]);
-  const [userMoments, setUserMoments] = useState<UserMoment[]>([]);
+  const [userMoments, setUserMoments] = useState<UserMoment[]>([]); // Logged-in user's moments
   const [showCreateMomentDialog, setShowCreateMomentDialog] = useState(false);
   const [showMomentViewer, setShowMomentViewer] = useState(false);
   const [viewingMomentOwnerDetails, setViewingMomentOwnerDetails] = useState<ViewingMomentOwnerDetails | null>(null);
@@ -285,7 +285,7 @@ export default function AppRoot() {
         email: user.email,
         avatarUrl: user.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar',
         avatarAiHint: user.avatarAiHint || 'user avatar',
-        moments: [], 
+        moments: [],
     });
     setActiveTabInternal('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
@@ -362,9 +362,9 @@ export default function AppRoot() {
         return;
     }
 
-    if (profileId === userData?.id) { 
+    if (profileId === userData?.id) {
         setActiveTab('account');
-    } else if (profileId) { 
+    } else if (profileId) {
         setSelectedIndividualProfileId(profileId);
         setActiveTab('individual-profile');
     }
@@ -456,18 +456,19 @@ export default function AppRoot() {
       aiHint,
       timestamp: new Date().toISOString(),
     };
-    setUserMoments(prevMoments => [newMoment, ...prevMoments]);
-    setUserData(prevUserData => prevUserData ? ({ ...prevUserData, moments: [newMoment, ...(prevUserData.moments || [])] }) : null);
+    const updatedMoments = [newMoment, ...userMoments];
+    setUserMoments(updatedMoments);
+    setUserData(prevUserData => prevUserData ? ({ ...prevUserData, moments: updatedMoments }) : null);
     toast({ title: "Moment Posted!", description: "Your new moment has been added." });
     setShowCreateMomentDialog(false);
-  }, [userData, toast]);
+  }, [userData, userMoments, toast]); // Added userMoments to dependency array
 
   const handleAddMomentFromAccount = useCallback(() => {
     setShowCreateMomentDialog(true);
   }, []);
 
   const handleViewUserMomentsFromAccount = useCallback(() => {
-    if (userData) { 
+    if (userData) {
         setViewingMomentOwnerDetails({
             name: userData.name,
             avatarUrl: userData.avatarUrl,
@@ -475,34 +476,33 @@ export default function AppRoot() {
             profileId: userData.id
         });
         setShowMomentViewer(true);
-        if (userMoments.length === 0) {
-            toast({ title: "No Moments Yet", description: "Create your first moment to share with your followers!" });
-        }
     } else {
       toast({ title: "Error", description: "User data not available." });
     }
-  }, [userMoments, toast, userData]);
-  
+  }, [toast, userData]);
+
   const handleAddMomentFromFeeds = useCallback(() => {
     setShowCreateMomentDialog(true);
   }, []);
 
   const handleViewUserMoments = useCallback((profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => {
-    if (profileId && userName) {
-        setViewingMomentOwnerDetails({
-            name: userName,
-            avatarUrl: userAvatarUrl,
-            avatarAiHint: userAvatarAiHint,
-            profileId: profileId
-        });
-        setShowMomentViewer(true);
-        // Simulate fetching/showing *their* moments by showing current user's as placeholder
-        if (userMoments.length === 0) {
-            toast({ title: `Viewing ${userName}'s Moments`, description: "(Currently showing your empty moments as placeholder)" });
+    let ownerDetails: ViewingMomentOwnerDetails | null = null;
+
+    if (userName && profileId) { // If full details are passed (e.g., from FeedCard)
+        ownerDetails = { name: userName, avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint, profileId };
+    } else if (profileId) { // If only profileId is passed (e.g., from a category click)
+        const categoryUser = initialCategoriesData.find(cat => cat.profileId === profileId);
+        if (categoryUser) {
+            ownerDetails = { name: categoryUser.name || 'User', avatarUrl: categoryUser.image, avatarAiHint: categoryUser.dataAiHint, profileId };
         } else {
-            toast({ title: `Viewing ${userName}'s Moments`, description: "(Currently showing your moments as a placeholder)" });
+            ownerDetails = { name: `User ${profileId.substring(0,5)}`, avatarUrl: undefined, avatarAiHint: 'person avatar', profileId };
         }
-    } else if (userData) { // Fallback to logged-in user if no specific profileId
+    }
+
+    if (ownerDetails) {
+        setViewingMomentOwnerDetails(ownerDetails);
+        setShowMomentViewer(true);
+    } else if (userData) { // Fallback to logged-in user if no specific profileId could be resolved
         setViewingMomentOwnerDetails({
             name: userData.name,
             avatarUrl: userData.avatarUrl,
@@ -510,18 +510,15 @@ export default function AppRoot() {
             profileId: userData.id
         });
         setShowMomentViewer(true);
-        if (userMoments.length === 0) {
-            toast({ title: "No Moments Yet", description: "Create your first moment to share!" });
-        }
     } else {
         toast({ title: "Please Log In", description: "Log in to view or create moments." });
     }
-  }, [userMoments, userData, toast, initialCategoriesData]);
+  }, [userData, toast]);
 
 
   const handleNavigateToOwnerProfileFromMomentViewer = useCallback(() => {
     if (viewingMomentOwnerDetails?.profileId) {
-        setShowMomentViewer(false); 
+        setShowMomentViewer(false);
         handleSelectIndividualProfile(viewingMomentOwnerDetails.profileId);
     }
   }, [viewingMomentOwnerDetails, handleSelectIndividualProfile]);
@@ -785,7 +782,7 @@ export default function AppRoot() {
                               onViewUserMomentsClick={handleViewUserMoments}
                            />;
       case 'menu': return <ServicesScreen setActiveTab={setActiveTab} onRequestRide={handleRideRequest} />;
-      case 'recommended': return <RecommendedScreen 
+      case 'recommended': return <RecommendedScreen
                                     onViewUserMomentsClick={handleViewUserMoments}
                                     onViewUserProfile={handleSelectIndividualProfile}
                                  />;
@@ -793,7 +790,7 @@ export default function AppRoot() {
                                 userData={userData}
                                 setActiveTab={setActiveTab}
                                 userPosts={userPosts}
-                                userMoments={userMoments}
+                                userMoments={userMoments} // Pass logged-in user's moments
                                 onAddMomentClick={handleAddMomentFromAccount}
                                 onViewUserMomentsClick={handleViewUserMomentsFromAccount}
                              />;
@@ -846,13 +843,13 @@ export default function AppRoot() {
         if (selectedIndividualProfileId) {
              return <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={setActiveTab} />;
         }
-        if (userData && !selectedIndividualProfileId) { 
+        if (userData && !selectedIndividualProfileId) {
              setActiveTab('account');
              return <AccountScreen
                         userData={userData}
                         setActiveTab={setActiveTab}
                         userPosts={userPosts}
-                        userMoments={userMoments}
+                        userMoments={userMoments} // Pass logged-in user's moments
                         onAddMomentClick={handleAddMomentFromAccount}
                         onViewUserMomentsClick={handleViewUserMomentsFromAccount}
                      />;
@@ -864,7 +861,7 @@ export default function AppRoot() {
         if (selectedSkillsetProfileId) {
           return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId} setActiveTab={setActiveTab} />;
         }
-        return <p className="p-4 text-center text-muted-foreground">No skillset profile selected.</p>;
+        return <p className="text-center text-muted-foreground">No skillset profile selected.</p>;
 
       case 'manage-skillset-profile':
         if (skillsetProfileToManageId) {
@@ -996,7 +993,7 @@ export default function AppRoot() {
         <MomentViewerScreen
           isOpen={showMomentViewer}
           onClose={() => { setShowMomentViewer(false); setViewingMomentOwnerDetails(null); }}
-          moments={userMoments} 
+          moments={userMoments}
           ownerName={viewingMomentOwnerDetails.name}
           ownerAvatarUrl={viewingMomentOwnerDetails.avatarUrl}
           ownerAvatarAiHint={viewingMomentOwnerDetails.avatarAiHint}
@@ -1006,3 +1003,5 @@ export default function AppRoot() {
     </div>
   );
 }
+
+    
