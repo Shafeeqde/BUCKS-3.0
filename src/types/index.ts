@@ -404,12 +404,21 @@ export interface SkillsetProfileSummary {
   averageRating?: number;
 }
 
+export interface UserMoment {
+  id: string;
+  imageUrl: string;
+  aiHint?: string;
+  caption?: string;
+  timestamp: string;
+}
+
 export interface UserDataForSideMenu {
   id: string;
   name: string;
   email: string;
   avatarUrl?: string;
   avatarAiHint?: string;
+  moments?: UserMoment[];
 }
 
 export interface MediaAttachment {

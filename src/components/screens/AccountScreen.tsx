@@ -8,17 +8,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { UserCircleIcon, PlusCircleIcon, PhotoIcon, FilmIcon, LinkIcon as LinkOutlineIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, QueueListIcon, DocumentIcon, VideoCameraIcon } from '@heroicons/react/24/outline';
-import type { TabName, UserDataForSideMenu, ProfilePost } from '@/types';
+import { UserCircleIcon, PlusCircleIcon, PhotoIcon, FilmIcon, LinkIcon as LinkOutlineIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, QueueListIcon, DocumentIcon, VideoCameraIcon, CameraIcon } from '@heroicons/react/24/outline';
+import type { TabName, UserDataForSideMenu, ProfilePost, UserMoment } from '@/types';
 import { useToast } from "@/hooks/use-toast";
+import { cn } from '@/lib/utils';
 
 interface AccountScreenProps {
   userData: UserDataForSideMenu | null;
   setActiveTab: (tab: TabName) => void;
   userPosts: ProfilePost[];
+  userMoments: UserMoment[];
+  onAddMomentClick: () => void;
+  onViewUserMomentsClick: () => void;
 }
 
-const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, userPosts }) => {
+const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, userPosts, userMoments, onAddMomentClick, onViewUserMomentsClick }) => {
   const { toast } = useToast();
 
   if (!userData) {
@@ -39,6 +43,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, u
     setActiveTab('create-post');
   };
 
+  const hasUnviewedMoments = userMoments && userMoments.length > 0; // Simplified: presence of moments = unviewed for now
 
   return (
     <ScrollArea className="h-full bg-muted/20">
@@ -46,9 +51,16 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, u
         <Card className="shadow-none sm:shadow-xl overflow-hidden border-0 sm:border rounded-none sm:rounded-lg">
           <CardHeader className="bg-card p-4 sm:p-6 border-b">
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <Avatar className="h-20 w-20 sm:h-24 sm:w-24 border-2 border-primary">
+              <Avatar
+                className={cn(
+                  "h-20 w-20 sm:h-24 sm:w-24 border-2 cursor-pointer relative",
+                  hasUnviewedMoments ? "border-primary ring-2 ring-primary ring-offset-2 ring-offset-card" : "border-muted"
+                )}
+                onClick={onViewUserMomentsClick}
+              >
                 <AvatarImage src={userData.avatarUrl || 'https://source.unsplash.com/random/100x100/?avatar'} alt={userData.name} data-ai-hint={userData.avatarAiHint || "user avatar"} />
                 <AvatarFallback className="text-2xl">{userData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                 {/* Possible future: Add a small plus icon for "Add Moment" directly on avatar */}
               </Avatar>
               <div className="text-center sm:text-left flex-grow">
                 <h1 className="text-2xl font-bold font-headline text-foreground">{userData.name}</h1>
@@ -60,12 +72,15 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, u
                 </div>
               </div>
             </div>
-            <div className="mt-4 flex flex-col sm:flex-row gap-2">
-                <Button variant="outline" size="sm" onClick={handleManageProfessionalProfile} className="w-full sm:w-auto">
-                  <UserCircleIcon className="mr-2 h-4 w-4" /> Manage Professional Profile
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <Button variant="outline" size="sm" onClick={handleManageProfessionalProfile} className="w-full">
+                  <UserCircleIcon className="mr-2 h-4 w-4" /> Profile
                 </Button>
-                <Button size="sm" onClick={handleCreatePost} className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Button size="sm" onClick={handleCreatePost} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                   <PlusCircleIcon className="mr-2 h-4 w-4" /> Create Post
+                </Button>
+                <Button variant="outline" size="sm" onClick={onAddMomentClick} className="w-full">
+                  <CameraIcon className="mr-2 h-4 w-4" /> Add Moment
                 </Button>
             </div>
           </CardHeader>

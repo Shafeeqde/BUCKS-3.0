@@ -28,8 +28,11 @@ import JobBoardScreen from '@/components/screens/JobBoardScreen';
 import JobDetailScreen from '@/components/screens/JobDetailScreen';
 import AccountSettingsScreen from '@/components/screens/AccountSettingsScreen';
 import CreatePostScreen from '@/components/screens/CreatePostScreen';
+import CreateMomentDialog from '@/components/moments/CreateMomentDialog';
+import MomentViewerScreen from '@/components/moments/MomentViewerScreen';
 
-import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, ProfilePost, MediaAttachment } from '@/types';
+
+import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, ProfilePost, MediaAttachment, UserMoment } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
 
@@ -182,6 +185,9 @@ export default function AppRoot() {
   const [isDriverOnlineSim, setIsDriverOnlineSim] = useState(false);
 
   const [userPosts, setUserPosts] = useState<ProfilePost[]>([]);
+  const [userMoments, setUserMoments] = useState<UserMoment[]>([]);
+  const [showCreateMomentDialog, setShowCreateMomentDialog] = useState(false);
+  const [showMomentViewer, setShowMomentViewer] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -197,7 +203,6 @@ export default function AppRoot() {
     console.log("Fetching business profiles (local mock)...");
     await new Promise(resolve => setTimeout(resolve, 750));
     try {
-      // Using local mock data
       setBusinessProfilesData(initialBusinessProfilesData);
       console.log("Mock business profiles loaded into state.");
     } catch (error) {
@@ -270,6 +275,7 @@ export default function AppRoot() {
         email: user.email,
         avatarUrl: user.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar',
         avatarAiHint: user.avatarAiHint || 'user avatar',
+        moments: [], // Initialize empty moments
     });
     setActiveTabInternal('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
@@ -297,6 +303,9 @@ export default function AppRoot() {
     setSelectedJobId(null);
     setBusinessProfilesData([]);
     setUserPosts([]);
+    setUserMoments([]);
+    setShowCreateMomentDialog(false);
+    setShowMomentViewer(false);
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   }, [toast]);
 
@@ -419,6 +428,25 @@ export default function AppRoot() {
     toast({ title: "Post Created!", description: "Your new post has been added." });
     setActiveTab('account');
   }, [userData, toast, setActiveTab]);
+
+  const handleCreateMoment = useCallback((imageUrl: string, caption?: string, aiHint?: string) => {
+    if (!userData) {
+      toast({ title: "Not Logged In", description: "You must be logged in to create a moment.", variant: "destructive" });
+      return;
+    }
+    const newMoment: UserMoment = {
+      id: `moment-${Date.now()}`,
+      imageUrl,
+      caption,
+      aiHint,
+      timestamp: new Date().toISOString(),
+    };
+    setUserMoments(prevMoments => [newMoment, ...prevMoments]);
+    // Also update userData if it's used directly by SideMenu for moments count/indicator
+    setUserData(prevUserData => prevUserData ? ({ ...prevUserData, moments: [newMoment, ...(prevUserData.moments || [])] }) : null);
+    toast({ title: "Moment Posted!", description: "Your new moment has been added." });
+    setShowCreateMomentDialog(false);
+  }, [userData, toast]);
 
 
   const handleRideRequest = useCallback((rideData: { pickup: string; dropoff: string; vehicleId: string }) => {
@@ -677,7 +705,20 @@ export default function AppRoot() {
       case 'feeds': return <FeedsScreen onViewUserProfile={handleSelectIndividualProfile} />;
       case 'menu': return <ServicesScreen setActiveTab={setActiveTab} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen />;
-      case 'account': return <AccountScreen userData={userData} setActiveTab={setActiveTab} userPosts={userPosts} />;
+      case 'account': return <AccountScreen
+                                userData={userData}
+                                setActiveTab={setActiveTab}
+                                userPosts={userPosts}
+                                userMoments={userMoments}
+                                onAddMomentClick={() => setShowCreateMomentDialog(true)}
+                                onViewUserMomentsClick={() => {
+                                  if (userMoments.length > 0) {
+                                    setShowMomentViewer(true);
+                                  } else {
+                                    toast({ title: "No Moments Yet", description: "Create your first moment to share!" });
+                                  }
+                                }}
+                             />;
       case 'create-post': return <CreatePostScreen onPost={handleCreateNewPost} onCancel={() => setActiveTab('account')} />;
       case 'digital-id-card': return <DigitalIdCardScreen userData={userData} setActiveTab={setActiveTab} />;
       case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={setActiveTab} userData={userData} />;
@@ -729,7 +770,20 @@ export default function AppRoot() {
         }
         if (userData && !selectedIndividualProfileId) {
              setActiveTab('account');
-             return <AccountScreen userData={userData} setActiveTab={setActiveTab} userPosts={userPosts} />;
+             return <AccountScreen
+                        userData={userData}
+                        setActiveTab={setActiveTab}
+                        userPosts={userPosts}
+                        userMoments={userMoments}
+                        onAddMomentClick={() => setShowCreateMomentDialog(true)}
+                        onViewUserMomentsClick={() => {
+                          if (userMoments.length > 0) {
+                            setShowMomentViewer(true);
+                          } else {
+                            toast({ title: "No Moments Yet", description: "Create your first moment to share!" });
+                          }
+                        }}
+                     />;
         }
         return <p className="p-4 text-center text-muted-foreground">No individual profile selected or user data missing.</p>;
 
@@ -776,7 +830,7 @@ export default function AppRoot() {
                       />;
     }
   }, [
-    isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts,
+    isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments,
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId,
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
@@ -854,6 +908,22 @@ export default function AppRoot() {
 
       {isClient && showMessagesNotifications && (
         <MessagesNotificationsScreen onClose={() => setShowMessagesNotifications(false)} />
+      )}
+
+      {isClient && isLoggedIn && showCreateMomentDialog && userData && (
+        <CreateMomentDialog
+          isOpen={showCreateMomentDialog}
+          onClose={() => setShowCreateMomentDialog(false)}
+          onCreateMoment={handleCreateMoment}
+        />
+      )}
+
+      {isClient && isLoggedIn && showMomentViewer && userMoments.length > 0 && (
+        <MomentViewerScreen
+          isOpen={showMomentViewer}
+          onClose={() => setShowMomentViewer(false)}
+          moments={userMoments}
+        />
       )}
     </div>
   );
