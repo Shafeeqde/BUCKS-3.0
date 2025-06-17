@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { UserCircleIcon, PlusCircleIcon, PhotoIcon, FilmIcon, LinkIcon as LinkOutlineIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, QueueListIcon, DocumentIcon, VideoCameraIcon, CameraIcon } from '@heroicons/react/24/outline';
+import { UserCircleIcon, PlusCircleIcon, PhotoIcon, FilmIcon, LinkIcon as LinkOutlineIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, QueueListIcon, DocumentIcon, VideoCameraIcon, PlusIcon } from '@heroicons/react/24/outline'; // Added PlusIcon
 import type { TabName, UserDataForSideMenu, ProfilePost, UserMoment } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
@@ -43,7 +43,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, u
     setActiveTab('create-post');
   };
 
-  const hasUnviewedMoments = userMoments && userMoments.length > 0; // Simplified: presence of moments = unviewed for now
+  const hasMoments = userMoments && userMoments.length > 0;
 
   return (
     <ScrollArea className="h-full bg-muted/20">
@@ -51,17 +51,37 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, u
         <Card className="shadow-none sm:shadow-xl overflow-hidden border-0 sm:border rounded-none sm:rounded-lg">
           <CardHeader className="bg-card p-4 sm:p-6 border-b">
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <Avatar
-                className={cn(
-                  "h-20 w-20 sm:h-24 sm:w-24 border-2 cursor-pointer relative",
-                  hasUnviewedMoments ? "border-primary ring-2 ring-primary ring-offset-2 ring-offset-card" : "border-muted"
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={hasMoments ? onViewUserMomentsClick : onAddMomentClick}
+                  className={cn(
+                    "rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-card",
+                    "transition-transform hover:scale-105 active:scale-95"
+                  )}
+                  aria-label={hasMoments ? "View moments" : "Add new moment"}
+                >
+                  <Avatar
+                    className={cn(
+                      "h-20 w-20 sm:h-24 sm:w-24 border-2",
+                      hasMoments ? "border-primary ring-2 ring-primary ring-offset-2 ring-offset-card" : "border-muted"
+                    )}
+                  >
+                    <AvatarImage src={userData.avatarUrl || 'https://source.unsplash.com/random/100x100/?avatar'} alt={userData.name} data-ai-hint={userData.avatarAiHint || "user avatar"} />
+                    <AvatarFallback className="text-2xl">{userData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                </button>
+                {!hasMoments && (
+                  <button
+                    type="button"
+                    onClick={onAddMomentClick}
+                    className="absolute -bottom-1 -right-1 h-7 w-7 sm:h-8 sm:w-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-transform hover:scale-110 active:scale-90"
+                    aria-label="Add new moment"
+                  >
+                    <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </button>
                 )}
-                onClick={onViewUserMomentsClick}
-              >
-                <AvatarImage src={userData.avatarUrl || 'https://source.unsplash.com/random/100x100/?avatar'} alt={userData.name} data-ai-hint={userData.avatarAiHint || "user avatar"} />
-                <AvatarFallback className="text-2xl">{userData.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                 {/* Possible future: Add a small plus icon for "Add Moment" directly on avatar */}
-              </Avatar>
+              </div>
               <div className="text-center sm:text-left flex-grow">
                 <h1 className="text-2xl font-bold font-headline text-foreground">{userData.name}</h1>
                 <p className="text-sm text-muted-foreground">{userData.email}</p>
@@ -72,15 +92,12 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, u
                 </div>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Button variant="outline" size="sm" onClick={handleManageProfessionalProfile} className="w-full">
                   <UserCircleIcon className="mr-2 h-4 w-4" /> Profile
                 </Button>
                 <Button size="sm" onClick={handleCreatePost} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                   <PlusCircleIcon className="mr-2 h-4 w-4" /> Create Post
-                </Button>
-                <Button variant="outline" size="sm" onClick={onAddMomentClick} className="w-full">
-                  <CameraIcon className="mr-2 h-4 w-4" /> Add Moment
                 </Button>
             </div>
           </CardHeader>
@@ -168,3 +185,5 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, u
 };
 
 export default AccountScreen;
+
+    
