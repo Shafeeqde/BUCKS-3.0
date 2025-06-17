@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories'; // Import the data
+import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
 
 const initialFeedItems: FeedItemType[] = [
   {
@@ -69,9 +69,6 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
   const [categories, setCategories] = useState<Category[]>(initialCategoriesData);
   const [feedItems, setFeedItems] = useState<FeedItemType[]>(initialFeedItems);
   const { toast } = useToast();
-
-  // Local state for the create moment dialog inside FeedsScreen is removed
-  // as it's now handled by page.tsx
 
   const handleInteraction = (id: number, type: 'recommend' | 'notRecommend') => {
     const itemInteractedWith = feedItems.find(item => item.id === id);
@@ -138,20 +135,25 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
     if (!category) return;
 
     if (category.id === 'moments-0' && category.type === 'moments') {
-      onAddMomentClick(); // Call prop to open dialog in page.tsx
-    } else if (category.profileId && onViewUserMomentsClick) {
-      onViewUserMomentsClick(category.profileId); // Call prop to open viewer in page.tsx
-      setCategories(prevCategories => prevCategories.map(cat => cat.id === categoryId ? { ...cat, viewed: true } : cat));
-    } else if (category.profileId && onViewUserProfile) {
-      // This case might be for regular profile view if not a moment category
-      onViewUserProfile(category.profileId);
-      setCategories(prevCategories => prevCategories.map(cat => cat.id === categoryId ? { ...cat, viewed: true } : cat));
-    }
-     else {
-      setCategories(prevCategories => prevCategories.map(cat => cat.id === categoryId ? { ...cat, viewed: true } : cat));
+      onAddMomentClick();
+    } else if (category.profileId) { // This is for other users' moment categories
+      onViewUserMomentsClick(category.profileId);
+      // Mark as viewed
+      setCategories(prevCategories => 
+        prevCategories.map(cat => 
+          cat.id === categoryId ? { ...cat, viewed: true } : cat
+        )
+      );
+    } else {
+      // Fallback for general categories if any (currently none that aren't moment-related or "Your Moment")
+      setCategories(prevCategories => 
+        prevCategories.map(cat => 
+          cat.id === categoryId ? { ...cat, viewed: true } : cat
+        )
+      );
       toast({
           title: `Viewing ${category?.name || 'Category'}`,
-          description: "Content for this category would load here in a full app.",
+          description: "This category type is not fully implemented for viewing yet.",
       });
     }
   };
@@ -174,16 +176,13 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
               onCommentChange={handleCommentChange}
               onPostComment={handlePostComment}
               onToggleCommentBox={handleToggleCommentBox}
-              onViewUserProfile={onViewUserProfile}
+              onViewUserProfile={onViewUserProfile} // This prop is for feed cards to navigate to profiles
             />
           ))}
         </div>
       </main>
-      {/* CreateMomentDialog is no longer rendered here; it's in page.tsx */}
     </>
   );
 };
 
 export default FeedsScreen;
-
-    

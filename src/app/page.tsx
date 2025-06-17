@@ -285,7 +285,7 @@ export default function AppRoot() {
         email: user.email,
         avatarUrl: user.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar',
         avatarAiHint: user.avatarAiHint || 'user avatar',
-        moments: [],
+        moments: [], // Initialize moments for the new user
     });
     setActiveTabInternal('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
@@ -354,7 +354,6 @@ export default function AppRoot() {
   }, [setActiveTab]);
 
   const handleSelectIndividualProfile = useCallback((profileId: string) => {
-    // Special handling for demo profiles that link to skillset profiles
     if(profileId === 'individual-jenson-1' || profileId === 'jenson-interior-stylist-123') {
         handleSelectSkillsetProfile('jenson-interior-stylist-123');
         return;
@@ -363,10 +362,9 @@ export default function AppRoot() {
         return;
     }
 
-    // Handle current user's own profile navigation
-    if (profileId === "currentUser" && userData) {
+    if (profileId === userData?.id) { // Check against logged-in user's ID
         setActiveTab('account');
-    } else {
+    } else if (profileId) { // Check if profileId is defined and not the current user
         setSelectedIndividualProfileId(profileId);
         setActiveTab('individual-profile');
     }
@@ -469,16 +467,22 @@ export default function AppRoot() {
   }, []);
 
   const handleViewUserMomentsFromAccount = useCallback(() => {
-    if (userData && userMoments.length > 0) {
-      setViewingMomentOwnerDetails({
-        name: userData.name,
-        avatarUrl: userData.avatarUrl,
-        avatarAiHint: userData.avatarAiHint,
-        profileId: userData.id
-      });
-      setShowMomentViewer(true);
+    if (userData) { // userData must exist to view one's own moments
+        setViewingMomentOwnerDetails({
+            name: userData.name,
+            avatarUrl: userData.avatarUrl,
+            avatarAiHint: userData.avatarAiHint,
+            profileId: userData.id
+        });
+        if (userMoments.length > 0) {
+            setShowMomentViewer(true);
+        } else {
+            // Open the viewer even if no moments, to show "No moments yet"
+            setShowMomentViewer(true);
+            toast({ title: "No Moments Yet", description: "Create your first moment to share with your followers!" });
+        }
     } else {
-      toast({ title: "No Moments Yet", description: "Create your first moment to share with your followers!" });
+      toast({ title: "Error", description: "User data not available." });
     }
   }, [userMoments, toast, userData]);
   
@@ -496,33 +500,35 @@ export default function AppRoot() {
           avatarAiHint: categoryOwner.dataAiHint,
           profileId: categoryOwner.profileId!
         });
-        // For now, still show the logged-in user's moments as a placeholder for anyone else's
-        if (userMoments.length > 0) {
-          setShowMomentViewer(true);
-          toast({ title: `Viewing ${categoryOwner.name}'s Moments`, description: "(Currently showing your moments as a placeholder)" });
+        setShowMomentViewer(true); // Always show viewer, content will be placeholder
+        if (userMoments.length === 0) {
+            toast({ title: `Viewing ${categoryOwner.name}'s Moments`, description: "(Currently showing your empty moments as placeholder)" });
         } else {
-          toast({ title: `No Moments Yet for ${categoryOwner.name}`, description: "This user hasn't shared any moments. (Showing your empty moments as placeholder)" });
+            toast({ title: `Viewing ${categoryOwner.name}'s Moments`, description: "(Currently showing your moments as a placeholder)" });
         }
         return;
       }
     }
-    // Default to logged-in user's moments if no profileId or owner not found
-    if (userData && userMoments.length > 0) {
+    // Default to logged-in user's context if no valid profileId or owner not found
+    if (userData) {
       setViewingMomentOwnerDetails({
         name: userData.name,
         avatarUrl: userData.avatarUrl,
         avatarAiHint: userData.avatarAiHint,
         profileId: userData.id
       });
-      setShowMomentViewer(true);
+      setShowMomentViewer(true); // Show viewer even if user has no moments
+      if (userMoments.length === 0) {
+        toast({ title: "No Moments Yet", description: "Create your first moment to share!" });
+      }
     } else {
-      toast({ title: "No Moments Yet", description: "Create your first moment to share!" });
+        toast({ title: "Please Log In", description: "Log in to view or create moments." });
     }
   }, [userMoments, toast, userData]);
 
   const handleNavigateToOwnerProfileFromMomentViewer = useCallback(() => {
     if (viewingMomentOwnerDetails?.profileId) {
-        setShowMomentViewer(false); // Close viewer first
+        setShowMomentViewer(false); 
         handleSelectIndividualProfile(viewingMomentOwnerDetails.profileId);
     }
   }, [viewingMomentOwnerDetails, handleSelectIndividualProfile]);
@@ -844,7 +850,7 @@ export default function AppRoot() {
         if (selectedIndividualProfileId) {
              return <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={setActiveTab} />;
         }
-        if (userData && !selectedIndividualProfileId) {
+        if (userData && !selectedIndividualProfileId) { // Default to own account if no specific individual selected
              setActiveTab('account');
              return <AccountScreen
                         userData={userData}
@@ -990,20 +996,17 @@ export default function AppRoot() {
         />
       )}
 
-      {isClient && isLoggedIn && showMomentViewer && userMoments.length > 0 && (
+      {isClient && isLoggedIn && showMomentViewer && viewingMomentOwnerDetails && (
         <MomentViewerScreen
           isOpen={showMomentViewer}
           onClose={() => { setShowMomentViewer(false); setViewingMomentOwnerDetails(null); }}
-          moments={userMoments} // Currently shows logged-in user's moments
-          ownerName={viewingMomentOwnerDetails?.name}
-          ownerAvatarUrl={viewingMomentOwnerDetails?.avatarUrl}
-          ownerAvatarAiHint={viewingMomentOwnerDetails?.avatarAiHint}
-          onViewOwnerProfile={viewingMomentOwnerDetails?.profileId ? handleNavigateToOwnerProfileFromMomentViewer : undefined}
-
+          moments={userMoments} 
+          ownerName={viewingMomentOwnerDetails.name}
+          ownerAvatarUrl={viewingMomentOwnerDetails.avatarUrl}
+          ownerAvatarAiHint={viewingMomentOwnerDetails.avatarAiHint}
+          onViewOwnerProfile={viewingMomentOwnerDetails.profileId ? handleNavigateToOwnerProfileFromMomentViewer : undefined}
         />
       )}
     </div>
   );
 }
-
-    
