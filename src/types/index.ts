@@ -415,9 +415,9 @@ export interface UserDataForSideMenu {
 export interface MediaAttachment {
   type: 'image' | 'video' | 'document';
   url: string;
-  fileName?: string; // For documents
-  aiHint?: string;   // For images
-  thumbnailUrl?: string; // For videos (optional, could use a default if not provided)
+  fileName?: string;
+  aiHint?: string;
+  thumbnailUrl?: string;
 }
 
 export interface ProfilePost {

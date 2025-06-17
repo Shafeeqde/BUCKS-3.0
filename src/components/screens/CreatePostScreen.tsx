@@ -64,7 +64,7 @@ const CreatePostScreen: React.FC<CreatePostScreenProps> = ({ onPost, onCancel })
         newMedia = { type: 'video', url: mediaUrl, thumbnailUrl: mediaThumbnailUrl || undefined };
         break;
       case 'document':
-         if (!mediaUrl) { // Using mediaUrl for document link for now
+         if (!mediaUrl) {
           toast({ title: "Document URL/Link Required", variant: "destructive" });
           return;
         }
@@ -93,7 +93,7 @@ const CreatePostScreen: React.FC<CreatePostScreenProps> = ({ onPost, onCancel })
     }
 
     setIsPosting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
     
     onPost(postContent, attachedMedia || undefined); 
     
@@ -202,7 +202,7 @@ const CreatePostScreen: React.FC<CreatePostScreenProps> = ({ onPost, onCancel })
               {attachedMedia.type === 'video' && (
                 <div className="w-24 h-24 bg-black rounded-md flex items-center justify-center relative">
                   {attachedMedia.thumbnailUrl ? (
-                    <Image src={attachedMedia.thumbnailUrl} alt="Video thumbnail" layout="fill" objectFit="cover" className="rounded-md" data-ai-hint="video thumbnail"/>
+                    <Image src={attachedMedia.thumbnailUrl} alt="Video thumbnail" fill objectFit="cover" className="rounded-md" data-ai-hint="video thumbnail"/>
                   ) : (
                     <VideoCameraIcon className="h-10 w-10 text-white" />
                   )}

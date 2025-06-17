@@ -207,7 +207,7 @@ export default function AppRoot() {
         detailedErrorMessage = error.message;
       }
       toast({ title: "Error Loading Profiles", description: detailedErrorMessage, variant: "destructive" });
-      setBusinessProfilesData([]); // Ensure it's reset on error
+      setBusinessProfilesData([]);
     } finally {
       setIsLoadingBusinessProfiles(false);
     }

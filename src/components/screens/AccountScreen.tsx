@@ -106,14 +106,13 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, u
                                   {post.media.type === 'video' && (
                                     <div className="bg-black aspect-video flex items-center justify-center">
                                       {post.media.thumbnailUrl ? (
-                                        <Image src={post.media.thumbnailUrl} alt="Video thumbnail" layout="fill" objectFit="contain" data-ai-hint="video thumbnail"/>
+                                        <Image src={post.media.thumbnailUrl} alt="Video thumbnail" fill objectFit="contain" data-ai-hint="video thumbnail"/>
                                       ) : (
                                         <VideoCameraIcon className="h-16 w-16 text-white/70" />
                                       )}
                                       <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                                         <VideoCameraIcon className="h-12 w-12 text-white opacity-80 drop-shadow-lg" />
                                       </div>
-                                      {/* In a real app, clicking this would play the video post.media.url */}
                                     </div>
                                   )}
                                   {post.media.type === 'document' && (
