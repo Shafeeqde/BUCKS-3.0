@@ -9,8 +9,8 @@ body {
 
 @layer base {
   :root {
-    /* Modern Blue & Slate with Vibrant Coral Accent - Light Mode */
-    --background: 220 30% 97%;    /* Very Light Cool Off-White */
+    /* Locality Hub Theme - Light Mode */
+    --background: 227 56% 97%;    /* Very light indigo (#F0F2F9) */
     --foreground: 220 20% 25%;    /* Dark Slate Blue/Grey (for text) */
 
     --card: 0 0% 100%;             /* White */
@@ -19,8 +19,8 @@ body {
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 25%;
 
-    --primary: 210 75% 55%;       /* Strong, Professional Blue */
-    --primary-foreground: 0 0% 100%; /* White text on Blue */
+    --primary: 231 48% 48%;       /* Deep indigo (#3F51B5) */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
 
     --secondary: 210 60% 88%;     /* Lighter, Softer Blue */
     --secondary-foreground: 210 30% 30%; /* Darker text for lighter secondary */
@@ -28,7 +28,7 @@ body {
     --muted: 220 25% 92%;          /* Light Grey */
     --muted-foreground: 220 15% 50%;  /* Mid Grey text */
 
-    --accent: 25 95% 60%;        /* Vibrant Coral/Orange */
+    --accent: 232 38% 56%;        /* Blue (#5C6BC0) */
     --accent-foreground: 0 0% 100%;  /* White text on Accent */
 
     --destructive: 0 84% 60%;        /* Standard Red */
@@ -36,71 +36,71 @@ body {
 
     --border: 220 20% 85%;         /* Light Grey border */
     --input: 220 25% 94%;          /* Slightly darker input background */
-    --ring: 210 75% 60%;          /* Primary Blue variant for rings */
+    --ring: 231 48% 52%;          /* Primary indigo variant for rings */
 
-    --chart-1: 210 75% 55%;       /* Primary Blue */
-    --chart-2: 25 95% 60%;        /* Accent Coral */
-    --chart-3: 210 50% 70%;       /* Lighter Blue */
-    --chart-4: 25 70% 80%;        /* Lighter Coral */
+    --chart-1: 231 48% 48%;       /* Primary Indigo */
+    --chart-2: 232 38% 56%;       /* Accent Blue */
+    --chart-3: 231 40% 65%;       /* Lighter Indigo */
+    --chart-4: 232 30% 70%;       /* Lighter Blue */
     --chart-5: 220 15% 60%;       /* Mid Grey */
     --radius: 0.5rem;
 
     /* Sidebar variables for light theme - aligned with main theme */
-    --sidebar-background: 220 30% 95%;    /* Slightly darker off-white for sidebar */
+    --sidebar-background: 227 50% 95%;    /* Slightly darker light indigo for sidebar */
     --sidebar-foreground: 220 20% 30%;    /* Darker slate text */
-    --sidebar-primary: 210 75% 55%;       /* Primary Blue */
+    --sidebar-primary: 231 48% 48%;       /* Primary Indigo */
     --sidebar-primary-foreground: 0 0% 100%; /* White text */
-    --sidebar-accent: 25 90% 65%;         /* Vibrant Coral Accent */
+    --sidebar-accent: 232 38% 56%;         /* Accent Blue */
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 220 20% 80%;        /* Light gray border */
-    --sidebar-ring: 210 75% 60%;
+    --sidebar-ring: 231 48% 52%;
   }
 
   .dark {
-    /* Modern Blue & Slate with Vibrant Coral Accent - Dark Mode */
-    --background: 220 15% 10%;     /* Very Dark Desaturated Blue */
+    /* Locality Hub Theme - Dark Mode */
+    --background: 230 20% 10%;     /* Very Dark Desaturated Indigo/Blue */
     --foreground: 220 20% 90%;     /* Light Grey/Off-white text */
 
-    --card: 220 15% 15%;           /* Slightly Lighter Dark Blue for cards */
+    --card: 230 20% 15%;           /* Slightly Lighter Dark Indigo for cards */
     --card-foreground: 220 20% 90%;
 
-    --popover: 220 15% 12%;         /* Darker Popover */
+    --popover: 230 20% 12%;         /* Darker Popover */
     --popover-foreground: 220 20% 90%;
 
-    --primary: 210 80% 65%;       /* Brighter Blue for dark mode */
-    --primary-foreground: 220 10% 10%; /* Very Dark Blue for text on Primary */
+    --primary: 231 55% 65%;       /* Brighter Indigo for dark mode */
+    --primary-foreground: 230 10% 10%; /* Very Dark for text on Primary */
 
-    --secondary: 210 25% 30%;     /* Muted Dark Blue */
+    --secondary: 230 25% 30%;     /* Muted Dark Indigo/Blue */
     --secondary-foreground: 220 20% 85%; /* Lighter text on dark secondary */
 
-    --muted: 220 15% 20%;          /* Dark Muted Blue/Grey */
+    --muted: 230 20% 20%;          /* Dark Muted Indigo/Grey */
     --muted-foreground: 220 15% 65%;  /* Muted Grey text */
 
-    --accent: 25 90% 70%;        /* Brighter Coral/Orange for dark mode */
-    --accent-foreground: 220 10% 10%; /* Very Dark for text on Accent */
+    --accent: 232 45% 70%;        /* Brighter Blue for dark mode accent */
+    --accent-foreground: 230 10% 10%; /* Very Dark for text on Accent */
 
     --destructive: 0 70% 55%;        /* Slightly less intense Red for dark */
     --destructive-foreground: 0 0% 100%; /* White text on Red */
 
-    --border: 220 15% 25%;         /* Darker Grey border */
-    --input: 220 15% 18%;          /* Dark input background */
-    --ring: 210 80% 70%;          /* Brighter Primary Blue for rings */
+    --border: 230 15% 25%;         /* Darker Grey border */
+    --input: 230 15% 18%;          /* Dark input background */
+    --ring: 231 55% 70%;          /* Brighter Primary Indigo for rings */
 
-    --chart-1: 210 80% 65%;       /* Primary Blue (Dark Mode) */
-    --chart-2: 25 90% 70%;        /* Accent Coral (Dark Mode) */
-    --chart-3: 210 60% 50%;       /* Mid Blue */
-    --chart-4: 25 70% 55%;        /* Mid Coral */
+    --chart-1: 231 55% 65%;       /* Primary Indigo (Dark Mode) */
+    --chart-2: 232 45% 70%;        /* Accent Blue (Dark Mode) */
+    --chart-3: 231 45% 50%;       /* Mid Indigo */
+    --chart-4: 232 35% 55%;       /* Mid Blue */
     --chart-5: 220 15% 50%;       /* Lighter Grey */
 
     /* Sidebar dark theme variables - aligned with main dark theme */
-    --sidebar-background: 220 15% 8%;  /* Even darker for sidebar */
+    --sidebar-background: 230 20% 8%;  /* Even darker for sidebar */
     --sidebar-foreground: 220 20% 80%;  /* Slightly dimmer light text */
-    --sidebar-primary: 210 80% 65%;    /* Primary Blue (Dark Mode) */
-    --sidebar-primary-foreground: 220 10% 10%; /* Dark text on primary */
-    --sidebar-accent: 25 90% 70%;     /* Accent Coral (Dark Mode) */
-    --sidebar-accent-foreground: 220 10% 10%;
-    --sidebar-border: 220 15% 20%;     /* Darker border */
-    --sidebar-ring: 210 80% 70%;
+    --sidebar-primary: 231 55% 65%;    /* Primary Indigo (Dark Mode) */
+    --sidebar-primary-foreground: 230 10% 10%; /* Dark text on primary */
+    --sidebar-accent: 232 45% 70%;     /* Accent Blue (Dark Mode) */
+    --sidebar-accent-foreground: 230 10% 10%;
+    --sidebar-border: 230 15% 20%;     /* Darker border */
+    --sidebar-ring: 231 55% 70%;
   }
 }
 

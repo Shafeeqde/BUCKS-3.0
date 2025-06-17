@@ -72,7 +72,7 @@ const IndividualProfessionalCard: React.FC<IndividualProfessionalCardProps> = ({
       <CardHeader className="pb-4">
         <div className="flex items-start space-x-4">
           <Avatar className="h-20 w-20 border-2 border-primary/20 flex-shrink-0"> {/* Increased Avatar size */}
-            <AvatarImage src={profile.avatarUrl} alt={profile.name} data-ai-hint={profile.avatarAiHint || "professional person"} />
+            <AvatarImage src={profile.avatarUrl || `https://source.unsplash.com/random/80x80/?${(profile.avatarAiHint || "professional person").split(' ').join(',')}`} alt={profile.name} data-ai-hint={profile.avatarAiHint || "professional person"} />
             <AvatarFallback className="text-xl">{profile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0">
@@ -93,11 +93,11 @@ const IndividualProfessionalCard: React.FC<IndividualProfessionalCardProps> = ({
             {profile.previewImages.slice(0, 4).map((image, index) => (
               <div key={index} className="relative aspect-[4/3] rounded-md overflow-hidden border shadow-sm">
                 <Image
-                  src={image.url}
+                  src={image.url || `https://source.unsplash.com/random/200x150/?${(image.aiHint || "preview").split(' ').join(',')}`}
                   alt={`${profile.name} preview ${index + 1}`}
-                  fill // Changed from layout="fill"
-                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 25vw, 150px" // Example sizes, adjust as needed
-                  className="object-cover" // Ensure this is used with fill
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 25vw, 150px"
+                  className="object-cover"
                   data-ai-hint={image.aiHint}
                 />
               </div>
@@ -154,5 +154,3 @@ const IndividualProfessionalCard: React.FC<IndividualProfessionalCardProps> = ({
 };
 
 export default IndividualProfessionalCard;
-
-    

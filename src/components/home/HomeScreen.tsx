@@ -18,10 +18,10 @@ import type { IndividualProfessionalCardData } from '@/components/search/Individ
 import BusinessProfileCard from '@/components/search/BusinessProfileCard';
 import type { BusinessProfileCardData as BusinessCardDataType, BusinessProductCardItem, TabName } from '@/types';
 
-const initialPlaceholdersForSearchMode = [ 
+const initialPlaceholders = [
+  "What are you looking for, e.g., plumber, cafe?",
   "Search professionals, services, or businesses...",
-  "Find local experts or ask Bucks AI...",
-  "e.g., plumber, cafe, tech support"
+  "Find local experts or ask Locality Hub AI...",
 ];
 
 export type SearchResultItem =
@@ -126,7 +126,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const [currentQueryType, setCurrentQueryType] = useState<'general' | 'location_search' | null>(null);
   const [isAnsweringQuery, setIsAnsweringQuery] = useState(false);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
-  const [currentPlaceholder, setCurrentPlaceholder] = useState(initialPlaceholdersForSearchMode[0]); 
+  const [currentPlaceholder, setCurrentPlaceholder] = useState(initialPlaceholders[0]);
 
   const [recentSearches, setRecentSearches] = useState<string[]>([
     "Plumbing", "Biryani", "Carpentry", "Solids Gym",
@@ -141,20 +141,23 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const [isLoadingSimulatedResults, setIsLoadingSimulatedResults] = useState(false);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout | undefined;
+    let intervalId: NodeJS.Timeout;
     if (!isSearchMode) {
-      setCurrentPlaceholder("Where are you going?");
-    } else {
-      setCurrentPlaceholder(initialPlaceholdersForSearchMode[currentPlaceholderIndex]);
+      setCurrentPlaceholder(initialPlaceholders[currentPlaceholderIndex]);
       intervalId = setInterval(() => {
-        setCurrentPlaceholderIndex(prevIndex => (prevIndex + 1) % initialPlaceholdersForSearchMode.length);
+        setCurrentPlaceholderIndex(prevIndex => (prevIndex + 1) % initialPlaceholders.length);
       }, 3000);
+    } else {
+      setCurrentPlaceholder("Ask Locality Hub AI or search again...");
     }
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
+    return () => clearInterval(intervalId);
   }, [isSearchMode, currentPlaceholderIndex]);
 
+  useEffect(() => {
+    if (!isSearchMode) {
+        setCurrentPlaceholder(initialPlaceholders[currentPlaceholderIndex]);
+    }
+  }, [currentPlaceholderIndex, isSearchMode]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -168,8 +171,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
   const handleFocus = () => {
     setShowSuggestions(true);
-    if (!isSearchMode) {
-    }
   };
 
   const handleBlur = () => {
@@ -252,19 +253,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     }, 500);
   }, []);
 
-  const handleQuerySubmit = useCallback(async (event?: React.FormEvent<HTMLFormElement>, queryOverride?: string) => {
+  const handleQuerySubmit = async (event?: React.FormEvent<HTMLFormElement>, queryOverride?: string) => {
     if (event) event.preventDefault();
     const queryToSubmit = (queryOverride || searchTerm).trim();
 
-    if (!isSearchMode && queryToSubmit) { 
-        setIsSearchMode(true); 
-        setShowSuggestions(false);
-        setAiSuggestions([]);
-    } else if (isSearchMode) {
-        setShowSuggestions(false);
-        setAiSuggestions([]);
-    }
-
+    setIsSearchMode(true);
+    setShowSuggestions(false);
+    setAiSuggestions([]);
 
     if (!queryToSubmit) {
       toast({
@@ -306,7 +301,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     } finally {
       setIsAnsweringQuery(false);
     }
-  }, [searchTerm, toast, performSimulatedSearch, isSearchMode]);
+  };
 
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
@@ -320,7 +315,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     });
   };
 
-  const handleCloseSearchResults = useCallback(() => {
+  const handleCloseSearchResults = () => {
     setIsSearchMode(false);
     setSearchTerm('');
     setAiTextAnswer(null);
@@ -329,8 +324,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     setShowSuggestions(false);
     setAiSuggestions([]);
     setDisplayedSearchResults([]);
-    setCurrentPlaceholderIndex(0); 
-  }, []);
+    setCurrentPlaceholderIndex(0);
+  };
 
   let currentSuggestions: string[] = [];
   let currentSuggestionTitle: string = '';
@@ -357,35 +352,35 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const showMap = !isSearchMode;
   const showResultsArea = isSearchMode;
 
-  const handleIndividualCardPress = useCallback((profileId: string) => {
+  const handleIndividualCardPress = (profileId: string) => {
     console.log(`[HomeScreen] Individual/Skillset card pressed, navigating to skillset profile: ${profileId}`);
     onSelectSkillsetProfile(profileId);
-  }, [onSelectSkillsetProfile]);
+  };
 
-  const handleBusinessCardPress = useCallback((id: string | number) => {
+  const handleBusinessCardPress = (id: string | number) => {
     console.log(`[HomeScreen] Business card pressed: ${id}`);
     onSelectBusinessProfile(id);
-  }, [onSelectBusinessProfile]);
+  };
 
-  const handleCardEnquiryClick = useCallback((id: string | number, type: 'individual' | 'business') => toast({ title: `Enquiry for ${type}: ${id} (Simulated)` }), [toast]);
-  const handleCardCallClick = useCallback((id: string | number, phone: string | undefined, type: 'individual' | 'business') => toast({ title: `Call ${type}: ${id} (Simulated)`, description: phone ? `Dialing ${phone}` : "No phone." }), [toast]);
-  const handleCardRecommendClick = useCallback((id: string | number, type: 'individual' | 'business') => toast({ title: `Recommend ${type}: ${id} (Simulated)` }), [toast]);
-  const handleCardShareClick = useCallback((id: string | number, type: 'individual' | 'business') => toast({ title: `Share ${type}: ${id} (Simulated)` }), [toast]);
-  const handleCardFollowClick = useCallback((id: string | number, type: 'individual' | 'business') => toast({ title: `Follow ${type}: ${id} (Simulated)` }), [toast]);
-  const handleCardProductClick = useCallback((businessId: string | number, productId: string) => toast({ title: `Product ${productId} from Business ${businessId} clicked (Simulated).` }), [toast]);
+  const handleCardEnquiryClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Enquiry for ${type}: ${id} (Simulated)` });
+  const handleCardCallClick = (id: string | number, phone: string | undefined, type: 'individual' | 'business') => toast({ title: `Call ${type}: ${id} (Simulated)`, description: phone ? `Dialing ${phone}` : "No phone." });
+  const handleCardRecommendClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Recommend ${type}: ${id} (Simulated)` });
+  const handleCardShareClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Share ${type}: ${id} (Simulated)` });
+  const handleCardFollowClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Follow ${type}: ${id} (Simulated)` });
+  const handleCardProductClick = (businessId: string | number, productId: string) => toast({ title: `Product ${productId} from Business ${businessId} clicked (Simulated).` });
 
 
   return (
     <div className="flex flex-col h-full bg-background">
       <div
         className={cn(
-          "transition-all duration-300 ease-in-out",
+          "transition-all duration-300 ease-in-out z-30",
           isSearchMode
-            ? "bg-card shadow-md sticky top-0 z-20" 
-            : "absolute bottom-[70px] left-4 right-4 z-10" 
+            ? "bg-card shadow-md sticky top-0"
+            : "absolute bottom-0 left-0 right-0 px-4 pt-2 pb-0"
         )}
       >
-        {!isSearchMode && renderAISuggestions && ( 
+        {!isSearchMode && renderAISuggestions && (
           <div className="pb-2">
             <SearchSuggestions
               suggestions={currentSuggestions}
@@ -395,58 +390,49 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         )}
 
-        <div className={cn(isSearchMode ? "p-4" : "")}> 
-          <div className={cn("flex items-center", isSearchMode ? "space-x-2" : "")}>
-            {isSearchMode && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleCloseSearchResults}
-                className="p-1 rounded-full text-foreground hover:text-primary hover:bg-primary/10"
-                aria-label="Close search results"
-                data-close-search="true"
-              >
-                <XMarkIcon className="w-6 h-6" />
-              </Button>
-            )}
-            <form onSubmit={handleQuerySubmit} className={cn(
-                "flex items-center flex-grow",
-                isSearchMode
-                  ? "bg-background rounded-md border border-input p-2 pr-3" 
-                  : "bg-card rounded-lg shadow-xl p-3" 
-            )}>
-              <MagnifyingGlassIcon className={cn("w-5 h-5 text-muted-foreground flex-shrink-0", isSearchMode ? "mr-2" : "mr-3")} />
-              <Input
-                type="text"
-                placeholder={currentPlaceholder}
-                className={cn(
-                  "flex-grow outline-none text-foreground bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-auto p-0",
-                  isSearchMode ? "text-lg" : "text-base"
-                )}
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                disabled={isAnsweringQuery && isSearchMode}
-              />
-              {isSearchMode && ( 
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  size="icon"
-                  className="p-1 rounded-full text-muted-foreground hover:text-primary disabled:opacity-50"
-                  disabled={(isAnsweringQuery && isSearchMode)}
-                  aria-label="Submit search query"
-                >
-                  <MagnifyingGlassIcon className="w-5 h-5" />
-                </Button>
+        <div className={cn("flex items-center", isSearchMode ? "p-4 space-x-2" : "")}>
+          {isSearchMode && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleCloseSearchResults}
+              className="p-1 rounded-full text-foreground hover:text-primary hover:bg-primary/10"
+              aria-label="Close search results"
+              data-close-search="true"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </Button>
+          )}
+          <form onSubmit={handleQuerySubmit} className={cn(
+              "flex items-center p-2 pr-3 flex-grow",
+              isSearchMode ? "bg-background rounded-md border border-input" : "bg-card rounded-full shadow-lg"
+          )}>
+            <Input
+              type="text"
+              placeholder={currentPlaceholder}
+              className={cn(
+                "flex-grow outline-none text-lg text-foreground bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-auto p-2",
               )}
-            </form>
-          </div>
+              value={searchTerm}
+              onChange={handleSearchChange}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              disabled={isAnsweringQuery && isSearchMode}
+            />
+            <Button
+              type="submit"
+              variant="ghost"
+              size="icon"
+              className="p-1 rounded-full text-muted-foreground hover:text-primary disabled:opacity-50"
+              disabled={(isAnsweringQuery && isSearchMode)}
+              aria-label="Submit search query"
+            >
+              <MagnifyingGlassIcon className="w-5 h-5" />
+            </Button>
+          </form>
         </div>
 
-
-        {isSearchMode && renderAISuggestions && ( 
+        {isSearchMode && renderAISuggestions && (
           <div className="px-4 pb-2 bg-card sm:bg-transparent">
              <SearchSuggestions
               suggestions={currentSuggestions}
@@ -456,7 +442,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         )}
 
-        {isSearchMode && ( 
+        {isSearchMode && (
           <div className="px-4 pt-2 pb-3 border-b bg-card sm:bg-transparent">
             <div className="flex items-center space-x-2 overflow-x-auto custom-scrollbar pb-1">
                 <Button variant="outline" size="sm" className="rounded-full shrink-0"><AdjustmentsHorizontalIcon className="mr-1.5 h-3.5 w-3.5"/>Filters</Button>
@@ -471,12 +457,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
       <ScrollArea className={cn(
           "flex-grow",
-           showResultsArea ? "pt-0" : "relative" 
+           showResultsArea ? "pt-4 px-2 sm:px-4" : "relative"
       )}>
         {showMap && (
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15551.924874452586!2d77.56708455!3d12.9715987!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1670c9b44167%3A0xf8df77c050a12e21!2sBangalore%2C%20Karnataka%2C%20India!5e0!3m2!1sen!2sus!4v1678234567890!5m2!1sen!2sus"
-            className="absolute inset-0 w-full h-full border-0" 
+            className="absolute inset-0 w-full h-full border-0"
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
@@ -486,14 +472,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         )}
 
         {showResultsArea && (
-          <div className="space-y-6 pb-6 pt-4 px-2 sm:px-4"> 
+          <div className="space-y-6 pb-6">
             {isAnsweringQuery && (
                <div className="flex flex-col justify-center items-center h-40 text-center">
                   <svg className="animate-spin h-8 w-8 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <p className="text-muted-foreground">Bucks AI is thinking...</p>
+                  <p className="text-muted-foreground">Locality Hub AI is thinking...</p>
                </div>
             )}
 
@@ -502,7 +488,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                 <CardHeader>
                   <CardTitle className="text-xl font-headline flex items-center">
                     <ChatBubbleLeftEllipsisIcon className="mr-2 h-5 w-5 text-primary"/>
-                    {currentQueryType === 'location_search' ? "AI Summary:" : "Bucks AI says:"}
+                    {currentQueryType === 'location_search' ? "AI Summary:" : "Locality Hub AI says:"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

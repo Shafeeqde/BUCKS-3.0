@@ -71,4 +71,3 @@ export const dummyProfessionalProfiles: IndividualProfessionalCardData[] = [
     email: 'sophia.l@example.com',
   }
 ];
-    
