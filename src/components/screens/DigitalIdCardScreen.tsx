@@ -62,8 +62,10 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
         toast({ title: "Edit Display Info", description: "Opening settings to edit your ID card display name, avatar, etc." });
     };
     
-    const qrCodeDataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJySURBVHhe7dJBDQAgDAAx2P+FF7JgSRMAAAAAAAAAAAAAAAAAAAAAAABAQkmb/Vf2nAHtMkH+P3AGtMsE+f/AGdAuE+T/A2dAu0yQ/w+cAW0zQ0IWMiIiIzIicyIiIjMiIzIiIiMyIiMyIiIiMyIiMyIiIzIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMxf3f4A9hMHg8gS7LwAAAAASUVORK5CYII=";
+    const qrCodeDataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJySURBVHhe7dJBDQAgDAAx2P+FF7JgSRMAAAAAAAAAAAAAAAAAAAAAAABAQkmb/Vf2nAHtMkH+P3AGtMsE+f/AGdAuE+T/A2dAu0yQ/w+cAW0zQ0IWMiIiIzIicyIiIjMiIzIiIiMyIiMyIiIiMyIiMyIiIzIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMxf3f4A9hMHg8gS7LwAAAAASUVORK5CYII=";
 
+    const avatarHint = userData.avatarAiHint || "user portrait";
+    const avatarSrc = userData.avatarUrl || `https://source.unsplash.com/random/120x120/?${avatarHint.split(' ').join(',')}`;
 
     return (
         <ScrollArea className="h-full bg-gradient-to-br from-primary/5 via-background to-background p-2 sm:p-4">
@@ -113,7 +115,7 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
                             {/* Right Column for Avatar & QR */}
                             <div className="col-span-1 flex flex-col items-center justify-between space-y-2 sm:space-y-3">
                                 <Avatar className="h-16 w-16 sm:h-20 sm:w-20 border-2 border-primary/30 rounded-md">
-                                    <AvatarImage src={userData.avatarUrl || 'https://placehold.co/120x120.png'} alt={loggedInUserName} data-ai-hint={userData.avatarAiHint || "user portrait"}/>
+                                    <AvatarImage src={avatarSrc} alt={loggedInUserName} data-ai-hint={avatarHint}/>
                                     <AvatarFallback className="text-xl sm:text-2xl bg-muted rounded-md">{loggedInUserName?.substring(0, 1).toUpperCase() || "U"}</AvatarFallback>
                                 </Avatar>
                                 <Image
@@ -142,5 +144,3 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
 };
 
 export default DigitalIdCardScreen;
-
-    

@@ -51,6 +51,9 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
   onShareClick,
   onFollowClick,
 }) => {
+  const logoHint = business.logoAiHint || "business logo";
+  const logoSrc = business.logoUrl || `https://source.unsplash.com/random/80x80/?${logoHint.split(' ').join(',')}`;
+
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 w-full overflow-hidden">
       <div
@@ -62,12 +65,12 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
       >
         <div className="relative h-20 w-20 flex-shrink-0"> {/* Increased logo size */}
           <Image
-            src={business.logoUrl || 'https://placehold.co/80x80.png'}
+            src={logoSrc}
             alt={`${business.name} logo`}
             fill
             className="rounded-lg object-cover border"
             sizes="(max-width: 768px) 80px, 80px"
-            data-ai-hint={business.logoAiHint || "business logo"}
+            data-ai-hint={logoHint}
           />
         </div>
         <div className="flex-grow min-w-0">
@@ -87,53 +90,57 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
         <div className="pl-4 pr-1 pb-4 border-t mt-2 pt-3">
           <h4 className="text-sm font-semibold text-foreground mb-2 px-0">Featured Products</h4>
           <div className="flex overflow-x-auto space-x-3 pb-2 custom-scrollbar -mr-3">
-            {business.products.map((product) => (
-              <Card
-                key={product.id}
-                className="min-w-[160px] max-w-[180px] flex-shrink-0 flex flex-col group hover:shadow-md transition-shadow"
-                onClick={(e) => { e.stopPropagation(); onProductClick?.(business.id, product.id); }}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && onProductClick?.(business.id, product.id)}
-              >
-                <div className="relative w-full aspect-[4/3] rounded-t-md overflow-hidden border-b cursor-pointer">
-                  <Image
-                    src={product.imageUrl || 'https://placehold.co/160x120.png'}
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 768px) 160px, 180px"
-                    className="object-cover group-hover:scale-105 transition-transform"
-                    data-ai-hint={product.imageAiHint || "product item"}
-                  />
-                  {product.discountPercentage && (
-                    <Badge variant="destructive" className="absolute top-1.5 right-1.5 text-xs px-1.5 py-0.5">{product.discountPercentage}</Badge>
-                  )}
-                </div>
-                <CardContent className="p-2.5 flex-grow flex flex-col justify-between">
-                  <div>
-                    <h5 className="text-sm font-semibold truncate text-foreground group-hover:text-primary" title={product.name}>{product.name}</h5>
-                    <div className="flex items-baseline gap-1.5 mt-0.5">
-                      {product.discountPrice ? (
-                        <>
-                          <p className="text-md font-bold text-primary">₹{product.discountPrice}</p>
-                          <p className="text-xs text-muted-foreground line-through">₹{product.price}</p>
-                        </>
-                      ) : (
-                        <p className="text-md font-bold text-foreground">₹{product.price}</p>
-                      )}
-                    </div>
+            {business.products.map((product) => {
+              const productHint = product.imageAiHint || "product item";
+              const productSrc = product.imageUrl || `https://source.unsplash.com/random/160x120/?${productHint.split(' ').join(',')}`;
+              return (
+                <Card
+                  key={product.id}
+                  className="min-w-[160px] max-w-[180px] flex-shrink-0 flex flex-col group hover:shadow-md transition-shadow"
+                  onClick={(e) => { e.stopPropagation(); onProductClick?.(business.id, product.id); }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && onProductClick?.(business.id, product.id)}
+                >
+                  <div className="relative w-full aspect-[4/3] rounded-t-md overflow-hidden border-b cursor-pointer">
+                    <Image
+                      src={productSrc}
+                      alt={product.name}
+                      fill
+                      sizes="(max-width: 768px) 160px, 180px"
+                      className="object-cover group-hover:scale-105 transition-transform"
+                      data-ai-hint={productHint}
+                    />
+                    {product.discountPercentage && (
+                      <Badge variant="destructive" className="absolute top-1.5 right-1.5 text-xs px-1.5 py-0.5">{product.discountPercentage}</Badge>
+                    )}
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full mt-2 text-xs h-8"
-                    onClick={(e) => { e.stopPropagation(); onAddToCartClick?.(business.id, product.id); }}
-                  >
-                    <ShoppingCartIcon className="h-3.5 w-3.5 mr-1.5" /> Add to Cart
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                  <CardContent className="p-2.5 flex-grow flex flex-col justify-between">
+                    <div>
+                      <h5 className="text-sm font-semibold truncate text-foreground group-hover:text-primary" title={product.name}>{product.name}</h5>
+                      <div className="flex items-baseline gap-1.5 mt-0.5">
+                        {product.discountPrice ? (
+                          <>
+                            <p className="text-md font-bold text-primary">₹{product.discountPrice}</p>
+                            <p className="text-xs text-muted-foreground line-through">₹{product.price}</p>
+                          </>
+                        ) : (
+                          <p className="text-md font-bold text-foreground">₹{product.price}</p>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full mt-2 text-xs h-8"
+                      onClick={(e) => { e.stopPropagation(); onAddToCartClick?.(business.id, product.id); }}
+                    >
+                      <ShoppingCartIcon className="h-3.5 w-3.5 mr-1.5" /> Add to Cart
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
             <div className="w-1 flex-shrink-0"></div>
           </div>
         </div>
@@ -182,5 +189,3 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
 };
 
 export default BusinessProfileCard;
-
-    

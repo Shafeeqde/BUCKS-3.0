@@ -44,9 +44,9 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
   {
     id: 'bp-1-cafe-bliss',
     name: 'Cafe Bliss',
-    logo: 'https://placehold.co/100x100.png',
+    logo: 'https://source.unsplash.com/random/100x100/?modern,cafe,logo',
     logoAiHint: 'modern cafe logo',
-    coverPhoto: 'https://placehold.co/1200x400.png',
+    coverPhoto: 'https://source.unsplash.com/random/1200x400/?cozy,cafe,interior',
     coverPhotoAiHint: 'cozy cafe interior',
     bio: 'Your friendly neighborhood cafe serving artisanal coffee and delicious pastries. A perfect spot to relax or work.',
     website: 'https://cafebliss.example.com',
@@ -57,12 +57,12 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
     followers: 1250,
     following: 50,
     feed: [
-      { id: 'feed-cb-1', content: 'Try our new seasonal Pumpkin Spice Latte! 🍂☕', timestamp: '2 days ago', image: 'https://placehold.co/600x400.png', imageAiHint: 'latte coffee' },
+      { id: 'feed-cb-1', content: 'Try our new seasonal Pumpkin Spice Latte! 🍂☕', timestamp: '2 days ago', image: 'https://source.unsplash.com/random/600x400/?latte,coffee', imageAiHint: 'latte coffee' },
       { id: 'feed-cb-2', content: 'Live music this Friday evening from 7 PM. Don\'t miss out!', timestamp: '5 days ago' },
     ],
     products: [
-      { id: 'prod-cb-cappuccino', name: 'Cappuccino', price: '180', description: 'Classic Italian cappuccino with rich espresso and steamed milk foam.', imageUrl: 'https://placehold.co/200x200.png', imageAiHint: 'cappuccino cup' },
-      { id: 'prod-cb-croissant', name: 'Butter Croissant', price: '120', discountPrice: '100', discountPercentage: '16%', description: 'Flaky, buttery, and freshly baked.', imageUrl: 'https://placehold.co/200x200.png', imageAiHint: 'croissant pastry' },
+      { id: 'prod-cb-cappuccino', name: 'Cappuccino', price: '180', description: 'Classic Italian cappuccino with rich espresso and steamed milk foam.', imageUrl: 'https://source.unsplash.com/random/200x200/?cappuccino,cup', imageAiHint: 'cappuccino cup' },
+      { id: 'prod-cb-croissant', name: 'Butter Croissant', price: '120', discountPrice: '100', discountPercentage: '16%', description: 'Flaky, buttery, and freshly baked.', imageUrl: 'https://source.unsplash.com/random/200x200/?croissant,pastry', imageAiHint: 'croissant pastry' },
     ],
     services: [
       { id: 'serv-cb-catering', name: 'Small Event Catering', description: 'We cater for small gatherings and office meetings. Contact us for a custom menu.', price: 'Enquire for quote' },
@@ -81,9 +81,9 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
   {
     id: 'bp-2-techfix-solutions',
     name: 'TechFix Solutions',
-    logo: 'https://placehold.co/100x100.png',
+    logo: 'https://source.unsplash.com/random/100x100/?tech,repair,logo',
     logoAiHint: 'tech repair logo',
-    coverPhoto: 'https://placehold.co/1200x400.png',
+    coverPhoto: 'https://source.unsplash.com/random/1200x400/?computer,repair,workshop',
     coverPhotoAiHint: 'computer repair workshop',
     bio: 'Expert repairs for laptops, mobiles, and all your gadgets. Quick, reliable, and affordable services.',
     website: 'https://techfix.example.com',
@@ -94,7 +94,7 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
     followers: 850,
     following: 20,
     feed: [
-      { id: 'feed-tf-1', content: 'Smashed phone screen? We can fix it today! Visit us for quick screen replacements.', timestamp: '1 day ago', image: 'https://placehold.co/600x400.png', imageAiHint: 'broken phone screen' },
+      { id: 'feed-tf-1', content: 'Smashed phone screen? We can fix it today! Visit us for quick screen replacements.', timestamp: '1 day ago', image: 'https://source.unsplash.com/random/600x400/?broken,phone,screen', imageAiHint: 'broken phone screen' },
     ],
     products: [],
     services: [
@@ -113,9 +113,9 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
   {
     id: 'bp-3-greenscape-gardens',
     name: 'GreenScape Gardens',
-    logo: 'https://placehold.co/100x100.png',
+    logo: 'https://source.unsplash.com/random/100x100/?gardening,service,logo',
     logoAiHint: 'gardening service logo',
-    coverPhoto: 'https://placehold.co/1200x400.png',
+    coverPhoto: 'https://source.unsplash.com/random/1200x400/?lush,green,garden',
     coverPhotoAiHint: 'lush green garden',
     bio: 'Professional landscaping and garden maintenance services. We create and maintain beautiful green spaces.',
     location: 'Jayanagar, Bangalore',
@@ -123,7 +123,7 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
     followers: 600,
     following: 30,
     products: [
-        { id: 'prod-gs-rose', name: 'Hybrid Tea Rose Plant', price: '350', description: 'Healthy, blooming rose plant in various colors.', imageUrl: 'https://placehold.co/200x200.png', imageAiHint: 'rose plant' },
+        { id: 'prod-gs-rose', name: 'Hybrid Tea Rose Plant', price: '350', description: 'Healthy, blooming rose plant in various colors.', imageUrl: 'https://source.unsplash.com/random/200x200/?rose,plant', imageAiHint: 'rose plant' },
     ],
     services: [
       { id: 'serv-gs-landscape', name: 'Full Landscaping Design', description: 'Custom garden design from concept to installation.', price: 'Starts at ₹50,000' },
@@ -289,7 +289,7 @@ export default function AppRoot() {
         id: user.id,
         name: user.name,
         email: user.email,
-        avatarUrl: user.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar',
+        avatarUrl: user.avatarUrl || `https://source.unsplash.com/random/48x48/?${(user.avatarAiHint || 'user avatar').split(' ').join(',')}`,
         avatarAiHint: user.avatarAiHint || 'user avatar',
         moments: [], // Initialize moments for the logged-in user
     });
@@ -556,21 +556,23 @@ export default function AppRoot() {
   const handleViewUserMoments = useCallback((profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => {
     let ownerDetails: ViewingMomentOwnerDetails | null = null;
 
-    if (userName && profileId) {
+    if (userName && profileId) { // Prioritize directly passed details
         ownerDetails = { name: userName, avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint, profileId };
-    } else if (profileId) {
+    } else if (profileId) { // Fallback to finding in categories if only profileId is given
         const categoryUser = initialCategoriesData.find(cat => cat.profileId === profileId);
         if (categoryUser) {
             ownerDetails = { name: categoryUser.name || 'User', avatarUrl: categoryUser.image, avatarAiHint: categoryUser.dataAiHint, profileId };
         } else {
+             // Fallback if profileId not in categories (e.g., from a post by a user not in categories)
              ownerDetails = { name: `User ${profileId.substring(0,5)}...`, avatarUrl: undefined, avatarAiHint: 'person avatar', profileId };
         }
     }
 
+
     if (ownerDetails) {
         setViewingMomentOwnerDetails(ownerDetails);
         setShowMomentViewer(true);
-    } else if (userData) {
+    } else if (userData) { // Default to logged-in user if no other context
         setViewingMomentOwnerDetails({
             name: userData.name,
             avatarUrl: userData.avatarUrl,
@@ -1076,7 +1078,7 @@ export default function AppRoot() {
         <MomentViewerScreen
           isOpen={showMomentViewer}
           onClose={() => { setShowMomentViewer(false); setViewingMomentOwnerDetails(null); }}
-          moments={userMoments} // Always show logged-in user's moments for now
+          moments={userMoments} 
           ownerName={viewingMomentOwnerDetails.name}
           ownerAvatarUrl={viewingMomentOwnerDetails.avatarUrl}
           ownerAvatarAiHint={viewingMomentOwnerDetails.avatarAiHint}

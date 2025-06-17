@@ -35,12 +35,12 @@ const simulatedSearchResults: SearchResultItem[] = [
     data: {
       id: 'jenson-interior-stylist-123',
       name: 'Jenson Harris',
-      avatarUrl: 'https://placehold.co/80x80.png',
+      avatarUrl: 'https://source.unsplash.com/random/80x80/?man,smiling,professional',
       avatarAiHint: 'man smiling professional',
       professionalTitle: 'Interior Home Stylist',
       previewImages: [
-        { url: 'https://placehold.co/200x150.png', aiHint: 'modern living room' },
-        { url: 'https://placehold.co/200x150.png', aiHint: 'stylish kitchen' },
+        { url: 'https://source.unsplash.com/random/200x150/?modern,living,room', aiHint: 'modern living room' },
+        { url: 'https://source.unsplash.com/random/200x150/?stylish,kitchen', aiHint: 'stylish kitchen' },
       ],
       shortBio: "I'm a qualified interior designer and stylist with a keen eye for furniture, objects and art curation.",
       averageRating: 4.8,
@@ -55,15 +55,15 @@ const simulatedSearchResults: SearchResultItem[] = [
     data: {
       id: 1,
       name: 'Hot Griddle Restaurant',
-      logoUrl: 'https://placehold.co/80x80.png',
+      logoUrl: 'https://source.unsplash.com/random/80x80/?restaurant,logo',
       logoAiHint: 'restaurant logo',
       briefInfo: '10-15 mins • 3km away • BTM layout',
       tagline: "International, locally sourced specialties. Best Griddle in town!",
       averageRating: 4.5,
       totalReviews: 232,
       products: [
-        { id: 'prod-biryani-101', name: 'Mutton Biryani (Serves 2)', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'mutton biryani', price: '299', discountPrice: '229', discountPercentage: '22%' },
-        { id: 'prod-pizza-102', name: 'Spicy Chicken Pizza', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'pizza slice', price: '350' },
+        { id: 'prod-biryani-101', name: 'Mutton Biryani (Serves 2)', imageUrl: 'https://source.unsplash.com/random/150x150/?mutton,biryani', imageAiHint: 'mutton biryani', price: '299', discountPrice: '229', discountPercentage: '22%' },
+        { id: 'prod-pizza-102', name: 'Spicy Chicken Pizza', imageUrl: 'https://source.unsplash.com/random/150x150/?pizza,slice', imageAiHint: 'pizza slice', price: '350' },
       ],
       phone: '+91 9876543210',
     },
@@ -73,11 +73,11 @@ const simulatedSearchResults: SearchResultItem[] = [
     data: {
       id: 'plumbing-profile-johndoe-123',
       name: 'John Doe',
-      avatarUrl: 'https://placehold.co/80x80.png',
+      avatarUrl: 'https://source.unsplash.com/random/80x80/?man,plumber,tools',
       avatarAiHint: 'man plumber tools',
       professionalTitle: 'Master Plumber',
       previewImages: [
-        { url: 'https://placehold.co/200x150.png', aiHint: 'pipe installation' },
+        { url: 'https://source.unsplash.com/random/200x150/?pipe,installation', aiHint: 'pipe installation' },
       ],
       shortBio: 'Reliable plumbing services for residential and commercial properties.',
       averageRating: 4.9,
@@ -92,14 +92,14 @@ const simulatedSearchResults: SearchResultItem[] = [
     data: {
       id: 2,
       name: 'Mikado UX UI & Branding Studio',
-      logoUrl: 'https://placehold.co/80x80.png',
+      logoUrl: 'https://source.unsplash.com/random/80x80/?design,studio',
       logoAiHint: 'design studio',
       briefInfo: 'Indiranagar, Bengaluru',
       tagline: 'Curating digital experiences that connect with people.',
       averageRating: 4.9,
       totalReviews: 75,
       products: [
-         { id: 'serv-brand-pkg', name: 'Brand Identity Package', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'branding design', price: 'Quote' },
+         { id: 'serv-brand-pkg', name: 'Brand Identity Package', imageUrl: 'https://source.unsplash.com/random/150x150/?branding,design', imageAiHint: 'branding design', price: 'Quote' },
       ],
       phone: '+91 8197278080',
     },
@@ -617,4 +617,3 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 };
 
 export default HomeScreen;
-

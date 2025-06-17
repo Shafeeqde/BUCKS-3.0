@@ -26,6 +26,7 @@ interface SkillsetProfileFormData {
   isActive: boolean;
   userName: string;
   userAvatarUrl?: string;
+  userAvatarAiHint?: string; // Added for consistency
   professionalTitle?: string;
   skillSpecificBio?: string;
   contactInfo?: {
@@ -54,7 +55,7 @@ const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: stri
         resolve({
           id: skillsetProfileId,
           skillName: 'Plumbing Services', skillLevel: 'Certified Professional', skillDescription: 'Providing reliable and efficient plumbing solutions.',
-          userName: 'John Doe', userAvatarUrl: 'https://placehold.co/100x100.png', userAvatarAiHint: 'man plumber', professionalTitle: 'Master Plumber',
+          userName: 'John Doe', userAvatarUrl: 'https://source.unsplash.com/random/100x100/?man,plumber', userAvatarAiHint: 'man plumber', professionalTitle: 'Master Plumber',
           skillSpecificBio: 'Over 10 years of experience in residential and commercial plumbing. Committed to quality workmanship and customer satisfaction.',
           contactInfo: { phone: '+1 123 456 7890', email: 'john.doe.plumber@example.com', location: 'Local Service Area', website: 'https://plumbing.johndoe.com' },
           workExperienceEntries: [
@@ -62,11 +63,11 @@ const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: stri
             { id: 'wx-2', title: 'Apprentice Plumber', company: 'Pro Plumb Apprenticeships', years: '2013 - 2015', description: 'Assisted senior plumbers, learned pipe fitting, fixture installation, and diagnostic techniques.' },
           ],
           portfolioItems: [
-            { id: 'pp1', title: 'Bathroom Renovation Project', imageUrl: 'https://placehold.co/600x400.png', imageAiHint: 'modern bathroom', description: 'Full plumbing overhaul for a luxury bathroom remodel.', link: '#' },
-            { id: 'pp2', title: 'Commercial Kitchen Installation', imageUrl: 'https://placehold.co/600x400.png', imageAiHint: 'kitchen pipes', description: 'Designed and implemented the plumbing system for a new restaurant.', link: '#' },
+            { id: 'pp1', title: 'Bathroom Renovation Project', imageUrl: 'https://source.unsplash.com/random/600x400/?modern,bathroom', imageAiHint: 'modern bathroom', description: 'Full plumbing overhaul for a luxury bathroom remodel.', link: '#' },
+            { id: 'pp2', title: 'Commercial Kitchen Installation', imageUrl: 'https://source.unsplash.com/random/600x400/?kitchen,pipes', imageAiHint: 'kitchen pipes', description: 'Designed and implemented the plumbing system for a new restaurant.', link: '#' },
           ],
           professionalFeed: [
-            { id: 'pf1', content: 'Tips for preventing winter pipe bursts!', timestamp: '2023-12-01', imageUrl: 'https://placehold.co/400x200.png', imageAiHint: 'frozen pipe' },
+            { id: 'pf1', content: 'Tips for preventing winter pipe bursts!', timestamp: '2023-12-01', imageUrl: 'https://source.unsplash.com/random/400x200/?frozen,pipe', imageAiHint: 'frozen pipe' },
             { id: 'pf2', content: 'Completed a major kitchen plumbing job for "The Gourmet Spot".', timestamp: '2023-11-15' },
           ],
           reviews: [
@@ -78,7 +79,7 @@ const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: stri
       } else if (skillsetProfileId === 'jenson-interior-stylist-123') {
         resolve({
             id: skillsetProfileId, skillName: 'Interior Home Styling by Jenson', skillLevel: 'Lead Stylist & Consultant', skillDescription: 'Transforming spaces into beautiful, functional, and personalized environments.',
-            userName: 'Jenson Harris', userAvatarUrl: 'https://placehold.co/120x120.png', userAvatarAiHint: 'man designer', professionalTitle: 'Interior Home Stylist',
+            userName: 'Jenson Harris', userAvatarUrl: 'https://source.unsplash.com/random/120x120/?man,designer', userAvatarAiHint: 'man designer', professionalTitle: 'Interior Home Stylist',
             skillSpecificBio: 'Passionate interior stylist with a keen eye for detail and a commitment to creating spaces that inspire. My approach is collaborative, ensuring your vision is at the heart of every design.',
             contactInfo: { phone: '+1 555 0101', email: 'jenson.stylist@example.com', location: 'New York, NY & Online Consultations', website: 'https://jensoninteriors.design' },
             workExperienceEntries: [
@@ -86,24 +87,24 @@ const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: stri
                 { id: 'wx-j2', title: 'Junior Interior Designer', company: 'Urban Aesthetics Inc.', years: '2016 - 2018', description: 'Assisted in material sourcing, mood board creation, and client presentations.' },
             ],
             portfolioItems: [
-                { id: 'jp1', title: 'Downtown Loft Transformation', imageUrl: 'https://placehold.co/600x400.png', imageAiHint: 'modern loft', description: 'Complete styling of a 2-bedroom downtown loft.', link: '#' },
-                { id: 'jp2', title: 'Minimalist Scandinavian Home', imageUrl: 'https://placehold.co/600x400.png', imageAiHint: 'scandinavian design', description: 'Styled a family home with a minimalist Scandinavian aesthetic.', link: '#' },
+                { id: 'jp1', title: 'Downtown Loft Transformation', imageUrl: 'https://source.unsplash.com/random/600x400/?modern,loft', imageAiHint: 'modern loft', description: 'Complete styling of a 2-bedroom downtown loft.', link: '#' },
+                { id: 'jp2', title: 'Minimalist Scandinavian Home', imageUrl: 'https://source.unsplash.com/random/600x400/?scandinavian,design', imageAiHint: 'scandinavian design', description: 'Styled a family home with a minimalist Scandinavian aesthetic.', link: '#' },
             ],
             professionalFeed: [
-                { id: 'jf1', content: 'New blog post: "Top 5 Color Trends for Interiors in 2024".', timestamp: '2 days ago', imageUrl: 'https://placehold.co/400x200.png', imageAiHint: 'color swatches' }
+                { id: 'jf1', content: 'New blog post: "Top 5 Color Trends for Interiors in 2024".', timestamp: '2 days ago', imageUrl: 'https://source.unsplash.com/random/400x200/?color,swatches', imageAiHint: 'color swatches' }
             ],
             reviews: [{ id: 'jr1', reviewerName: 'Sarah L.', rating: 5, comment: 'Jenson understood my vision and brought it to life beautifully!', date: '2023-12-05' }],
             recommendationsCount: 125, averageRating: 4.8, totalReviews: 88,
         });
       }
       else {
-        resolve({
+        resolve({ // Fallback for new/unrecognized ID
             id: skillsetProfileId,
             skillName: `New Skillset (${skillsetProfileId.substring(0,5)})`,
             skillLevel: 'Beginner',
             skillDescription: '',
             userName: 'Current User',
-            userAvatarUrl: 'https://placehold.co/100x100.png',
+            userAvatarUrl: `https://source.unsplash.com/random/100x100/?person,avatar`,
             userAvatarAiHint: 'person avatar',
             professionalTitle: '',
             skillSpecificBio: '',
@@ -172,6 +173,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
             isActive: data.isActive === undefined ? (data.reviews && data.reviews.length > 0) : data.isActive,
             userName: data.userName,
             userAvatarUrl: data.userAvatarUrl,
+            userAvatarAiHint: data.userAvatarAiHint,
             professionalTitle: data.professionalTitle,
             skillSpecificBio: data.skillSpecificBio,
             contactInfo: data.contactInfo ? { ...data.contactInfo } : { phone: '', email: '', location: '', website: '' },
@@ -389,6 +391,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                 isActive: editedData.isActive,
                 userName: editedData.userName,
                 userAvatarUrl: editedData.userAvatarUrl,
+                userAvatarAiHint: editedData.userAvatarAiHint,
                 professionalTitle: editedData.professionalTitle,
                 skillSpecificBio: editedData.skillSpecificBio,
                 contactInfo: editedData.contactInfo ? { ...editedData.contactInfo } : undefined,
