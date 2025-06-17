@@ -72,6 +72,7 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
     coverPhoto: 'https://source.unsplash.com/random/1200x400/?cozy,cafe,interior',
     coverPhotoAiHint: 'cozy cafe interior',
     bio: 'Your friendly neighborhood cafe serving artisanal coffee and delicious pastries. A perfect spot to relax or work.',
+    businessType: 'products_and_services',
     website: 'https://cafebliss.example.com',
     phone: '+91 98765 43210',
     email: 'hello@cafebliss.example.com',
@@ -84,8 +85,8 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
       { id: 'feed-cb-2', content: 'Live music this Friday evening from 7 PM. Don\'t miss out!', timestamp: '5 days ago' },
     ],
     products: [
-      { id: 'prod-cb-cappuccino', name: 'Cappuccino', price: '180', description: 'Classic Italian cappuccino with rich espresso and steamed milk foam.', imageUrl: 'https://source.unsplash.com/random/200x200/?cappuccino,cup', imageAiHint: 'cappuccino cup' },
-      { id: 'prod-cb-croissant', name: 'Butter Croissant', price: '120', discountPrice: '100', discountPercentage: '16%', description: 'Flaky, buttery, and freshly baked.', imageUrl: 'https://source.unsplash.com/random/200x200/?croissant,pastry', imageAiHint: 'croissant pastry' },
+      { id: 'prod-cb-cappuccino', name: 'Cappuccino', price: '₹180', description: 'Classic Italian cappuccino with rich espresso and steamed milk foam.', imageUrl: 'https://source.unsplash.com/random/200x200/?cappuccino,cup', imageAiHint: 'cappuccino cup' },
+      { id: 'prod-cb-croissant', name: 'Butter Croissant', price: '₹120', discountPrice: '₹100', discountPercentage: '16%', description: 'Flaky, buttery, and freshly baked.', imageUrl: 'https://source.unsplash.com/random/200x200/?croissant,pastry', imageAiHint: 'croissant pastry' },
     ],
     services: [
       { id: 'serv-cb-catering', name: 'Small Event Catering', description: 'We cater for small gatherings and office meetings. Contact us for a custom menu.', price: 'Enquire for quote' },
@@ -109,6 +110,7 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
     coverPhoto: 'https://source.unsplash.com/random/1200x400/?computer,repair,workshop',
     coverPhotoAiHint: 'computer repair workshop',
     bio: 'Expert repairs for laptops, mobiles, and all your gadgets. Quick, reliable, and affordable services.',
+    businessType: 'services',
     website: 'https://techfix.example.com',
     phone: '+91 90000 11111',
     email: 'support@techfix.example.com',
@@ -141,12 +143,13 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
     coverPhoto: 'https://source.unsplash.com/random/1200x400/?lush,green,garden',
     coverPhotoAiHint: 'lush green garden',
     bio: 'Professional landscaping and garden maintenance services. We create and maintain beautiful green spaces.',
+    businessType: 'products_and_services',
     location: 'Jayanagar, Bangalore',
     specialties: ['Landscaping Design', 'Garden Maintenance', 'Organic Gardening', 'Plant Nursery'],
     followers: 600,
     following: 30,
     products: [
-        { id: 'prod-gs-rose', name: 'Hybrid Tea Rose Plant', price: '350', description: 'Healthy, blooming rose plant in various colors.', imageUrl: 'https://source.unsplash.com/random/200x200/?rose,plant', imageAiHint: 'rose plant' },
+        { id: 'prod-gs-rose', name: 'Hybrid Tea Rose Plant', price: '₹350', description: 'Healthy, blooming rose plant in various colors.', imageUrl: 'https://source.unsplash.com/random/200x200/?rose,plant', imageAiHint: 'rose plant' },
     ],
     services: [
       { id: 'serv-gs-landscape', name: 'Full Landscaping Design', description: 'Custom garden design from concept to installation.', price: 'Starts at ₹50,000' },
@@ -160,6 +163,7 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
 const newBusinessProfileTemplate: Omit<UserBusinessProfile, 'id'> = {
   name: '',
   bio: '',
+  businessType: 'products_and_services',
   logo: 'https://source.unsplash.com/random/100x100/?business,logo',
   logoAiHint: 'business logo',
   coverPhoto: 'https://source.unsplash.com/random/1200x400/?business,background',
@@ -1413,3 +1417,5 @@ export default function AppRoot() {
     </div>
   );
 }
+
+    

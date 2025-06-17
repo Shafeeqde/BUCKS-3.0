@@ -211,6 +211,8 @@ export interface BusinessReview {
   date: string;
 }
 
+export type BusinessType = 'products' | 'services' | 'products_and_services';
+
 export interface UserBusinessProfile {
   id: string;
   name: string;
@@ -219,6 +221,7 @@ export interface UserBusinessProfile {
   coverPhoto?: string;
   coverPhotoAiHint?: string;
   bio: string;
+  businessType: BusinessType; // Added businessType
   website?: string;
   phone?: string;
   email?: string;
@@ -583,3 +586,5 @@ export interface ChatMessage {
   avatarAiHint?: string;
 }
 // --- End Chat & Messaging Types ---
+
+    

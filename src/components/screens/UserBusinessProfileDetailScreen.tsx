@@ -25,7 +25,7 @@ import {
   UserPlusIcon,
   ShareIcon
 } from '@heroicons/react/24/outline';
-import type { UserBusinessProfile, BusinessProduct, BusinessService, BusinessJob, BusinessFeedItem, BusinessReview } from '@/types';
+import type { UserBusinessProfile } from '@/types';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
 
@@ -72,6 +72,10 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
   const handleActionClick = (action: string) => {
     toast({ title: `${action} Clicked`, description: `Simulating ${action.toLowerCase()} action for ${profile.name}.` });
   };
+
+  const showProductsTab = profile.businessType === 'products' || profile.businessType === 'products_and_services';
+  const showServicesTab = profile.businessType === 'services' || profile.businessType === 'products_and_services';
+
 
   return (
     <ScrollArea className="h-full custom-scrollbar bg-background">
@@ -143,8 +147,12 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
             <Tabs defaultValue="feed" className="w-full">
               <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 rounded-none h-auto bg-card border-b text-xs">
                 <TabsTrigger value="feed" className="py-2.5 sm:py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1 sm:gap-1.5"><RssIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4"/>Feed</TabsTrigger>
-                <TabsTrigger value="products" className="py-2.5 sm:py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1 sm:gap-1.5"><ShoppingBagIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4"/>Products</TabsTrigger>
-                <TabsTrigger value="services" className="py-2.5 sm:py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1 sm:gap-1.5"><SparklesIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4"/>Services</TabsTrigger>
+                {showProductsTab && (
+                  <TabsTrigger value="products" className="py-2.5 sm:py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1 sm:gap-1.5"><ShoppingBagIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4"/>Products</TabsTrigger>
+                )}
+                {showServicesTab && (
+                  <TabsTrigger value="services" className="py-2.5 sm:py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1 sm:gap-1.5"><SparklesIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4"/>Services</TabsTrigger>
+                )}
                 <TabsTrigger value="jobs" className="py-2.5 sm:py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1 sm:gap-1.5"><BriefcaseIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4"/>Jobs</TabsTrigger>
                 <TabsTrigger value="reviews" className="py-2.5 sm:py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1 sm:gap-1.5"><StarIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4"/>Reviews</TabsTrigger>
               </TabsList>
@@ -169,53 +177,57 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
                 ) : <p className="text-muted-foreground text-center py-10">No feed updates yet.</p>}
               </TabsContent>
 
-              <TabsContent value="products" className="p-3 sm:p-4 min-h-[200px]">
-                {profile.products && profile.products.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                    {profile.products.map(product => (
-                      <Card key={product.id} className="shadow-sm">
-                        {product.imageUrl && (
-                          <div className="relative aspect-square rounded-t-md overflow-hidden border-b">
-                            <Image src={product.imageUrl} alt={product.name} layout="fill" objectFit="cover" data-ai-hint={product.imageAiHint || "product item"}/>
-                             {product.discountPercentage && <Badge variant="destructive" className="absolute top-2 right-2">{product.discountPercentage}</Badge>}
-                          </div>
-                        )}
-                        <CardHeader className="p-3">
-                          <CardTitle className="text-md font-semibold line-clamp-2">{product.name}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-3 pt-0">
-                          {product.description && <p className="text-xs text-muted-foreground line-clamp-3 mb-2">{product.description}</p>}
-                          <div className="flex items-baseline gap-2">
-                             <p className={cn("font-bold text-lg", product.discountPrice ? "text-primary" : "text-foreground")}>
-                                ₹{product.discountPrice || product.price}
-                            </p>
-                            {product.discountPrice && <p className="text-sm text-muted-foreground line-through">₹{product.price}</p>}
-                          </div>
-                        </CardContent>
-                        <CardFooter className="p-3 pt-0">
-                            <Button size="sm" className="w-full" onClick={() => handleActionClick(`Add ${product.name} to Cart`)}>Add to Cart</Button>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                  </div>
-                ) : <p className="text-muted-foreground text-center py-10">No products listed yet.</p>}
-              </TabsContent>
+              {showProductsTab && (
+                <TabsContent value="products" className="p-3 sm:p-4 min-h-[200px]">
+                  {profile.products && profile.products.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                      {profile.products.map(product => (
+                        <Card key={product.id} className="shadow-sm">
+                          {product.imageUrl && (
+                            <div className="relative aspect-square rounded-t-md overflow-hidden border-b">
+                              <Image src={product.imageUrl} alt={product.name} layout="fill" objectFit="cover" data-ai-hint={product.imageAiHint || "product item"}/>
+                               {product.discountPercentage && <Badge variant="destructive" className="absolute top-2 right-2">{product.discountPercentage}</Badge>}
+                            </div>
+                          )}
+                          <CardHeader className="p-3">
+                            <CardTitle className="text-md font-semibold line-clamp-2">{product.name}</CardTitle>
+                          </CardHeader>
+                          <CardContent className="p-3 pt-0">
+                            {product.description && <p className="text-xs text-muted-foreground line-clamp-3 mb-2">{product.description}</p>}
+                            <div className="flex items-baseline gap-2">
+                               <p className={cn("font-bold text-lg", product.discountPrice ? "text-primary" : "text-foreground")}>
+                                  {product.discountPrice || product.price}
+                              </p>
+                              {product.discountPrice && <p className="text-sm text-muted-foreground line-through">{product.price}</p>}
+                            </div>
+                          </CardContent>
+                          <CardFooter className="p-3 pt-0">
+                              <Button size="sm" className="w-full" onClick={() => handleActionClick(`Add ${product.name} to Cart`)}>Add to Cart</Button>
+                          </CardFooter>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : <p className="text-muted-foreground text-center py-10">No products listed yet.</p>}
+                </TabsContent>
+              )}
 
-              <TabsContent value="services" className="p-3 sm:p-4 min-h-[200px]">
-                {profile.services && profile.services.length > 0 ? (
-                  <div className="space-y-3">
-                    {profile.services.map(service => (
-                      <Card key={service.id} className="shadow-sm">
-                        <CardContent className="p-4">
-                          <h4 className="font-semibold text-md text-foreground">{service.name}</h4>
-                          {service.description && <p className="text-sm text-muted-foreground mt-1">{service.description}</p>}
-                          {service.price && <p className="text-sm font-medium text-primary mt-2">{service.price}</p>}
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : <p className="text-muted-foreground text-center py-10">No services listed yet.</p>}
-              </TabsContent>
+              {showServicesTab && (
+                <TabsContent value="services" className="p-3 sm:p-4 min-h-[200px]">
+                  {profile.services && profile.services.length > 0 ? (
+                    <div className="space-y-3">
+                      {profile.services.map(service => (
+                        <Card key={service.id} className="shadow-sm">
+                          <CardContent className="p-4">
+                            <h4 className="font-semibold text-md text-foreground">{service.name}</h4>
+                            {service.description && <p className="text-sm text-muted-foreground mt-1">{service.description}</p>}
+                            {service.price && <p className="text-sm font-medium text-primary mt-2">{service.price}</p>}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : <p className="text-muted-foreground text-center py-10">No services listed yet.</p>}
+                </TabsContent>
+              )}
 
               <TabsContent value="jobs" className="p-3 sm:p-4 min-h-[200px]">
                 {profile.jobs && profile.jobs.length > 0 ? (
