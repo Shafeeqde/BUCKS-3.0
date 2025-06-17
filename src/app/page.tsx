@@ -36,31 +36,35 @@ import ServiceBookingDialog from '@/components/services/ServiceBookingDialog';
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
 import { feedItems as initialFeedItemsData } from '@/lib/dummy-data/feedItems';
 
-// Food Ordering Imports
+// Food Ordering Imports (kept for data, screens to be reviewed/removed if UnifiedCartScreen covers all)
 import FoodRestaurantsScreen from '@/components/screens/food/FoodRestaurantsScreen';
 import FoodRestaurantDetailScreen from '@/components/screens/food/FoodRestaurantDetailScreen';
-import FoodCartScreen from '@/components/screens/food/FoodCartScreen';
+// import FoodCartScreen from '@/components/screens/food/FoodCartScreen'; // To be replaced by UnifiedCartScreen
 import { dummyRestaurants } from '@/lib/dummy-data/restaurants';
 
-// Shopping Imports
+// Shopping Imports (kept for data, screens to be reviewed/removed if UnifiedCartScreen handles this too)
 import ShoppingCategoriesScreen from '@/components/screens/shopping/ShoppingCategoriesScreen';
 import ShoppingProductsListScreen from '@/components/screens/shopping/ShoppingProductsListScreen';
 import ShoppingProductDetailScreen from '@/components/screens/shopping/ShoppingProductDetailScreen';
-import ShoppingCartScreen from '@/components/screens/shopping/ShoppingCartScreen';
+import ShoppingCartScreen from '@/components/screens/shopping/ShoppingCartScreen'; // This currently uses its own state.
 import { dummyProductCategories } from '@/lib/dummy-data/productCategories';
 import { dummyProducts } from '@/lib/dummy-data/products';
+
+// Unified Cart Screen
+import UnifiedCartScreen from '@/components/screens/cart/UnifiedCartScreen';
 
 
 import type {
     TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu,
     ProfilePost, MediaAttachment, UserMoment, Category as CategoryType, FeedItem, Comment,
     ServiceBookingRequest, ActiveBooking, BookingStatus,
-    Restaurant, MenuItem, FoodCartItem,
-    ProductCategory, ProductListing, ShoppingCartItem,
+    Restaurant, MenuItem, // FoodCartItem removed as global cart will handle
+    ProductCategory, ProductListing, ShoppingCartItem, // ShoppingCartItem might be integrated or kept separate
     MessageItem, NotificationItem, ChatMessage
 } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from 'date-fns';
+import { useCart } from '@/context/CartContext';
 
 
 const initialBusinessProfilesData: UserBusinessProfile[] = [
@@ -81,12 +85,12 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
     followers: 1250,
     following: 50,
     feed: [
-      { id: 'feed-cb-1', content: 'Try our new seasonal Pumpkin Spice Latte! 🍂☕', timestamp: '2 days ago', image: 'https://source.unsplash.com/random/600x400/?latte,coffee', imageAiHint: 'latte coffee' },
+      { id: 'feed-cb-1', content: 'Try our new seasonal Pumpkin Spice Latte! 🍂☕', image: 'https://source.unsplash.com/random/600x400/?latte,coffee', imageAiHint: 'latte coffee', timestamp: '2 days ago' },
       { id: 'feed-cb-2', content: 'Live music this Friday evening from 7 PM. Don\'t miss out!', timestamp: '5 days ago' },
     ],
     products: [
-      { id: 'prod-cb-cappuccino', name: 'Cappuccino', price: '₹180', description: 'Classic Italian cappuccino with rich espresso and steamed milk foam.', imageUrl: 'https://source.unsplash.com/random/200x200/?cappuccino,cup', imageAiHint: 'cappuccino cup' },
-      { id: 'prod-cb-croissant', name: 'Butter Croissant', price: '₹120', discountPrice: '₹100', discountPercentage: '16%', description: 'Flaky, buttery, and freshly baked.', imageUrl: 'https://source.unsplash.com/random/200x200/?croissant,pastry', imageAiHint: 'croissant pastry' },
+      { id: 'prod-cb-cappuccino', name: 'Cappuccino', price: '180', description: 'Classic Italian cappuccino with rich espresso and steamed milk foam.', imageUrl: 'https://source.unsplash.com/random/200x200/?cappuccino,cup', imageAiHint: 'cappuccino cup' },
+      { id: 'prod-cb-croissant', name: 'Butter Croissant', price: '120', discountPrice: '100', discountPercentage: '16%', description: 'Flaky, buttery, and freshly baked.', imageUrl: 'https://source.unsplash.com/random/200x200/?croissant,pastry', imageAiHint: 'croissant pastry' },
     ],
     services: [
       { id: 'serv-cb-catering', name: 'Small Event Catering', description: 'We cater for small gatherings and office meetings. Contact us for a custom menu.', price: 'Enquire for quote' },
@@ -149,7 +153,7 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
     followers: 600,
     following: 30,
     products: [
-        { id: 'prod-gs-rose', name: 'Hybrid Tea Rose Plant', price: '₹350', description: 'Healthy, blooming rose plant in various colors.', imageUrl: 'https://source.unsplash.com/random/200x200/?rose,plant', imageAiHint: 'rose plant' },
+        { id: 'prod-gs-rose', name: 'Hybrid Tea Rose Plant', price: '350', description: 'Healthy, blooming rose plant in various colors.', imageUrl: 'https://source.unsplash.com/random/200x200/?rose,plant', imageAiHint: 'rose plant' },
     ],
     services: [
       { id: 'serv-gs-landscape', name: 'Full Landscaping Design', description: 'Custom garden design from concept to installation.', price: 'Starts at ₹50,000' },
@@ -211,6 +215,7 @@ interface CurrentChatContext {
 
 export default function AppRoot() {
   const { toast } = useToast();
+  const { addToCart: globalAddToCart } = useCart(); // Using global cart
   const [isClient, setIsClient] = useState(false);
 
   const [activeTab, setActiveTabInternal] = useState<TabName>('login');
@@ -251,17 +256,17 @@ export default function AppRoot() {
   const [bookingTargetProfile, setBookingTargetProfile] = useState<BookingTargetProfile | null>(null);
   const [activeBookings, setActiveBookings] = useState<ActiveBooking[]>([]);
 
-  // Food Ordering State
+  // Food Ordering State (Restaurant data is kept, cart items will use global context)
   const [restaurantsData, setRestaurantsData] = useState<Restaurant[]>(dummyRestaurants);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
-  const [foodCartItems, setFoodCartItems] = useState<FoodCartItem[]>([]);
+  // FoodCartItems state removed, will use global context
 
   // Shopping State
   const [productCategoriesData, setProductCategoriesData] = useState<ProductCategory[]>(dummyProductCategories);
   const [productsData, setProductsData] = useState<ProductListing[]>(dummyProducts);
   const [selectedShoppingCategoryId, setSelectedShoppingCategoryId] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [shoppingCartItems, setShoppingCartItems] = useState<ShoppingCartItem[]>([]);
+  const [shoppingCartItems, setShoppingCartItems] = useState<ShoppingCartItem[]>([]); // This uses its own state for now
 
   // Messaging & Notifications State
   const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
@@ -394,11 +399,11 @@ export default function AppRoot() {
     setActiveBookings([]);
     // Reset food ordering state
     setSelectedRestaurantId(null);
-    setFoodCartItems([]);
+    // FoodCartItems are global, not reset here explicitly unless desired
     // Reset shopping state
     setSelectedShoppingCategoryId(null);
     setSelectedProductId(null);
-    setShoppingCartItems([]);
+    setShoppingCartItems([]); // Still using local state for shopping cart
     // Reset messaging state
     setShowMessagesNotifications(false);
     setShowChatDetailScreen(false);
@@ -415,7 +420,7 @@ export default function AppRoot() {
         'manage-skillset-profile', 'manage-business-profile', 'job-detail',
         'professional-profile', 'account-settings', 'digital-id-card',
         'create-post', 'detailed-post', 'service-booking',
-        'food-restaurant-detail', 'food-cart',
+        'food-restaurant-detail', 'unified-cart', // unified-cart instead of food-cart
         'shopping-products-list', 'shopping-product-detail', 'shopping-cart'
     ];
 
@@ -428,7 +433,7 @@ export default function AppRoot() {
         setSelectedJobId(null);
         setSelectedPostForDetail(null);
         setBookingTargetProfile(null);
-        if (!tab.startsWith('food-')) {
+        if (!tab.startsWith('food-') && tab !== 'unified-cart') {
             setSelectedRestaurantId(null);
         }
         if (!tab.startsWith('shopping-')) {
@@ -514,10 +519,18 @@ export default function AppRoot() {
     setActiveTab('job-board');
   }, [setActiveTab]);
 
-  const handleAddToCart = useCallback((businessId: string | number, productId: string) => {
-    console.log('Add to Cart (General):', { businessId, productId });
-    toast({ title: "Added to Cart (Simulated)", description: `Product ${productId} from business ${businessId}` });
-  }, [toast]);
+  const handleGlobalAddToCart = useCallback((business: {id: string | number; name: string}, product: {id: string; name: string; price: string; imageUrl?: string; imageAiHint?: string}) => {
+    globalAddToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        businessId: business.id,
+        businessName: business.name,
+        imageUrl: product.imageUrl,
+        imageAiHint: product.imageAiHint
+    });
+    // Toast is handled by CartContext
+  }, [globalAddToCart]);
 
   const handleCreateNewPost = useCallback((content: string, media?: MediaAttachment) => {
     if (!userData) {
@@ -941,14 +954,15 @@ export default function AppRoot() {
     setActiveTab('skillset-profile');
   }, [toast, setActiveTab]);
 
-  // --- Food Ordering Handlers ---
+  // --- Food Ordering Handlers (Specific to Food section, not using global cart yet) ---
   const handleSelectFoodRestaurant = useCallback((restaurantId: string) => {
     setSelectedRestaurantId(restaurantId);
     setActiveTab('food-restaurant-detail');
   }, [setActiveTab]);
 
-  const handleAddItemToFoodCart = useCallback((menuItem: MenuItem, restaurantId: string, restaurantName: string) => {
-    setFoodCartItems(prevCart => {
+  const [localFoodCartItems, setLocalFoodCartItems] = useState<FoodCartItem[]>([]);
+  const handleAddItemToLocalFoodCart = useCallback((menuItem: MenuItem, restaurantId: string, restaurantName: string) => {
+    setLocalFoodCartItems(prevCart => {
       const existingItemIndex = prevCart.findIndex(item => item.menuItemId === menuItem.id && item.restaurantId === restaurantId);
       if (existingItemIndex > -1) {
         const updatedCart = [...prevCart];
@@ -958,36 +972,39 @@ export default function AppRoot() {
         return [...prevCart, { ...menuItem, menuItemId: menuItem.id, quantity: 1, restaurantId, restaurantName }];
       }
     });
-  }, []);
+    toast({ title: "Added to Food Order", description: `${menuItem.name} added.` });
+  }, [toast]);
 
-  const handleUpdateFoodCartItemQuantity = useCallback((menuItemId: string, newQuantity: number) => {
-    setFoodCartItems(prevCart =>
+  const handleUpdateLocalFoodCartItemQuantity = useCallback((menuItemId: string, newQuantity: number) => {
+    setLocalFoodCartItems(prevCart =>
       prevCart.map(item =>
         item.menuItemId === menuItemId ? { ...item, quantity: newQuantity } : item
       ).filter(item => item.quantity > 0)
     );
   }, []);
 
-  const handleRemoveFoodCartItem = useCallback((menuItemId: string) => {
-    setFoodCartItems(prevCart => prevCart.filter(item => item.menuItemId !== menuItemId));
-    toast({ title: "Item Removed", description: "Item removed from your food cart.", variant: "destructive" });
+  const handleRemoveLocalFoodCartItem = useCallback((menuItemId: string) => {
+    setLocalFoodCartItems(prevCart => prevCart.filter(item => item.menuItemId !== menuItemId));
+    toast({ title: "Item Removed", description: "Item removed from your food order.", variant: "destructive" });
   }, [toast]);
 
-  const handleFoodCheckout = useCallback(() => {
-    if (foodCartItems.length === 0) {
-        toast({ title: "Empty Cart", description: "Your food cart is empty.", variant: "destructive"});
+  const handleLocalFoodCheckout = useCallback(() => {
+    if (localFoodCartItems.length === 0) {
+        toast({ title: "Empty Food Order", description: "Your food order is empty.", variant: "destructive"});
         return;
     }
-    toast({ title: "Order Placed (Simulated)", description: "Your food order has been placed successfully!" });
-    setFoodCartItems([]);
+    toast({ title: "Food Order Placed (Simulated)", description: "Your food order has been placed successfully!" });
+    setLocalFoodCartItems([]); // Clear local food cart
     setActiveTab('home');
-  }, [foodCartItems, toast, setActiveTab]);
+  }, [localFoodCartItems, toast, setActiveTab]);
+  // --- End Food Ordering Handlers ---
 
-  const handleNavigateToFoodCart = useCallback(() => {
-    setActiveTab('food-cart');
+
+  const handleNavigateToCart = useCallback(() => {
+    setActiveTab('unified-cart');
   }, [setActiveTab]);
 
-  // --- Shopping Handlers ---
+  // --- Shopping Handlers (Uses local cart state for now) ---
   const handleSelectShoppingCategory = useCallback((categoryId: string) => {
     setSelectedShoppingCategoryId(categoryId);
     setActiveTab('shopping-products-list');
@@ -1041,6 +1058,8 @@ export default function AppRoot() {
     setShoppingCartItems([]);
     setActiveTab('home');
   }, [shoppingCartItems, toast, setActiveTab]);
+  // --- End Shopping Handlers ---
+
 
   // --- Messaging Handlers ---
   const handleOpenChatDetail = useCallback((messageItem: MessageItem) => {
@@ -1100,7 +1119,15 @@ export default function AppRoot() {
                             setActiveTab={setActiveTab}
                             onSelectBusinessProfile={handleSelectBusinessProfile}
                             onSelectSkillsetProfile={handleSelectSkillsetProfile}
-                            onAddToCart={handleAddToCart}
+                            onAddToCart={(businessId, productId) => {
+                                const business = businessProfilesData.find(b => b.id === businessId) || initialBusinessProfilesData.find(b => b.id === businessId);
+                                const product = business?.products?.find(p => p.id === productId);
+                                if (business && product) {
+                                    handleGlobalAddToCart(business, product);
+                                } else {
+                                    toast({title: "Error", description: "Could not add product to cart.", variant: "destructive"});
+                                }
+                            }}
                          />;
       case 'feeds': return <FeedsScreen
                               feedItems={feedItems}
@@ -1238,16 +1265,13 @@ export default function AppRoot() {
         setActiveTab('home');
         return <p className="p-4 text-center text-muted-foreground">Loading booking screen...</p>;
 
-      // Food Ordering Screens
+      // Food Ordering Screens (using local cart for food still, for now)
       case 'food-restaurants':
         return <FoodRestaurantsScreen restaurants={restaurantsData} onSelectRestaurant={handleSelectFoodRestaurant} />;
       case 'food-restaurant-detail':
         const selectedRestaurant = restaurantsData.find(r => r.id === selectedRestaurantId);
-        return <FoodRestaurantDetailScreen restaurant={selectedRestaurant || null} onAddToCart={(item, qty) => handleAddItemToFoodCart(item, selectedRestaurantId!, selectedRestaurant?.name || 'Restaurant')} onBack={() => setActiveTab('food-restaurants')} />;
-      case 'food-cart':
-        const restaurantForCart = foodCartItems.length > 0 ? restaurantsData.find(r => r.id === foodCartItems[0].restaurantId) : null;
-        return <FoodCartScreen cartItems={foodCartItems} onUpdateQuantity={handleUpdateFoodCartItemQuantity} onRemoveItem={handleRemoveFoodCartItem} onCheckout={handleFoodCheckout} onBack={() => setActiveTab(restaurantForCart ? 'food-restaurant-detail' : 'food-restaurants')} />;
-
+        return <FoodRestaurantDetailScreen restaurant={selectedRestaurant || null} onAddToCart={(item, qty) => handleAddItemToLocalFoodCart(item, selectedRestaurantId!, selectedRestaurant?.name || 'Restaurant')} onBack={() => setActiveTab('food-restaurants')} />;
+      
       // Shopping Screens
       case 'shopping-categories':
         return <ShoppingCategoriesScreen categories={productCategoriesData} onSelectCategory={handleSelectShoppingCategory} />;
@@ -1260,13 +1284,24 @@ export default function AppRoot() {
         return <ShoppingProductDetailScreen product={currentProduct || null} onAddToCart={handleAddItemToShoppingCart} onBack={() => setActiveTab('shopping-products-list')} />;
       case 'shopping-cart':
         return <ShoppingCartScreen cartItems={shoppingCartItems} onUpdateQuantity={handleUpdateShoppingCartItemQuantity} onRemoveItem={handleRemoveShoppingCartItem} onCheckout={handleShoppingCheckout} onBack={() => setActiveTab(selectedProductId ? 'shopping-product-detail' : (selectedShoppingCategoryId ? 'shopping-products-list' : 'shopping-categories'))} />;
-
+      
+      case 'unified-cart':
+        const previousTab = activeTab === 'food-restaurant-detail' && selectedRestaurantId ? 'food-restaurant-detail' : 'home';
+        return <UnifiedCartScreen onBack={() => setActiveTab(previousTab)} setActiveTab={setActiveTab}/>;
 
       default: return <HomeScreen
                         setActiveTab={setActiveTab}
                         onSelectBusinessProfile={handleSelectBusinessProfile}
                         onSelectSkillsetProfile={handleSelectSkillsetProfile}
-                        onAddToCart={handleAddToCart}
+                        onAddToCart={(businessId, productId) => {
+                            const business = businessProfilesData.find(b => b.id === businessId) || initialBusinessProfilesData.find(b => b.id === businessId);
+                            const product = business?.products?.find(p => p.id === productId);
+                            if (business && product) {
+                                handleGlobalAddToCart(business, product);
+                            } else {
+                                toast({title: "Error", description: "Could not add product to cart.", variant: "destructive"});
+                            }
+                        }}
                       />;
     }
   }, [
@@ -1274,18 +1309,18 @@ export default function AppRoot() {
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, selectedPostForDetail,
     bookingTargetProfile,
-    restaurantsData, selectedRestaurantId, foodCartItems,
+    restaurantsData, selectedRestaurantId, localFoodCartItems, // Using localFoodCartItems for food section
     productCategoriesData, productsData, selectedShoppingCategoryId, selectedProductId, shoppingCartItems,
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
     handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
-    handleSelectJob, handleBackFromJobDetail, handleAddToCart, handleRideRequest,
+    handleSelectJob, handleBackFromJobDetail, handleGlobalAddToCart, handleRideRequest,
     handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive,
     handleCreateNewPost, handleViewPostDetail, handlePostCommentOnDetail,
     handleAddMomentFromAccount, handleViewUserMomentsFromAccount,
     handleViewUserMoments,
     handleOpenServiceBooking, handleConfirmServiceBooking,
-    handleSelectFoodRestaurant, handleAddItemToFoodCart, handleUpdateFoodCartItemQuantity, handleRemoveFoodCartItem, handleFoodCheckout,
+    handleSelectFoodRestaurant, handleAddItemToLocalFoodCart, handleUpdateLocalFoodCartItemQuantity, handleRemoveLocalFoodCartItem, handleLocalFoodCheckout,
     handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleRemoveShoppingCartItem, handleShoppingCheckout,
     toast
   ]);
@@ -1299,17 +1334,17 @@ export default function AppRoot() {
     );
   }
 
-  const totalCartItems = foodCartItems.reduce((sum, item) => sum + item.quantity, 0) + shoppingCartItems.reduce((sum, item) => sum + item.quantity, 0);
-
+  // const totalCartItems = localFoodCartItems.reduce((sum, item) => sum + item.quantity, 0) + shoppingCartItems.reduce((sum, item) => sum + item.quantity, 0);
+  // For global cart count: useCart().getCartItemCount() + shoppingCartItems (if shopping cart also uses global)
 
   return (
     <div className="flex flex-col h-screen bg-background">
       <Header
         onMenuClick={() => setShowSideMenu(true)}
         onMessagesClick={() => setShowMessagesNotifications(true)}
-        onCartClick={handleNavigateToFoodCart}
+        onCartClick={handleNavigateToCart} // Updated handler
         unreadCount={isLoggedIn ? 5 : 0}
-        cartItemCount={totalCartItems}
+        // Cart item count is now handled by Header itself via useCart
       />
 
       {isLoggedIn && (
@@ -1330,7 +1365,7 @@ export default function AppRoot() {
         {renderScreenContent()}
       </div>
 
-      {isLoggedIn && !['detailed-post', 'service-booking', 'food-restaurant-detail', 'food-cart', 'shopping-product-detail', 'shopping-cart'].includes(activeTab) && (
+      {isLoggedIn && !['detailed-post', 'service-booking', 'food-restaurant-detail', 'unified-cart', 'shopping-product-detail', 'shopping-cart'].includes(activeTab) && (
         <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
 
@@ -1417,5 +1452,3 @@ export default function AppRoot() {
     </div>
   );
 }
-
-    

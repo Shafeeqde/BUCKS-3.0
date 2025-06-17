@@ -5,15 +5,13 @@ import React from 'react';
 import { Bars3Icon, ChatBubbleOvalLeftEllipsisIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import type { TabName } from '@/types';
 import { useCart } from '@/context/CartContext'; // Import useCart hook
 
 interface HeaderProps {
   onMenuClick: () => void;
   onMessagesClick: () => void;
-  onCartClick: () => void;
+  onCartClick: () => void; // This will navigate to the unified cart
   unreadCount?: number;
-  // cartItemCount prop is removed as we'll use context directly
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -23,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({
   unreadCount = 0,
 }) => {
   const { getCartItemCount } = useCart(); // Consume the cart context
-  const cartItemCount = getCartItemCount(); // Get the total item count
+  const cartItemCount = getCartItemCount(); // Get the total item count from global cart
 
   return (
     <header className="bg-card shadow-sm p-4 flex items-center justify-between z-20 sticky top-0">
@@ -45,7 +43,7 @@ const Header: React.FC<HeaderProps> = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Cart" className="text-foreground hover:text-primary" onClick={onCartClick}>
-                <ShoppingCartIcon className="w-7 h-7 sm:w-8 sm:h-8" />
+                <ShoppingCartIcon className="w-7 h-7 sm:w-8 sm:w-8" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>

@@ -2,7 +2,7 @@
 "use client"; // Mark as Client Component
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import type { BusinessProductCardItem } from '@/types'; // Assuming BusinessProductCardItem is close enough or can be adapted
+import type { BusinessProductCardItem } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -10,20 +10,23 @@ import { useToast } from "@/hooks/use-toast";
 export interface CartContextItem {
     id: string; // Product ID
     name: string;
-    price: string; // Product Price (store as string as per BusinessProductCardItem)
+    price: string; // Product Price (store as string)
     quantity: number;
     businessId: string | number; // ID of the business the product belongs to
-    imageUrl?: string;
-    imageAiHint?: string;
-    // Add other product details if needed
+    businessName: string; // Name of the business
+    imageUrl?: string; // Product image URL
+    imageAiHint?: string; // Product image AI hint
 }
 
 // Define the shape of the Cart Context
 interface CartContextType {
     cart: CartContextItem[];
     addToCart: (item: Omit<CartContextItem, 'quantity'>, quantity?: number) => void;
+    updateCartItemQuantity: (itemId: string, businessId: string | number, newQuantity: number) => void;
+    removeCartItem: (itemId: string, businessId: string | number) => void;
     getCartItemCount: () => number;
-    // TODO: Add more cart actions (removeFromCart, updateQuantity, clearCart) for a full cart page
+    clearCartForBusiness: (businessId: string | number) => void;
+    getCartForBusiness: (businessId: string | number) => CartContextItem[];
 }
 
 // Create the Context with a default undefined value
@@ -46,25 +49,60 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
             );
 
             if (existingItemIndex > -1) {
-                // If exists, update the quantity
                 const newCart = [...prevCart];
                 newCart[existingItemIndex].quantity += quantity;
                 toast({
                     title: "Cart Updated",
-                    description: `${item.name} quantity increased to ${newCart[existingItemIndex].quantity}.`,
+                    description: `${item.name} quantity increased to ${newCart[existingItemIndex].quantity} in your cart for ${item.businessName}.`,
                 });
                 return newCart;
             } else {
-                // If not exists, add the new item
                  toast({
                     title: "Added to Cart",
-                    description: `${quantity} x ${item.name} added from business ID ${item.businessId}.`,
+                    description: `${quantity} x ${item.name} added to your cart for ${item.businessName}.`,
                 });
                 return [...prevCart, { ...item, quantity }];
             }
         });
-        console.log('Item added/updated in cart:', item.name, 'Quantity:', quantity, 'Business:', item.businessId, 'Current Cart:', cart);
     };
+
+    const updateCartItemQuantity = (itemId: string, businessId: string | number, newQuantity: number) => {
+        setCart(prevCart =>
+            prevCart.map(item =>
+                item.id === itemId && item.businessId === businessId
+                    ? { ...item, quantity: newQuantity }
+                    : item
+            ).filter(item => item.quantity > 0) // Remove item if quantity is 0 or less
+        );
+    };
+
+    const removeCartItem = (itemId: string, businessId: string | number) => {
+        setCart(prevCart => {
+            const itemToRemove = prevCart.find(item => item.id === itemId && item.businessId === businessId);
+            if (itemToRemove) {
+                toast({
+                    title: "Item Removed",
+                    description: `${itemToRemove.name} removed from your cart for ${itemToRemove.businessName}.`,
+                    variant: "destructive"
+                });
+            }
+            return prevCart.filter(item => !(item.id === itemId && item.businessId === businessId));
+        });
+    };
+
+    const clearCartForBusiness = (businessId: string | number) => {
+        const businessName = cart.find(item => item.businessId === businessId)?.businessName || 'this business';
+        setCart(prevCart => prevCart.filter(item => item.businessId !== businessId));
+        toast({
+            title: `Cart Cleared for ${businessName}`,
+            description: `All items from ${businessName} have been removed from your cart.`,
+        });
+    };
+
+    const getCartForBusiness = (businessId: string | number): CartContextItem[] => {
+        return cart.filter(item => item.businessId === businessId);
+    };
+
 
     // Function to get the total number of items in the cart (sum of quantities)
      const getCartItemCount = () => {
@@ -73,7 +111,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     // Provide the cart state and actions through the context
     return (
-        <CartContext.Provider value={{ cart, addToCart, getCartItemCount }}>
+        <CartContext.Provider value={{ cart, addToCart, updateCartItemQuantity, removeCartItem, getCartItemCount, clearCartForBusiness, getCartForBusiness }}>
             {children}
         </CartContext.Provider>
     );

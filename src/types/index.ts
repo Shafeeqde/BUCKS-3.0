@@ -1,4 +1,5 @@
 
+
 import type { ForwardRefExoticComponent, RefAttributes, SVGProps } from 'react'; // For Heroicons
 
 // Used by Heroicons
@@ -18,7 +19,7 @@ export type TabName =
   | 'business-profiles'
   | 'business-detail'
   | 'manage-business-profile'
-  | 'messages-notifications' // This screen itself will remain, but items will navigate away or to chat
+  | 'messages-notifications'
   | 'individual-profile'
   | 'skillset-profile'
   | 'user-skillsets'
@@ -30,15 +31,17 @@ export type TabName =
   | 'create-post'
   | 'detailed-post'
   | 'service-booking'
-  // Food Ordering Tabs
+  // Food Ordering Tabs (keeping for reference, but unified cart is goal)
   | 'food-restaurants'
   | 'food-restaurant-detail'
-  | 'food-cart'
-  // Shopping Tabs
+  // Shopping Tabs (keeping for reference)
   | 'shopping-categories'
   | 'shopping-products-list'
   | 'shopping-product-detail'
-  | 'shopping-cart';
+  | 'shopping-cart'
+  // Unified Cart
+  | 'unified-cart';
+
 
 export interface Category {
   id: string;
@@ -221,7 +224,7 @@ export interface UserBusinessProfile {
   coverPhoto?: string;
   coverPhotoAiHint?: string;
   bio: string;
-  businessType: BusinessType; // Added businessType
+  businessType: BusinessType;
   website?: string;
   phone?: string;
   email?: string;
@@ -249,9 +252,9 @@ export interface BusinessProductCardItem {
   name: string;
   imageUrl?: string;
   imageAiHint?: string;
-  price: string;
-  discountPrice?: string;
-  discountPercentage?: string;
+  price: string; // Final price for display
+  discountPrice?: string; // Original price if discounted
+  discountPercentage?: string; // Optional discount string
 }
 
 export interface BusinessProfileCardData {
@@ -279,7 +282,7 @@ export interface MessageItem {
   sender: string;
   senderImage?: string;
   senderImageAiHint?: string;
-  chatPartnerId?: string; // Optional: To link to a full profile
+  chatPartnerId?: string;
   subject: string;
   content: string;
   timestamp: string;
@@ -288,14 +291,14 @@ export interface MessageItem {
 
 export interface NotificationItem {
   id: string | number;
-  type: string; // E.g., 'Like', 'Comment', 'Follow', 'System Update'
+  type: string;
   icon?: HeroIconType;
   content: string;
   timestamp: string;
   read: boolean;
-  link?: string; // Old link, can be deprecated or used as fallback
-  targetTab?: TabName; // New: For direct navigation
-  targetId?: string | number; // New: For specific item ID (e.g., postId, profileId)
+  link?: string;
+  targetTab?: TabName;
+  targetId?: string | number;
 }
 
 export type ActivityDetails = {
@@ -493,13 +496,13 @@ export interface ActiveBooking {
 }
 // --- End Service Booking Types ---
 
-// --- Food Ordering Types ---
+// --- Food Ordering Types (kept for reference, might be integrated into generic cart later) ---
 export interface MenuItem {
   id: string;
   name: string;
   description?: string;
   price: number;
-  category: string; // e.g., "Appetizers", "Main Course", "Desserts"
+  category: string;
   imageUrl?: string;
   imageAiHint?: string;
   isVegetarian?: boolean;
@@ -509,10 +512,10 @@ export interface MenuItem {
 export interface Restaurant {
   id: string;
   name: string;
-  cuisine: string; // e.g., "Italian", "Indian", "Chinese"
+  cuisine: string;
   rating: number;
-  deliveryTime: string; // e.g., "25-35 min"
-  priceRange: string; // e.g., "$$" (for relative cost)
+  deliveryTime: string;
+  priceRange: string;
   imageUrl?: string;
   imageAiHint?: string;
   address?: string;
@@ -531,7 +534,7 @@ export interface FoodCartItem {
 }
 // --- End Food Ordering Types ---
 
-// --- E-commerce (Shopping) Types ---
+// --- E-commerce (Shopping) Types (kept for reference) ---
 export interface ProductCategory {
   id: string;
   name: string;
@@ -545,8 +548,8 @@ export interface ProductListing {
   name: string;
   description: string;
   price: number;
-  originalPrice?: number; // For discounts
-  categoryIds: string[]; // To link to ProductCategory
+  originalPrice?: number;
+  categoryIds: string[];
   imageUrl?: string;
   imageAiHint?: string;
   brand?: string;
@@ -556,10 +559,10 @@ export interface ProductListing {
   tags?: string[];
   variants?: {
     id: string;
-    name: string; // e.g., "Color", "Size"
+    name: string;
     options: {
-      value: string; // e.g., "Red", "Large"
-      imageUrl?: string; // For color swatches etc.
+      value: string;
+      imageUrl?: string;
       additionalPrice?: number;
     }[];
   }[];
@@ -568,11 +571,11 @@ export interface ProductListing {
 export interface ShoppingCartItem {
   productId: string;
   name: string;
-  price: number; // This would be the final price considering variant if any
+  price: number;
   quantity: number;
   imageUrl?: string;
   imageAiHint?: string;
-  variantInfo?: string; // e.g., "Color: Red, Size: Large"
+  variantInfo?: string;
 }
 // --- End E-commerce (Shopping) Types ---
 
@@ -581,10 +584,8 @@ export interface ChatMessage {
   id: string;
   text: string;
   timestamp: string;
-  isSender: boolean; // True if the current logged-in user sent this message
-  avatar?: string; // Avatar of the message sender (could be current user or other party)
+  isSender: boolean;
+  avatar?: string;
   avatarAiHint?: string;
 }
 // --- End Chat & Messaging Types ---
-
-    

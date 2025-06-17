@@ -1,21 +1,27 @@
 
-"use client";
+"use client"; // Mark as Client Component
 
 import React from 'react';
+// Assuming standard React components
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { StarIcon, ChatBubbleOvalLeftEllipsisIcon, PhoneIcon, HandThumbUpIcon, ShareIcon, UserPlusIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
-import { cn } from '@/lib/utils';
-import type { BusinessProfileCardData, BusinessProductCardItem } from '@/types';
-import { useCart } from '@/context/CartContext'; // Import useCart hook
+import Link from 'next/link'; // If products will have detail pages
+import { cn } from '@/lib/utils'; // Assuming utility for classes
+
+ // Example using lucide-react for icons
+ import { StarIcon, ChatBubbleOvalLeftEllipsisIcon, PhoneIcon, HandThumbUpIcon, ShareIcon, UserPlusIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+
+
+ import { useCart } from '@/context/CartContext'; // Import useCart hook
+ import type { BusinessProfileCardData, BusinessProductCardItem } from '@/types';
+ import { Button } from '@/components/ui/button';
+ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+ import { Badge } from '@/components/ui/badge';
+
 
 interface BusinessProfileCardProps {
   business: BusinessProfileCardData;
   onPress?: (id: string | number) => void;
   onProductClick?: (businessId: string | number, productId: string) => void;
-  // onAddToCartClick prop is removed, will use context directly
   onEnquiryClick?: (id: string | number) => void;
   onCallClick?: (id: string | number, phone?: string) => void;
   onRecommendClick?: (id: string | number) => void;
@@ -23,23 +29,25 @@ interface BusinessProfileCardProps {
   onFollowClick?: (id: string | number) => void;
 }
 
+// Helper component for rendering stars
 const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 4, className }) => {
-  const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 >= 0.4;
-  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.4; // Use 0.4 to round up .5 and above to full, but show half for .4 like 4.4
+    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
 
-  return (
-    <div className={cn("flex items-center", className)}>
-      {[...Array(fullStars)].map((_, i) => (
-        <StarIcon key={`full-${i}`} className={cn(`w-${size} h-${size} text-yellow-400 fill-yellow-400`)} />
-      ))}
-      {halfStar && <StarIcon key="half" className={cn(`w-${size} h-${size} text-yellow-400 fill-yellow-200`)} />}
-      {[...Array(emptyStars)].map((_, i) => (
-        <StarIcon key={`empty-${i}`} className={cn(`w-${size} h-${size} text-muted-foreground/30 fill-muted-foreground/30`)} />
-      ))}
-    </div>
-  );
+    return (
+        <div className={cn("flex items-center", className)}>
+        {[...Array(fullStars)].map((_, i) => (
+            <StarIcon key={`full-${i}`} className={cn(`w-${size} h-${size} text-yellow-400 fill-yellow-400`)} />
+        ))}
+        {halfStar && <StarIcon key="half" className={cn(`w-${size} h-${size} text-yellow-400 fill-yellow-200`)} />} 
+        {[...Array(emptyStars)].map((_, i) => (
+            <StarIcon key={`empty-${i}`} className={cn(`w-${size} h-${size} text-muted-foreground/30 fill-muted-foreground/30`)} />
+        ))}
+        </div>
+    );
 };
+
 
 const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
   business,
@@ -51,20 +59,22 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
   onShareClick,
   onFollowClick,
 }) => {
-  const logoHint = business.logoAiHint || "business logo";
-  const logoSrc = business.logoUrl || `https://source.unsplash.com/random/80x80/?${logoHint.split(' ').join(',') || 'logo'}`;
-  const { addToCart } = useCart(); // Consume the cart context
+    const { addToCart } = useCart(); // Consume the cart context
+    const logoHint = business.logoAiHint || "business logo";
+    const logoSrc = business.logoUrl || `https://source.unsplash.com/random/80x80/?${logoHint.split(' ').join(',') || 'logo'}`;
 
-  const handleProductAddToCart = (product: BusinessProductCardItem) => {
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.discountPrice || product.price, // Use discounted price if available
-      businessId: business.id,
-      imageUrl: product.imageUrl,
-      imageAiHint: product.imageAiHint,
-    });
-  };
+
+    const handleProductAddToCart = (product: BusinessProductCardItem) => {
+        addToCart({
+            id: product.id,
+            name: product.name,
+            price: product.discountPrice || product.price,
+            businessId: business.id,
+            businessName: business.name,
+            imageUrl: product.imageUrl,
+            imageAiHint: product.imageAiHint,
+        });
+    };
 
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 w-full overflow-hidden">
