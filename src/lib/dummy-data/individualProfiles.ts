@@ -95,7 +95,7 @@ export const individualProfiles: PublicProfileData[] = [
   {
     id: 'shoby-c-profile',
     name: 'Shoby C Chummar',
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?man,founder,creative,studio',
+    avatarUrl: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYW58ZW58MHx8fHwxNzUwMDk2NzcxfDA&ixlib=rb-4.1.0&q=80&w=1080',
     avatarAiHint: 'man founder creative studio',
     professionalTitle: 'Founder & Creative Head at Mikado.biz',
     bio: 'Visionary founder and creative force behind Mikado.biz. Dedicated to building a world-class design agency that delivers exceptional results and fosters innovation.',

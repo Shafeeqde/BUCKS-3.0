@@ -9,7 +9,7 @@ export const initialCategoriesData: Category[] = [
   { id: 'cat-subhesh', name: 'Subhesh P.', image: 'https://source.unsplash.com/random/100x100/?man,team,lead,office', dataAiHint: 'man team lead office', viewed: false, profileId: 'subhesh-p-profile' },
   { id: 'cat-seena', name: 'Seena P.', image: 'https://source.unsplash.com/random/100x100/?woman,creative,director,professional', dataAiHint: 'woman creative director professional', viewed: false, profileId: 'seena-p-profile' },
   { id: 'cat-senthil', name: 'Senthil D.', image: 'https://source.unsplash.com/random/100x100/?man,designer,indian', dataAiHint: 'man designer indian', viewed: false, profileId: 'senthil-devaraj-profile' },
-  { id: 'cat-shoby', name: 'Shoby C.', image: 'https://source.unsplash.com/random/100x100/?man,founder,creative,studio', dataAiHint: 'man founder creative studio', viewed: true, profileId: 'shoby-c-profile' },
+  { id: 'cat-shoby', name: 'Shoby C.', image: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYW58ZW58MHx8fHwxNzUwMDk2NzcxfDA&ixlib=rb-4.1.0&q=80&w=1080', dataAiHint: 'man founder creative studio', viewed: true, profileId: 'shoby-c-profile' },
   { id: 'cat-diju', name: 'Diju K.', image: 'https://source.unsplash.com/random/100x100/?man,ceo,founder,professional', dataAiHint: 'man ceo founder professional', viewed: true, profileId: 'diju-k-profile' },
   { id: 'cat-anand', name: 'Anand NK.', image: 'https://source.unsplash.com/random/100x100/?man,motion,graphics,artist', dataAiHint: 'man motion graphics artist', viewed: false, profileId: 'anand-nk-profile' },
 ];

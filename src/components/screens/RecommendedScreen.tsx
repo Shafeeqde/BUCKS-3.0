@@ -22,7 +22,7 @@ const recommendedPostsData: RecommendedPost[] = [
       otherRecommendersCount: 22,
     },
     {
-      id: 3, recommendedBy: 'Shoby C Chummar', userImage: 'https://source.unsplash.com/random/40x40/?man,founder,creative,studio', userImageAiHint: 'man founder creative studio',
+      id: 3, recommendedBy: 'Shoby C Chummar', userImage: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYW58ZW58MHx8fHwxNzUwMDk2NzcxfDA&ixlib=rb-4.1.0&q=80&w=1080', userImageAiHint: 'man founder creative studio',
       recommenderProfileId: 'shoby-c-profile',
       title: 'The Future of Branding in the Metaverse', content: 'Exploring how brands can build presence and engage users in virtual worlds.',
       thumbnail: 'https://source.unsplash.com/random/600x350/?metaverse,branding,virtual', thumbnailAiHint: 'metaverse branding virtual', type: 'image',
@@ -46,19 +46,17 @@ const recommendedPostsData: RecommendedPost[] = [
 interface RecommendedScreenProps {
   onViewUserMomentsClick: (profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => void;
   onViewUserProfile: (profileId: string) => void;
-  onViewPost: (postTitle: string) => void; // Ensured this is used
+  onViewPost: (postTitle: string) => void;
 }
 
 const RecommendedScreen: React.FC<RecommendedScreenProps> = ({ onViewUserMomentsClick, onViewUserProfile, onViewPost }) => {
-  const { toast } = useToast(); // Added toast hook
+  const { toast } = useToast();
 
-  const handleViewRecommendedPost = (title: string) => { // This function now receives title
+  const handleViewRecommendedPost = (title: string) => {
     toast({
       title: "Viewing Recommended Content",
       description: `Opening: "${title}" (Simulated).`,
     });
-    // In a real app, you might navigate to a detailed view of this content
-    // For now, a toast is sufficient for the prototype.
   };
   
   return (
@@ -71,7 +69,7 @@ const RecommendedScreen: React.FC<RecommendedScreenProps> = ({ onViewUserMoments
             post={post} 
             onViewUserMoments={onViewUserMomentsClick}
             onViewUserProfile={onViewUserProfile}
-            onViewPost={handleViewRecommendedPost} // Pass the new handler
+            onViewPost={handleViewRecommendedPost}
           />
         ))}
       </div>
