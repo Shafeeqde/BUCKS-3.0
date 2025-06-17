@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogOverlay } from '@/components/ui/dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import type { UserMoment } from '@/types';
 import { cn } from '@/lib/utils';
@@ -14,6 +15,10 @@ interface MomentViewerScreenProps {
   onClose: () => void;
   moments: UserMoment[];
   initialMomentIndex?: number;
+  ownerName?: string;
+  ownerAvatarUrl?: string;
+  ownerAvatarAiHint?: string;
+  onViewOwnerProfile?: () => void;
 }
 
 const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
@@ -21,6 +26,10 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
   onClose,
   moments,
   initialMomentIndex = 0,
+  ownerName,
+  ownerAvatarUrl,
+  ownerAvatarAiHint,
+  onViewOwnerProfile,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(initialMomentIndex);
 
@@ -30,13 +39,12 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
     }
   }, [isOpen, initialMomentIndex]);
   
-  // Auto-advance timer
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isOpen && moments.length > 1) {
       timer = setTimeout(() => {
         goToNext();
-      }, 7000); // Auto-advance every 7 seconds
+      }, 7000); 
     }
     return () => clearTimeout(timer);
   }, [currentIndex, isOpen, moments.length]);
@@ -66,21 +74,42 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
       >
         <div className="relative w-full h-full max-w-screen-sm max-h-screen-md aspect-[9/16] sm:aspect-auto sm:max-h-[90vh] sm:max-w-[50vh] bg-black rounded-lg overflow-hidden shadow-2xl flex flex-col">
           
-          {moments.length > 1 && (
-            <div className="absolute top-2 left-2 right-2 z-20 flex space-x-1 px-1">
-              {moments.map((_, index) => (
-                <div key={index} className="h-1 flex-1 rounded-full bg-white/30 overflow-hidden">
-                  <div
-                    className={cn(
-                      "h-full bg-white transition-all duration-300 ease-linear",
-                      index === currentIndex ? "animate-progress-bar" : (index < currentIndex ? "w-full" : "w-0")
-                    )}
-                    style={index === currentIndex ? { animationDuration: '7s' } : {}}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Top Section: Progress Bars & Owner Info */}
+          <div className="absolute top-0 left-0 right-0 z-20 p-3">
+            {moments.length > 1 && (
+              <div className="flex space-x-1 mb-2">
+                {moments.map((_, index) => (
+                  <div key={index} className="h-1 flex-1 rounded-full bg-white/30 overflow-hidden">
+                    <div
+                      className={cn(
+                        "h-full bg-white transition-all duration-300 ease-linear",
+                        index === currentIndex ? "animate-progress-bar" : (index < currentIndex ? "w-full" : "w-0")
+                      )}
+                      style={index === currentIndex ? { animationDuration: '7s' } : {}}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+             {ownerName && (
+              <div
+                className={cn(
+                  "flex items-center space-x-2",
+                  onViewOwnerProfile && "cursor-pointer hover:opacity-80 transition-opacity"
+                )}
+                onClick={onViewOwnerProfile}
+                role={onViewOwnerProfile ? "button" : undefined}
+                tabIndex={onViewOwnerProfile ? 0 : undefined}
+                onKeyDown={onViewOwnerProfile ? (e) => e.key === 'Enter' && onViewOwnerProfile() : undefined}
+              >
+                <Avatar className="h-8 w-8 border-2 border-white/50">
+                  <AvatarImage src={ownerAvatarUrl} alt={ownerName} data-ai-hint={ownerAvatarAiHint || "profile avatar"}/>
+                  <AvatarFallback className="bg-gray-600 text-white text-xs">{ownerName.substring(0,1)}</AvatarFallback>
+                </Avatar>
+                <span className="text-white text-sm font-semibold drop-shadow-md">{ownerName}</span>
+              </div>
+            )}
+          </div>
           <style jsx global>{`
             @keyframes progress-bar-animation {
               0% { width: 0%; }
@@ -107,7 +136,7 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
                 src={currentMoment.imageUrl}
                 alt={currentMoment.caption || currentMoment.aiHint || `Moment ${currentIndex + 1}`}
                 layout="fill"
-                objectFit="contain"
+                objectFit="contain" // Changed to contain to ensure full image is visible
                 className="z-0"
                 data-ai-hint={currentMoment.aiHint || "story moment"}
                 priority
@@ -122,20 +151,17 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
 
           {moments.length > 1 && (
             <>
-              {/* Left Tappable Area */}
               <div
                 className="absolute left-0 top-0 bottom-0 w-1/3 z-20 cursor-pointer"
                 onClick={goToPrevious}
                 aria-label="Previous moment"
               />
-              {/* Right Tappable Area */}
               <div
                 className="absolute right-0 top-0 bottom-0 w-1/3 z-20 cursor-pointer"
                 onClick={goToNext}
                 aria-label="Next moment"
               />
               
-              {/* Explicit Buttons (can be styled to be less obtrusive if preferred) */}
               <Button variant="ghost" size="icon" onClick={goToPrevious} className="absolute left-2 top-1/2 -translate-y-1/2 z-30 text-white hover:bg-white/20">
                   <ChevronLeftIcon className="h-6 w-6"/>
               </Button>
@@ -151,6 +177,5 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
 };
 
 export default MomentViewerScreen;
-
 
     
