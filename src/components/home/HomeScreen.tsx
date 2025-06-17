@@ -18,8 +18,7 @@ import type { IndividualProfessionalCardData } from '@/components/search/Individ
 import BusinessProfileCard from '@/components/search/BusinessProfileCard';
 import type { BusinessProfileCardData as BusinessCardDataType, BusinessProductCardItem, TabName } from '@/types';
 
-// Placeholder was updated to "Bucks AI" in a previous step, maintaining that.
-const initialPlaceholdersForSearchMode = [ // Renamed for clarity
+const initialPlaceholdersForSearchMode = [ 
   "Search professionals, services, or businesses...",
   "Find local experts or ask Bucks AI...",
   "e.g., plumber, cafe, tech support"
@@ -127,7 +126,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const [currentQueryType, setCurrentQueryType] = useState<'general' | 'location_search' | null>(null);
   const [isAnsweringQuery, setIsAnsweringQuery] = useState(false);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
-  const [currentPlaceholder, setCurrentPlaceholder] = useState(initialPlaceholdersForSearchMode[0]); // Initial default
+  const [currentPlaceholder, setCurrentPlaceholder] = useState(initialPlaceholdersForSearchMode[0]); 
 
   const [recentSearches, setRecentSearches] = useState<string[]>([
     "Plumbing", "Biryani", "Carpentry", "Solids Gym",
@@ -146,7 +145,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     if (!isSearchMode) {
       setCurrentPlaceholder("Where are you going?");
     } else {
-      // Cycle placeholders for search mode
       setCurrentPlaceholder(initialPlaceholdersForSearchMode[currentPlaceholderIndex]);
       intervalId = setInterval(() => {
         setCurrentPlaceholderIndex(prevIndex => (prevIndex + 1) % initialPlaceholdersForSearchMode.length);
@@ -171,7 +169,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const handleFocus = () => {
     setShowSuggestions(true);
     if (!isSearchMode) {
-      // Potentially trigger something specific for map search focus
     }
   };
 
@@ -259,8 +256,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     if (event) event.preventDefault();
     const queryToSubmit = (queryOverride || searchTerm).trim();
 
-    if (!isSearchMode && queryToSubmit) { // If submitting from map view's "Where are you going?"
-        setIsSearchMode(true); // Transition to search results view
+    if (!isSearchMode && queryToSubmit) { 
+        setIsSearchMode(true); 
         setShowSuggestions(false);
         setAiSuggestions([]);
     } else if (isSearchMode) {
@@ -332,7 +329,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     setShowSuggestions(false);
     setAiSuggestions([]);
     setDisplayedSearchResults([]);
-    setCurrentPlaceholderIndex(0); // Reset for cycling in search mode if re-entered
+    setCurrentPlaceholderIndex(0); 
   }, []);
 
   let currentSuggestions: string[] = [];
@@ -380,16 +377,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* Search Bar Area - dynamic positioning and styling */}
       <div
         className={cn(
           "transition-all duration-300 ease-in-out",
           isSearchMode
-            ? "bg-card shadow-md sticky top-0 z-20" // Search results view: sticky top bar
-            : "absolute bottom-[70px] left-4 right-4 z-10" // Map view: floating search card
+            ? "bg-card shadow-md sticky top-0 z-20" 
+            : "absolute bottom-[70px] left-4 right-4 z-10" 
         )}
       >
-        {!isSearchMode && renderAISuggestions && ( // Suggestions for map view (if input focused)
+        {!isSearchMode && renderAISuggestions && ( 
           <div className="pb-2">
             <SearchSuggestions
               suggestions={currentSuggestions}
@@ -399,7 +395,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         )}
 
-        <div className={cn(isSearchMode ? "p-4" : "")}> {/* Container for form + close button/filters */}
+        <div className={cn(isSearchMode ? "p-4" : "")}> 
           <div className={cn("flex items-center", isSearchMode ? "space-x-2" : "")}>
             {isSearchMode && (
               <Button
@@ -416,8 +412,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
             <form onSubmit={handleQuerySubmit} className={cn(
                 "flex items-center flex-grow",
                 isSearchMode
-                  ? "bg-background rounded-md border border-input p-2 pr-3" // Form style in search mode
-                  : "bg-card rounded-lg shadow-xl p-3" // Form style in map mode (card-like)
+                  ? "bg-background rounded-md border border-input p-2 pr-3" 
+                  : "bg-card rounded-lg shadow-xl p-3" 
             )}>
               <MagnifyingGlassIcon className={cn("w-5 h-5 text-muted-foreground flex-shrink-0", isSearchMode ? "mr-2" : "mr-3")} />
               <Input
@@ -433,7 +429,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                 onBlur={handleBlur}
                 disabled={isAnsweringQuery && isSearchMode}
               />
-              {isSearchMode && ( // Only show search button in search mode form
+              {isSearchMode && ( 
                 <Button
                   type="submit"
                   variant="ghost"
@@ -450,7 +446,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
 
 
-        {isSearchMode && renderAISuggestions && ( // Suggestions for search results view
+        {isSearchMode && renderAISuggestions && ( 
           <div className="px-4 pb-2 bg-card sm:bg-transparent">
              <SearchSuggestions
               suggestions={currentSuggestions}
@@ -460,7 +456,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         )}
 
-        {isSearchMode && ( // Filter buttons only in search results view
+        {isSearchMode && ( 
           <div className="px-4 pt-2 pb-3 border-b bg-card sm:bg-transparent">
             <div className="flex items-center space-x-2 overflow-x-auto custom-scrollbar pb-1">
                 <Button variant="outline" size="sm" className="rounded-full shrink-0"><AdjustmentsHorizontalIcon className="mr-1.5 h-3.5 w-3.5"/>Filters</Button>
@@ -473,15 +469,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         )}
       </div>
 
-      {/* Map or Search Results Area */}
       <ScrollArea className={cn(
           "flex-grow",
-           showResultsArea ? "pt-0" : "relative" // No top padding for results, map is relative for search bar overlay
+           showResultsArea ? "pt-0" : "relative" 
       )}>
         {showMap && (
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15551.924874452586!2d77.56708455!3d12.9715987!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1670c9b44167%3A0xf8df77c050a12e21!2sBangalore%2C%20Karnataka%2C%20India!5e0!3m2!1sen!2sus!4v1678234567890!5m2!1sen!2sus"
-            className="absolute inset-0 w-full h-full border-0" // Map takes full space of ScrollArea
+            className="absolute inset-0 w-full h-full border-0" 
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
@@ -491,7 +486,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         )}
 
         {showResultsArea && (
-          <div className="space-y-6 pb-6 pt-4 px-2 sm:px-4"> {/* Added padding for results view */}
+          <div className="space-y-6 pb-6 pt-4 px-2 sm:px-4"> 
             {isAnsweringQuery && (
                <div className="flex flex-col justify-center items-center h-40 text-center">
                   <svg className="animate-spin h-8 w-8 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

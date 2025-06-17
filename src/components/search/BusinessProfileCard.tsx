@@ -63,7 +63,7 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
         tabIndex={0}
         onKeyDown={(e) => e.key === 'Enter' && onPress?.(business.id)}
       >
-        <div className="relative h-20 w-20 flex-shrink-0"> {/* Increased logo size */}
+        <div className="relative h-20 w-20 flex-shrink-0"> 
           <Image
             src={logoSrc}
             alt={`${business.name} logo`}

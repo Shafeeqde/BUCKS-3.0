@@ -194,8 +194,8 @@ export default function AppRoot() {
   const [activityDetails, setActivityDetails] = useState<ActivityDetails>(null);
   const [isDriverOnlineSim, setIsDriverOnlineSim] = useState(false);
 
-  const [userPosts, setUserPosts] = useState<ProfilePost[]>([]); // Logged-in user's created posts
-  const [feedItems, setFeedItems] = useState<FeedItem[]>(initialFeedItemsData); // Main feed items
+  const [userPosts, setUserPosts] = useState<ProfilePost[]>([]); 
+  const [feedItems, setFeedItems] = useState<FeedItem[]>(initialFeedItemsData); 
 
   const [userMoments, setUserMoments] = useState<UserMoment[]>([]);
   const [showCreateMomentDialog, setShowCreateMomentDialog] = useState(false);
@@ -291,7 +291,7 @@ export default function AppRoot() {
         email: user.email,
         avatarUrl: user.avatarUrl || `https://source.unsplash.com/random/48x48/?${(user.avatarAiHint || 'user avatar').split(' ').join(',')}`,
         avatarAiHint: user.avatarAiHint || 'user avatar',
-        moments: [], // Initialize moments for the logged-in user
+        moments: [], 
     });
     setActiveTabInternal('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
@@ -472,7 +472,6 @@ export default function AppRoot() {
       timestamp: formatDistanceToNow(new Date(), { addSuffix: true })
     };
 
-    // Update feedItems
     setFeedItems(prevItems => prevItems.map(item => {
       if (item.id === postId) {
         return {
@@ -484,7 +483,6 @@ export default function AppRoot() {
       return item;
     }));
 
-    // Update userPosts
     setUserPosts(prevPosts => prevPosts.map(post => {
       if (post.id === postId) {
         return {
@@ -496,7 +494,6 @@ export default function AppRoot() {
       return post;
     }));
     
-    // Update selectedPostForDetail if it matches
     if (selectedPostForDetail && selectedPostForDetail.id === postId) {
         setSelectedPostForDetail(prevSelectedPost => {
             if (!prevSelectedPost) return null;
@@ -556,23 +553,21 @@ export default function AppRoot() {
   const handleViewUserMoments = useCallback((profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => {
     let ownerDetails: ViewingMomentOwnerDetails | null = null;
 
-    if (userName && profileId) { // Prioritize directly passed details
+    if (userName && profileId) { 
         ownerDetails = { name: userName, avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint, profileId };
-    } else if (profileId) { // Fallback to finding in categories if only profileId is given
+    } else if (profileId) { 
         const categoryUser = initialCategoriesData.find(cat => cat.profileId === profileId);
         if (categoryUser) {
             ownerDetails = { name: categoryUser.name || 'User', avatarUrl: categoryUser.image, avatarAiHint: categoryUser.dataAiHint, profileId };
         } else {
-             // Fallback if profileId not in categories (e.g., from a post by a user not in categories)
-             ownerDetails = { name: `User ${profileId.substring(0,5)}...`, avatarUrl: undefined, avatarAiHint: 'person avatar', profileId };
+             ownerDetails = { name: `User ${profileId.substring(0,5)}...`, avatarUrl: `https://source.unsplash.com/random/48x48/?person,avatar`, avatarAiHint: 'person avatar', profileId };
         }
     }
-
 
     if (ownerDetails) {
         setViewingMomentOwnerDetails(ownerDetails);
         setShowMomentViewer(true);
-    } else if (userData) { // Default to logged-in user if no other context
+    } else if (userData) { 
         setViewingMomentOwnerDetails({
             name: userData.name,
             avatarUrl: userData.avatarUrl,
@@ -1033,7 +1028,7 @@ export default function AppRoot() {
         {renderScreenContent()}
       </div>
 
-      {isLoggedIn && !['detailed-post'].includes(activeTab) && ( // Hide BottomNav on detail screen
+      {isLoggedIn && !['detailed-post'].includes(activeTab) && ( 
         <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
 

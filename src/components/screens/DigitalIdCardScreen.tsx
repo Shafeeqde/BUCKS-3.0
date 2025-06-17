@@ -40,7 +40,7 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
         for (let i = 0; i < cleanUUID.length; i += 4) {
             formatted += cleanUUID.substring(i, i + 4) + ' ';
         }
-        return formatted.trim().substring(0, 19); // Max 4 groups of 4 chars + 3 spaces
+        return formatted.trim().substring(0, 19); 
     };
     const formattedCardNumberUUID = formatUUIDAsCardNumber(userUUID);
 
@@ -62,7 +62,7 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
         toast({ title: "Edit Display Info", description: "Opening settings to edit your ID card display name, avatar, etc." });
     };
     
-    const qrCodeDataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJySURBVHhe7dJBDQAgDAAx2P+FF7JgSRMAAAAAAAAAAAAAAAAAAAAAAABAQkmb/Vf2nAHtMkH+P3AGtMsE+f/AGdAuE+T/A2dAu0yQ/w+cAW0zQ0IWMiIiIzIicyIiIjMiIzIiIiMyIiMyIiIiMyIiMyIiIzIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMxf3f4A9hMHg8gS7LwAAAAASUVORK5CYII=";
+    const qrCodeDataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJySURBVHhe7dJBDQAgDAAx2P+FF7JgSRMAAAAAAAAAAAAAAAAAAAAAAABAQkmb/Vf2nAHtMkH+P3AGtMsE+f/AGdAuE+T/A2dAu0yQ/w+cAW0zQ0IWMiIiIzIicyIiIjMiIzIiIiMyIiMyIiIiMyIiMyIiIzIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMxf3f4A9hMHg8gS7LwAAAAASUVORK5CYII=";
 
     const avatarHint = userData.avatarAiHint || "user portrait";
     const avatarSrc = userData.avatarUrl || `https://source.unsplash.com/random/120x120/?${avatarHint.split(' ').join(',')}`;
@@ -72,10 +72,9 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
             <div className="flex justify-center items-center min-h-full py-4">
                 <Card className={cn(
                     "w-full max-w-xl shadow-2xl rounded-xl overflow-hidden bg-card border border-border",
-                    "aspect-[16/10]" // Horizontal aspect ratio (wider than tall)
+                    "aspect-[16/10]" 
                 )}>
                     <div className="h-full flex flex-col p-4 sm:p-5 bg-gradient-to-br from-primary/10 via-background to-secondary/5">
-                        {/* Header Section */}
                         <div className="flex justify-between items-center mb-3 sm:mb-4">
                             <div className="flex items-center space-x-1.5">
                                 <BuildingOfficeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
@@ -84,9 +83,7 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
                             <CheckBadgeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />
                         </div>
 
-                        {/* Main Content Area */}
                         <div className="flex-grow grid grid-cols-3 gap-3 sm:gap-4">
-                            {/* Left Column for Textual Info */}
                             <div className="col-span-2 flex flex-col justify-between space-y-2 sm:space-y-3">
                                 <div>
                                     <p className="text-xs text-muted-foreground uppercase tracking-wider">Bucks ID</p>
@@ -112,7 +109,6 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
                                 </div>
                             </div>
 
-                            {/* Right Column for Avatar & QR */}
                             <div className="col-span-1 flex flex-col items-center justify-between space-y-2 sm:space-y-3">
                                 <Avatar className="h-16 w-16 sm:h-20 sm:w-20 border-2 border-primary/30 rounded-md">
                                     <AvatarImage src={avatarSrc} alt={loggedInUserName} data-ai-hint={avatarHint}/>
@@ -129,7 +125,6 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
                             </div>
                         </div>
 
-                        {/* Footer Section */}
                         <div className="mt-auto pt-3 sm:pt-4 border-t border-border/30 flex justify-between items-center">
                              <p className="text-xs text-muted-foreground/70">Bucks Network</p>
                              <Button variant="link" size="sm" className="text-xs h-auto p-0 text-primary/80 hover:text-primary" onClick={handleEditPersonalProfile}>

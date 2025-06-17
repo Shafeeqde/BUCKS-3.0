@@ -26,7 +26,7 @@ interface SkillsetProfileFormData {
   isActive: boolean;
   userName: string;
   userAvatarUrl?: string;
-  userAvatarAiHint?: string; // Added for consistency
+  userAvatarAiHint?: string; 
   professionalTitle?: string;
   skillSpecificBio?: string;
   contactInfo?: {
@@ -98,7 +98,7 @@ const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: stri
         });
       }
       else {
-        resolve({ // Fallback for new/unrecognized ID
+        resolve({ 
             id: skillsetProfileId,
             skillName: `New Skillset (${skillsetProfileId.substring(0,5)})`,
             skillLevel: 'Beginner',
@@ -205,7 +205,6 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     } : null);
   };
 
-  // --- Work Experience CRUD Functions ---
   const openAddWorkExperienceDialog = () => {
     setCurrentWorkExperience({});
     setShowWorkExperienceDialog(true);
@@ -260,7 +259,6 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     toast({ title: "Work Experience Deleted", variant: "destructive" });
   };
 
-  // --- Portfolio Item CRUD Functions ---
   const openAddPortfolioItemDialog = () => {
     setCurrentPortfolioItem({});
     setShowPortfolioItemDialog(true);
@@ -317,7 +315,6 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     toast({ title: "Portfolio Item Deleted", variant: "destructive" });
   };
 
-  // --- Professional Feed CRUD Functions ---
   const openAddFeedItemDialog = () => {
     setCurrentFeedItem({ timestamp: new Date().toLocaleDateString() });
     setShowFeedItemDialog(true);
@@ -701,7 +698,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="pi-imageUrl" className="text-right">Image URL</Label>
-                      <Input id="pi-imageUrl" name="imageUrl" value={currentPortfolioItem?.imageUrl || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="https://example.com/image.png"/>
+                      <Input id="pi-imageUrl" name="imageUrl" value={currentPortfolioItem?.imageUrl || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="https://source.unsplash.com/random/600x400/"/>
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="pi-imageAiHint" className="text-right">Image AI Hint</Label>
@@ -757,7 +754,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="feed-imageUrl" className="text-right">Image URL</Label>
-                      <Input id="feed-imageUrl" name="imageUrl" value={currentFeedItem?.imageUrl || ''} onChange={handleFeedItemDialogChange} className="col-span-3" placeholder="https://example.com/feed-image.png"/>
+                      <Input id="feed-imageUrl" name="imageUrl" value={currentFeedItem?.imageUrl || ''} onChange={handleFeedItemDialogChange} className="col-span-3" placeholder="https://source.unsplash.com/random/400x200/"/>
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="feed-imageAiHint" className="text-right">Image AI Hint</Label>
