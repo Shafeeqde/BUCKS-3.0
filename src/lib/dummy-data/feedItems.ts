@@ -12,7 +12,7 @@ export const feedItems: FeedItem[] = [
     id: 1, type: 'post', user: 'Shafeeq A.', userImage: 'https://source.unsplash.com/random/40x40/?man,casual,beard', userImageAiHint: 'man casual beard', profileId: 'shafeeq-profile',
     timestamp: 'Wishing you a joyful and prosperous Diwali',
     content: 'May this festival of lights bring happiness, success, and warmth to your lives.',
-    media: { type: 'image', url: 'https://source.unsplash.com/random/600x350/?diwali,festival', aiHint: 'diwali festival' },
+    media: { type: 'image', url: 'https://images.unsplash.com/photo-1605292356183-a77d0a9c9d1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxEaXdhbGl8ZW58MHx8fHwxNzUwMTUxMjc3fDA&ixlib=rb-4.1.0&q=80&w=1080', aiHint: 'diwali festival' },
     comments: 7, recommendations: 10, notRecommendations: 2,
     commentsData: [
         ...commonComments.slice(0,2),
@@ -64,3 +64,4 @@ export const feedItems: FeedItem[] = [
     ]
   },
 ];
+
