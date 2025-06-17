@@ -6,18 +6,20 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { ChatBubbleOvalLeftEllipsisIcon } from '@heroicons/react/24/outline';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { ChatBubbleOvalLeftEllipsisIcon, EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import ArrowUpIcon from '@/components/icons/ArrowUpIcon';
 import ArrowDownIcon from '@/components/icons/ArrowDownIcon';
 import type { FeedItem as FeedItemType } from '@/types';
 import { cn } from '@/lib/utils';
+import { useToast } from "@/hooks/use-toast";
 
 interface FeedCardProps {
   item: FeedItemType;
   onInteraction: (id: number, type: 'recommend' | 'notRecommend') => void;
   onViewUserProfile?: (profileId: string) => void;
   onViewUserMoments?: (profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => void;
-  onViewDetail: () => void; // New prop
+  onViewDetail: () => void;
 }
 
 const FeedCard: React.FC<FeedCardProps> = ({ 
@@ -25,23 +27,32 @@ const FeedCard: React.FC<FeedCardProps> = ({
   onInteraction, 
   onViewUserProfile,
   onViewUserMoments,
-  onViewDetail // Use new prop
+  onViewDetail 
 }) => {
+  const { toast } = useToast();
   
   const handleUserClick = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.stopPropagation(); // Prevent card click if name is clicked
+    e.stopPropagation(); 
     if (item.profileId && onViewUserProfile) {
       onViewUserProfile(item.profileId);
     }
   };
 
   const handleAvatarClick = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.stopPropagation(); // Prevent card click if avatar is clicked
+    e.stopPropagation(); 
     if (item.profileId && onViewUserMoments) {
       onViewUserMoments(item.profileId, item.user, item.userImage, item.userImageAiHint);
     } else if (item.profileId && onViewUserProfile) { 
       onViewUserProfile(item.profileId);
     }
+  };
+
+  const handleDropdownAction = (action: 'Share' | 'Repost' | 'Save' | 'Report') => {
+    toast({
+      title: `${action} Action`,
+      description: `${action} action for "${item.content.substring(0,20)}..." (Simulated).`,
+      variant: action === 'Report' ? 'destructive' : 'default',
+    });
   };
 
   const isNameClickable = !!(item.profileId && onViewUserProfile);
@@ -50,16 +61,11 @@ const FeedCard: React.FC<FeedCardProps> = ({
 
   return (
     <Card 
-      className="shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
-      onClick={onViewDetail} // Make the whole card clickable to view detail
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && onViewDetail()}
-      aria-label={`View post by ${item.user}`}
+      className="shadow-sm hover:shadow-md transition-shadow duration-200"
+      aria-label={`Post by ${item.user}`}
     >
       <CardHeader 
         className="flex flex-row items-center space-x-3 pb-3"
-        onClick={(e) => e.stopPropagation()} // Prevent card click from triggering if header elements are clicked
       >
         <Avatar 
           className={cn(
@@ -80,7 +86,7 @@ const FeedCard: React.FC<FeedCardProps> = ({
             isNameClickable && "cursor-pointer" 
           )}
           onClick={isNameClickable ? handleUserClick : undefined}
-          onKeyDown={isNameClickable ? (e) => e.key === 'Enter' && handleUserClick() : undefined}
+          onKeyDown={isNameClickable ? (e) => e.key === 'Enter' && handleUserClick(e) : undefined}
           tabIndex={isNameClickable ? 0 : undefined}
           role={isNameClickable ? "button" : undefined}
           aria-label={isNameClickable ? `View ${item.user}'s profile` : undefined}
@@ -88,20 +94,36 @@ const FeedCard: React.FC<FeedCardProps> = ({
           <CardTitle className={cn("text-base font-semibold text-foreground font-headline", isNameClickable && "hover:text-primary hover:underline")}>{item.user}</CardTitle>
           <p className="text-sm text-muted-foreground">{item.timestamp}</p>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground flex-shrink-0" onClick={(e) => e.stopPropagation()} aria-label="More options">
+              <EllipsisVerticalIcon className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+            <DropdownMenuItem onClick={() => handleDropdownAction('Share')}>Share Post</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDropdownAction('Repost')}>Repost</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleDropdownAction('Save')}>Save Post</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleDropdownAction('Report')} className="text-destructive focus:text-destructive-foreground focus:bg-destructive">
+              Report Post
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </CardHeader>
       <CardContent className="pb-3">
-        <p className="text-foreground mb-3">{item.content}</p>
+        <p className="text-foreground mb-3 whitespace-pre-line">{item.content}</p>
         {item.media && item.media.type === 'image' && item.media.url && (
-          <div className="relative w-full aspect-[16/9] rounded-lg overflow-hidden mb-3">
+          <div className="relative w-full aspect-[16/9] rounded-lg overflow-hidden mb-3 cursor-pointer" onClick={onViewDetail}>
             <Image src={item.media.url} alt={item.media.aiHint || "Feed content"} layout="fill" objectFit="cover" data-ai-hint={item.media.aiHint || "general image"}/>
           </div>
         )}
-        {/* Add rendering for other media types if needed here, similar to AccountScreen */}
         <div className="flex items-center justify-between text-muted-foreground text-sm mt-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                onClick={(e) => { e.stopPropagation(); onViewDetail(); }} // Comment icon now also navigates to detail
+                onClick={(e) => { e.stopPropagation(); onViewDetail(); }}
                 className="flex items-center hover:text-primary focus:outline-none p-1 rounded-md hover:bg-accent/20"
                 aria-label={`View comments for ${item.user}'s post`}
               >
@@ -109,10 +131,10 @@ const FeedCard: React.FC<FeedCardProps> = ({
                 <span className="text-xs">{item.comments}</span>
               </button>
             </TooltipTrigger>
-            <TooltipContent><p>View Comments</p></TooltipContent>
+            <TooltipContent><p>View Comments & Details</p></TooltipContent>
           </Tooltip>
 
-          <div className="flex items-center space-x-3" onClick={(e) => e.stopPropagation()}> {/* Prevent card click for interactions */}
+          <div className="flex items-center space-x-3" onClick={(e) => e.stopPropagation()}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
