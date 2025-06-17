@@ -12,18 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-
-const initialCategories: Category[] = [
-  { id: 'moments-0', name: 'Your Moments', icon: PlusIcon, type: 'moments', viewed: false, color: 'bg-primary/10 text-primary' },
-  { id: 'cat-deepthi', name: 'Deepthi', image: 'https://source.unsplash.com/random/100x100/?woman,portrait,indian', dataAiHint: 'woman portrait indian', viewed: false, profileId: 'deepthi-profile' },
-  { id: 'cat-maanisha', name: 'Maanisha', image: 'https://source.unsplash.com/random/100x100/?woman,smiling,professional', dataAiHint: 'woman smiling professional', viewed: false, profileId: 'manisha-profile' },
-  { id: 'cat-subhesh', name: 'Subhesh', image: 'https://source.unsplash.com/random/100x100/?man,office,indian', dataAiHint: 'man office indian', viewed: true, profileId: 'subhesh-profile' },
-  { id: 'cat-seena', name: 'Seena', image: 'https://source.unsplash.com/random/100x100/?person,outdoor,female', dataAiHint: 'person outdoor female', viewed: false, profileId: 'seena-profile' },
-  { id: 'cat-shafeeq', name: 'Shafeeq', image: 'https://source.unsplash.com/random/100x100/?man,casual,beard', dataAiHint: 'man casual beard', viewed: false, profileId: 'shafeeq-profile' },
-  { id: 'cat-senthil', name: 'Senthil', image: 'https://source.unsplash.com/random/100x100/?person,tech,southindian', dataAiHint: 'person tech southindian', viewed: true, profileId: 'senthil-profile' },
-  { id: 'cat-mikado', name: 'Mikado', image: 'https://source.unsplash.com/random/100x100/?company,logo', dataAiHint: 'company logo', viewed: true, profileId: 'mikado-ux-ui-business-profile' }, // Example: business profile
-  { id: 'cat-tvs', name: 'TVS Synergy', image: 'https://source.unsplash.com/random/100x100/?vehicle,brand', dataAiHint: 'vehicle brand', viewed: false },
-];
+import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories'; // Import the data
 
 const initialFeedItems: FeedItemType[] = [
   {
@@ -40,7 +29,7 @@ const initialFeedItems: FeedItemType[] = [
     comments: 12, recommendations: 5, notRecommendations: 1, showCommentBox: false, currentComment: ''
   },
   {
-    id: 3, type: 'job', user: 'Mikado UX UI', userImage: 'https://source.unsplash.com/random/40x40/?design,studio,logo', userImageAiHint: 'design studio logo', profileId: 'mikado-ux-ui-business-profile', // Example: This could link to a business profile
+    id: 3, type: 'job', user: 'Mikado UX UI', userImage: 'https://source.unsplash.com/random/40x40/?design,studio,logo', userImageAiHint: 'design studio logo', profileId: 'mikado-ux-ui-business-profile', 
     timestamp: 'Hiring Graphic Designer',
     content: 'Hi Design Enthusiast , we are in search of the graphic Designer with Illustrative and sketching skills , check out your Job portal and share you resume and please suggest you known persons if you know someone as we expected.',
     comments: 20, recommendations: 25, notRecommendations: 3, showCommentBox: false, currentComment: ''
@@ -52,13 +41,13 @@ const initialFeedItems: FeedItemType[] = [
     timestamp: 'Sponsored Ad', comments: 0, recommendations: 15, notRecommendations: 0, showCommentBox: false, currentComment: ''
   },
   {
-    id: 5, type: 'post', user: 'Hot Griddle Restaurant', userImage: 'https://source.unsplash.com/random/40x40/?restaurant,logo&sig=hg', userImageAiHint: 'restaurant logo', profileId: 'hot-griddle-business-profile', // Example
+    id: 5, type: 'post', user: 'Hot Griddle Restaurant', userImage: 'https://source.unsplash.com/random/40x40/?restaurant,logo&sig=hg', userImageAiHint: 'restaurant logo', profileId: 'hot-griddle-business-profile', 
     timestamp: '4 days ago',
     content: 'Special Offer: Combo meals starting at just ₹249 this week! Perfect for a quick and delicious lunch. #FoodDeals #LunchSpecial',
     comments: 18, recommendations: 88, notRecommendations: 1, showCommentBox: false, currentComment: ''
   },
   {
-    id: 6, type: 'post', user: 'GreenScape Landscaping', userImage: 'https://source.unsplash.com/random/40x40/?landscape,company,logo&sig=gs', userImageAiHint: 'landscape company logo', profileId: 'greenscape-business-profile', // Example
+    id: 6, type: 'post', user: 'GreenScape Landscaping', userImage: 'https://source.unsplash.com/random/40x40/?landscape,company,logo&sig=gs', userImageAiHint: 'landscape company logo', profileId: 'greenscape-business-profile', 
     timestamp: '1 day ago',
     content: 'Spring is here! 🌷 Time to get your garden ready. Contact us for a free consultation.',
     postImage: 'https://source.unsplash.com/random/600x350/?garden,spring,flowers', postImageAiHint: 'garden spring flowers',
@@ -68,17 +57,21 @@ const initialFeedItems: FeedItemType[] = [
 
 interface FeedsScreenProps {
   onViewUserProfile?: (profileId: string) => void;
+  onAddMomentClick: () => void;
+  onViewUserMomentsClick: (profileId?: string) => void;
 }
 
-const FeedsScreen: React.FC<FeedsScreenProps> = ({ onViewUserProfile }) => {
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
+const FeedsScreen: React.FC<FeedsScreenProps> = ({ 
+  onViewUserProfile,
+  onAddMomentClick,
+  onViewUserMomentsClick 
+}) => {
+  const [categories, setCategories] = useState<Category[]>(initialCategoriesData);
   const [feedItems, setFeedItems] = useState<FeedItemType[]>(initialFeedItems);
   const { toast } = useToast();
 
-  const [showCreateMomentDialog, setShowCreateMomentDialog] = useState(false);
-  const [momentImageUrl, setMomentImageUrl] = useState('');
-  const [momentText, setMomentText] = useState('');
-  const [isPostingMoment, setIsPostingMoment] = useState(false);
+  // Local state for the create moment dialog inside FeedsScreen is removed
+  // as it's now handled by page.tsx
 
   const handleInteraction = (id: number, type: 'recommend' | 'notRecommend') => {
     const itemInteractedWith = feedItems.find(item => item.id === id);
@@ -140,44 +133,27 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({ onViewUserProfile }) => {
     }
   };
 
-  const handleCategoryClick = (id: string) => {
-    const category = categories.find(c => c.id === id);
-    if (category?.type === 'moments' && category.id === 'moments-0') {
-      setMomentImageUrl('');
-      setMomentText('');
-      setShowCreateMomentDialog(true);
-    } else if (category?.profileId && onViewUserProfile) {
+  const handleCategoryClick = (categoryId: string) => {
+    const category = categories.find(c => c.id === categoryId);
+    if (!category) return;
+
+    if (category.id === 'moments-0' && category.type === 'moments') {
+      onAddMomentClick(); // Call prop to open dialog in page.tsx
+    } else if (category.profileId && onViewUserMomentsClick) {
+      onViewUserMomentsClick(category.profileId); // Call prop to open viewer in page.tsx
+      setCategories(prevCategories => prevCategories.map(cat => cat.id === categoryId ? { ...cat, viewed: true } : cat));
+    } else if (category.profileId && onViewUserProfile) {
+      // This case might be for regular profile view if not a moment category
       onViewUserProfile(category.profileId);
-      setCategories(prevCategories => prevCategories.map(cat => cat.id === id ? { ...cat, viewed: true } : cat));
-    } else {
-      setCategories(prevCategories => prevCategories.map(cat => cat.id === id ? { ...cat, viewed: true } : cat));
+      setCategories(prevCategories => prevCategories.map(cat => cat.id === categoryId ? { ...cat, viewed: true } : cat));
+    }
+     else {
+      setCategories(prevCategories => prevCategories.map(cat => cat.id === categoryId ? { ...cat, viewed: true } : cat));
       toast({
           title: `Viewing ${category?.name || 'Category'}`,
           description: "Content for this category would load here in a full app.",
       });
     }
-  };
-
-  const handlePostMoment = async () => {
-    if (!momentImageUrl.trim() && !momentText.trim()) {
-      toast({
-        title: "Cannot Post Empty Moment",
-        description: "Please add an image URL or some text for your moment.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setIsPostingMoment(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log("Posting moment:", { imageUrl: momentImageUrl, text: momentText });
-    toast({
-      title: "Moment Posted! (Simulated)",
-      description: "Your moment has been shared.",
-    });
-    setShowCreateMomentDialog(false);
-    setMomentImageUrl('');
-    setMomentText('');
-    setIsPostingMoment(false);
   };
 
   return (
@@ -203,57 +179,7 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({ onViewUserProfile }) => {
           ))}
         </div>
       </main>
-
-      <Dialog open={showCreateMomentDialog} onOpenChange={setShowCreateMomentDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center">
-              <PlusIcon className="mr-2 h-5 w-5 text-primary" /> Create Your Moment
-            </DialogTitle>
-            <DialogDescription>
-              Share an image and a short text with your followers.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="momentImageUrl" className="flex items-center">
-                <PhotoIcon className="mr-2 h-4 w-4 text-muted-foreground" /> Image URL
-              </Label>
-              <Input
-                id="momentImageUrl"
-                placeholder="https://example.com/image.png"
-                value={momentImageUrl}
-                onChange={(e) => setMomentImageUrl(e.target.value)}
-                disabled={isPostingMoment}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="momentText" className="flex items-center">
-                <PencilSquareIcon className="mr-2 h-4 w-4 text-muted-foreground" /> Your Text
-              </Label>
-              <Textarea
-                id="momentText"
-                placeholder="What's happening?"
-                value={momentText}
-                onChange={(e) => setMomentText(e.target.value)}
-                rows={3}
-                disabled={isPostingMoment}
-              />
-            </div>
-          </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <DialogClose asChild>
-              <Button type="button" variant="outline" disabled={isPostingMoment}>
-                Cancel
-              </Button>
-            </DialogClose>
-            <Button type="button" onClick={handlePostMoment} disabled={isPostingMoment}>
-              {isPostingMoment && <span className="mr-2 h-4 w-4 animate-spin border-2 border-primary-foreground border-t-transparent rounded-full"></span>}
-              {isPostingMoment ? 'Posting...' : 'Post Moment'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* CreateMomentDialog is no longer rendered here; it's in page.tsx */}
     </>
   );
 };

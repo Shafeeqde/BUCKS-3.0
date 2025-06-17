@@ -30,9 +30,10 @@ import AccountSettingsScreen from '@/components/screens/AccountSettingsScreen';
 import CreatePostScreen from '@/components/screens/CreatePostScreen';
 import CreateMomentDialog from '@/components/moments/CreateMomentDialog';
 import MomentViewerScreen from '@/components/moments/MomentViewerScreen';
+import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
 
 
-import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, ProfilePost, MediaAttachment, UserMoment } from '@/types';
+import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, ProfilePost, MediaAttachment, UserMoment, Category as CategoryType } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
 
@@ -442,11 +443,44 @@ export default function AppRoot() {
       timestamp: new Date().toISOString(),
     };
     setUserMoments(prevMoments => [newMoment, ...prevMoments]);
-    // Also update userData if it's used directly by SideMenu for moments count/indicator
     setUserData(prevUserData => prevUserData ? ({ ...prevUserData, moments: [newMoment, ...(prevUserData.moments || [])] }) : null);
     toast({ title: "Moment Posted!", description: "Your new moment has been added." });
     setShowCreateMomentDialog(false);
   }, [userData, toast]);
+
+  const handleAddMomentFromAccount = useCallback(() => {
+    setShowCreateMomentDialog(true);
+  }, []);
+
+  const handleViewUserMomentsFromAccount = useCallback(() => {
+    if (userMoments.length > 0) {
+      setShowMomentViewer(true);
+    } else {
+      toast({ title: "No Moments Yet", description: "Create your first moment to share with your followers!" });
+    }
+  }, [userMoments, toast]);
+  
+  const handleAddMomentFromFeeds = useCallback(() => {
+    setShowCreateMomentDialog(true);
+  }, []);
+
+  const handleViewUserMomentsFromFeeds = useCallback((profileId?: string) => {
+    if (userMoments.length > 0) {
+        setShowMomentViewer(true);
+        if (profileId) {
+            const category = initialCategoriesData.find(c => c.profileId === profileId);
+            const profileName = category?.name || profileId;
+            toast({ title: `Viewing Moments for ${profileName}`, description: "(Currently showing your moments as a placeholder)" });
+        }
+    } else if (profileId) {
+        const category = initialCategoriesData.find(c => c.profileId === profileId);
+        const profileName = category?.name || profileId;
+        toast({ title: `No Moments Yet for ${profileName}`, description: "This user hasn't shared any moments. (Showing your empty moments as placeholder)" });
+    } else {
+        toast({ title: "No Moments Yet", description: "Create your first moment to share!" });
+    }
+  }, [userMoments, toast]);
+
 
 
   const handleRideRequest = useCallback((rideData: { pickup: string; dropoff: string; vehicleId: string }) => {
@@ -702,7 +736,11 @@ export default function AppRoot() {
                             onSelectSkillsetProfile={handleSelectSkillsetProfile}
                             onAddToCart={handleAddToCart}
                          />;
-      case 'feeds': return <FeedsScreen onViewUserProfile={handleSelectIndividualProfile} />;
+      case 'feeds': return <FeedsScreen
+                              onViewUserProfile={handleSelectIndividualProfile}
+                              onAddMomentClick={handleAddMomentFromFeeds}
+                              onViewUserMomentsClick={handleViewUserMomentsFromFeeds}
+                           />;
       case 'menu': return <ServicesScreen setActiveTab={setActiveTab} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen />;
       case 'account': return <AccountScreen
@@ -710,14 +748,8 @@ export default function AppRoot() {
                                 setActiveTab={setActiveTab}
                                 userPosts={userPosts}
                                 userMoments={userMoments}
-                                onAddMomentClick={() => setShowCreateMomentDialog(true)}
-                                onViewUserMomentsClick={() => {
-                                  if (userMoments.length > 0) {
-                                    setShowMomentViewer(true);
-                                  } else {
-                                    toast({ title: "No Moments Yet", description: "Create your first moment to share!" });
-                                  }
-                                }}
+                                onAddMomentClick={handleAddMomentFromAccount}
+                                onViewUserMomentsClick={handleViewUserMomentsFromAccount}
                              />;
       case 'create-post': return <CreatePostScreen onPost={handleCreateNewPost} onCancel={() => setActiveTab('account')} />;
       case 'digital-id-card': return <DigitalIdCardScreen userData={userData} setActiveTab={setActiveTab} />;
@@ -775,14 +807,8 @@ export default function AppRoot() {
                         setActiveTab={setActiveTab}
                         userPosts={userPosts}
                         userMoments={userMoments}
-                        onAddMomentClick={() => setShowCreateMomentDialog(true)}
-                        onViewUserMomentsClick={() => {
-                          if (userMoments.length > 0) {
-                            setShowMomentViewer(true);
-                          } else {
-                            toast({ title: "No Moments Yet", description: "Create your first moment to share!" });
-                          }
-                        }}
+                        onAddMomentClick={handleAddMomentFromAccount}
+                        onViewUserMomentsClick={handleViewUserMomentsFromAccount}
                      />;
         }
         return <p className="p-4 text-center text-muted-foreground">No individual profile selected or user data missing.</p>;
@@ -839,6 +865,8 @@ export default function AppRoot() {
     handleSelectJob, handleBackFromJobDetail, handleAddToCart, handleRideRequest,
     handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive,
     handleCreateNewPost,
+    handleAddMomentFromAccount, handleViewUserMomentsFromAccount,
+    handleAddMomentFromFeeds, handleViewUserMomentsFromFeeds,
     toast
   ]);
 
@@ -928,3 +956,5 @@ export default function AppRoot() {
     </div>
   );
 }
+
+    
