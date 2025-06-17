@@ -1,24 +1,30 @@
 
+"use client";
+
+import React from 'react';
 import { Bars3Icon, ChatBubbleOvalLeftEllipsisIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { TabName } from '@/types';
+import { useCart } from '@/context/CartContext'; // Import useCart hook
 
 interface HeaderProps {
   onMenuClick: () => void;
   onMessagesClick: () => void;
-  onCartClick: () => void; // New prop
+  onCartClick: () => void;
   unreadCount?: number;
-  cartItemCount?: number; // New prop
+  // cartItemCount prop is removed as we'll use context directly
 }
 
-const Header: React.FC<HeaderProps> = ({ 
-  onMenuClick, 
-  onMessagesClick, 
-  onCartClick, // Use new prop
+const Header: React.FC<HeaderProps> = ({
+  onMenuClick,
+  onMessagesClick,
+  onCartClick,
   unreadCount = 0,
-  cartItemCount = 0 // Use new prop
 }) => {
+  const { getCartItemCount } = useCart(); // Consume the cart context
+  const cartItemCount = getCartItemCount(); // Get the total item count
+
   return (
     <header className="bg-card shadow-sm p-4 flex items-center justify-between z-20 sticky top-0">
       <div className="flex items-center">
@@ -43,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>View Cart</p>
+              <p>View Cart ({cartItemCount} items)</p>
             </TooltipContent>
           </Tooltip>
           {cartItemCount > 0 && (

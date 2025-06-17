@@ -9,12 +9,13 @@ import { Badge } from '@/components/ui/badge';
 import { StarIcon, ChatBubbleOvalLeftEllipsisIcon, PhoneIcon, HandThumbUpIcon, ShareIcon, UserPlusIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 import type { BusinessProfileCardData, BusinessProductCardItem } from '@/types';
+import { useCart } from '@/context/CartContext'; // Import useCart hook
 
 interface BusinessProfileCardProps {
   business: BusinessProfileCardData;
   onPress?: (id: string | number) => void;
   onProductClick?: (businessId: string | number, productId: string) => void;
-  onAddToCartClick?: (businessId: string | number, productId: string) => void;
+  // onAddToCartClick prop is removed, will use context directly
   onEnquiryClick?: (id: string | number) => void;
   onCallClick?: (id: string | number, phone?: string) => void;
   onRecommendClick?: (id: string | number) => void;
@@ -44,7 +45,6 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
   business,
   onPress,
   onProductClick,
-  onAddToCartClick,
   onEnquiryClick,
   onCallClick,
   onRecommendClick,
@@ -53,6 +53,18 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
 }) => {
   const logoHint = business.logoAiHint || "business logo";
   const logoSrc = business.logoUrl || `https://source.unsplash.com/random/80x80/?${logoHint.split(' ').join(',') || 'logo'}`;
+  const { addToCart } = useCart(); // Consume the cart context
+
+  const handleProductAddToCart = (product: BusinessProductCardItem) => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.discountPrice || product.price, // Use discounted price if available
+      businessId: business.id,
+      imageUrl: product.imageUrl,
+      imageAiHint: product.imageAiHint,
+    });
+  };
 
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 w-full overflow-hidden">
@@ -97,9 +109,9 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
                 <Card
                   key={product.id}
                   className="min-w-[160px] max-w-[180px] flex-shrink-0 flex flex-col group hover:shadow-md transition-shadow"
-                  onClick={(e) => { e.stopPropagation(); onProductClick?.(business.id, product.id); }}
                   role="button"
                   tabIndex={0}
+                  onClick={(e) => { e.stopPropagation(); onProductClick?.(business.id, product.id); }}
                   onKeyDown={(e) => e.key === 'Enter' && onProductClick?.(business.id, product.id)}
                 >
                   <div className="relative w-full aspect-[4/3] rounded-t-md overflow-hidden border-b cursor-pointer">
@@ -133,7 +145,7 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
                       variant="outline"
                       size="sm"
                       className="w-full mt-2 text-xs h-8"
-                      onClick={(e) => { e.stopPropagation(); onAddToCartClick?.(business.id, product.id); }}
+                      onClick={(e) => { e.stopPropagation(); handleProductAddToCart(product); }}
                     >
                       <ShoppingCartIcon className="h-3.5 w-3.5 mr-1.5" /> Add to Cart
                     </Button>
