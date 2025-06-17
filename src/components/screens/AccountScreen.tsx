@@ -8,24 +8,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { UserCircleIcon, Cog6ToothIcon, PlusCircleIcon, PhotoIcon, FilmIcon, LinkIcon as LinkOutlineIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, QueueListIcon } from '@heroicons/react/24/outline';
+import { UserCircleIcon, PlusCircleIcon, PhotoIcon, FilmIcon, LinkIcon as LinkOutlineIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, QueueListIcon } from '@heroicons/react/24/outline';
 import type { TabName, UserDataForSideMenu, ProfilePost } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
 interface AccountScreenProps {
   userData: UserDataForSideMenu | null;
   setActiveTab: (tab: TabName) => void;
+  userPosts: ProfilePost[]; // New prop for user's posts
 }
 
-// Dummy posts for the feed
-const dummyPosts: ProfilePost[] = [
-  { id: 'post1', type: 'post', user: 'Current User', timestamp: '2h ago', content: 'Just had a great lunch! #foodie', imageUrl: 'https://source.unsplash.com/random/600x400/?lunch,food', imageAiHint: 'lunch food', likes: 15, comments: 3 },
-  { id: 'post2', type: 'post', user: 'Current User', timestamp: '1d ago', content: 'Working on a new exciting project. Stay tuned! #development', likes: 25, comments: 8 },
-  { id: 'post3', type: 'image', user: 'Current User', timestamp: '3d ago', imageUrl: 'https://source.unsplash.com/random/600x400/?nature,sunset', imageAiHint: 'nature sunset', likes: 40, comments: 5, content: "Beautiful sunset today!"},
-];
-
-
-const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab }) => {
+const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, userPosts }) => {
   const { toast } = useToast();
 
   if (!userData) {
@@ -42,13 +35,8 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
     setActiveTab('professional-profile');
   };
 
-  const handleEditPersonalProfile = () => {
-    setActiveTab('account-settings'); 
-    toast({ title: "Navigating to Settings", description: "Opening account settings." });
-  };
-
   const handleCreatePost = () => {
-    toast({ title: "Create Post (Simulated)", description: "Post creation dialog or screen would open here." });
+    setActiveTab('create-post'); // Navigate to create post screen
   };
 
 
@@ -66,10 +54,9 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                 <h1 className="text-2xl font-bold font-headline text-foreground">{userData.name}</h1>
                 <p className="text-sm text-muted-foreground">{userData.email}</p>
                 <div className="flex items-center justify-center sm:justify-start space-x-4 mt-2 text-xs text-muted-foreground">
-                  {/* Placeholder stats */}
-                  <span><span className="font-semibold text-foreground">7</span> Posts</span>
-                  <span><span className="font-semibold text-foreground">391</span> Followers</span>
-                  <span><span className="font-semibold text-foreground">85</span> Following</span>
+                  <span><span className="font-semibold text-foreground">{userPosts.length}</span> Posts</span>
+                  <span><span className="font-semibold text-foreground">{/* Mock */}391</span> Followers</span>
+                  <span><span className="font-semibold text-foreground">{/* Mock */}85</span> Following</span>
                 </div>
               </div>
             </div>
@@ -93,18 +80,18 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
                 <TabsTrigger value="tweets" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><ChatBubbleLeftRightIcon className="h-4 w-4"/>Tweets</TabsTrigger>
               </TabsList>
               <TabsContent value="feed" className="p-4 min-h-[300px]">
-                 {dummyPosts.length > 0 ? (
+                 {userPosts.length > 0 ? (
                     <div className="space-y-4">
-                    {dummyPosts.map(post => (
+                    {userPosts.map(post => (
                         <Card key={post.id} className="shadow-sm">
                         <CardHeader className="pb-2 pt-4 px-4">
                             <div className="flex items-center space-x-3">
                                 <Avatar className="h-9 w-9">
-                                    <AvatarImage src={userData.avatarUrl || undefined} alt={userData.name} data-ai-hint={userData.avatarAiHint || "user avatar"}/>
-                                    <AvatarFallback>{userData.name.substring(0,1)}</AvatarFallback>
+                                    <AvatarImage src={post.userImage || userData.avatarUrl || undefined} alt={post.user} data-ai-hint={post.userImageAiHint || userData.avatarAiHint || "user avatar"}/>
+                                    <AvatarFallback>{post.user.substring(0,1)}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <p className="text-sm font-semibold text-foreground">{userData.name}</p>
+                                    <p className="text-sm font-semibold text-foreground">{post.user}</p>
                                     <p className="text-xs text-muted-foreground">{post.timestamp}</p>
                                 </div>
                             </div>
@@ -139,4 +126,3 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab })
 };
 
 export default AccountScreen;
-    

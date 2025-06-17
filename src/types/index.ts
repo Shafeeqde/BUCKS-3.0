@@ -26,7 +26,8 @@ export type TabName =
   | 'job-board'
   | 'job-detail'
   | 'account-settings'
-  | 'digital-id-card';
+  | 'digital-id-card'
+  | 'create-post'; // Added new tab
 
 export interface Category {
   id: string;
@@ -117,7 +118,7 @@ export interface UserVehicle {
 }
 
 export interface BusinessProduct {
-  id: string; // Standardizing to string for Firestore consistency
+  id: string; 
   name: string;
   description?: string;
   price: string;
@@ -128,8 +129,8 @@ export interface BusinessProduct {
 }
 
 export interface BusinessJob {
-  id: string; // Standardizing to string
-  businessId: string; // Standardizing to string
+  id: string; 
+  businessId: string; 
   businessName: string;
   businessLogoUrl?: string;
   title: string;
@@ -144,7 +145,7 @@ export interface BusinessJob {
 
 
 export interface BusinessFeedItem {
-  id: string; // Standardizing to string
+  id: string; 
   content: string;
   image?: string;
   imageAiHint?: string;
@@ -153,14 +154,14 @@ export interface BusinessFeedItem {
 }
 
 export interface BusinessService {
-  id: string; // Standardizing to string
+  id: string; 
   name:string;
   description?: string;
   price?: string;
 }
 
 export interface BusinessReview {
-  id: string; // Standardizing to string
+  id: string; 
   reviewerName: string;
   rating: number;
   comment: string;
@@ -168,7 +169,7 @@ export interface BusinessReview {
 }
 
 export interface UserBusinessProfile {
-  id: string; // Standardized to string for Firestore
+  id: string; 
   name: string;
   logo?: string;
   logoAiHint?: string;
@@ -209,7 +210,7 @@ export interface BusinessProductCardItem {
 }
 
 export interface BusinessProfileCardData {
-  id: string; // Standardized to string
+  id: string; 
   name: string;
   logoUrl?: string;
   logoAiHint?: string;
@@ -418,12 +419,13 @@ export interface UserDataForSideMenu {
 
 // This type is for the current user's content management screen (AccountScreen)
 export interface ProfilePost {
-  id: string | number;
+  id: string; // Ensure ID is string for consistency
   type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text' | 'post';
-  user: string;
+  user: string; // Name of the user
+  userId?: string; // ID of the user who posted
   userImage?: string;
   userImageAiHint?: string;
-  timestamp: string;
+  timestamp: string; // Can be formatted string like "2h ago" or ISO date
   likes: number;
   comments: number;
   content?: string;
@@ -432,7 +434,7 @@ export interface ProfilePost {
   imageUrl?: string;
   imageAiHint?: string;
   videoUrl?: string;
-  url?: string;
-  fileIcon?: string;
-  fileName?: string;
+  url?: string; // For link type posts
+  fileIcon?: string; // For file type posts
+  fileName?: string; // For file type posts
 }

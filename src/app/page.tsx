@@ -27,9 +27,12 @@ import SkillsetProfileManagementScreen from '@/components/screens/SkillsetProfil
 import JobBoardScreen from '@/components/screens/JobBoardScreen';
 import JobDetailScreen from '@/components/screens/JobDetailScreen';
 import AccountSettingsScreen from '@/components/screens/AccountSettingsScreen';
+import CreatePostScreen from '@/components/screens/CreatePostScreen'; // New Import
 
-import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu } from '@/types';
+import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, ProfilePost } from '@/types'; // Added ProfilePost
 import { useToast } from "@/hooks/use-toast";
+import { formatDistanceToNow } from 'date-fns';
+
 
 const initialBusinessProfilesData: UserBusinessProfile[] = [
   {
@@ -87,7 +90,7 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
     feed: [
       { id: 'feed-tf-1', content: 'Smashed phone screen? We can fix it today! Visit us for quick screen replacements.', timestamp: '1 day ago', image: 'https://placehold.co/600x400.png', imageAiHint: 'broken phone screen' },
     ],
-    products: [], // No direct products, mostly services
+    products: [], 
     services: [
       { id: 'serv-tf-laptop', name: 'Laptop Motherboard Repair', description: 'Component-level repair for all major laptop brands.', price: 'Starting at ₹2500' },
       { id: 'serv-tf-screen', name: 'Mobile Screen Replacement', description: 'Original and high-quality compatible screens available.', price: '₹1500 - ₹15000 (Varies by model)' },
@@ -121,7 +124,7 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
     ],
     averageRating: 4.2,
     totalReviews: 45,
-    isActive: false, // Example of an inactive profile
+    isActive: false, 
   }
 ];
 
@@ -163,10 +166,9 @@ export default function AppRoot() {
   const [userData, setUserData] = useState<UserDataForSideMenu | null>(null);
 
   const [businessProfilesData, setBusinessProfilesData] = useState<UserBusinessProfile[]>([]);
-  const [isLoadingBusinessProfiles, setIsLoadingBusinessProfiles] = useState(true); // Start true
+  const [isLoadingBusinessProfiles, setIsLoadingBusinessProfiles] = useState(false); 
   const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | null>(null);
   const [businessProfileToManageId, setBusinessProfileToManageId] = useState<string | null>(null);
-
 
   const [selectedIndividualProfileId, setSelectedIndividualProfileId] = useState<string | null>(null);
   const [selectedSkillsetProfileId, setSelectedSkillsetProfileId] = useState<string | null>(null);
@@ -179,21 +181,23 @@ export default function AppRoot() {
   const [activityDetails, setActivityDetails] = useState<ActivityDetails>(null);
   const [isDriverOnlineSim, setIsDriverOnlineSim] = useState(false);
 
+  const [userPosts, setUserPosts] = useState<ProfilePost[]>([]); // New state for user posts
+
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   const fetchBusinessProfiles = useCallback(async () => {
     if (!isLoggedIn) {
-      setBusinessProfilesData([]); // Clear data if not logged in
+      setBusinessProfilesData([]);
       setIsLoadingBusinessProfiles(false);
       return;
     }
     setIsLoadingBusinessProfiles(true);
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 750));
+    console.log("Fetching business profiles (local mock)...");
+    await new Promise(resolve => setTimeout(resolve, 750)); // Simulate API delay
     try {
-      setBusinessProfilesData(initialBusinessProfilesData); // Use mock data
+      setBusinessProfilesData(initialBusinessProfilesData);
       console.log("Mock business profiles loaded into state.");
     } catch (error) {
       console.error("Error setting mock business profiles:", error);
@@ -218,14 +222,12 @@ export default function AppRoot() {
     setBusinessProfilesData(prevProfiles => {
       const existingIndex = prevProfiles.findIndex(p => p.id === profileData.id);
       if (existingIndex > -1) {
-        // Update existing
         const updatedProfiles = [...prevProfiles];
         updatedProfiles[existingIndex] = profileData;
         toast({ title: "Profile Updated", description: `"${profileData.name}" has been updated locally.` });
         return updatedProfiles;
       } else {
-        // Add new
-        const newProfileWithId = { ...profileData, id: profileData.id || `bp-local-${Date.now()}` }; // Ensure ID for local
+        const newProfileWithId = { ...profileData, id: profileData.id || `bp-local-${Date.now()}` };
         toast({ title: "Profile Created", description: `"${newProfileWithId.name}" has been created locally.` });
         return [...prevProfiles, newProfileWithId];
       }
@@ -289,7 +291,8 @@ export default function AppRoot() {
     setSelectedSkillsetProfileId(null);
     setSkillsetProfileToManageId(null);
     setSelectedJobId(null);
-    setBusinessProfilesData([]); // Clear business profiles on logout
+    setBusinessProfilesData([]); 
+    setUserPosts([]); // Clear user posts on logout
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   }, [toast]);
 
@@ -304,7 +307,8 @@ export default function AppRoot() {
         tab !== 'job-detail' &&
         tab !== 'professional-profile' &&
         tab !== 'account-settings' &&
-        tab !== 'digital-id-card') {
+        tab !== 'digital-id-card' &&
+        tab !== 'create-post') { // Added create-post
         setSelectedBusinessProfileId(null);
         setBusinessProfileToManageId(null);
         setSelectedIndividualProfileId(null);
@@ -312,36 +316,12 @@ export default function AppRoot() {
         setSkillsetProfileToManageId(null);
         setSelectedJobId(null);
     }
-    if (tab === 'business-profiles' && isLoggedIn) { // Fetch only if logged in
+    if (tab === 'business-profiles' && isLoggedIn) { 
         fetchBusinessProfiles();
     }
   }, [fetchBusinessProfiles, isLoggedIn]);
 
   const setActiveTab = handleTabSelection;
-
-  const handleSelectBusinessProfile = useCallback((profileId: string) => {
-    setSelectedBusinessProfileId(profileId);
-    setActiveTab('business-detail');
-    setShowSideMenu(false);
-  }, [setActiveTab]);
-
-  const handleManageBusinessProfile = useCallback((profileId: string) => { // profileId can be "new"
-    setBusinessProfileToManageId(profileId);
-    setActiveTab('manage-business-profile');
-    setShowSideMenu(false);
-  }, [setActiveTab]);
-
-  const handleBackFromBusinessDetail = useCallback(() => {
-    setActiveTab('business-profiles');
-    setSelectedBusinessProfileId(null);
-    // No need to set businessProfileToManageId to null here, that's for management screen
-  }, [setActiveTab]);
-
-  const handleBackFromManageBusinessProfile = useCallback(() => {
-    setBusinessProfileToManageId(null);
-    setActiveTab('business-profiles');
-    // fetchBusinessProfiles(); // Data is local, so no explicit fetch needed, re-render will use current state
-  }, [setActiveTab]);
 
   const handleSelectSkillsetProfile = useCallback((skillsetProfileId: string) => {
     setSelectedSkillsetProfileId(skillsetProfileId);
@@ -362,6 +342,29 @@ export default function AppRoot() {
     }
     setShowSideMenu(false);
   }, [userData, handleSelectSkillsetProfile, setActiveTab]);
+
+
+  const handleSelectBusinessProfile = useCallback((profileId: string) => {
+    setSelectedBusinessProfileId(profileId);
+    setActiveTab('business-detail');
+    setShowSideMenu(false);
+  }, [setActiveTab]);
+
+  const handleManageBusinessProfile = useCallback((profileId: string) => { 
+    setBusinessProfileToManageId(profileId);
+    setActiveTab('manage-business-profile');
+    setShowSideMenu(false);
+  }, [setActiveTab]);
+
+  const handleBackFromBusinessDetail = useCallback(() => {
+    setActiveTab('business-profiles');
+    setSelectedBusinessProfileId(null);
+  }, [setActiveTab]);
+
+  const handleBackFromManageBusinessProfile = useCallback(() => {
+    setBusinessProfileToManageId(null);
+    setActiveTab('business-profiles');
+  }, [setActiveTab]);
 
 
   const handleManageSkillsetProfile = useCallback((skillsetProfileId: string) => {
@@ -390,6 +393,30 @@ export default function AppRoot() {
     console.log('Add to Cart:', { businessId, productId });
     toast({ title: "Added to Cart (Simulated)", description: `Product ${productId} from business ${businessId}` });
   }, [toast]);
+
+  // New handler for creating posts
+  const handleCreateNewPost = useCallback((content: string, imageUrl?: string) => {
+    if (!userData) {
+        toast({ title: "Not Logged In", description: "You must be logged in to create a post.", variant: "destructive" });
+        return;
+    }
+    const newPost: ProfilePost = {
+        id: `post-${Date.now()}`,
+        type: 'post',
+        user: userData.name,
+        userId: userData.id,
+        userImage: userData.avatarUrl,
+        userImageAiHint: userData.avatarAiHint,
+        content: content,
+        imageUrl: imageUrl,
+        timestamp: formatDistanceToNow(new Date(), { addSuffix: true }),
+        likes: 0,
+        comments: 0,
+    };
+    setUserPosts(prevPosts => [newPost, ...prevPosts]);
+    toast({ title: "Post Created!", description: "Your new post has been added." });
+    setActiveTab('account'); // Navigate back to account screen to see the post
+  }, [userData, toast, setActiveTab]);
 
 
   const handleRideRequest = useCallback((rideData: { pickup: string; dropoff: string; vehicleId: string }) => {
@@ -648,7 +675,8 @@ export default function AppRoot() {
       case 'feeds': return <FeedsScreen onViewUserProfile={handleSelectIndividualProfile} />;
       case 'menu': return <ServicesScreen setActiveTab={setActiveTab} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen />;
-      case 'account': return <AccountScreen userData={userData} setActiveTab={setActiveTab} />;
+      case 'account': return <AccountScreen userData={userData} setActiveTab={setActiveTab} userPosts={userPosts} />; // Pass userPosts
+      case 'create-post': return <CreatePostScreen onPost={handleCreateNewPost} onCancel={() => setActiveTab('account')} />; // New case
       case 'digital-id-card': return <DigitalIdCardScreen userData={userData} setActiveTab={setActiveTab} />;
       case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={setActiveTab} userData={userData} />;
       case 'user-skillsets': return (
@@ -674,22 +702,21 @@ export default function AppRoot() {
 
       case 'manage-business-profile':
         const profileDataToManage = businessProfileToManageId === 'new'
-          ? { ...newBusinessProfileTemplate } // Pass a copy of the template for new
+          ? { ...newBusinessProfileTemplate } 
           : businessProfilesData.find(p => p.id === businessProfileToManageId);
         if (businessProfileToManageId && profileDataToManage) {
           return (
             <BusinessProfileManagementScreen
-              key={businessProfileToManageId} // Re-mount component if ID changes (e.g. from new to an ID)
-              initialProfileData={profileDataToManage} // Now passing the full object or template
-              onSave={handleSaveBusinessProfile} // New prop for saving
+              key={businessProfileToManageId} 
+              initialProfileData={profileDataToManage} 
+              onSave={handleSaveBusinessProfile} 
               onBack={handleBackFromManageBusinessProfile}
             />
           );
         }
-        // Fallback or error if profile not found for management and it's not "new"
         if (businessProfileToManageId !== 'new') {
             toast({ title: "Error", description: "Could not find business profile to manage.", variant: "destructive" });
-            setActiveTab('business-profiles'); // Navigate back if profile not found
+            setActiveTab('business-profiles'); 
         }
         return <p className="p-4 text-center text-muted-foreground">Loading management screen...</p>;
 
@@ -700,7 +727,7 @@ export default function AppRoot() {
         }
         if (userData && !selectedIndividualProfileId) {
              setActiveTab('account');
-             return <AccountScreen userData={userData} setActiveTab={setActiveTab} />;
+             return <AccountScreen userData={userData} setActiveTab={setActiveTab} userPosts={userPosts} />;
         }
         return <p className="p-4 text-center text-muted-foreground">No individual profile selected or user data missing.</p>;
 
@@ -747,14 +774,15 @@ export default function AppRoot() {
                       />;
     }
   }, [
-    isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles,
+    isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts, // Added userPosts
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId,
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
     handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
     handleSelectJob, handleBackFromJobDetail, handleAddToCart, handleRideRequest,
-    handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive, // Added local data handlers
+    handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive,
+    handleCreateNewPost, // Added new handler
     toast
   ]);
 
