@@ -23,6 +23,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**', // This will cover /random/ and direct paths
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com', // Added this line
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
