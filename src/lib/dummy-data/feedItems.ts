@@ -32,7 +32,7 @@ export const feedItems: FeedItem[] = [
     id: 3, type: 'post', user: 'Shoby C Chummar', userImage: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYW58ZW58MHx8fHwxNzUwMDk2NzcxfDA&ixlib=rb-4.1.0&q=80&w=1080', userImageAiHint: 'man founder creative studio', profileId: 'shoby-c-profile',
     timestamp: '12 hours ago',
     content: 'Reflecting on Mikado.biz\'s journey and excited for what the future holds. Grateful for our amazing team and clients! #Entrepreneurship #MikadoStory',
-    media: { type: 'image', url: 'https://source.unsplash.com/random/600x400/?business,growth,chart', aiHint: 'business growth chart' },
+    media: { type: 'image', url: 'https://images.unsplash.com/photo-1542744173-05336fcc7ad4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxidXNpbmVzcyUyMGdyb3d0aHxlbnwwfHx8fDE3NTAxNzEzNDJ8MA&ixlib=rb-4.1.0&q=80&w=1080', aiHint: 'business growth chart' },
     comments: 20, recommendations: 75, notRecommendations: 3,
     commentsData: [
         { id: 'c-scc-1', user: 'Diju K.', userAvatar: 'https://source.unsplash.com/random/32x32/?man,ceo', userAvatarAiHint: 'man ceo', text: 'Well said, Shoby! To many more milestones.', timestamp: '10h ago' }

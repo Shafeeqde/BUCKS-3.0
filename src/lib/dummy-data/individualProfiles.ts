@@ -12,7 +12,7 @@ export const individualProfiles: PublicProfileData[] = [
     followers: 180,
     following: 95,
     posts: [
-      { id: 'sdp1', content: 'Exploring new design trends for 2024. So much inspiration out there! #UXdesign #UIDesign', timestamp: '1 day ago', imageUrl: 'https://source.unsplash.com/random/600x400/?design,trends,moodboard', imageAiHint: 'design trends moodboard', likes: 32, comments: 7 },
+      { id: 'sdp1', content: 'Exploring new design trends for 2024. So much inspiration out there! #UXdesign #UIDesign', timestamp: '1 day ago', imageUrl: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx1eCUyMHVpfGVufDB8fHx8MTc1MDE3MTI5Mnww&ixlib=rb-4.1.0&q=80&w=1080', imageAiHint: 'design trends moodboard', likes: 32, comments: 7 },
       { id: 'sdp2', content: 'My latest article on "The Importance of User Feedback in Iterative Design" is now live on Medium. Link in bio!', timestamp: '3 days ago', imageUrl: 'https://source.unsplash.com/random/600x400/?design,article,mockup', imageAiHint: 'design article mockup', likes: 45, comments: 11 },
     ],
     contactInfo: { email: 'senthil.design@example.com', website: 'https://senthildesigns.com' }
@@ -102,7 +102,7 @@ export const individualProfiles: PublicProfileData[] = [
     followers: 550,
     following: 200,
     posts: [
-      { id: 'sccp1', content: 'Reflecting on Mikado.biz\'s journey and excited for what the future holds. Grateful for our amazing team and clients! #Entrepreneurship #MikadoStory', timestamp: '12 hours ago', imageUrl: 'https://source.unsplash.com/random/600x400/?business,growth,chart', imageAiHint: 'business growth chart', likes: 75, comments: 20 },
+      { id: 'sccp1', content: 'Reflecting on Mikado.biz\'s journey and excited for what the future holds. Grateful for our amazing team and clients! #Entrepreneurship #MikadoStory', timestamp: '12 hours ago', imageUrl: 'https://images.unsplash.com/photo-1542744173-05336fcc7ad4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxidXNpbmVzcyUyMGdyb3d0aHxlbnwwfHx8fDE3NTAxNzEzNDJ8MA&ixlib=rb-4.1.0&q=80&w=1080', imageAiHint: 'business growth chart', likes: 75, comments: 20 },
       { id: 'sccp2', content: 'Innovation in design is not just about aesthetics, it\'s about solving real-world problems effectively. #DesignThinking', timestamp: '1 week ago', likes: 65, comments: 18 },
     ],
     contactInfo: { email: 'shoby.c@mikado.biz', website: 'https://mikado.biz' }
