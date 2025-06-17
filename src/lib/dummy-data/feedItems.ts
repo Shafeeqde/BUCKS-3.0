@@ -41,7 +41,7 @@ export const feedItems: FeedItem[] = [
   },
   {
     id: 4, type: 'ad', user: 'TVS Synergy', userImage: 'https://source.unsplash.com/random/40x40/?automotive,brand', userImageAiHint: 'automotive brand', profileId: 'tvs-synergy-profile',
-    media: { type: 'image', url: 'https://source.unsplash.com/random/600x350/?scooter,advertisement', aiHint: 'scooter advertisement' },
+    media: { type: 'image', url: 'https://images.unsplash.com/photo-1623079478319-945f25f0a97b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMnx8U2Nvb3RlcnxlbnwwfHx8fDE3NTAxNTI0NDZ8MA&ixlib=rb-4.1.0&q=80&w=1080', aiHint: 'scooter advertisement' },
     content: 'TVS Ntorq 125 Price : Check On-Road & Ex-Showroom Prices of All Variants -',
     timestamp: 'Sponsored Ad', comments: 0, recommendations: 15, notRecommendations: 0,
     commentsData: []
@@ -64,4 +64,3 @@ export const feedItems: FeedItem[] = [
     ]
   },
 ];
-
