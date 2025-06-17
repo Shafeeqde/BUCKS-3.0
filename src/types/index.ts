@@ -422,7 +422,6 @@ export interface MediaAttachment {
 
 export interface ProfilePost {
   id: string;
-  // type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text' | 'post'; // Kept original for reference, but media object is preferred
   user: string;
   userId?: string;
   userImage?: string;
@@ -431,14 +430,5 @@ export interface ProfilePost {
   likes: number;
   comments: number;
   content?: string;
-  media?: MediaAttachment; // New way to handle media
-  // Deprecating these in favor of media object
-  // thumbnailUrl?: string;
-  // thumbnailAiHint?: string;
-  // imageUrl?: string; // Keep for backward compatibility or simplify to media.url
-  // imageAiHint?: string; // Keep for backward compatibility or simplify to media.aiHint
-  // videoUrl?: string;
-  // url?: string; // For link type posts
-  // fileIcon?: string;
-  // fileName?: string;
+  media?: MediaAttachment;
 }

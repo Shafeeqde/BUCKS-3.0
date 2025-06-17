@@ -100,6 +100,7 @@ const CreatePostScreen: React.FC<CreatePostScreenProps> = ({ onPost, onCancel })
     setIsPosting(false);
     setPostContent('');
     setAttachedMedia(null);
+    // Navigation back to account screen is handled by the onPost callback in page.tsx
   };
 
   const renderMediaDialogContent = () => {
