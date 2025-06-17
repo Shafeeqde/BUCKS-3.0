@@ -29,7 +29,7 @@ const recommendedPostsData: RecommendedPost[] = [
       otherRecommendersCount: 10,
     },
     {
-      id: 4, recommendedBy: 'Maanisha K.', userImage: 'https://source.unsplash.com/random/40x40/?woman,creative,designer,indian', userImageAiHint: 'woman creative designer indian',
+      id: 4, recommendedBy: 'Maanisha K.', userImage: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyMHx8Z2lybHxlbnwwfHx8fDE3NTAwOTY3ODR8MA&ixlib=rb-4.1.0&q=80&w=1080', userImageAiHint: 'woman creative designer indian',
       recommenderProfileId: 'maanisha-k-profile',
       title: "Mastering Design Systems: A Comprehensive Guide", content: 'Learn how to build, manage, and scale effective design systems for your products.',
       thumbnail: 'https://source.unsplash.com/random/600x350/?design,system,guide', thumbnailAiHint: 'design system guide', type: 'video',
