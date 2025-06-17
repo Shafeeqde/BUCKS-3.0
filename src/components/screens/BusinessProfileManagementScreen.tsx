@@ -413,11 +413,11 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <Label htmlFor="prod-price">Original Price (₹) <span className="text-destructive">*</span></Label>
-                            <Input id="prod-price" name="price" type="number" value={currentProduct?.price || ''} onChange={handleProductDialogChange} />
+                            <Input id="prod-price" name="price" type="text" value={currentProduct?.price || ''} onChange={handleProductDialogChange} />
                         </div>
                         <div className="space-y-1.5">
                             <Label htmlFor="prod-discountPrice">Discounted Price (₹)</Label>
-                            <Input id="prod-discountPrice" name="discountPrice" type="number" value={currentProduct?.discountPrice || ''} onChange={handleProductDialogChange} />
+                            <Input id="prod-discountPrice" name="discountPrice" type="text" value={currentProduct?.discountPrice || ''} onChange={handleProductDialogChange} />
                         </div>
                     </div>
                      {currentProduct?.price && currentProduct?.discountPrice && parseFloat(currentProduct.price) > parseFloat(currentProduct.discountPrice) && (
@@ -480,7 +480,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
                     </div>
                     <div className="space-y-1.5">
                         <Label htmlFor="serv-price">Price / Rate</Label>
-                        <Input id="serv-price" name="price" value={currentService?.price || ''} onChange={handleServiceDialogChange} placeholder="e.g., $50/hr, Starting at $100, Free Consultation"/>
+                        <Input id="serv-price" name="price" value={currentService?.price || ''} onChange={handleServiceDialogChange} placeholder="e.g., ₹50/hr, Starting at ₹100, Free Consultation"/>
                     </div>
                 </div>
             </ScrollArea>

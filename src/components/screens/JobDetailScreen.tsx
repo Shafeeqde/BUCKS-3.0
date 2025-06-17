@@ -45,6 +45,7 @@ const JobDetailScreen: React.FC<JobDetailScreenProps> = ({ job, onBack }) => {
                   width={80}
                   height={80}
                   className="rounded-lg border object-contain flex-shrink-0"
+                  data-ai-hint="business logo"
                 />
               ) : (
                 <div className="w-20 h-20 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
@@ -135,3 +136,5 @@ const JobDetailScreen: React.FC<JobDetailScreenProps> = ({ job, onBack }) => {
 };
 
 export default JobDetailScreen;
+
+    

@@ -1313,7 +1313,7 @@ export default function AppRoot() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           businessProfiles={businessProfilesData}
-          onSelectBusinessProfile={handleSelectBusinessProfile}
+          onSelectBusinessProfile={(id) => handleSelectBusinessProfile(String(id))}
           selectedBusinessProfileId={selectedBusinessProfileId?.toString() ?? null}
           onLogout={handleLogout}
           userData={userData}
@@ -1412,3 +1412,5 @@ export default function AppRoot() {
     </div>
   );
 }
+
+    

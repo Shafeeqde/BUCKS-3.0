@@ -7,10 +7,13 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeftIcon, ShoppingCartIcon, StarIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, ShoppingCartIcon, StarIcon, ShieldCheckIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/outline';
 import type { ProductListing } from '@/types';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+
 
 interface ShoppingProductDetailScreenProps {
   product: ProductListing | null;

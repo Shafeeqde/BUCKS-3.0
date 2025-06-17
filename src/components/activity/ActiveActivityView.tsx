@@ -279,3 +279,5 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
 };
 
 export default ActiveActivityView;
+
+    

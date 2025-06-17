@@ -62,3 +62,5 @@ const ShoppingCartItemCard: React.FC<ShoppingCartItemCardProps> = ({ item, onUpd
 };
 
 export default ShoppingCartItemCard;
+
+    

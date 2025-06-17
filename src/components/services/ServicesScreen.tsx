@@ -35,10 +35,10 @@ const initialServicesData: Service[] = [
 ];
 
 const taxiVehicleOptions: VehicleOption[] = [
-  { id: 'bike', name: 'Bike', icon: TruckIcon, priceRange: '₹ 50-80', estimatedETA: '5 mins', dataAiHint: "motorcycle transport" }, 
-  { id: 'auto', name: 'Auto', icon: TruckIcon, priceRange: '₹ 80-120', estimatedETA: '7 mins', dataAiHint: "auto rickshaw" }, 
-  { id: 'car_mini', name: 'Car (Mini)', icon: TruckIcon, priceRange: '₹ 120-200', estimatedETA: '10 mins', dataAiHint: "small car" }, 
-  { id: 'car_premium', name: 'Car (Premium)', icon: TruckIcon, priceRange: '₹ 200-350', estimatedETA: '12 mins', dataAiHint: "luxury car" },
+  { id: 'bike', name: 'Bike', icon: TruckIcon, priceRange: '₹50-80', estimatedETA: '5 mins', dataAiHint: "motorcycle transport" }, 
+  { id: 'auto', name: 'Auto', icon: TruckIcon, priceRange: '₹80-120', estimatedETA: '7 mins', dataAiHint: "auto rickshaw" }, 
+  { id: 'car_mini', name: 'Car (Mini)', icon: TruckIcon, priceRange: '₹120-200', estimatedETA: '10 mins', dataAiHint: "small car" },
+  { id: 'car_premium', name: 'Car (Premium)', icon: TruckIcon, priceRange: '₹200-350', estimatedETA: '12 mins', dataAiHint: "luxury car" },
 ];
 
 
@@ -224,3 +224,5 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
   );
 };
 export default ServicesScreen;
+
+    

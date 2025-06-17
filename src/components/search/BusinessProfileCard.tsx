@@ -189,3 +189,5 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
 };
 
 export default BusinessProfileCard;
+
+    

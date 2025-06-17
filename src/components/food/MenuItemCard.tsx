@@ -54,3 +54,5 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart, isAdded 
 };
 
 export default MenuItemCard;
+
+    

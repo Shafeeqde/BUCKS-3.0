@@ -37,7 +37,7 @@ interface UserBusinessProfileDetailScreenProps {
 
 const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 5, className }) => {
   const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 >= 0.5; // Adjust threshold if needed
+  const halfStar = rating % 1 >= 0.5;
   const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
 
   return (
@@ -85,7 +85,7 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
               objectFit="cover"
               className="rounded-t-lg sm:rounded-t-xl"
               data-ai-hint={profile.coverPhotoAiHint || "business cover photo"}
-              priority // Consider adding priority for LCP
+              priority 
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 rounded-t-lg sm:rounded-t-xl flex items-center justify-center">
@@ -283,3 +283,4 @@ const UserBusinessProfileDetailScreen: React.FC<UserBusinessProfileDetailScreenP
 
 export default UserBusinessProfileDetailScreen;
 
+    

@@ -8,7 +8,7 @@ export const dummyRestaurants: Restaurant[] = [
     cuisine: 'Andhra, Biryani',
     rating: 4.5,
     deliveryTime: '30-40 min',
-    priceRange: '$$',
+    priceRange: '₹₹',
     imageUrl: 'https://source.unsplash.com/random/800x600/?indian,restaurant,food',
     imageAiHint: 'indian restaurant food',
     address: '123, Koramangala 5th Block, Bangalore',
@@ -26,7 +26,7 @@ export const dummyRestaurants: Restaurant[] = [
     cuisine: 'Italian, Pizza',
     rating: 4.2,
     deliveryTime: '40-50 min',
-    priceRange: '$$$',
+    priceRange: '₹₹₹',
     imageUrl: 'https://source.unsplash.com/random/800x600/?italian,pizzeria,interior',
     imageAiHint: 'italian pizzeria interior',
     address: '45, Indiranagar 100 Feet Road, Bangalore',
@@ -44,7 +44,7 @@ export const dummyRestaurants: Restaurant[] = [
     cuisine: 'Chinese, Asian',
     rating: 4.0,
     deliveryTime: '25-35 min',
-    priceRange: '$$',
+    priceRange: '₹₹',
     imageUrl: 'https://source.unsplash.com/random/800x600/?chinese,restaurant,decor',
     imageAiHint: 'chinese restaurant decor',
     address: '77, Commercial Street, Bangalore',
@@ -61,7 +61,7 @@ export const dummyRestaurants: Restaurant[] = [
     cuisine: 'Salads, Healthy',
     rating: 4.8,
     deliveryTime: '20-30 min',
-    priceRange: '$',
+    priceRange: '₹',
     imageUrl: 'https://source.unsplash.com/random/800x600/?salad,bar,healthy',
     imageAiHint: 'salad bar healthy',
     address: 'Unit 10, HSR Layout, Bangalore',
@@ -72,3 +72,5 @@ export const dummyRestaurants: Restaurant[] = [
     ],
   },
 ];
+
+    
