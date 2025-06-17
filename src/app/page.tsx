@@ -218,7 +218,7 @@ export default function AppRoot() {
   const { addToCart: globalAddToCart } = useCart(); // Using global cart
   const [isClient, setIsClient] = useState(false);
 
-  const [activeTab, setActiveTabInternal] = useState<TabName>('login');
+  const [activeTabInternal, setActiveTabInternal] = useState<TabName>('login');
   const [showSideMenu, setShowSideMenu] = useState(false);
 
 
@@ -948,6 +948,11 @@ export default function AppRoot() {
     setActiveTab('skillset-profile');
   }, [toast, setActiveTab]);
 
+  const handleSelectFoodRestaurant = useCallback((restaurantId: string) => {
+    setSelectedRestaurantId(restaurantId);
+    setActiveTab('food-restaurant-detail');
+  }, [setActiveTab, setSelectedRestaurantId]);
+
   const handleAddItemToLocalFoodCart = useCallback((menuItem: MenuItem, restaurantId: string, restaurantName: string) => {
     setLocalFoodCartItems(prevCart => {
       const existingItemIndex = prevCart.findIndex(item => item.menuItemId === menuItem.id && item.restaurantId === restaurantId);
@@ -993,12 +998,12 @@ export default function AppRoot() {
   const handleSelectShoppingCategory = useCallback((categoryId: string) => {
     setSelectedShoppingCategoryId(categoryId);
     setActiveTab('shopping-products-list');
-  }, [setActiveTab]);
+  }, [setActiveTab, setSelectedShoppingCategoryId]);
 
   const handleSelectShoppingProduct = useCallback((productId: string) => {
     setSelectedProductId(productId);
     setActiveTab('shopping-product-detail');
-  }, [setActiveTab]);
+  }, [setActiveTab, setSelectedProductId]);
 
   const handleAddItemToShoppingCart = useCallback((product: ProductListing, quantity: number) => {
     setShoppingCartItems(prevCart => {
@@ -1304,6 +1309,7 @@ export default function AppRoot() {
     handleCreateNewPost, handleViewPostDetail, handlePostCommentOnDetail,
     handleAddMomentFromAccount, handleViewUserMomentsFromAccount,
     handleViewUserMoments,
+    handleNavigateToOwnerProfileFromMomentViewer,
     handleOpenServiceBooking, handleConfirmServiceBooking,
     handleSelectFoodRestaurant, handleAddItemToLocalFoodCart, handleUpdateLocalFoodCartItemQuantity, handleRemoveLocalFoodCartItem, handleLocalFoodCheckout,
     handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleRemoveShoppingCartItem, handleShoppingCheckout,
