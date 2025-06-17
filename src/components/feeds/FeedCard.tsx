@@ -3,7 +3,6 @@
 
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -16,31 +15,28 @@ import { cn } from '@/lib/utils';
 interface FeedCardProps {
   item: FeedItemType;
   onInteraction: (id: number, type: 'recommend' | 'notRecommend') => void;
-  onCommentChange: (id: number, value: string) => void;
-  onPostComment: (id: number) => void;
-  onToggleCommentBox: (id: number) => void;
   onViewUserProfile?: (profileId: string) => void;
   onViewUserMoments?: (profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => void;
+  onViewDetail: () => void; // New prop
 }
 
 const FeedCard: React.FC<FeedCardProps> = ({ 
   item, 
   onInteraction, 
-  onCommentChange, 
-  onPostComment, 
-  onToggleCommentBox, 
   onViewUserProfile,
-  onViewUserMoments 
+  onViewUserMoments,
+  onViewDetail // Use new prop
 }) => {
   
-  const handleUserClick = () => {
+  const handleUserClick = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation(); // Prevent card click if name is clicked
     if (item.profileId && onViewUserProfile) {
       onViewUserProfile(item.profileId);
     }
   };
 
   const handleAvatarClick = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.stopPropagation(); 
+    e.stopPropagation(); // Prevent card click if avatar is clicked
     if (item.profileId && onViewUserMoments) {
       onViewUserMoments(item.profileId, item.user, item.userImage, item.userImageAiHint);
     } else if (item.profileId && onViewUserProfile) { 
@@ -53,9 +49,17 @@ const FeedCard: React.FC<FeedCardProps> = ({
 
 
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
+    <Card 
+      className="shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+      onClick={onViewDetail} // Make the whole card clickable to view detail
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onViewDetail()}
+      aria-label={`View post by ${item.user}`}
+    >
       <CardHeader 
         className="flex flex-row items-center space-x-3 pb-3"
+        onClick={(e) => e.stopPropagation()} // Prevent card click from triggering if header elements are clicked
       >
         <Avatar 
           className={cn(
@@ -87,27 +91,28 @@ const FeedCard: React.FC<FeedCardProps> = ({
       </CardHeader>
       <CardContent className="pb-3">
         <p className="text-foreground mb-3">{item.content}</p>
-        {item.postImage && (
+        {item.media && item.media.type === 'image' && item.media.url && (
           <div className="relative w-full aspect-[16/9] rounded-lg overflow-hidden mb-3">
-            <Image src={item.postImage} alt="Feed content" layout="fill" objectFit="cover" data-ai-hint={item.postImageAiHint || "general image"}/>
+            <Image src={item.media.url} alt={item.media.aiHint || "Feed content"} layout="fill" objectFit="cover" data-ai-hint={item.media.aiHint || "general image"}/>
           </div>
         )}
+        {/* Add rendering for other media types if needed here, similar to AccountScreen */}
         <div className="flex items-center justify-between text-muted-foreground text-sm mt-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                onClick={() => onToggleCommentBox(item.id)}
+                onClick={(e) => { e.stopPropagation(); onViewDetail(); }} // Comment icon now also navigates to detail
                 className="flex items-center hover:text-primary focus:outline-none p-1 rounded-md hover:bg-accent/20"
-                aria-label={`View or add comments for ${item.user}'s post`}
+                aria-label={`View comments for ${item.user}'s post`}
               >
                 <ChatBubbleOvalLeftEllipsisIcon className="w-5 h-5 mr-1.5" />
                 <span className="text-xs">{item.comments}</span>
               </button>
             </TooltipTrigger>
-            <TooltipContent><p>Comments</p></TooltipContent>
+            <TooltipContent><p>View Comments</p></TooltipContent>
           </Tooltip>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3" onClick={(e) => e.stopPropagation()}> {/* Prevent card click for interactions */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
@@ -137,29 +142,8 @@ const FeedCard: React.FC<FeedCardProps> = ({
           </div>
         </div>
       </CardContent>
-      
-      {item.showCommentBox && (
-        <div className="p-4 border-t border-border flex flex-col space-y-2">
-          <Textarea
-            className="w-full p-3 border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-            rows={3}
-            placeholder="Write your comment..."
-            value={item.currentComment}
-            onChange={(e) => onCommentChange(item.id, e.target.value)}
-          />
-          <Button
-            className="self-end bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-full shadow-md"
-            onClick={() => onPostComment(item.id)}
-            disabled={!item.currentComment.trim()}
-          >
-            Post Comment
-          </Button>
-        </div>
-      )}
     </Card>
   );
 };
 
 export default FeedCard;
-
-    

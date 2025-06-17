@@ -28,12 +28,14 @@ import JobBoardScreen from '@/components/screens/JobBoardScreen';
 import JobDetailScreen from '@/components/screens/JobDetailScreen';
 import AccountSettingsScreen from '@/components/screens/AccountSettingsScreen';
 import CreatePostScreen from '@/components/screens/CreatePostScreen';
+import DetailedPostScreen from '@/components/screens/DetailedPostScreen';
 import CreateMomentDialog from '@/components/moments/CreateMomentDialog';
 import MomentViewerScreen from '@/components/moments/MomentViewerScreen';
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
+import { feedItems as initialFeedItemsData } from '@/lib/dummy-data/feedItems';
 
 
-import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, ProfilePost, MediaAttachment, UserMoment, Category as CategoryType } from '@/types';
+import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, ProfilePost, MediaAttachment, UserMoment, Category as CategoryType, FeedItem, Comment } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
 
@@ -192,11 +194,15 @@ export default function AppRoot() {
   const [activityDetails, setActivityDetails] = useState<ActivityDetails>(null);
   const [isDriverOnlineSim, setIsDriverOnlineSim] = useState(false);
 
-  const [userPosts, setUserPosts] = useState<ProfilePost[]>([]);
-  const [userMoments, setUserMoments] = useState<UserMoment[]>([]); // Logged-in user's moments
+  const [userPosts, setUserPosts] = useState<ProfilePost[]>([]); // Logged-in user's created posts
+  const [feedItems, setFeedItems] = useState<FeedItem[]>(initialFeedItemsData); // Main feed items
+
+  const [userMoments, setUserMoments] = useState<UserMoment[]>([]);
   const [showCreateMomentDialog, setShowCreateMomentDialog] = useState(false);
   const [showMomentViewer, setShowMomentViewer] = useState(false);
   const [viewingMomentOwnerDetails, setViewingMomentOwnerDetails] = useState<ViewingMomentOwnerDetails | null>(null);
+
+  const [selectedPostForDetail, setSelectedPostForDetail] = useState<FeedItem | ProfilePost | null>(null);
 
 
   useEffect(() => {
@@ -285,7 +291,7 @@ export default function AppRoot() {
         email: user.email,
         avatarUrl: user.avatarUrl || 'https://source.unsplash.com/random/48x48/?user,avatar',
         avatarAiHint: user.avatarAiHint || 'user avatar',
-        moments: [],
+        moments: [], // Initialize moments for the logged-in user
     });
     setActiveTabInternal('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
@@ -317,29 +323,31 @@ export default function AppRoot() {
     setShowCreateMomentDialog(false);
     setShowMomentViewer(false);
     setViewingMomentOwnerDetails(null);
+    setSelectedPostForDetail(null);
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   }, [toast]);
 
   const handleTabSelection = useCallback((tab: TabName) => {
     setActiveTabInternal(tab);
     setShowSideMenu(false);
-    if (tab !== 'business-detail' &&
-        tab !== 'individual-profile' &&
-        tab !== 'skillset-profile' &&
-        tab !== 'manage-skillset-profile' &&
-        tab !== 'manage-business-profile' &&
-        tab !== 'job-detail' &&
-        tab !== 'professional-profile' &&
-        tab !== 'account-settings' &&
-        tab !== 'digital-id-card' &&
-        tab !== 'create-post') {
+
+    const detailTabs: TabName[] = [
+        'business-detail', 'individual-profile', 'skillset-profile',
+        'manage-skillset-profile', 'manage-business-profile', 'job-detail',
+        'professional-profile', 'account-settings', 'digital-id-card',
+        'create-post', 'detailed-post'
+    ];
+
+    if (!detailTabs.includes(tab)) {
         setSelectedBusinessProfileId(null);
         setBusinessProfileToManageId(null);
         setSelectedIndividualProfileId(null);
         setSelectedSkillsetProfileId(null);
         setSkillsetProfileToManageId(null);
         setSelectedJobId(null);
+        setSelectedPostForDetail(null);
     }
+
     if (tab === 'business-profiles' && isLoggedIn) {
         fetchBusinessProfiles();
     }
@@ -438,11 +446,71 @@ export default function AppRoot() {
         timestamp: formatDistanceToNow(new Date(), { addSuffix: true }),
         likes: 0,
         comments: 0,
+        commentsData: []
     };
     setUserPosts(prevPosts => [newPost, ...prevPosts]);
     toast({ title: "Post Created!", description: "Your new post has been added." });
     setActiveTab('account');
   }, [userData, toast, setActiveTab]);
+
+  const handleViewPostDetail = useCallback((post: FeedItem | ProfilePost) => {
+    setSelectedPostForDetail(post);
+    setActiveTab('detailed-post');
+  }, [setActiveTab]);
+
+  const handlePostCommentOnDetail = useCallback((postId: string | number, commentText: string) => {
+    if (!userData) {
+      toast({ title: "Error", description: "You must be logged in to comment."});
+      return;
+    }
+    const newComment: Comment = {
+      id: `comment-${Date.now()}`,
+      user: userData.name,
+      userAvatar: userData.avatarUrl,
+      userAvatarAiHint: userData.avatarAiHint,
+      text: commentText,
+      timestamp: formatDistanceToNow(new Date(), { addSuffix: true })
+    };
+
+    // Update feedItems
+    setFeedItems(prevItems => prevItems.map(item => {
+      if (item.id === postId) {
+        return {
+          ...item,
+          comments: (item.comments || 0) + 1,
+          commentsData: [...(item.commentsData || []), newComment]
+        };
+      }
+      return item;
+    }));
+
+    // Update userPosts
+    setUserPosts(prevPosts => prevPosts.map(post => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          comments: (post.comments || 0) + 1,
+          commentsData: [...(post.commentsData || []), newComment]
+        };
+      }
+      return post;
+    }));
+    
+    // Update selectedPostForDetail if it matches
+    if (selectedPostForDetail && selectedPostForDetail.id === postId) {
+        setSelectedPostForDetail(prevSelectedPost => {
+            if (!prevSelectedPost) return null;
+            return {
+                ...prevSelectedPost,
+                comments: (prevSelectedPost.comments || 0) + 1,
+                commentsData: [...(prevSelectedPost.commentsData || []), newComment]
+            };
+        });
+    }
+
+    toast({ title: "Comment Posted", description: "Your comment has been added." });
+  }, [userData, toast, selectedPostForDetail]);
+
 
   const handleCreateMoment = useCallback((imageUrl: string, caption?: string, aiHint?: string) => {
     if (!userData) {
@@ -461,7 +529,7 @@ export default function AppRoot() {
     setUserData(prevUserData => prevUserData ? ({ ...prevUserData, moments: updatedMoments }) : null);
     toast({ title: "Moment Posted!", description: "Your new moment has been added." });
     setShowCreateMomentDialog(false);
-  }, [userData, userMoments, toast]); // Added userMoments to dependency array
+  }, [userData, userMoments, toast]);
 
   const handleAddMomentFromAccount = useCallback(() => {
     setShowCreateMomentDialog(true);
@@ -488,21 +556,21 @@ export default function AppRoot() {
   const handleViewUserMoments = useCallback((profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => {
     let ownerDetails: ViewingMomentOwnerDetails | null = null;
 
-    if (userName && profileId) { // If full details are passed (e.g., from FeedCard)
+    if (userName && profileId) {
         ownerDetails = { name: userName, avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint, profileId };
-    } else if (profileId) { // If only profileId is passed (e.g., from a category click)
+    } else if (profileId) {
         const categoryUser = initialCategoriesData.find(cat => cat.profileId === profileId);
         if (categoryUser) {
             ownerDetails = { name: categoryUser.name || 'User', avatarUrl: categoryUser.image, avatarAiHint: categoryUser.dataAiHint, profileId };
         } else {
-            ownerDetails = { name: `User ${profileId.substring(0,5)}`, avatarUrl: undefined, avatarAiHint: 'person avatar', profileId };
+             ownerDetails = { name: `User ${profileId.substring(0,5)}...`, avatarUrl: undefined, avatarAiHint: 'person avatar', profileId };
         }
     }
 
     if (ownerDetails) {
         setViewingMomentOwnerDetails(ownerDetails);
         setShowMomentViewer(true);
-    } else if (userData) { // Fallback to logged-in user if no specific profileId could be resolved
+    } else if (userData) {
         setViewingMomentOwnerDetails({
             name: userData.name,
             avatarUrl: userData.avatarUrl,
@@ -780,6 +848,8 @@ export default function AppRoot() {
                               onViewUserProfile={handleSelectIndividualProfile}
                               onAddMomentClick={handleAddMomentFromFeeds}
                               onViewUserMomentsClick={handleViewUserMoments}
+                              onViewPostDetail={handleViewPostDetail}
+                              feedItems={feedItems}
                            />;
       case 'menu': return <ServicesScreen setActiveTab={setActiveTab} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen
@@ -790,11 +860,23 @@ export default function AppRoot() {
                                 userData={userData}
                                 setActiveTab={setActiveTab}
                                 userPosts={userPosts}
-                                userMoments={userMoments} // Pass logged-in user's moments
+                                userMoments={userMoments}
                                 onAddMomentClick={handleAddMomentFromAccount}
                                 onViewUserMomentsClick={handleViewUserMomentsFromAccount}
+                                onViewPostDetail={handleViewPostDetail}
                              />;
       case 'create-post': return <CreatePostScreen onPost={handleCreateNewPost} onCancel={() => setActiveTab('account')} />;
+      case 'detailed-post':
+        if (selectedPostForDetail) {
+          return (
+            <DetailedPostScreen
+              post={selectedPostForDetail}
+              onPostComment={(commentText) => handlePostCommentOnDetail(selectedPostForDetail.id, commentText)}
+              onBack={() => setActiveTab(selectedPostForDetail.userId === userData?.id ? 'account' : 'feeds')}
+            />
+          );
+        }
+        return <p className="p-4 text-center text-muted-foreground">Loading post details...</p>;
       case 'digital-id-card': return <DigitalIdCardScreen userData={userData} setActiveTab={setActiveTab} />;
       case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={setActiveTab} userData={userData} />;
       case 'user-skillsets': return (
@@ -849,9 +931,10 @@ export default function AppRoot() {
                         userData={userData}
                         setActiveTab={setActiveTab}
                         userPosts={userPosts}
-                        userMoments={userMoments} // Pass logged-in user's moments
+                        userMoments={userMoments}
                         onAddMomentClick={handleAddMomentFromAccount}
                         onViewUserMomentsClick={handleViewUserMomentsFromAccount}
+                        onViewPostDetail={handleViewPostDetail}
                      />;
         }
         return <p className="p-4 text-center text-muted-foreground">No individual profile selected or user data missing.</p>;
@@ -899,15 +982,15 @@ export default function AppRoot() {
                       />;
     }
   }, [
-    isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments,
+    isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments, feedItems,
     selectedBusinessProfileId, businessProfileToManageId,
-    selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId,
+    selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, selectedPostForDetail,
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
     handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
     handleSelectJob, handleBackFromJobDetail, handleAddToCart, handleRideRequest,
     handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive,
-    handleCreateNewPost,
+    handleCreateNewPost, handleViewPostDetail, handlePostCommentOnDetail,
     handleAddMomentFromAccount, handleViewUserMomentsFromAccount,
     handleAddMomentFromFeeds, handleViewUserMoments,
     toast
@@ -948,7 +1031,7 @@ export default function AppRoot() {
         {renderScreenContent()}
       </div>
 
-      {isLoggedIn && (
+      {isLoggedIn && !['detailed-post'].includes(activeTab) && ( // Hide BottomNav on detail screen
         <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
 
@@ -993,7 +1076,7 @@ export default function AppRoot() {
         <MomentViewerScreen
           isOpen={showMomentViewer}
           onClose={() => { setShowMomentViewer(false); setViewingMomentOwnerDetails(null); }}
-          moments={userMoments}
+          moments={userMoments} // Always show logged-in user's moments for now
           ownerName={viewingMomentOwnerDetails.name}
           ownerAvatarUrl={viewingMomentOwnerDetails.avatarUrl}
           ownerAvatarAiHint={viewingMomentOwnerDetails.avatarAiHint}
@@ -1003,5 +1086,3 @@ export default function AppRoot() {
     </div>
   );
 }
-
-    

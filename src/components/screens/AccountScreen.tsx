@@ -8,8 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { UserCircleIcon, PlusCircleIcon, PhotoIcon, FilmIcon, LinkIcon as LinkOutlineIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, QueueListIcon, DocumentIcon, VideoCameraIcon, PlusIcon } from '@heroicons/react/24/outline'; // Added PlusIcon
-import type { TabName, UserDataForSideMenu, ProfilePost, UserMoment } from '@/types';
+import { UserCircleIcon, PlusCircleIcon, PhotoIcon, FilmIcon, LinkIcon as LinkOutlineIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, QueueListIcon, DocumentIcon, VideoCameraIcon, PlusIcon } from '@heroicons/react/24/outline';
+import type { TabName, UserDataForSideMenu, ProfilePost, UserMoment, FeedItem } from '@/types'; // Added FeedItem
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
 
@@ -20,9 +20,18 @@ interface AccountScreenProps {
   userMoments: UserMoment[];
   onAddMomentClick: () => void;
   onViewUserMomentsClick: () => void;
+  onViewPostDetail: (post: ProfilePost | FeedItem) => void; // Updated type
 }
 
-const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, userPosts, userMoments, onAddMomentClick, onViewUserMomentsClick }) => {
+const AccountScreen: React.FC<AccountScreenProps> = ({ 
+  userData, 
+  setActiveTab, 
+  userPosts, 
+  userMoments, 
+  onAddMomentClick, 
+  onViewUserMomentsClick,
+  onViewPostDetail 
+}) => {
   const { toast } = useToast();
 
   if (!userData) {
@@ -107,7 +116,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, u
                 <TabsTrigger value="feed" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><QueueListIcon className="h-4 w-4"/>Feed</TabsTrigger>
                 <TabsTrigger value="images" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><PhotoIcon className="h-4 w-4"/>Images</TabsTrigger>
                 <TabsTrigger value="videos" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><FilmIcon className="h-4 w-4"/>Videos</TabsTrigger>
-                <TabsTrigger value="links" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><LinkOutlineIcon className="h-4 w-4"/>Links</TabsTrigger>
+                <TabsTrigger value="links" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><LinkIcon className="h-4 w-4"/>Links</TabsTrigger>
                 <TabsTrigger value="files" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><DocumentTextIcon className="h-4 w-4"/>Files</TabsTrigger>
                 <TabsTrigger value="tweets" className="py-3 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none flex items-center gap-1.5 text-xs sm:text-sm"><ChatBubbleLeftRightIcon className="h-4 w-4"/>Tweets</TabsTrigger>
               </TabsList>
@@ -115,7 +124,14 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, u
                  {userPosts.length > 0 ? (
                     <div className="space-y-4">
                     {userPosts.map(post => (
-                        <Card key={post.id} className="shadow-sm">
+                        <Card 
+                          key={post.id} 
+                          className="shadow-sm cursor-pointer hover:shadow-md"
+                          onClick={() => onViewPostDetail(post)}
+                          onKeyDown={(e) => e.key === 'Enter' && onViewPostDetail(post)}
+                          tabIndex={0}
+                          aria-label={`View post: ${post.content ? post.content.substring(0,30) + "..." : "Media post"}`}
+                        >
                           <CardHeader className="pb-2 pt-4 px-4">
                               <div className="flex items-center space-x-3">
                                   <Avatar className="h-9 w-9">
@@ -185,5 +201,3 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, u
 };
 
 export default AccountScreen;
-
-    

@@ -27,7 +27,8 @@ export type TabName =
   | 'job-detail'
   | 'account-settings'
   | 'digital-id-card'
-  | 'create-post';
+  | 'create-post'
+  | 'detailed-post'; // Added
 
 export interface Category {
   id: string;
@@ -41,23 +42,53 @@ export interface Category {
   profileId?: string;
 }
 
+export interface MediaAttachment {
+  type: 'image' | 'video' | 'document';
+  url: string;
+  fileName?: string;
+  aiHint?: string;
+  thumbnailUrl?: string;
+}
+
+export interface Comment {
+  id: string;
+  user: string;
+  userAvatar?: string;
+  userAvatarAiHint?: string;
+  text: string;
+  timestamp: string;
+}
+
 export interface FeedItem {
-  id: number;
+  id: number; // Using number for initialFeedItems for simplicity in FeedsScreen
   type: 'post' | 'job' | 'ad';
   user: string;
   userImage: string;
   userImageAiHint?: string;
   timestamp: string;
   content: string;
-  postImage?: string;
-  postImageAiHint?: string;
-  comments: number;
+  media?: MediaAttachment; // Changed from postImage/postImageAiHint
+  comments: number; // This can be the count
   recommendations: number;
   notRecommendations: number;
-  showCommentBox: boolean;
-  currentComment: string;
   profileId?: string;
+  commentsData?: Comment[]; // Added for detailed view
 }
+
+export interface ProfilePost {
+  id: string; // Using string for userPosts as they might be from a DB
+  user: string;
+  userId?: string;
+  userImage?: string;
+  userImageAiHint?: string;
+  timestamp: string;
+  likes: number;
+  comments: number; // This can be the count
+  content?: string;
+  media?: MediaAttachment;
+  commentsData?: Comment[]; // Added for detailed view
+}
+
 
 export interface Service {
   id: string;
@@ -72,7 +103,7 @@ export interface RecommendedPost {
   recommendedBy: string;
   userImage: string;
   userImageAiHint?: string;
-  recommenderProfileId?: string; // Added for linking
+  recommenderProfileId?: string;
   title: string;
   content: string;
   thumbnail: string;
@@ -323,11 +354,11 @@ export interface PublicProfileData {
   avatarAiHint?: string;
   professionalTitle?: string;
   bio?: string;
-  posts: {
+  posts: { // This is for public profiles, which is slightly different from ProfilePost
     id: string;
     content: string;
     timestamp: string;
-    imageUrl?: string;
+    imageUrl?: string; // Simplified media for this type
     imageAiHint?: string;
     likes: number;
     comments: number;
@@ -420,25 +451,4 @@ export interface UserDataForSideMenu {
   avatarUrl?: string;
   avatarAiHint?: string;
   moments?: UserMoment[];
-}
-
-export interface MediaAttachment {
-  type: 'image' | 'video' | 'document';
-  url: string;
-  fileName?: string;
-  aiHint?: string;
-  thumbnailUrl?: string;
-}
-
-export interface ProfilePost {
-  id: string;
-  user: string;
-  userId?: string;
-  userImage?: string;
-  userImageAiHint?: string;
-  timestamp: string;
-  likes: number;
-  comments: number;
-  content?: string;
-  media?: MediaAttachment;
 }

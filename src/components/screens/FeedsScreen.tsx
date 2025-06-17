@@ -2,83 +2,36 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PlusIcon, PhotoIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import CategoryItem from '@/components/feeds/CategoryItem';
 import FeedCard from '@/components/feeds/FeedCard';
 import type { Category, FeedItem as FeedItemType } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-
-const initialCategories: Category[] = [
-  { id: 'moments-0', name: 'Your Moments', icon: PlusIcon, type: 'moments', viewed: false, color: 'bg-primary/10 text-primary' },
-  { id: 'cat-deepthi', name: 'Deepthi', image: 'https://source.unsplash.com/random/100x100/?woman,portrait,indian', dataAiHint: 'woman portrait indian', viewed: false, profileId: 'deepthi-profile' },
-  { id: 'cat-maanisha', name: 'Maanisha', image: 'https://source.unsplash.com/random/100x100/?woman,smiling,professional', dataAiHint: 'woman smiling professional', viewed: false, profileId: 'manisha-profile' },
-  { id: 'cat-subhesh', name: 'Subhesh', image: 'https://source.unsplash.com/random/100x100/?man,office,indian', dataAiHint: 'man office indian', viewed: true, profileId: 'subhesh-profile' },
-  { id: 'cat-seena', name: 'Seena', image: 'https://source.unsplash.com/random/100x100/?person,outdoor,female', dataAiHint: 'person outdoor female', viewed: false, profileId: 'seena-profile' },
-  { id: 'cat-shafeeq', name: 'Shafeeq', image: 'https://source.unsplash.com/random/100x100/?man,casual,beard', dataAiHint: 'man casual beard', viewed: false, profileId: 'shafeeq-profile' },
-  { id: 'cat-senthil', name: 'Senthil', image: 'https://source.unsplash.com/random/100x100/?person,tech,southindian', dataAiHint: 'person tech southindian', viewed: true, profileId: 'senthil-profile' },
-  { id: 'cat-mikado', name: 'Mikado', image: 'https://source.unsplash.com/random/100x100/?company,logo', dataAiHint: 'company logo', viewed: true, profileId: 'mikado-ux-ui-business-profile' }, // Example: business profile
-  { id: 'cat-tvs', name: 'TVS Synergy', image: 'https://source.unsplash.com/random/100x100/?vehicle,brand', dataAiHint: 'vehicle brand', viewed: false },
-];
-
-const initialFeedItems: FeedItemType[] = [
-  {
-    id: 1, type: 'post', user: 'Shafeeq A.', userImage: 'https://source.unsplash.com/random/40x40/?man,casual,beard', userImageAiHint: 'man casual beard', profileId: 'shafeeq-profile',
-    timestamp: 'Wishing you a joyful and prosperous Diwali',
-    content: 'May this festival of lights bring happiness, success, and warmth to your lives.',
-    postImage: 'https://source.unsplash.com/random/600x350/?diwali,festival', postImageAiHint: 'diwali festival',
-    comments: 7, recommendations: 10, notRecommendations: 2, showCommentBox: false, currentComment: ''
-  },
-  {
-    id: 2, type: 'post', user: 'Senthil Devaraj', userImage: 'https://source.unsplash.com/random/40x40/?man,professional,southindian', userImageAiHint: 'man professional southindian', profileId: 'senthil-profile',
-    timestamp: 'Unemployed for 12 months, seeking opportunities.',
-    content: 'Hi Guys, I have been Unemployed for 12 months now, please help by reviewing my resume and please help if there are any opportunities. Senthil Devaraj Resume.',
-    comments: 12, recommendations: 5, notRecommendations: 1, showCommentBox: false, currentComment: ''
-  },
-  {
-    id: 3, type: 'job', user: 'Mikado UX UI', userImage: 'https://source.unsplash.com/random/40x40/?design,studio,logo', userImageAiHint: 'design studio logo', profileId: 'mikado-ux-ui-business-profile', // Example: This could link to a business profile
-    timestamp: 'Hiring Graphic Designer',
-    content: 'Hi Design Enthusiast , we are in search of the graphic Designer with Illustrative and sketching skills , check out your Job portal and share you resume and please suggest you known persons if you know someone as we expected.',
-    comments: 20, recommendations: 25, notRecommendations: 3, showCommentBox: false, currentComment: ''
-  },
-  {
-    id: 4, type: 'ad', user: 'TVS Synergy', userImage: 'https://source.unsplash.com/random/40x40/?automotive,brand', userImageAiHint: 'automotive brand',
-    postImage: 'https://source.unsplash.com/random/600x350/?scooter,advertisement', postImageAiHint: 'scooter advertisement',
-    content: 'TVS Ntorq 125 Price : Check On-Road & Ex-Showroom Prices of All Variants -',
-    timestamp: 'Sponsored Ad', comments: 0, recommendations: 15, notRecommendations: 0, showCommentBox: false, currentComment: ''
-  },
-  {
-    id: 5, type: 'post', user: 'Hot Griddle Restaurant', userImage: 'https://source.unsplash.com/random/40x40/?restaurant,logo&sig=hg', userImageAiHint: 'restaurant logo', profileId: 'hot-griddle-business-profile', // Example
-    timestamp: '4 days ago',
-    content: 'Special Offer: Combo meals starting at just ₹249 this week! Perfect for a quick and delicious lunch. #FoodDeals #LunchSpecial',
-    comments: 18, recommendations: 88, notRecommendations: 1, showCommentBox: false, currentComment: ''
-  },
-  {
-    id: 6, type: 'post', user: 'GreenScape Landscaping', userImage: 'https://source.unsplash.com/random/40x40/?landscape,company,logo&sig=gs', userImageAiHint: 'landscape company logo', profileId: 'greenscape-business-profile', // Example
-    timestamp: '1 day ago',
-    content: 'Spring is here! 🌷 Time to get your garden ready. Contact us for a free consultation.',
-    postImage: 'https://source.unsplash.com/random/600x350/?garden,spring,flowers', postImageAiHint: 'garden spring flowers',
-    comments: 9, recommendations: 45, notRecommendations: 0, showCommentBox: false, currentComment: ''
-  },
-];
+import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
+// Removed initialFeedItemsData as it's now a prop
 
 interface FeedsScreenProps {
   onViewUserProfile?: (profileId: string) => void;
+  onAddMomentClick: () => void;
+  onViewUserMomentsClick: (profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => void;
+  onViewPostDetail: (post: FeedItemType) => void; // New prop
+  feedItems: FeedItemType[]; // New prop
 }
 
-const FeedsScreen: React.FC<FeedsScreenProps> = ({ onViewUserProfile }) => {
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
-  const [feedItems, setFeedItems] = useState<FeedItemType[]>(initialFeedItems);
+const FeedsScreen: React.FC<FeedsScreenProps> = ({ 
+  onViewUserProfile,
+  onAddMomentClick,
+  onViewUserMomentsClick,
+  onViewPostDetail, // Use new prop
+  feedItems: initialFeedItems // Use new prop
+}) => {
+  const [categories, setCategories] = useState<Category[]>(initialCategoriesData);
+  const [feedItems, setFeedItems] = useState<FeedItemType[]>(initialFeedItems); // State now uses passed prop
   const { toast } = useToast();
 
-  const [showCreateMomentDialog, setShowCreateMomentDialog] = useState(false);
-  const [momentImageUrl, setMomentImageUrl] = useState('');
-  const [momentText, setMomentText] = useState('');
-  const [isPostingMoment, setIsPostingMoment] = useState(false);
+  // Effect to update local feedItems state if the prop changes (e.g., after a comment)
+  React.useEffect(() => {
+    setFeedItems(initialFeedItems);
+  }, [initialFeedItems]);
 
   const handleInteraction = (id: number, type: 'recommend' | 'notRecommend') => {
     const itemInteractedWith = feedItems.find(item => item.id === id);
@@ -109,75 +62,30 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({ onViewUserProfile }) => {
     );
   };
 
-  const handleToggleCommentBox = (id: number) => {
-    setFeedItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, showCommentBox: !item.showCommentBox, currentComment: '' } : item
-      )
-    );
-  };
+  const handleCategoryClick = (categoryId: string) => {
+    const category = categories.find(c => c.id === categoryId);
+    if (!category) return;
 
-  const handleCommentChange = (id: number, value: string) => {
-    setFeedItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, currentComment: value } : item
-      )
-    );
-  };
-
-  const handlePostComment = (id: number) => {
-    const item = feedItems.find(i => i.id === id);
-    if (item && item.currentComment.trim()) {
-       toast({
-        title: "Comment Posted!",
-        description: `Your comment on ${item.user}'s post has been submitted.`,
-      });
-      setFeedItems(prevItems =>
-        prevItems.map(i =>
-          i.id === id ? { ...i, currentComment: '', showCommentBox: false, comments: i.comments + 1 } : i
+    if (category.id === 'moments-0' && category.type === 'moments') {
+      onAddMomentClick();
+    } else if (category.profileId) { 
+      onViewUserMomentsClick(category.profileId, category.name, category.image, category.dataAiHint);
+      setCategories(prevCategories => 
+        prevCategories.map(cat => 
+          cat.id === categoryId ? { ...cat, viewed: true } : cat
         )
       );
-    }
-  };
-
-  const handleCategoryClick = (categoryId: string) => { // Renamed id to categoryId for clarity
-    const category = categories.find(c => c.id === categoryId);
-    if (category?.type === 'moments' && category.id === 'moments-0') {
-      setMomentImageUrl('');
-      setMomentText('');
-      setShowCreateMomentDialog(true);
-    } else if (category?.profileId && onViewUserProfile) {
-      onViewUserProfile(category.profileId);
-      setCategories(prevCategories => prevCategories.map(cat => cat.id === categoryId ? { ...cat, viewed: true } : cat));
     } else {
-      setCategories(prevCategories => prevCategories.map(cat => cat.id === categoryId ? { ...cat, viewed: true } : cat));
+      setCategories(prevCategories => 
+        prevCategories.map(cat => 
+          cat.id === categoryId ? { ...cat, viewed: true } : cat
+        )
+      );
       toast({
           title: `Viewing ${category?.name || 'Category'}`,
-          description: "Content for this category would load here in a full app.",
+          description: "Content for this category would load here. (Generic category click)",
       });
     }
-  };
-
-  const handlePostMoment = async () => {
-    if (!momentImageUrl.trim() && !momentText.trim()) {
-      toast({
-        title: "Cannot Post Empty Moment",
-        description: "Please add an image URL or some text for your moment.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setIsPostingMoment(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log("Posting moment:", { imageUrl: momentImageUrl, text: momentText });
-    toast({
-      title: "Moment Posted! (Simulated)",
-      description: "Your moment has been shared.",
-    });
-    setShowCreateMomentDialog(false);
-    setMomentImageUrl('');
-    setMomentText('');
-    setIsPostingMoment(false);
   };
 
   return (
@@ -195,65 +103,13 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({ onViewUserProfile }) => {
               key={item.id}
               item={item}
               onInteraction={handleInteraction}
-              onCommentChange={handleCommentChange}
-              onPostComment={handlePostComment}
-              onToggleCommentBox={handleToggleCommentBox}
-              onViewUserProfile={onViewUserProfile}
+              onViewUserProfile={onViewUserProfile} 
+              onViewUserMoments={onViewUserMomentsClick}
+              onViewDetail={() => onViewPostDetail(item)} // Pass the item to the handler
             />
           ))}
         </div>
       </main>
-
-      <Dialog open={showCreateMomentDialog} onOpenChange={setShowCreateMomentDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center">
-              <PlusIcon className="mr-2 h-5 w-5 text-primary" /> Create Your Moment
-            </DialogTitle>
-            <DialogDescription>
-              Share an image and a short text with your followers.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="momentImageUrl" className="flex items-center">
-                <PhotoIcon className="mr-2 h-4 w-4 text-muted-foreground" /> Image URL
-              </Label>
-              <Input
-                id="momentImageUrl"
-                placeholder="https://example.com/image.png"
-                value={momentImageUrl}
-                onChange={(e) => setMomentImageUrl(e.target.value)}
-                disabled={isPostingMoment}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="momentText" className="flex items-center">
-                <PencilSquareIcon className="mr-2 h-4 w-4 text-muted-foreground" /> Your Text
-              </Label>
-              <Textarea
-                id="momentText"
-                placeholder="What's happening?"
-                value={momentText}
-                onChange={(e) => setMomentText(e.target.value)}
-                rows={3}
-                disabled={isPostingMoment}
-              />
-            </div>
-          </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <DialogClose asChild>
-              <Button type="button" variant="outline" disabled={isPostingMoment}>
-                Cancel
-              </Button>
-            </DialogClose>
-            <Button type="button" onClick={handlePostMoment} disabled={isPostingMoment}>
-              {isPostingMoment && <span className="mr-2 h-4 w-4 animate-spin border-2 border-primary-foreground border-t-transparent rounded-full"></span>}
-              {isPostingMoment ? 'Posting...' : 'Post Moment'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 };
