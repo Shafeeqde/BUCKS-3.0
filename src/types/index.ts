@@ -29,7 +29,16 @@ export type TabName =
   | 'digital-id-card'
   | 'create-post'
   | 'detailed-post'
-  | 'service-booking'; // Added for service booking flow
+  | 'service-booking'
+  // Food Ordering Tabs
+  | 'food-restaurants'
+  | 'food-restaurant-detail'
+  | 'food-cart'
+  // Shopping Tabs
+  | 'shopping-categories'
+  | 'shopping-products-list'
+  | 'shopping-product-detail'
+  | 'shopping-cart';
 
 export interface Category {
   id: string;
@@ -97,6 +106,7 @@ export interface Service {
   icon: HeroIconType;
   locked: boolean;
   dataAiHint?: string;
+  targetTab?: TabName; // Optional: to directly navigate to a specific tab
 }
 
 export interface RecommendedPost {
@@ -477,3 +487,86 @@ export interface ActiveBooking {
   createdAt: string; // ISO string
 }
 // --- End Service Booking Types ---
+
+// --- Food Ordering Types ---
+export interface MenuItem {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  category: string; // e.g., "Appetizers", "Main Course", "Desserts"
+  imageUrl?: string;
+  imageAiHint?: string;
+  isVegetarian?: boolean;
+  isSpicy?: boolean;
+}
+
+export interface Restaurant {
+  id: string;
+  name: string;
+  cuisine: string; // e.g., "Italian", "Indian", "Chinese"
+  rating: number;
+  deliveryTime: string; // e.g., "25-35 min"
+  priceRange: string; // e.g., "$$" (for relative cost)
+  imageUrl?: string;
+  imageAiHint?: string;
+  address?: string;
+  menu: MenuItem[];
+}
+
+export interface FoodCartItem {
+  menuItemId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  imageUrl?: string;
+  imageAiHint?: string;
+  restaurantId: string;
+  restaurantName: string;
+}
+// --- End Food Ordering Types ---
+
+// --- E-commerce (Shopping) Types ---
+export interface ProductCategory {
+  id: string;
+  name: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+  description?: string;
+}
+
+export interface ProductListing {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number; // For discounts
+  categoryIds: string[]; // To link to ProductCategory
+  imageUrl?: string;
+  imageAiHint?: string;
+  brand?: string;
+  rating?: number;
+  reviewCount?: number;
+  stock?: number;
+  tags?: string[];
+  variants?: {
+    id: string;
+    name: string; // e.g., "Color", "Size"
+    options: {
+      value: string; // e.g., "Red", "Large"
+      imageUrl?: string; // For color swatches etc.
+      additionalPrice?: number;
+    }[];
+  }[];
+}
+
+export interface ShoppingCartItem {
+  productId: string;
+  name: string;
+  price: number; // This would be the final price considering variant if any
+  quantity: number;
+  imageUrl?: string;
+  imageAiHint?: string;
+  variantInfo?: string; // e.g., "Color: Red, Size: Large"
+}
+// --- End E-commerce (Shopping) Types ---

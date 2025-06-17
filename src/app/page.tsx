@@ -31,12 +31,32 @@ import CreatePostScreen from '@/components/screens/CreatePostScreen';
 import DetailedPostScreen from '@/components/screens/DetailedPostScreen';
 import CreateMomentDialog from '@/components/moments/CreateMomentDialog';
 import MomentViewerScreen from '@/components/moments/MomentViewerScreen';
-import ServiceBookingDialog from '@/components/services/ServiceBookingDialog'; // Added
+import ServiceBookingDialog from '@/components/services/ServiceBookingDialog';
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
 import { feedItems as initialFeedItemsData } from '@/lib/dummy-data/feedItems';
 
+// Food Ordering Imports
+import FoodRestaurantsScreen from '@/components/screens/food/FoodRestaurantsScreen';
+import FoodRestaurantDetailScreen from '@/components/screens/food/FoodRestaurantDetailScreen';
+import FoodCartScreen from '@/components/screens/food/FoodCartScreen';
+import { dummyRestaurants } from '@/lib/dummy-data/restaurants';
 
-import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, ProfilePost, MediaAttachment, UserMoment, Category as CategoryType, FeedItem, Comment, ServiceBookingRequest, ActiveBooking, BookingStatus } from '@/types'; // Added ServiceBooking types
+// Shopping Imports
+import ShoppingCategoriesScreen from '@/components/screens/shopping/ShoppingCategoriesScreen';
+import ShoppingProductsListScreen from '@/components/screens/shopping/ShoppingProductsListScreen';
+import ShoppingProductDetailScreen from '@/components/screens/shopping/ShoppingProductDetailScreen';
+import ShoppingCartScreen from '@/components/screens/shopping/ShoppingCartScreen';
+import { dummyProductCategories } from '@/lib/dummy-data/productCategories';
+import { dummyProducts } from '@/lib/dummy-data/products';
+
+
+import type { 
+    TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, 
+    ProfilePost, MediaAttachment, UserMoment, Category as CategoryType, FeedItem, Comment, 
+    ServiceBookingRequest, ActiveBooking, BookingStatus,
+    Restaurant, MenuItem, FoodCartItem,
+    ProductCategory, ProductListing, ShoppingCartItem
+} from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from 'date-fns';
 
@@ -216,6 +236,18 @@ export default function AppRoot() {
   const [bookingTargetProfile, setBookingTargetProfile] = useState<BookingTargetProfile | null>(null);
   const [activeBookings, setActiveBookings] = useState<ActiveBooking[]>([]);
 
+  // Food Ordering State
+  const [restaurantsData, setRestaurantsData] = useState<Restaurant[]>(dummyRestaurants);
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
+  const [foodCartItems, setFoodCartItems] = useState<FoodCartItem[]>([]);
+
+  // Shopping State
+  const [productCategoriesData, setProductCategoriesData] = useState<ProductCategory[]>(dummyProductCategories);
+  const [productsData, setProductsData] = useState<ProductListing[]>(dummyProducts);
+  const [selectedShoppingCategoryId, setSelectedShoppingCategoryId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [shoppingCartItems, setShoppingCartItems] = useState<ShoppingCartItem[]>([]);
+
 
   useEffect(() => {
     setIsClient(true);
@@ -303,7 +335,7 @@ export default function AppRoot() {
         email: user.email,
         avatarUrl: user.avatarUrl || `https://source.unsplash.com/random/48x48/?${(user.avatarAiHint || 'user avatar').split(' ').join(',')}`,
         avatarAiHint: user.avatarAiHint || 'user avatar',
-        moments: [],
+        moments: [], // Initialize with empty moments
     });
     setActiveTabInternal('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
@@ -336,9 +368,16 @@ export default function AppRoot() {
     setShowMomentViewer(false);
     setViewingMomentOwnerDetails(null);
     setSelectedPostForDetail(null);
-    setShowServiceBookingDialog(false); // Added
-    setBookingTargetProfile(null); // Added
-    setActiveBookings([]); // Added
+    setShowServiceBookingDialog(false); 
+    setBookingTargetProfile(null); 
+    setActiveBookings([]); 
+    // Reset food ordering state
+    setSelectedRestaurantId(null);
+    setFoodCartItems([]);
+    // Reset shopping state
+    setSelectedShoppingCategoryId(null);
+    setSelectedProductId(null);
+    setShoppingCartItems([]);
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   }, [toast]);
 
@@ -350,7 +389,9 @@ export default function AppRoot() {
         'business-detail', 'individual-profile', 'skillset-profile',
         'manage-skillset-profile', 'manage-business-profile', 'job-detail',
         'professional-profile', 'account-settings', 'digital-id-card',
-        'create-post', 'detailed-post', 'service-booking' // Added service-booking
+        'create-post', 'detailed-post', 'service-booking',
+        'food-restaurant-detail', 'food-cart',
+        'shopping-products-list', 'shopping-product-detail', 'shopping-cart'
     ];
 
     if (!detailTabs.includes(tab)) {
@@ -361,7 +402,16 @@ export default function AppRoot() {
         setSkillsetProfileToManageId(null);
         setSelectedJobId(null);
         setSelectedPostForDetail(null);
-        setBookingTargetProfile(null); // Clear booking target if not on booking screen
+        setBookingTargetProfile(null); 
+        // Reset food navigation state unless navigating within food flow
+        if (!tab.startsWith('food-')) {
+            setSelectedRestaurantId(null);
+        }
+        // Reset shopping navigation state unless navigating within shopping flow
+        if (!tab.startsWith('shopping-')) {
+            setSelectedShoppingCategoryId(null);
+            setSelectedProductId(null);
+        }
     }
 
     if (tab === 'business-profiles' && isLoggedIn) {
@@ -386,7 +436,7 @@ export default function AppRoot() {
         return;
     }
 
-    if (profileId === userData?.id) {
+    if (userData && profileId === userData.id) {
         setActiveTab('account');
     } else if (profileId) {
         setSelectedIndividualProfileId(profileId);
@@ -442,7 +492,7 @@ export default function AppRoot() {
   }, [setActiveTab]);
 
   const handleAddToCart = useCallback((businessId: string | number, productId: string) => {
-    console.log('Add to Cart:', { businessId, productId });
+    console.log('Add to Cart (General):', { businessId, productId });
     toast({ title: "Added to Cart (Simulated)", description: `Product ${productId} from business ${businessId}` });
   }, [toast]);
 
@@ -569,13 +619,14 @@ export default function AppRoot() {
   const handleViewUserMoments = useCallback((profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => {
     let ownerDetails: ViewingMomentOwnerDetails | null = null;
 
-    if (userName && profileId) {
+    if (userName && profileId) { // If full details are passed (e.g. from FeedCard)
         ownerDetails = { name: userName, avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint, profileId };
-    } else if (profileId) {
+    } else if (profileId) { // If only profileId is passed (e.g. from CategoryItem)
         const categoryUser = initialCategoriesData.find(cat => cat.profileId === profileId);
         if (categoryUser) {
             ownerDetails = { name: categoryUser.name || 'User', avatarUrl: categoryUser.image, avatarAiHint: categoryUser.dataAiHint, profileId };
         } else {
+             // Fallback if profileId doesn't match a category (e.g. a dynamic ID)
              ownerDetails = { name: `User ${profileId.substring(0,5)}...`, avatarUrl: `https://source.unsplash.com/random/48x48/?person,avatar`, avatarAiHint: 'person avatar', profileId };
         }
     }
@@ -583,7 +634,7 @@ export default function AppRoot() {
     if (ownerDetails) {
         setViewingMomentOwnerDetails(ownerDetails);
         setShowMomentViewer(true);
-    } else if (userData) {
+    } else if (userData) { // Default to logged-in user if no other context
         setViewingMomentOwnerDetails({
             name: userData.name,
             avatarUrl: userData.avatarUrl,
@@ -861,11 +912,110 @@ export default function AppRoot() {
       title: "Booking Request Sent!",
       description: `Your request for ${request.skillName} with ${request.professionalName} has been submitted.`,
     });
-    // Optionally, navigate away from booking screen or back to profile
-    setActiveTab('skillset-profile'); // Or wherever is appropriate
-    // console.log("Active Bookings:", [newBooking, ...activeBookings]); // For debugging
+    setActiveTab('skillset-profile'); 
   }, [toast, setActiveTab]);
 
+  // --- Food Ordering Handlers ---
+  const handleSelectFoodRestaurant = useCallback((restaurantId: string) => {
+    setSelectedRestaurantId(restaurantId);
+    setActiveTab('food-restaurant-detail');
+  }, [setActiveTab]);
+
+  const handleAddItemToFoodCart = useCallback((menuItem: MenuItem, restaurantId: string, restaurantName: string) => {
+    setFoodCartItems(prevCart => {
+      const existingItemIndex = prevCart.findIndex(item => item.menuItemId === menuItem.id && item.restaurantId === restaurantId);
+      if (existingItemIndex > -1) {
+        const updatedCart = [...prevCart];
+        updatedCart[existingItemIndex].quantity += 1;
+        return updatedCart;
+      } else {
+        return [...prevCart, { ...menuItem, menuItemId: menuItem.id, quantity: 1, restaurantId, restaurantName }];
+      }
+    });
+  }, []);
+
+  const handleUpdateFoodCartItemQuantity = useCallback((menuItemId: string, newQuantity: number) => {
+    setFoodCartItems(prevCart =>
+      prevCart.map(item =>
+        item.menuItemId === menuItemId ? { ...item, quantity: newQuantity } : item
+      ).filter(item => item.quantity > 0) // Remove if quantity becomes 0
+    );
+  }, []);
+  
+  const handleRemoveFoodCartItem = useCallback((menuItemId: string) => {
+    setFoodCartItems(prevCart => prevCart.filter(item => item.menuItemId !== menuItemId));
+    toast({ title: "Item Removed", description: "Item removed from your food cart.", variant: "destructive" });
+  }, [toast]);
+
+  const handleFoodCheckout = useCallback(() => {
+    if (foodCartItems.length === 0) {
+        toast({ title: "Empty Cart", description: "Your food cart is empty.", variant: "destructive"});
+        return;
+    }
+    toast({ title: "Order Placed (Simulated)", description: "Your food order has been placed successfully!" });
+    setFoodCartItems([]);
+    setActiveTab('home'); // Or 'food-restaurants'
+  }, [foodCartItems, toast, setActiveTab]);
+  
+  const handleNavigateToFoodCart = useCallback(() => {
+    setActiveTab('food-cart');
+  }, [setActiveTab]);
+
+  // --- Shopping Handlers ---
+  const handleSelectShoppingCategory = useCallback((categoryId: string) => {
+    setSelectedShoppingCategoryId(categoryId);
+    setActiveTab('shopping-products-list');
+  }, [setActiveTab]);
+
+  const handleSelectShoppingProduct = useCallback((productId: string) => {
+    setSelectedProductId(productId);
+    setActiveTab('shopping-product-detail');
+  }, [setActiveTab]);
+
+  const handleAddItemToShoppingCart = useCallback((product: ProductListing, quantity: number) => {
+    setShoppingCartItems(prevCart => {
+        const existingItemIndex = prevCart.findIndex(item => item.productId === product.id);
+        // Variant handling would be more complex here, for now, assume base product
+        if (existingItemIndex > -1) {
+            const updatedCart = [...prevCart];
+            updatedCart[existingItemIndex].quantity += quantity;
+            return updatedCart;
+        } else {
+            return [...prevCart, { 
+                productId: product.id, 
+                name: product.name, 
+                price: product.price, 
+                quantity, 
+                imageUrl: product.imageUrl,
+                imageAiHint: product.imageAiHint 
+            }];
+        }
+    });
+    toast({ title: "Added to Shopping Cart", description: `${quantity} x ${product.name} added.` });
+  }, [toast]);
+
+  const handleUpdateShoppingCartItemQuantity = useCallback((productId: string, newQuantity: number) => {
+    setShoppingCartItems(prevCart =>
+      prevCart.map(item =>
+        item.productId === productId ? { ...item, quantity: newQuantity } : item
+      ).filter(item => item.quantity > 0)
+    );
+  }, []);
+
+  const handleRemoveShoppingCartItem = useCallback((productId: string) => {
+    setShoppingCartItems(prevCart => prevCart.filter(item => item.productId !== productId));
+    toast({ title: "Item Removed", description: "Item removed from your shopping cart.", variant: "destructive" });
+  }, [toast]);
+  
+  const handleShoppingCheckout = useCallback(() => {
+    if (shoppingCartItems.length === 0) {
+        toast({ title: "Empty Cart", description: "Your shopping cart is empty.", variant: "destructive"});
+        return;
+    }
+    toast({ title: "Purchase Complete (Simulated)", description: "Thank you for your purchase!" });
+    setShoppingCartItems([]);
+    setActiveTab('home'); // Or 'shopping-categories'
+  }, [shoppingCartItems, toast, setActiveTab]);
 
   const renderScreenContent = useCallback(() => {
     if (!isClient) return null;
@@ -1013,18 +1163,35 @@ export default function AppRoot() {
       case 'account-settings':
         return <AccountSettingsScreen />;
 
-      case 'service-booking': // Added
+      case 'service-booking': 
         if (bookingTargetProfile) {
-            // This case might not be directly rendered as a full screen
-            // The dialog is shown on top.
-            // But if we wanted a dedicated screen, it would be here.
-            // For now, let's assume the dialog is sufficient.
-            // To prevent full screen flicker, we could return the underlying screen:
             return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId!} setActiveTab={setActiveTab} onBookService={handleOpenServiceBooking} />;
         }
-        // Fallback if bookingTargetProfile is not set (should not happen if flow is correct)
         setActiveTab('home');
         return <p className="p-4 text-center text-muted-foreground">Loading booking screen...</p>;
+      
+      // Food Ordering Screens
+      case 'food-restaurants':
+        return <FoodRestaurantsScreen restaurants={restaurantsData} onSelectRestaurant={handleSelectFoodRestaurant} />;
+      case 'food-restaurant-detail':
+        const selectedRestaurant = restaurantsData.find(r => r.id === selectedRestaurantId);
+        return <FoodRestaurantDetailScreen restaurant={selectedRestaurant || null} onAddToCart={(item, qty) => handleAddItemToFoodCart(item, selectedRestaurantId!, selectedRestaurant?.name || 'Restaurant')} onBack={() => setActiveTab('food-restaurants')} />;
+      case 'food-cart':
+        const restaurantForCart = foodCartItems.length > 0 ? restaurantsData.find(r => r.id === foodCartItems[0].restaurantId) : null;
+        return <FoodCartScreen cartItems={foodCartItems} onUpdateQuantity={handleUpdateFoodCartItemQuantity} onRemoveItem={handleRemoveFoodCartItem} onCheckout={handleFoodCheckout} onBack={() => setActiveTab(restaurantForCart ? 'food-restaurant-detail' : 'food-restaurants')} />;
+
+      // Shopping Screens
+      case 'shopping-categories':
+        return <ShoppingCategoriesScreen categories={productCategoriesData} onSelectCategory={handleSelectShoppingCategory} />;
+      case 'shopping-products-list':
+        const currentCategory = productCategoriesData.find(c => c.id === selectedShoppingCategoryId);
+        const productsForCategory = productsData.filter(p => selectedShoppingCategoryId ? p.categoryIds.includes(selectedShoppingCategoryId) : true);
+        return <ShoppingProductsListScreen products={productsForCategory} category={currentCategory || null} onSelectProduct={handleSelectShoppingProduct} onBack={() => setActiveTab('shopping-categories')} onAddToCart={handleAddItemToShoppingCart} />;
+      case 'shopping-product-detail':
+        const currentProduct = productsData.find(p => p.id === selectedProductId);
+        return <ShoppingProductDetailScreen product={currentProduct || null} onAddToCart={handleAddItemToShoppingCart} onBack={() => setActiveTab('shopping-products-list')} />;
+      case 'shopping-cart':
+        return <ShoppingCartScreen cartItems={shoppingCartItems} onUpdateQuantity={handleUpdateShoppingCartItemQuantity} onRemoveItem={handleRemoveShoppingCartItem} onCheckout={handleShoppingCheckout} onBack={() => setActiveTab(selectedProductId ? 'shopping-product-detail' : (selectedShoppingCategoryId ? 'shopping-products-list' : 'shopping-categories'))} />;
 
 
       default: return <HomeScreen
@@ -1038,7 +1205,9 @@ export default function AppRoot() {
     isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments, feedItems,
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, selectedPostForDetail,
-    bookingTargetProfile, // Added
+    bookingTargetProfile, 
+    restaurantsData, selectedRestaurantId, foodCartItems, // Food state
+    productCategoriesData, productsData, selectedShoppingCategoryId, selectedProductId, shoppingCartItems, // Shopping state
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
     handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
@@ -1047,7 +1216,9 @@ export default function AppRoot() {
     handleCreateNewPost, handleViewPostDetail, handlePostCommentOnDetail,
     handleAddMomentFromAccount, handleViewUserMomentsFromAccount,
     handleAddMomentFromFeeds, handleViewUserMoments,
-    handleOpenServiceBooking, // Added
+    handleOpenServiceBooking, handleConfirmServiceBooking,
+    handleSelectFoodRestaurant, handleAddItemToFoodCart, handleUpdateFoodCartItemQuantity, handleRemoveFoodCartItem, handleFoodCheckout, // Food handlers
+    handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleRemoveShoppingCartItem, handleShoppingCheckout, // Shopping handlers
     toast
   ]);
 
@@ -1059,13 +1230,18 @@ export default function AppRoot() {
       </div>
     );
   }
+  
+  const totalCartItems = foodCartItems.reduce((sum, item) => sum + item.quantity, 0) + shoppingCartItems.reduce((sum, item) => sum + item.quantity, 0);
+
 
   return (
     <div className="flex flex-col h-screen bg-background">
       <Header
         onMenuClick={() => setShowSideMenu(true)}
         onMessagesClick={() => setShowMessagesNotifications(true)}
+        onCartClick={handleNavigateToFoodCart} // Updated to specific cart for now
         unreadCount={isLoggedIn ? 5 : 0}
+        cartItemCount={totalCartItems}
       />
 
       {isLoggedIn && (
@@ -1082,11 +1258,11 @@ export default function AppRoot() {
         />
       )}
 
-      <div className="flex-grow overflow-hidden relative p-4">
+      <div className="flex-grow overflow-hidden relative p-0"> {/* Removed p-4 from here, screens handle padding */}
         {renderScreenContent()}
       </div>
 
-      {isLoggedIn && !['detailed-post', 'service-booking'].includes(activeTab) && (
+      {isLoggedIn && !['detailed-post', 'service-booking', 'food-restaurant-detail', 'food-cart', 'shopping-product-detail', 'shopping-cart'].includes(activeTab) && (
         <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
 
@@ -1131,7 +1307,7 @@ export default function AppRoot() {
         <MomentViewerScreen
           isOpen={showMomentViewer}
           onClose={() => { setShowMomentViewer(false); setViewingMomentOwnerDetails(null); }}
-          moments={userMoments}
+          moments={userMoments} // Always shows current user's moments
           ownerName={viewingMomentOwnerDetails.name}
           ownerAvatarUrl={viewingMomentOwnerDetails.avatarUrl}
           ownerAvatarAiHint={viewingMomentOwnerDetails.avatarAiHint}
@@ -1156,4 +1332,3 @@ export default function AppRoot() {
     </div>
   );
 }
-

@@ -1,15 +1,24 @@
 
-import { Bars3Icon, ChatBubbleOvalLeftEllipsisIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, ChatBubbleOvalLeftEllipsisIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import type { TabName } from '@/types';
 
 interface HeaderProps {
   onMenuClick: () => void;
   onMessagesClick: () => void;
+  onCartClick: () => void; // New prop
   unreadCount?: number;
+  cartItemCount?: number; // New prop
 }
 
-const Header: React.FC<HeaderProps> = ({ onMenuClick, onMessagesClick, unreadCount = 0 }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  onMenuClick, 
+  onMessagesClick, 
+  onCartClick, // Use new prop
+  unreadCount = 0,
+  cartItemCount = 0 // Use new prop
+}) => {
   return (
     <header className="bg-card shadow-sm p-4 flex items-center justify-between z-20 sticky top-0">
       <div className="flex items-center">
@@ -25,22 +34,41 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick, onMessagesClick, unreadCou
         </Tooltip>
         <span className="text-2xl font-bold text-primary font-headline">bucks</span>
       </div>
-      <div className="relative">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="Messages" className="text-foreground hover:text-primary" onClick={onMessagesClick}>
-              <ChatBubbleOvalLeftEllipsisIcon className="w-8 h-8" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>View Messages & Notifications</p>
-          </TooltipContent>
-        </Tooltip>
-        {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-destructive-foreground bg-destructive rounded-full">
-            {unreadCount > 9 ? "9+" : unreadCount}
-          </span>
-        )}
+      <div className="flex items-center space-x-1 sm:space-x-2">
+        <div className="relative">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Cart" className="text-foreground hover:text-primary" onClick={onCartClick}>
+                <ShoppingCartIcon className="w-7 h-7 sm:w-8 sm:h-8" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>View Cart</p>
+            </TooltipContent>
+          </Tooltip>
+          {cartItemCount > 0 && (
+            <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-destructive-foreground bg-destructive rounded-full">
+              {cartItemCount > 9 ? "9+" : cartItemCount}
+            </span>
+          )}
+        </div>
+        <div className="relative">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Messages" className="text-foreground hover:text-primary" onClick={onMessagesClick}>
+                <ChatBubbleOvalLeftEllipsisIcon className="w-7 h-7 sm:w-8 sm:h-8" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>View Messages & Notifications</p>
+            </TooltipContent>
+          </Tooltip>
+          {unreadCount > 0 && (
+            <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-destructive-foreground bg-destructive rounded-full">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </div>
       </div>
     </header>
   );
