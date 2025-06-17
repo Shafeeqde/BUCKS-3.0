@@ -19,7 +19,7 @@ import UserBusinessProfilesScreen from '@/components/screens/UserBusinessProfile
 import UserBusinessProfileDetailScreen from '@/components/screens/UserBusinessProfileDetailScreen';
 import BusinessProfileManagementScreen from '@/components/screens/BusinessProfileManagementScreen';
 import MessagesNotificationsScreen from '@/components/screens/MessagesNotificationsScreen';
-import ChatDetailScreen from '@/components/screens/ChatDetailScreen'; // New Import
+import ChatDetailScreen from '@/components/screens/ChatDetailScreen';
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
 import ActiveActivityView from '@/components/activity/ActiveActivityView';
 import IndividualProfileScreen from '@/components/screens/IndividualProfileScreen';
@@ -51,13 +51,13 @@ import { dummyProductCategories } from '@/lib/dummy-data/productCategories';
 import { dummyProducts } from '@/lib/dummy-data/products';
 
 
-import type { 
-    TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, 
-    ProfilePost, MediaAttachment, UserMoment, Category as CategoryType, FeedItem, Comment, 
+import type {
+    TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu,
+    ProfilePost, MediaAttachment, UserMoment, Category as CategoryType, FeedItem, Comment,
     ServiceBookingRequest, ActiveBooking, BookingStatus,
     Restaurant, MenuItem, FoodCartItem,
     ProductCategory, ProductListing, ShoppingCartItem,
-    MessageItem, NotificationItem, ChatMessage // Added ChatMessage
+    MessageItem, NotificationItem, ChatMessage
 } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from 'date-fns';
@@ -211,7 +211,7 @@ export default function AppRoot() {
 
   const [activeTab, setActiveTabInternal] = useState<TabName>('login');
   const [showSideMenu, setShowSideMenu] = useState(false);
-  
+
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState<UserDataForSideMenu | null>(null);
@@ -384,9 +384,9 @@ export default function AppRoot() {
     setShowMomentViewer(false);
     setViewingMomentOwnerDetails(null);
     setSelectedPostForDetail(null);
-    setShowServiceBookingDialog(false); 
-    setBookingTargetProfile(null); 
-    setActiveBookings([]); 
+    setShowServiceBookingDialog(false);
+    setBookingTargetProfile(null);
+    setActiveBookings([]);
     // Reset food ordering state
     setSelectedRestaurantId(null);
     setFoodCartItems([]);
@@ -422,7 +422,7 @@ export default function AppRoot() {
         setSkillsetProfileToManageId(null);
         setSelectedJobId(null);
         setSelectedPostForDetail(null);
-        setBookingTargetProfile(null); 
+        setBookingTargetProfile(null);
         if (!tab.startsWith('food-')) {
             setSelectedRestaurantId(null);
         }
@@ -630,16 +630,12 @@ export default function AppRoot() {
     }
   }, [toast, userData]);
 
-  const handleAddMomentFromFeeds = useCallback(() => {
-    setShowCreateMomentDialog(true);
-  }, []);
-
   const handleViewUserMoments = useCallback((profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => {
     let ownerDetails: ViewingMomentOwnerDetails | null = null;
 
-    if (userName && profileId) {
+    if (userName && profileId) { // Directly passed details
         ownerDetails = { name: userName, avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint, profileId };
-    } else if (profileId) {
+    } else if (profileId) { // Look up by profileId
         const categoryUser = initialCategoriesData.find(cat => cat.profileId === profileId);
         if (categoryUser) {
             ownerDetails = { name: categoryUser.name || 'User', avatarUrl: categoryUser.image, avatarAiHint: categoryUser.dataAiHint, profileId };
@@ -647,22 +643,18 @@ export default function AppRoot() {
              const businessProfileUser = businessProfilesData.find(bp => bp.id === profileId);
              if (businessProfileUser) {
                  ownerDetails = { name: businessProfileUser.name, avatarUrl: businessProfileUser.logo, avatarAiHint: businessProfileUser.logoAiHint, profileId };
-             } else {
+             } else if (userData && profileId === userData.id) { // Current user's moments
+                 ownerDetails = { name: userData.name, avatarUrl: userData.avatarUrl, avatarAiHint: userData.avatarAiHint, profileId: userData.id };
+             } else { // Fallback if profileId not found in known sources
                 ownerDetails = { name: `User ${profileId.substring(0,5)}...`, avatarUrl: `https://source.unsplash.com/random/48x48/?person,avatar`, avatarAiHint: 'person avatar', profileId };
              }
         }
+    } else if (userData) { // Default to current user if no specific profile is requested
+        ownerDetails = { name: userData.name, avatarUrl: userData.avatarUrl, avatarAiHint: userData.avatarAiHint, profileId: userData.id };
     }
 
     if (ownerDetails) {
         setViewingMomentOwnerDetails(ownerDetails);
-        setShowMomentViewer(true);
-    } else if (userData) {
-        setViewingMomentOwnerDetails({
-            name: userData.name,
-            avatarUrl: userData.avatarUrl,
-            avatarAiHint: userData.avatarAiHint,
-            profileId: userData.id
-        });
         setShowMomentViewer(true);
     } else {
         toast({ title: "Please Log In", description: "Log in to view or create moments." });
@@ -922,7 +914,7 @@ export default function AppRoot() {
   const handleOpenServiceBooking = useCallback((profileId: string, profileName: string, skillName: string) => {
     setBookingTargetProfile({ id: profileId, name: profileName, skillName });
     setShowServiceBookingDialog(true);
-    setActiveTab('service-booking'); 
+    setActiveTab('service-booking');
   }, [setActiveTab]);
 
   const handleConfirmServiceBooking = useCallback((request: ServiceBookingRequest) => {
@@ -940,7 +932,7 @@ export default function AppRoot() {
       title: "Booking Request Sent!",
       description: `Your request for ${request.skillName} with ${request.professionalName} has been submitted.`,
     });
-    setActiveTab('skillset-profile'); 
+    setActiveTab('skillset-profile');
   }, [toast, setActiveTab]);
 
   // --- Food Ordering Handlers ---
@@ -966,10 +958,10 @@ export default function AppRoot() {
     setFoodCartItems(prevCart =>
       prevCart.map(item =>
         item.menuItemId === menuItemId ? { ...item, quantity: newQuantity } : item
-      ).filter(item => item.quantity > 0) 
+      ).filter(item => item.quantity > 0)
     );
   }, []);
-  
+
   const handleRemoveFoodCartItem = useCallback((menuItemId: string) => {
     setFoodCartItems(prevCart => prevCart.filter(item => item.menuItemId !== menuItemId));
     toast({ title: "Item Removed", description: "Item removed from your food cart.", variant: "destructive" });
@@ -982,9 +974,9 @@ export default function AppRoot() {
     }
     toast({ title: "Order Placed (Simulated)", description: "Your food order has been placed successfully!" });
     setFoodCartItems([]);
-    setActiveTab('home'); 
+    setActiveTab('home');
   }, [foodCartItems, toast, setActiveTab]);
-  
+
   const handleNavigateToFoodCart = useCallback(() => {
     setActiveTab('food-cart');
   }, [setActiveTab]);
@@ -1008,13 +1000,13 @@ export default function AppRoot() {
             updatedCart[existingItemIndex].quantity += quantity;
             return updatedCart;
         } else {
-            return [...prevCart, { 
-                productId: product.id, 
-                name: product.name, 
-                price: product.price, 
-                quantity, 
+            return [...prevCart, {
+                productId: product.id,
+                name: product.name,
+                price: product.price,
+                quantity,
                 imageUrl: product.imageUrl,
-                imageAiHint: product.imageAiHint 
+                imageAiHint: product.imageAiHint
             }];
         }
     });
@@ -1033,7 +1025,7 @@ export default function AppRoot() {
     setShoppingCartItems(prevCart => prevCart.filter(item => item.productId !== productId));
     toast({ title: "Item Removed", description: "Item removed from your shopping cart.", variant: "destructive" });
   }, [toast]);
-  
+
   const handleShoppingCheckout = useCallback(() => {
     if (shoppingCartItems.length === 0) {
         toast({ title: "Empty Cart", description: "Your shopping cart is empty.", variant: "destructive"});
@@ -1041,7 +1033,7 @@ export default function AppRoot() {
     }
     toast({ title: "Purchase Complete (Simulated)", description: "Thank you for your purchase!" });
     setShoppingCartItems([]);
-    setActiveTab('home'); 
+    setActiveTab('home');
   }, [shoppingCartItems, toast, setActiveTab]);
 
   // --- Messaging Handlers ---
@@ -1050,7 +1042,6 @@ export default function AppRoot() {
       toast({ title: "Error", description: "User data not available for chat.", variant: "destructive" });
       return;
     }
-
     // Simulate a short chat history
     const mockMessages: ChatMessage[] = [
       { id: `msg-${Date.now() - 2000}`, text: messageItem.content, timestamp: messageItem.timestamp, isSender: false, avatar: messageItem.senderImage, avatarAiHint: messageItem.senderImageAiHint },
@@ -1085,8 +1076,6 @@ export default function AppRoot() {
       ...prev,
       messages: [...prev.messages, newMessage]
     } : null);
-
-    // Optionally, update the main message list's last message preview (more complex, skip for now)
   }, [currentChatContext, userData]);
 
 
@@ -1108,11 +1097,11 @@ export default function AppRoot() {
                             onAddToCart={handleAddToCart}
                          />;
       case 'feeds': return <FeedsScreen
+                              feedItems={feedItems}
                               onViewUserProfile={handleSelectIndividualProfile}
-                              onAddMomentClick={handleAddMomentFromFeeds}
+                              onAddMomentClick={handleAddMomentFromAccount}
                               onViewUserMomentsClick={handleViewUserMoments}
                               onViewPostDetail={handleViewPostDetail}
-                              feedItems={feedItems}
                            />;
       case 'menu': return <ServicesScreen setActiveTab={setActiveTab} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen
@@ -1236,13 +1225,13 @@ export default function AppRoot() {
       case 'account-settings':
         return <AccountSettingsScreen />;
 
-      case 'service-booking': 
+      case 'service-booking':
         if (bookingTargetProfile) {
             return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId!} setActiveTab={setActiveTab} onBookService={handleOpenServiceBooking} />;
         }
         setActiveTab('home');
         return <p className="p-4 text-center text-muted-foreground">Loading booking screen...</p>;
-      
+
       // Food Ordering Screens
       case 'food-restaurants':
         return <FoodRestaurantsScreen restaurants={restaurantsData} onSelectRestaurant={handleSelectFoodRestaurant} />;
@@ -1278,9 +1267,9 @@ export default function AppRoot() {
     isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments, feedItems,
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, selectedPostForDetail,
-    bookingTargetProfile, 
-    restaurantsData, selectedRestaurantId, foodCartItems, 
-    productCategoriesData, productsData, selectedShoppingCategoryId, selectedProductId, shoppingCartItems, 
+    bookingTargetProfile,
+    restaurantsData, selectedRestaurantId, foodCartItems,
+    productCategoriesData, productsData, selectedShoppingCategoryId, selectedProductId, shoppingCartItems,
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
     handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
@@ -1288,10 +1277,10 @@ export default function AppRoot() {
     handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive,
     handleCreateNewPost, handleViewPostDetail, handlePostCommentOnDetail,
     handleAddMomentFromAccount, handleViewUserMomentsFromAccount,
-    handleAddMomentFromFeeds, handleViewUserMoments,
+    handleViewUserMoments, // Removed specific "FromFeeds"
     handleOpenServiceBooking, handleConfirmServiceBooking,
-    handleSelectFoodRestaurant, handleAddItemToFoodCart, handleUpdateFoodCartItemQuantity, handleRemoveFoodCartItem, handleFoodCheckout, 
-    handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleRemoveShoppingCartItem, handleShoppingCheckout, 
+    handleSelectFoodRestaurant, handleAddItemToFoodCart, handleUpdateFoodCartItemQuantity, handleRemoveFoodCartItem, handleFoodCheckout,
+    handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleRemoveShoppingCartItem, handleShoppingCheckout,
     toast
   ]);
 
@@ -1303,7 +1292,7 @@ export default function AppRoot() {
       </div>
     );
   }
-  
+
   const totalCartItems = foodCartItems.reduce((sum, item) => sum + item.quantity, 0) + shoppingCartItems.reduce((sum, item) => sum + item.quantity, 0);
 
 
@@ -1312,8 +1301,8 @@ export default function AppRoot() {
       <Header
         onMenuClick={() => setShowSideMenu(true)}
         onMessagesClick={() => setShowMessagesNotifications(true)}
-        onCartClick={handleNavigateToFoodCart} 
-        unreadCount={isLoggedIn ? 5 : 0} 
+        onCartClick={handleNavigateToFoodCart}
+        unreadCount={isLoggedIn ? 5 : 0}
         cartItemCount={totalCartItems}
       />
 
@@ -1365,9 +1354,9 @@ export default function AppRoot() {
       )}
 
       {isClient && showMessagesNotifications && (
-        <MessagesNotificationsScreen 
+        <MessagesNotificationsScreen
           onClose={() => setShowMessagesNotifications(false)}
-          onOpenChatDetail={handleOpenChatDetail} // Pass handler
+          onOpenChatDetail={handleOpenChatDetail}
         />
       )}
 
@@ -1399,7 +1388,7 @@ export default function AppRoot() {
         <MomentViewerScreen
           isOpen={showMomentViewer}
           onClose={() => { setShowMomentViewer(false); setViewingMomentOwnerDetails(null); }}
-          moments={userMoments} 
+          moments={userMoments}
           ownerName={viewingMomentOwnerDetails.name}
           ownerAvatarUrl={viewingMomentOwnerDetails.avatarUrl}
           ownerAvatarAiHint={viewingMomentOwnerDetails.avatarAiHint}

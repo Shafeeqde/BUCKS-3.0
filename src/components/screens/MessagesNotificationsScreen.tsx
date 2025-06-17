@@ -7,13 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { XMarkIcon, BellIcon, ChatBubbleOvalLeftEllipsisIcon, CheckCircleIcon, EnvelopeIcon, ExclamationTriangleIcon, GiftIcon, UserIcon } from '@heroicons/react/24/outline';
-import type { MessageItem, NotificationItem, Category } from '@/types'; 
+import type { MessageItem, NotificationItem, Category } from '@/types';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 interface MessagesNotificationsScreenProps {
   onClose: () => void;
-  onOpenChatDetail: (message: MessageItem) => void; // New prop
+  onOpenChatDetail: (message: MessageItem) => void;
 }
 
 const initialMessages: MessageItem[] = [
@@ -46,7 +46,7 @@ const MessagesNotificationsScreen: React.FC<MessagesNotificationsScreenProps> = 
   const unreadNotificationsCount = notifications.filter(notif => !notif.read).length;
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true"> {/* Increased z-index */}
       <Card className="w-full h-full sm:max-w-lg sm:max-h-[90vh] shadow-2xl flex flex-col rounded-none sm:rounded-lg">
         <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
           <CardTitle className="text-xl font-semibold font-headline text-primary">
@@ -56,7 +56,7 @@ const MessagesNotificationsScreen: React.FC<MessagesNotificationsScreenProps> = 
             <XMarkIcon className="h-5 w-5 text-muted-foreground" />
           </Button>
         </CardHeader>
-        
+
         <Tabs defaultValue="messages" onValueChange={(value) => setActiveTab(value as 'messages' | 'notifications')} className="flex flex-col flex-grow overflow-hidden">
           <TabsList className="grid w-full grid-cols-2 rounded-none border-b h-auto p-0">
             <TabsTrigger value="messages" className="py-3 text-sm rounded-none data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none">
@@ -80,10 +80,10 @@ const MessagesNotificationsScreen: React.FC<MessagesNotificationsScreenProps> = 
           <ScrollArea className="flex-grow custom-scrollbar">
             <TabsContent value="messages" className="m-0 p-3 space-y-3">
               {messages.length > 0 ? messages.map(msg => (
-                <Card 
-                  key={msg.id} 
+                <Card
+                  key={msg.id}
                   className={cn("hover:shadow-md transition-shadow cursor-pointer", !msg.read && "border-primary ring-1 ring-primary/20 bg-primary/5")}
-                  onClick={() => onOpenChatDetail(msg)} // Make card clickable
+                  onClick={() => onOpenChatDetail(msg)} // Correctly call onOpenChatDetail
                   onKeyDown={(e) => e.key === 'Enter' && onOpenChatDetail(msg)}
                   tabIndex={0}
                   role="button"
