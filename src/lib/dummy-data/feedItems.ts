@@ -2,9 +2,9 @@
 import type { FeedItem, Comment } from '@/types';
 
 const commonComments: Comment[] = [
-  { id: 'c1', user: 'Alex P.', userAvatar: 'https://source.unsplash.com/random/32x32/?man,glasses', text: 'Great post! Very insightful.', timestamp: '1h ago' },
-  { id: 'c2', user: 'Maria G.', userAvatar: 'https://source.unsplash.com/random/32x32/?woman,smiling', text: 'Thanks for sharing this!', timestamp: '45m ago' },
-  { id: 'c3', user: 'John B.', userAvatar: 'https://source.unsplash.com/random/32x32/?person,casual', text: 'Interesting perspective. I agree.', timestamp: '30m ago' },
+  { id: 'c1', user: 'Alex P.', userAvatar: 'https://source.unsplash.com/random/32x32/?man,glasses', userAvatarAiHint: 'man glasses', text: 'Great post! Very insightful.', timestamp: '1h ago' },
+  { id: 'c2', user: 'Maria G.', userAvatar: 'https://source.unsplash.com/random/32x32/?woman,smiling', userAvatarAiHint: 'woman smiling', text: 'Thanks for sharing this!', timestamp: '45m ago' },
+  { id: 'c3', user: 'John B.', userAvatar: 'https://source.unsplash.com/random/32x32/?person,casual', userAvatarAiHint: 'person casual', text: 'Interesting perspective. I agree.', timestamp: '30m ago' },
 ];
 
 export const feedItems: FeedItem[] = [
@@ -12,11 +12,11 @@ export const feedItems: FeedItem[] = [
     id: 1, type: 'post', user: 'Senthil Devaraj', userImage: 'https://source.unsplash.com/random/100x100/?man,designer,indian', userImageAiHint: 'man designer indian', profileId: 'senthil-devaraj-profile',
     timestamp: '1 day ago',
     content: 'Exploring new design trends for 2024. So much inspiration out there! #UXdesign #UIDesign',
-    media: { type: 'image', url: 'https://source.unsplash.com/random/600x400/?design,trends,moodboard', aiHint: 'design trends moodboard' },
+    media: { type: 'image', url: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx1eCUyMHVpfGVufDB8fHx8MTc1MDE3MTI5Mnww&ixlib=rb-4.1.0&q=80&w=1080', aiHint: 'design trends moodboard' },
     comments: 7, recommendations: 32, notRecommendations: 1,
     commentsData: [
         ...commonComments.slice(0,1),
-        { id: 'c-sd-1', user: 'Deepthi Suvarna', userAvatar: 'https://images.unsplash.com/photo-1602233158242-3ba0ac4d2167?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnaXJsfGVufDB8fHx8MTc1MDA5Njc4NHww&ixlib=rb-4.1.0&q=80&w=1080', text: 'Totally agree, Senthil! Especially loving the use of glassmorphism.', timestamp: '20h ago' }
+        { id: 'c-sd-1', user: 'Deepthi Suvarna', userAvatar: 'https://images.unsplash.com/photo-1602233158242-3ba0ac4d2167?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnaXJsfGVufDB8fHx8MTc1MDA5Njc4NHww&ixlib=rb-4.1.0&q=80&w=1080', userAvatarAiHint: 'woman ux designer professional', text: 'Totally agree, Senthil! Especially loving the use of glassmorphism.', timestamp: '20h ago' }
     ]
   },
   {
@@ -25,7 +25,7 @@ export const feedItems: FeedItem[] = [
     content: 'Thrilled to be part of the Mikado.biz team! Working on some exciting projects. #MikadoLife #UXJobs',
     comments: 6, recommendations: 28, notRecommendations: 0,
     commentsData: [
-      { id: 'c-ds-1', user: 'Subhesh P.', userAvatar: 'https://source.unsplash.com/random/32x32/?man,team,lead', text: 'Welcome aboard, Deepthi! Glad to have you.', timestamp: '1h ago' },
+      { id: 'c-ds-1', user: 'Subhesh P.', userAvatar: 'https://source.unsplash.com/random/32x32/?man,team,lead', userAvatarAiHint: 'man team lead', text: 'Welcome aboard, Deepthi! Glad to have you.', timestamp: '1h ago' },
     ]
   },
   {
@@ -35,7 +35,7 @@ export const feedItems: FeedItem[] = [
     media: { type: 'image', url: 'https://source.unsplash.com/random/600x400/?business,growth,chart', aiHint: 'business growth chart' },
     comments: 20, recommendations: 75, notRecommendations: 3,
     commentsData: [
-        { id: 'c-scc-1', user: 'Diju K.', text: 'Well said, Shoby! To many more milestones.', timestamp: '10h ago' }
+        { id: 'c-scc-1', user: 'Diju K.', userAvatar: 'https://source.unsplash.com/random/32x32/?man,ceo', userAvatarAiHint: 'man ceo', text: 'Well said, Shoby! To many more milestones.', timestamp: '10h ago' }
     ]
   },
   {
@@ -60,7 +60,7 @@ export const feedItems: FeedItem[] = [
     media: { type: 'image', url: 'https://source.unsplash.com/random/600x400/?logo,design,mockup', aiHint: 'logo design mockup' },
     comments: 8, recommendations: 40, notRecommendations: 0,
     commentsData: [
-        { id: 'c-ng-1', user: 'Startup Owner', text: 'Amazing work, Nirmal! We love it.', timestamp: '5h ago' }
+        { id: 'c-ng-1', user: 'Startup Owner', userAvatar: 'https://source.unsplash.com/random/32x32/?business,owner', userAvatarAiHint: 'business owner', text: 'Amazing work, Nirmal! We love it.', timestamp: '5h ago' }
     ]
   },
 ];
