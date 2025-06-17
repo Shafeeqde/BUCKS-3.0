@@ -8,14 +8,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { UserCircleIcon, PlusCircleIcon, PhotoIcon, FilmIcon, LinkIcon as LinkOutlineIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, QueueListIcon } from '@heroicons/react/24/outline';
+import { UserCircleIcon, PlusCircleIcon, PhotoIcon, FilmIcon, LinkIcon as LinkOutlineIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, QueueListIcon, DocumentIcon, VideoCameraIcon } from '@heroicons/react/24/outline';
 import type { TabName, UserDataForSideMenu, ProfilePost } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
 interface AccountScreenProps {
   userData: UserDataForSideMenu | null;
   setActiveTab: (tab: TabName) => void;
-  userPosts: ProfilePost[]; // New prop for user's posts
+  userPosts: ProfilePost[];
 }
 
 const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, userPosts }) => {
@@ -36,7 +36,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, u
   };
 
   const handleCreatePost = () => {
-    setActiveTab('create-post'); // Navigate to create post screen
+    setActiveTab('create-post');
   };
 
 
@@ -84,27 +84,55 @@ const AccountScreen: React.FC<AccountScreenProps> = ({ userData, setActiveTab, u
                     <div className="space-y-4">
                     {userPosts.map(post => (
                         <Card key={post.id} className="shadow-sm">
-                        <CardHeader className="pb-2 pt-4 px-4">
-                            <div className="flex items-center space-x-3">
-                                <Avatar className="h-9 w-9">
-                                    <AvatarImage src={post.userImage || userData.avatarUrl || undefined} alt={post.user} data-ai-hint={post.userImageAiHint || userData.avatarAiHint || "user avatar"}/>
-                                    <AvatarFallback>{post.user.substring(0,1)}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p className="text-sm font-semibold text-foreground">{post.user}</p>
-                                    <p className="text-xs text-muted-foreground">{post.timestamp}</p>
+                          <CardHeader className="pb-2 pt-4 px-4">
+                              <div className="flex items-center space-x-3">
+                                  <Avatar className="h-9 w-9">
+                                      <AvatarImage src={post.userImage || userData.avatarUrl || undefined} alt={post.user} data-ai-hint={post.userImageAiHint || userData.avatarAiHint || "user avatar"}/>
+                                      <AvatarFallback>{post.user.substring(0,1)}</AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                      <p className="text-sm font-semibold text-foreground">{post.user}</p>
+                                      <p className="text-xs text-muted-foreground">{post.timestamp}</p>
+                                  </div>
+                              </div>
+                          </CardHeader>
+                          <CardContent className="px-4 pb-3">
+                              {post.content && <p className="text-sm mb-2 text-foreground whitespace-pre-line">{post.content}</p>}
+                              {post.media && (
+                                <div className="mt-2 border rounded-md overflow-hidden">
+                                  {post.media.type === 'image' && (
+                                    <Image src={post.media.url} alt={post.media.aiHint || 'Post image'} width={500} height={300} className="object-cover w-full" data-ai-hint={post.media.aiHint || "post image"}/>
+                                  )}
+                                  {post.media.type === 'video' && (
+                                    <div className="bg-black aspect-video flex items-center justify-center">
+                                      {post.media.thumbnailUrl ? (
+                                        <Image src={post.media.thumbnailUrl} alt="Video thumbnail" layout="fill" objectFit="contain" data-ai-hint="video thumbnail"/>
+                                      ) : (
+                                        <VideoCameraIcon className="h-16 w-16 text-white/70" />
+                                      )}
+                                      <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                        <VideoCameraIcon className="h-12 w-12 text-white opacity-80 drop-shadow-lg" />
+                                      </div>
+                                      {/* In a real app, clicking this would play the video post.media.url */}
+                                    </div>
+                                  )}
+                                  {post.media.type === 'document' && (
+                                    <div className="p-3 bg-muted/30 flex items-center space-x-3">
+                                      <DocumentIcon className="h-10 w-10 text-primary flex-shrink-0" />
+                                      <div>
+                                        <p className="text-sm font-medium text-foreground truncate">{post.media.fileName || 'Attached Document'}</p>
+                                        <a href={post.media.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">View/Download Document</a>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="px-4 pb-3">
-                            {post.content && <p className="text-sm mb-2 text-foreground">{post.content}</p>}
-                            {post.imageUrl && <div className="relative aspect-video rounded-md overflow-hidden border"><Image src={post.imageUrl} alt="Post image" fill className="object-cover" data-ai-hint={post.imageAiHint || "feed post"}/></div>}
-                        </CardContent>
-                        <CardFooter className="text-xs text-muted-foreground px-4 pt-2 pb-3 border-t">
-                            <span>{post.likes} Likes</span>
-                            <span className="mx-2">•</span>
-                            <span>{post.comments} Comments</span>
-                        </CardFooter>
+                              )}
+                          </CardContent>
+                          <CardFooter className="text-xs text-muted-foreground px-4 pt-2 pb-3 border-t">
+                              <span>{post.likes} Likes</span>
+                              <span className="mx-2">•</span>
+                              <span>{post.comments} Comments</span>
+                          </CardFooter>
                         </Card>
                     ))}
                     </div>

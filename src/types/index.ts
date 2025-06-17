@@ -27,7 +27,7 @@ export type TabName =
   | 'job-detail'
   | 'account-settings'
   | 'digital-id-card'
-  | 'create-post'; // Added new tab
+  | 'create-post';
 
 export interface Category {
   id: string;
@@ -38,11 +38,11 @@ export interface Category {
   viewed: boolean;
   color?: string;
   dataAiHint?: string;
-  profileId?: string; // Added for linking user categories to profiles
+  profileId?: string;
 }
 
 export interface FeedItem {
-  id: number; // Keeping as number for this specific mock data, could be string if from backend
+  id: number;
   type: 'post' | 'job' | 'ad';
   user: string;
   userImage: string;
@@ -56,7 +56,7 @@ export interface FeedItem {
   notRecommendations: number;
   showCommentBox: boolean;
   currentComment: string;
-  profileId?: string; // Added for linking post authors to profiles
+  profileId?: string;
 }
 
 export interface Service {
@@ -68,7 +68,7 @@ export interface Service {
 }
 
 export interface RecommendedPost {
-  id: number; // Keeping as number for this specific mock data
+  id: number;
   recommendedBy: string;
   userImage: string;
   userImageAiHint?: string;
@@ -118,7 +118,7 @@ export interface UserVehicle {
 }
 
 export interface BusinessProduct {
-  id: string; 
+  id: string;
   name: string;
   description?: string;
   price: string;
@@ -129,8 +129,8 @@ export interface BusinessProduct {
 }
 
 export interface BusinessJob {
-  id: string; 
-  businessId: string; 
+  id: string;
+  businessId: string;
   businessName: string;
   businessLogoUrl?: string;
   title: string;
@@ -145,7 +145,7 @@ export interface BusinessJob {
 
 
 export interface BusinessFeedItem {
-  id: string; 
+  id: string;
   content: string;
   image?: string;
   imageAiHint?: string;
@@ -154,14 +154,14 @@ export interface BusinessFeedItem {
 }
 
 export interface BusinessService {
-  id: string; 
+  id: string;
   name:string;
   description?: string;
   price?: string;
 }
 
 export interface BusinessReview {
-  id: string; 
+  id: string;
   reviewerName: string;
   rating: number;
   comment: string;
@@ -169,7 +169,7 @@ export interface BusinessReview {
 }
 
 export interface UserBusinessProfile {
-  id: string; 
+  id: string;
   name: string;
   logo?: string;
   logoAiHint?: string;
@@ -193,9 +193,8 @@ export interface UserBusinessProfile {
   isActive?: boolean;
   licenseNumber?: string;
   documentUrl?: string;
-  // Timestamps that Firestore might add automatically
-  createdAt?: any; // Firestore Timestamp type
-  updatedAt?: any; // Firestore Timestamp type
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 
@@ -210,7 +209,7 @@ export interface BusinessProductCardItem {
 }
 
 export interface BusinessProfileCardData {
-  id: string; 
+  id: string | number;
   name: string;
   logoUrl?: string;
   logoAiHint?: string;
@@ -316,16 +315,13 @@ export interface OverallProfessionalProfileData {
     licensesCertifications: LicenseCertificationEntry[];
 }
 
-// Renamed from previous IndividualProfileData to avoid confusion,
-// this type is for VIEWING other users' profiles.
 export interface PublicProfileData {
-  id: string; // Unique ID for this user's profile
+  id: string;
   name: string;
   avatarUrl?: string;
   avatarAiHint?: string;
   professionalTitle?: string;
   bio?: string;
-  // Simplified posts structure for their feed
   posts: {
     id: string;
     content: string;
@@ -337,7 +333,6 @@ export interface PublicProfileData {
   }[];
   followers?: number;
   following?: number;
-  // Optional: Add other fields like contact info if they should be public
   contactInfo?: {
     email?: string;
     website?: string;
@@ -417,24 +412,33 @@ export interface UserDataForSideMenu {
   avatarAiHint?: string;
 }
 
-// This type is for the current user's content management screen (AccountScreen)
+export interface MediaAttachment {
+  type: 'image' | 'video' | 'document';
+  url: string;
+  fileName?: string; // For documents
+  aiHint?: string;   // For images
+  thumbnailUrl?: string; // For videos (optional, could use a default if not provided)
+}
+
 export interface ProfilePost {
-  id: string; // Ensure ID is string for consistency
-  type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text' | 'post';
-  user: string; // Name of the user
-  userId?: string; // ID of the user who posted
+  id: string;
+  // type: 'image' | 'video' | 'link' | 'file' | 'tweet' | 'text' | 'post'; // Kept original for reference, but media object is preferred
+  user: string;
+  userId?: string;
   userImage?: string;
   userImageAiHint?: string;
-  timestamp: string; // Can be formatted string like "2h ago" or ISO date
+  timestamp: string;
   likes: number;
   comments: number;
   content?: string;
-  thumbnailUrl?: string;
-  thumbnailAiHint?: string;
-  imageUrl?: string;
-  imageAiHint?: string;
-  videoUrl?: string;
-  url?: string; // For link type posts
-  fileIcon?: string; // For file type posts
-  fileName?: string; // For file type posts
+  media?: MediaAttachment; // New way to handle media
+  // Deprecating these in favor of media object
+  // thumbnailUrl?: string;
+  // thumbnailAiHint?: string;
+  // imageUrl?: string; // Keep for backward compatibility or simplify to media.url
+  // imageAiHint?: string; // Keep for backward compatibility or simplify to media.aiHint
+  // videoUrl?: string;
+  // url?: string; // For link type posts
+  // fileIcon?: string;
+  // fileName?: string;
 }

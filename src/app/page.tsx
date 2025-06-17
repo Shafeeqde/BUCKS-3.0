@@ -27,9 +27,9 @@ import SkillsetProfileManagementScreen from '@/components/screens/SkillsetProfil
 import JobBoardScreen from '@/components/screens/JobBoardScreen';
 import JobDetailScreen from '@/components/screens/JobDetailScreen';
 import AccountSettingsScreen from '@/components/screens/AccountSettingsScreen';
-import CreatePostScreen from '@/components/screens/CreatePostScreen'; // New Import
+import CreatePostScreen from '@/components/screens/CreatePostScreen';
 
-import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, ProfilePost } from '@/types'; // Added ProfilePost
+import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, ProfilePost, MediaAttachment } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
 
@@ -90,7 +90,7 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
     feed: [
       { id: 'feed-tf-1', content: 'Smashed phone screen? We can fix it today! Visit us for quick screen replacements.', timestamp: '1 day ago', image: 'https://placehold.co/600x400.png', imageAiHint: 'broken phone screen' },
     ],
-    products: [], 
+    products: [],
     services: [
       { id: 'serv-tf-laptop', name: 'Laptop Motherboard Repair', description: 'Component-level repair for all major laptop brands.', price: 'Starting at ₹2500' },
       { id: 'serv-tf-screen', name: 'Mobile Screen Replacement', description: 'Original and high-quality compatible screens available.', price: '₹1500 - ₹15000 (Varies by model)' },
@@ -124,7 +124,7 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
     ],
     averageRating: 4.2,
     totalReviews: 45,
-    isActive: false, 
+    isActive: false,
   }
 ];
 
@@ -166,7 +166,7 @@ export default function AppRoot() {
   const [userData, setUserData] = useState<UserDataForSideMenu | null>(null);
 
   const [businessProfilesData, setBusinessProfilesData] = useState<UserBusinessProfile[]>([]);
-  const [isLoadingBusinessProfiles, setIsLoadingBusinessProfiles] = useState(false); 
+  const [isLoadingBusinessProfiles, setIsLoadingBusinessProfiles] = useState(false);
   const [selectedBusinessProfileId, setSelectedBusinessProfileId] = useState<string | null>(null);
   const [businessProfileToManageId, setBusinessProfileToManageId] = useState<string | null>(null);
 
@@ -181,7 +181,7 @@ export default function AppRoot() {
   const [activityDetails, setActivityDetails] = useState<ActivityDetails>(null);
   const [isDriverOnlineSim, setIsDriverOnlineSim] = useState(false);
 
-  const [userPosts, setUserPosts] = useState<ProfilePost[]>([]); // New state for user posts
+  const [userPosts, setUserPosts] = useState<ProfilePost[]>([]);
 
   useEffect(() => {
     setIsClient(true);
@@ -195,19 +195,23 @@ export default function AppRoot() {
     }
     setIsLoadingBusinessProfiles(true);
     console.log("Fetching business profiles (local mock)...");
-    await new Promise(resolve => setTimeout(resolve, 750)); // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 750));
     try {
+      // Using local mock data
       setBusinessProfilesData(initialBusinessProfilesData);
       console.log("Mock business profiles loaded into state.");
     } catch (error) {
       console.error("Error setting mock business profiles:", error);
-      toast({ title: "Error Loading Profiles", description: "Could not load mock business profiles.", variant: "destructive" });
-      setBusinessProfilesData([]);
+      let detailedErrorMessage = "Could not load mock business profiles.";
+      if (error instanceof Error) {
+        detailedErrorMessage = error.message;
+      }
+      toast({ title: "Error Loading Profiles", description: detailedErrorMessage, variant: "destructive" });
+      setBusinessProfilesData([]); // Ensure it's reset on error
     } finally {
       setIsLoadingBusinessProfiles(false);
     }
   }, [toast, isLoggedIn]);
-
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -291,8 +295,8 @@ export default function AppRoot() {
     setSelectedSkillsetProfileId(null);
     setSkillsetProfileToManageId(null);
     setSelectedJobId(null);
-    setBusinessProfilesData([]); 
-    setUserPosts([]); // Clear user posts on logout
+    setBusinessProfilesData([]);
+    setUserPosts([]);
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   }, [toast]);
 
@@ -308,7 +312,7 @@ export default function AppRoot() {
         tab !== 'professional-profile' &&
         tab !== 'account-settings' &&
         tab !== 'digital-id-card' &&
-        tab !== 'create-post') { // Added create-post
+        tab !== 'create-post') {
         setSelectedBusinessProfileId(null);
         setBusinessProfileToManageId(null);
         setSelectedIndividualProfileId(null);
@@ -316,7 +320,7 @@ export default function AppRoot() {
         setSkillsetProfileToManageId(null);
         setSelectedJobId(null);
     }
-    if (tab === 'business-profiles' && isLoggedIn) { 
+    if (tab === 'business-profiles' && isLoggedIn) {
         fetchBusinessProfiles();
     }
   }, [fetchBusinessProfiles, isLoggedIn]);
@@ -350,7 +354,7 @@ export default function AppRoot() {
     setShowSideMenu(false);
   }, [setActiveTab]);
 
-  const handleManageBusinessProfile = useCallback((profileId: string) => { 
+  const handleManageBusinessProfile = useCallback((profileId: string) => {
     setBusinessProfileToManageId(profileId);
     setActiveTab('manage-business-profile');
     setShowSideMenu(false);
@@ -394,28 +398,26 @@ export default function AppRoot() {
     toast({ title: "Added to Cart (Simulated)", description: `Product ${productId} from business ${businessId}` });
   }, [toast]);
 
-  // New handler for creating posts
-  const handleCreateNewPost = useCallback((content: string, imageUrl?: string) => {
+  const handleCreateNewPost = useCallback((content: string, media?: MediaAttachment) => {
     if (!userData) {
         toast({ title: "Not Logged In", description: "You must be logged in to create a post.", variant: "destructive" });
         return;
     }
     const newPost: ProfilePost = {
         id: `post-${Date.now()}`,
-        type: 'post',
         user: userData.name,
         userId: userData.id,
         userImage: userData.avatarUrl,
         userImageAiHint: userData.avatarAiHint,
         content: content,
-        imageUrl: imageUrl,
+        media: media,
         timestamp: formatDistanceToNow(new Date(), { addSuffix: true }),
         likes: 0,
         comments: 0,
     };
     setUserPosts(prevPosts => [newPost, ...prevPosts]);
     toast({ title: "Post Created!", description: "Your new post has been added." });
-    setActiveTab('account'); // Navigate back to account screen to see the post
+    setActiveTab('account');
   }, [userData, toast, setActiveTab]);
 
 
@@ -675,8 +677,8 @@ export default function AppRoot() {
       case 'feeds': return <FeedsScreen onViewUserProfile={handleSelectIndividualProfile} />;
       case 'menu': return <ServicesScreen setActiveTab={setActiveTab} onRequestRide={handleRideRequest} />;
       case 'recommended': return <RecommendedScreen />;
-      case 'account': return <AccountScreen userData={userData} setActiveTab={setActiveTab} userPosts={userPosts} />; // Pass userPosts
-      case 'create-post': return <CreatePostScreen onPost={handleCreateNewPost} onCancel={() => setActiveTab('account')} />; // New case
+      case 'account': return <AccountScreen userData={userData} setActiveTab={setActiveTab} userPosts={userPosts} />;
+      case 'create-post': return <CreatePostScreen onPost={handleCreateNewPost} onCancel={() => setActiveTab('account')} />;
       case 'digital-id-card': return <DigitalIdCardScreen userData={userData} setActiveTab={setActiveTab} />;
       case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={setActiveTab} userData={userData} />;
       case 'user-skillsets': return (
@@ -702,21 +704,21 @@ export default function AppRoot() {
 
       case 'manage-business-profile':
         const profileDataToManage = businessProfileToManageId === 'new'
-          ? { ...newBusinessProfileTemplate } 
+          ? { ...newBusinessProfileTemplate }
           : businessProfilesData.find(p => p.id === businessProfileToManageId);
         if (businessProfileToManageId && profileDataToManage) {
           return (
             <BusinessProfileManagementScreen
-              key={businessProfileToManageId} 
-              initialProfileData={profileDataToManage} 
-              onSave={handleSaveBusinessProfile} 
+              key={businessProfileToManageId}
+              initialProfileData={profileDataToManage}
+              onSave={handleSaveBusinessProfile}
               onBack={handleBackFromManageBusinessProfile}
             />
           );
         }
         if (businessProfileToManageId !== 'new') {
             toast({ title: "Error", description: "Could not find business profile to manage.", variant: "destructive" });
-            setActiveTab('business-profiles'); 
+            setActiveTab('business-profiles');
         }
         return <p className="p-4 text-center text-muted-foreground">Loading management screen...</p>;
 
@@ -774,7 +776,7 @@ export default function AppRoot() {
                       />;
     }
   }, [
-    isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts, // Added userPosts
+    isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts,
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId,
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
@@ -782,7 +784,7 @@ export default function AppRoot() {
     handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
     handleSelectJob, handleBackFromJobDetail, handleAddToCart, handleRideRequest,
     handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive,
-    handleCreateNewPost, // Added new handler
+    handleCreateNewPost,
     toast
   ]);
 
@@ -811,7 +813,7 @@ export default function AppRoot() {
           setActiveTab={setActiveTab}
           businessProfiles={businessProfilesData}
           onSelectBusinessProfile={handleSelectBusinessProfile}
-          selectedBusinessProfileId={selectedBusinessProfileId}
+          selectedBusinessProfileId={selectedBusinessProfileId?.toString() ?? null}
           onLogout={handleLogout}
           userData={userData}
         />
