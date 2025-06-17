@@ -20,9 +20,18 @@ interface FeedCardProps {
   onPostComment: (id: number) => void;
   onToggleCommentBox: (id: number) => void;
   onViewUserProfile?: (profileId: string) => void;
+  onViewUserMoments?: (profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => void;
 }
 
-const FeedCard: React.FC<FeedCardProps> = ({ item, onInteraction, onCommentChange, onPostComment, onToggleCommentBox, onViewUserProfile }) => {
+const FeedCard: React.FC<FeedCardProps> = ({ 
+  item, 
+  onInteraction, 
+  onCommentChange, 
+  onPostComment, 
+  onToggleCommentBox, 
+  onViewUserProfile,
+  onViewUserMoments 
+}) => {
   
   const handleUserClick = () => {
     if (item.profileId && onViewUserProfile) {
@@ -30,27 +39,47 @@ const FeedCard: React.FC<FeedCardProps> = ({ item, onInteraction, onCommentChang
     }
   };
 
-  const isClickable = !!(item.profileId && onViewUserProfile);
+  const handleAvatarClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click if avatar has specific action
+    if (item.profileId && onViewUserMoments) {
+      onViewUserMoments(item.profileId, item.user, item.userImage, item.userImageAiHint);
+    } else if (item.profileId && onViewUserProfile) { // Fallback to profile if no moment handler
+      onViewUserProfile(item.profileId);
+    }
+  };
+
+  const isNameClickable = !!(item.profileId && onViewUserProfile);
 
   return (
     <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
       <CardHeader 
-        className={cn(
-          "flex flex-row items-center space-x-3 pb-3",
-          isClickable && "cursor-pointer hover:bg-muted/50"
-        )}
-        onClick={isClickable ? handleUserClick : undefined}
-        onKeyDown={isClickable ? (e) => e.key === 'Enter' && handleUserClick() : undefined}
-        tabIndex={isClickable ? 0 : undefined}
-        role={isClickable ? "button" : undefined}
-        aria-label={isClickable ? `View ${item.user}'s profile` : undefined}
+        className="flex flex-row items-center space-x-3 pb-3"
       >
-        <Avatar>
+        <Avatar 
+          className={cn(
+            (item.profileId && onViewUserMoments) && "cursor-pointer ring-offset-2 ring-offset-card hover:ring-2 hover:ring-primary transition-all"
+          )}
+          onClick={handleAvatarClick}
+          role={(item.profileId && onViewUserMoments) ? "button" : undefined}
+          tabIndex={(item.profileId && onViewUserMoments) ? 0 : undefined}
+          onKeyDown={(e) => e.key === 'Enter' && handleAvatarClick(e)}
+          aria-label={(item.profileId && onViewUserMoments) ? `View ${item.user}'s moments` : `${item.user}'s avatar`}
+        >
           <AvatarImage src={item.userImage} alt={item.user} data-ai-hint={item.userImageAiHint || "profile person"} />
           <AvatarFallback>{item.user.substring(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
-        <div className="flex-grow">
-          <CardTitle className={cn("text-base font-semibold text-foreground font-headline", isClickable && "group-hover:text-primary group-hover:underline")}>{item.user}</CardTitle>
+        <div 
+          className={cn(
+            "flex-grow",
+            isNameClickable && "cursor-pointer" 
+          )}
+          onClick={isNameClickable ? handleUserClick : undefined}
+          onKeyDown={isNameClickable ? (e) => e.key === 'Enter' && handleUserClick() : undefined}
+          tabIndex={isNameClickable ? 0 : undefined}
+          role={isNameClickable ? "button" : undefined}
+          aria-label={isNameClickable ? `View ${item.user}'s profile` : undefined}
+        >
+          <CardTitle className={cn("text-base font-semibold text-foreground font-headline", isNameClickable && "hover:text-primary hover:underline")}>{item.user}</CardTitle>
           <p className="text-sm text-muted-foreground">{item.timestamp}</p>
         </div>
       </CardHeader>

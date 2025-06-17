@@ -8,40 +8,58 @@ import type { RecommendedPost } from '@/types';
 const recommendedPostsData: RecommendedPost[] = [
     {
       id: 1, recommendedBy: 'Shafeeq', userImage: 'https://source.unsplash.com/random/40x40/?man,glasses', userImageAiHint: 'man glasses',
+      recommenderProfileId: 'shafeeq-profile',
       title: 'Top 5 Productivity Hacks', content: 'Boost your daily efficiency with these simple yet effective tips.',
       thumbnail: 'https://source.unsplash.com/random/600x350/?desk,computer', thumbnailAiHint: 'desk computer', type: 'image',
       otherRecommendersCount: 15,
     },
     {
       id: 2, recommendedBy: 'Senthil', userImage: 'https://source.unsplash.com/random/40x40/?man,smiling', userImageAiHint: 'man smiling',
+      recommenderProfileId: 'senthil-profile',
       title: 'Exploring Hidden Gems in Bangalore', content: 'A travel vlog discovering lesser-known spots in the city.',
       thumbnail: 'https://source.unsplash.com/random/600x350/?city,street', thumbnailAiHint: 'city street', type: 'video',
       otherRecommendersCount: 22,
     },
     {
       id: 3, recommendedBy: 'Deepthi', userImage: 'https://source.unsplash.com/random/40x40/?woman,nature', userImageAiHint: 'woman nature',
+      recommenderProfileId: 'deepthi-profile',
       title: 'Healthy Meal Prep Ideas for Busy Weeks', content: 'Quick and nutritious recipes to keep you energized.',
       thumbnail: 'https://source.unsplash.com/random/600x350/?healthy,food', thumbnailAiHint: 'healthy food', type: 'image',
     },
     {
       id: 4, recommendedBy: 'Maanisha', userImage: 'https://source.unsplash.com/random/40x40/?woman,professional', userImageAiHint: 'woman professional',
+      recommenderProfileId: 'maanisha-profile',
       title: "Beginner's Guide to Investing", content: 'Understanding the basics of stock market and mutual funds.',
       thumbnail: 'https://source.unsplash.com/random/600x350/?finance,chart', thumbnailAiHint: 'finance chart', type: 'video',
       otherRecommendersCount: 5,
     },
 ];
 
-const RecommendedScreen = () => {
+interface RecommendedScreenProps {
+  onViewUserMomentsClick: (profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => void;
+  onViewUserProfile: (profileId: string) => void;
+}
+
+const RecommendedScreen: React.FC<RecommendedScreenProps> = ({ onViewUserMomentsClick, onViewUserProfile }) => {
   return (
-    <main className="flex-grow bg-background overflow-y-auto h-full custom-scrollbar"> {/* Removed p-4 */}
+    <main className="flex-grow bg-background overflow-y-auto h-full custom-scrollbar">
       <h2 className="text-2xl font-bold text-foreground mb-6 font-headline">Recommended for You</h2>
       <div className="space-y-4">
         {recommendedPostsData.map((post) => (
-          <RecommendedPostCard key={post.id} post={post} />
+          <RecommendedPostCard 
+            key={post.id} 
+            post={post} 
+            onViewUserMoments={onViewUserMomentsClick}
+            onViewUserProfile={onViewUserProfile}
+          />
         ))}
-         {/* Add a few more for better scroll */}
         {recommendedPostsData.slice(0,2).map((post, index) => (
-          <RecommendedPostCard key={`extra-${post.id}-${index}`} post={{...post, id: post.id + 100 + index, title: `${post.title} (More)`}} />
+          <RecommendedPostCard 
+            key={`extra-${post.id}-${index}`} 
+            post={{...post, id: post.id + 100 + index, title: `${post.title} (More)`}} 
+            onViewUserMoments={onViewUserMomentsClick}
+            onViewUserProfile={onViewUserProfile}
+          />
         ))}
       </div>
     </main>
@@ -49,4 +67,3 @@ const RecommendedScreen = () => {
 };
 
 export default RecommendedScreen;
-    

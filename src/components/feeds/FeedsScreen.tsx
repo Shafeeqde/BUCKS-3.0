@@ -35,7 +35,7 @@ const initialFeedItems: FeedItemType[] = [
     comments: 20, recommendations: 25, notRecommendations: 3, showCommentBox: false, currentComment: ''
   },
   {
-    id: 4, type: 'ad', user: 'TVS Synergy', userImage: 'https://source.unsplash.com/random/40x40/?automotive,brand', userImageAiHint: 'automotive brand',
+    id: 4, type: 'ad', user: 'TVS Synergy', userImage: 'https://source.unsplash.com/random/40x40/?automotive,brand', userImageAiHint: 'automotive brand', profileId: 'tvs-synergy-profile',
     postImage: 'https://source.unsplash.com/random/600x350/?scooter,advertisement', postImageAiHint: 'scooter advertisement',
     content: 'TVS Ntorq 125 Price : Check On-Road & Ex-Showroom Prices of All Variants -',
     timestamp: 'Sponsored Ad', comments: 0, recommendations: 15, notRecommendations: 0, showCommentBox: false, currentComment: ''
@@ -58,7 +58,7 @@ const initialFeedItems: FeedItemType[] = [
 interface FeedsScreenProps {
   onViewUserProfile?: (profileId: string) => void;
   onAddMomentClick: () => void;
-  onViewUserMomentsClick: (profileId?: string) => void;
+  onViewUserMomentsClick: (profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => void;
 }
 
 const FeedsScreen: React.FC<FeedsScreenProps> = ({ 
@@ -136,16 +136,14 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
 
     if (category.id === 'moments-0' && category.type === 'moments') {
       onAddMomentClick();
-    } else if (category.profileId) { // This is for other users' moment categories
-      onViewUserMomentsClick(category.profileId);
-      // Mark as viewed
+    } else if (category.profileId) { 
+      onViewUserMomentsClick(category.profileId, category.name, category.image, category.dataAiHint);
       setCategories(prevCategories => 
         prevCategories.map(cat => 
           cat.id === categoryId ? { ...cat, viewed: true } : cat
         )
       );
     } else {
-      // Fallback for general categories if any (currently none that aren't moment-related or "Your Moment")
       setCategories(prevCategories => 
         prevCategories.map(cat => 
           cat.id === categoryId ? { ...cat, viewed: true } : cat
@@ -153,7 +151,7 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
       );
       toast({
           title: `Viewing ${category?.name || 'Category'}`,
-          description: "This category type is not fully implemented for viewing yet.",
+          description: "Content for this category would load here. (Generic category click)",
       });
     }
   };
@@ -176,7 +174,8 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
               onCommentChange={handleCommentChange}
               onPostComment={handlePostComment}
               onToggleCommentBox={handleToggleCommentBox}
-              onViewUserProfile={onViewUserProfile} // This prop is for feed cards to navigate to profiles
+              onViewUserProfile={onViewUserProfile} 
+              onViewUserMoments={onViewUserMomentsClick}
             />
           ))}
         </div>

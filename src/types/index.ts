@@ -72,6 +72,7 @@ export interface RecommendedPost {
   recommendedBy: string;
   userImage: string;
   userImageAiHint?: string;
+  recommenderProfileId?: string; // Added for linking
   title: string;
   content: string;
   thumbnail: string;
