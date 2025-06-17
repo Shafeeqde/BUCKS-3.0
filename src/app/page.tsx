@@ -19,6 +19,7 @@ import UserBusinessProfilesScreen from '@/components/screens/UserBusinessProfile
 import UserBusinessProfileDetailScreen from '@/components/screens/UserBusinessProfileDetailScreen';
 import BusinessProfileManagementScreen from '@/components/screens/BusinessProfileManagementScreen';
 import MessagesNotificationsScreen from '@/components/screens/MessagesNotificationsScreen';
+import ChatDetailScreen from '@/components/screens/ChatDetailScreen'; // New Import
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
 import ActiveActivityView from '@/components/activity/ActiveActivityView';
 import IndividualProfileScreen from '@/components/screens/IndividualProfileScreen';
@@ -55,7 +56,8 @@ import type {
     ProfilePost, MediaAttachment, UserMoment, Category as CategoryType, FeedItem, Comment, 
     ServiceBookingRequest, ActiveBooking, BookingStatus,
     Restaurant, MenuItem, FoodCartItem,
-    ProductCategory, ProductListing, ShoppingCartItem
+    ProductCategory, ProductListing, ShoppingCartItem,
+    MessageItem, NotificationItem, ChatMessage // Added ChatMessage
 } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from 'date-fns';
@@ -194,13 +196,22 @@ interface BookingTargetProfile {
   skillName: string;
 }
 
+// Chat state
+interface CurrentChatContext {
+  senderName: string;
+  senderAvatar?: string;
+  senderAvatarAiHint?: string;
+  messages: ChatMessage[];
+  originalMessageId: string | number;
+}
+
 export default function AppRoot() {
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
 
   const [activeTab, setActiveTabInternal] = useState<TabName>('login');
   const [showSideMenu, setShowSideMenu] = useState(false);
-  const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
+  
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState<UserDataForSideMenu | null>(null);
@@ -247,6 +258,11 @@ export default function AppRoot() {
   const [selectedShoppingCategoryId, setSelectedShoppingCategoryId] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [shoppingCartItems, setShoppingCartItems] = useState<ShoppingCartItem[]>([]);
+
+  // Messaging & Notifications State
+  const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
+  const [showChatDetailScreen, setShowChatDetailScreen] = useState(false);
+  const [currentChatContext, setCurrentChatContext] = useState<CurrentChatContext | null>(null);
 
 
   useEffect(() => {
@@ -378,6 +394,10 @@ export default function AppRoot() {
     setSelectedShoppingCategoryId(null);
     setSelectedProductId(null);
     setShoppingCartItems([]);
+    // Reset messaging state
+    setShowMessagesNotifications(false);
+    setShowChatDetailScreen(false);
+    setCurrentChatContext(null);
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   }, [toast]);
 
@@ -403,11 +423,9 @@ export default function AppRoot() {
         setSelectedJobId(null);
         setSelectedPostForDetail(null);
         setBookingTargetProfile(null); 
-        // Reset food navigation state unless navigating within food flow
         if (!tab.startsWith('food-')) {
             setSelectedRestaurantId(null);
         }
-        // Reset shopping navigation state unless navigating within shopping flow
         if (!tab.startsWith('shopping-')) {
             setSelectedShoppingCategoryId(null);
             setSelectedProductId(null);
@@ -619,22 +637,26 @@ export default function AppRoot() {
   const handleViewUserMoments = useCallback((profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => {
     let ownerDetails: ViewingMomentOwnerDetails | null = null;
 
-    if (userName && profileId) { // If full details are passed (e.g. from FeedCard)
+    if (userName && profileId) {
         ownerDetails = { name: userName, avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint, profileId };
-    } else if (profileId) { // If only profileId is passed (e.g. from CategoryItem)
+    } else if (profileId) {
         const categoryUser = initialCategoriesData.find(cat => cat.profileId === profileId);
         if (categoryUser) {
             ownerDetails = { name: categoryUser.name || 'User', avatarUrl: categoryUser.image, avatarAiHint: categoryUser.dataAiHint, profileId };
         } else {
-             // Fallback if profileId doesn't match a category (e.g. a dynamic ID)
-             ownerDetails = { name: `User ${profileId.substring(0,5)}...`, avatarUrl: `https://source.unsplash.com/random/48x48/?person,avatar`, avatarAiHint: 'person avatar', profileId };
+             const businessProfileUser = businessProfilesData.find(bp => bp.id === profileId);
+             if (businessProfileUser) {
+                 ownerDetails = { name: businessProfileUser.name, avatarUrl: businessProfileUser.logo, avatarAiHint: businessProfileUser.logoAiHint, profileId };
+             } else {
+                ownerDetails = { name: `User ${profileId.substring(0,5)}...`, avatarUrl: `https://source.unsplash.com/random/48x48/?person,avatar`, avatarAiHint: 'person avatar', profileId };
+             }
         }
     }
 
     if (ownerDetails) {
         setViewingMomentOwnerDetails(ownerDetails);
         setShowMomentViewer(true);
-    } else if (userData) { // Default to logged-in user if no other context
+    } else if (userData) {
         setViewingMomentOwnerDetails({
             name: userData.name,
             avatarUrl: userData.avatarUrl,
@@ -645,15 +667,21 @@ export default function AppRoot() {
     } else {
         toast({ title: "Please Log In", description: "Log in to view or create moments." });
     }
-  }, [userData, toast]);
+  }, [userData, toast, initialCategoriesData, businessProfilesData]);
 
 
   const handleNavigateToOwnerProfileFromMomentViewer = useCallback(() => {
     if (viewingMomentOwnerDetails?.profileId) {
         setShowMomentViewer(false);
-        handleSelectIndividualProfile(viewingMomentOwnerDetails.profileId);
+        // Check if it's a business profile or individual
+        const isBusiness = businessProfilesData.some(bp => bp.id === viewingMomentOwnerDetails.profileId);
+        if (isBusiness) {
+            handleSelectBusinessProfile(viewingMomentOwnerDetails.profileId);
+        } else {
+            handleSelectIndividualProfile(viewingMomentOwnerDetails.profileId);
+        }
     }
-  }, [viewingMomentOwnerDetails, handleSelectIndividualProfile]);
+  }, [viewingMomentOwnerDetails, handleSelectIndividualProfile, handleSelectBusinessProfile, businessProfilesData]);
 
   const handleRideRequest = useCallback((rideData: { pickup: string; dropoff: string; vehicleId: string }) => {
       console.log('Ride request received in page.tsx:', rideData);
@@ -894,7 +922,7 @@ export default function AppRoot() {
   const handleOpenServiceBooking = useCallback((profileId: string, profileName: string, skillName: string) => {
     setBookingTargetProfile({ id: profileId, name: profileName, skillName });
     setShowServiceBookingDialog(true);
-    setActiveTab('service-booking'); // Or handle this transition more explicitly if needed
+    setActiveTab('service-booking'); 
   }, [setActiveTab]);
 
   const handleConfirmServiceBooking = useCallback((request: ServiceBookingRequest) => {
@@ -938,7 +966,7 @@ export default function AppRoot() {
     setFoodCartItems(prevCart =>
       prevCart.map(item =>
         item.menuItemId === menuItemId ? { ...item, quantity: newQuantity } : item
-      ).filter(item => item.quantity > 0) // Remove if quantity becomes 0
+      ).filter(item => item.quantity > 0) 
     );
   }, []);
   
@@ -954,7 +982,7 @@ export default function AppRoot() {
     }
     toast({ title: "Order Placed (Simulated)", description: "Your food order has been placed successfully!" });
     setFoodCartItems([]);
-    setActiveTab('home'); // Or 'food-restaurants'
+    setActiveTab('home'); 
   }, [foodCartItems, toast, setActiveTab]);
   
   const handleNavigateToFoodCart = useCallback(() => {
@@ -975,7 +1003,6 @@ export default function AppRoot() {
   const handleAddItemToShoppingCart = useCallback((product: ProductListing, quantity: number) => {
     setShoppingCartItems(prevCart => {
         const existingItemIndex = prevCart.findIndex(item => item.productId === product.id);
-        // Variant handling would be more complex here, for now, assume base product
         if (existingItemIndex > -1) {
             const updatedCart = [...prevCart];
             updatedCart[existingItemIndex].quantity += quantity;
@@ -1014,8 +1041,54 @@ export default function AppRoot() {
     }
     toast({ title: "Purchase Complete (Simulated)", description: "Thank you for your purchase!" });
     setShoppingCartItems([]);
-    setActiveTab('home'); // Or 'shopping-categories'
+    setActiveTab('home'); 
   }, [shoppingCartItems, toast, setActiveTab]);
+
+  // --- Messaging Handlers ---
+  const handleOpenChatDetail = useCallback((messageItem: MessageItem) => {
+    if (!userData) {
+      toast({ title: "Error", description: "User data not available for chat.", variant: "destructive" });
+      return;
+    }
+
+    // Simulate a short chat history
+    const mockMessages: ChatMessage[] = [
+      { id: `msg-${Date.now() - 2000}`, text: messageItem.content, timestamp: messageItem.timestamp, isSender: false, avatar: messageItem.senderImage, avatarAiHint: messageItem.senderImageAiHint },
+      { id: `msg-${Date.now() - 1000}`, text: "Okay, I see. Thanks for letting me know!", timestamp: "1 min ago", isSender: true, avatar: userData.avatarUrl, avatarAiHint: userData.avatarAiHint },
+      { id: `msg-${Date.now()}`, text: "No problem! Glad I could help.", timestamp: "Just now", isSender: false, avatar: messageItem.senderImage, avatarAiHint: messageItem.senderImageAiHint },
+    ];
+
+    setCurrentChatContext({
+      senderName: messageItem.sender,
+      senderAvatar: messageItem.senderImage,
+      senderAvatarAiHint: messageItem.senderImageAiHint,
+      messages: mockMessages,
+      originalMessageId: messageItem.id,
+    });
+    setShowMessagesNotifications(false); // Close the list
+    setShowChatDetailScreen(true); // Open the chat detail
+  }, [userData, toast]);
+
+  const handleSendMessageInChatDetail = useCallback((text: string) => {
+    if (!currentChatContext || !userData) return;
+
+    const newMessage: ChatMessage = {
+      id: `msg-sent-${Date.now()}`,
+      text: text,
+      timestamp: "Just now",
+      isSender: true,
+      avatar: userData.avatarUrl,
+      avatarAiHint: userData.avatarAiHint,
+    };
+
+    setCurrentChatContext(prev => prev ? {
+      ...prev,
+      messages: [...prev.messages, newMessage]
+    } : null);
+
+    // Optionally, update the main message list's last message preview (more complex, skip for now)
+  }, [currentChatContext, userData]);
+
 
   const renderScreenContent = useCallback(() => {
     if (!isClient) return null;
@@ -1206,8 +1279,8 @@ export default function AppRoot() {
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, selectedPostForDetail,
     bookingTargetProfile, 
-    restaurantsData, selectedRestaurantId, foodCartItems, // Food state
-    productCategoriesData, productsData, selectedShoppingCategoryId, selectedProductId, shoppingCartItems, // Shopping state
+    restaurantsData, selectedRestaurantId, foodCartItems, 
+    productCategoriesData, productsData, selectedShoppingCategoryId, selectedProductId, shoppingCartItems, 
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
     handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
@@ -1217,8 +1290,8 @@ export default function AppRoot() {
     handleAddMomentFromAccount, handleViewUserMomentsFromAccount,
     handleAddMomentFromFeeds, handleViewUserMoments,
     handleOpenServiceBooking, handleConfirmServiceBooking,
-    handleSelectFoodRestaurant, handleAddItemToFoodCart, handleUpdateFoodCartItemQuantity, handleRemoveFoodCartItem, handleFoodCheckout, // Food handlers
-    handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleRemoveShoppingCartItem, handleShoppingCheckout, // Shopping handlers
+    handleSelectFoodRestaurant, handleAddItemToFoodCart, handleUpdateFoodCartItemQuantity, handleRemoveFoodCartItem, handleFoodCheckout, 
+    handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleRemoveShoppingCartItem, handleShoppingCheckout, 
     toast
   ]);
 
@@ -1239,8 +1312,8 @@ export default function AppRoot() {
       <Header
         onMenuClick={() => setShowSideMenu(true)}
         onMessagesClick={() => setShowMessagesNotifications(true)}
-        onCartClick={handleNavigateToFoodCart} // Updated to specific cart for now
-        unreadCount={isLoggedIn ? 5 : 0}
+        onCartClick={handleNavigateToFoodCart} 
+        unreadCount={isLoggedIn ? 5 : 0} 
         cartItemCount={totalCartItems}
       />
 
@@ -1258,7 +1331,7 @@ export default function AppRoot() {
         />
       )}
 
-      <div className="flex-grow overflow-hidden relative p-0"> {/* Removed p-4 from here, screens handle padding */}
+      <div className="flex-grow overflow-hidden relative p-0">
         {renderScreenContent()}
       </div>
 
@@ -1292,7 +1365,26 @@ export default function AppRoot() {
       )}
 
       {isClient && showMessagesNotifications && (
-        <MessagesNotificationsScreen onClose={() => setShowMessagesNotifications(false)} />
+        <MessagesNotificationsScreen 
+          onClose={() => setShowMessagesNotifications(false)}
+          onOpenChatDetail={handleOpenChatDetail} // Pass handler
+        />
+      )}
+
+      {isClient && isLoggedIn && showChatDetailScreen && currentChatContext && (
+        <ChatDetailScreen
+          isOpen={showChatDetailScreen}
+          onClose={() => {
+            setShowChatDetailScreen(false);
+            setCurrentChatContext(null);
+            // Optionally, re-open MessagesNotificationsScreen if it was the previous context
+            // For now, just closes chat.
+          }}
+          chatContext={currentChatContext}
+          onSendMessage={handleSendMessageInChatDetail}
+          currentUserAvatar={userData?.avatarUrl}
+          currentUserAvatarAiHint={userData?.avatarAiHint}
+        />
       )}
 
       {isClient && isLoggedIn && showCreateMomentDialog && userData && (
@@ -1307,7 +1399,7 @@ export default function AppRoot() {
         <MomentViewerScreen
           isOpen={showMomentViewer}
           onClose={() => { setShowMomentViewer(false); setViewingMomentOwnerDetails(null); }}
-          moments={userMoments} // Always shows current user's moments
+          moments={userMoments} 
           ownerName={viewingMomentOwnerDetails.name}
           ownerAvatarUrl={viewingMomentOwnerDetails.avatarUrl}
           ownerAvatarAiHint={viewingMomentOwnerDetails.avatarAiHint}
@@ -1321,7 +1413,6 @@ export default function AppRoot() {
           onClose={() => {
             setShowServiceBookingDialog(false);
             setBookingTargetProfile(null);
-            // setActiveTab('skillset-profile'); // Or previous tab logic
           }}
           professionalId={bookingTargetProfile.id}
           professionalName={bookingTargetProfile.name}

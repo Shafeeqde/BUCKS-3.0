@@ -7,17 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { XMarkIcon, BellIcon, ChatBubbleOvalLeftEllipsisIcon, CheckCircleIcon, EnvelopeIcon, ExclamationTriangleIcon, GiftIcon, UserIcon } from '@heroicons/react/24/outline';
-import type { MessageItem, NotificationItem, Category } from '@/types'; // Adjusted types
+import type { MessageItem, NotificationItem, Category } from '@/types'; 
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 interface MessagesNotificationsScreenProps {
   onClose: () => void;
+  onOpenChatDetail: (message: MessageItem) => void; // New prop
 }
 
 const initialMessages: MessageItem[] = [
-  { id: 1, sender: 'Shafeeq', senderImage: 'https://source.unsplash.com/random/40x40/?man,portrait', senderImageAiHint: 'man portrait', subject: 'Regarding your recent post', content: 'Hi, I saw your post about Diwali celebrations and wanted to share some thoughts...', timestamp: '2 hours ago', read: false },
-  { id: 2, sender: 'Mikado UX UI', senderImage: 'https://source.unsplash.com/random/40x40/?company,logo', senderImageAiHint: 'company logo', subject: 'Job Application Follow-up', content: 'Dear applicant, thank you for your interest in the Graphic Designer position...', timestamp: '5 hours ago', read: false },
+  { id: 1, sender: 'Shafeeq', senderImage: 'https://source.unsplash.com/random/40x40/?man,portrait', senderImageAiHint: 'man portrait', chatPartnerId: 'shafeeq-profile', subject: 'Regarding your recent post', content: 'Hi, I saw your post about Diwali celebrations and wanted to share some thoughts...', timestamp: '2 hours ago', read: false },
+  { id: 2, sender: 'Mikado UX UI', senderImage: 'https://source.unsplash.com/random/40x40/?company,logo', senderImageAiHint: 'company logo', chatPartnerId: 'mikado-ux-ui-business-profile', subject: 'Job Application Follow-up', content: 'Dear applicant, thank you for your interest in the Graphic Designer position...', timestamp: '5 hours ago', read: false },
   { id: 3, sender: 'Admin Support', senderImage: 'https://source.unsplash.com/random/40x40/?support,icon', senderImageAiHint: 'support icon', subject: 'Welcome to Bucks!', content: 'Welcome to our platform! We are excited to have you on board.', timestamp: '1 day ago', read: true },
 ];
 
@@ -28,7 +29,7 @@ const initialNotifications: NotificationItem[] = [
   { id: 4, type: 'Update', icon: ExclamationTriangleIcon, content: 'New services added to the "Menu" section. Check them out!', timestamp: 'Yesterday', read: true, link: '#' },
 ];
 
-const MessagesNotificationsScreen: React.FC<MessagesNotificationsScreenProps> = ({ onClose }) => {
+const MessagesNotificationsScreen: React.FC<MessagesNotificationsScreenProps> = ({ onClose, onOpenChatDetail }) => {
   const [activeTab, setActiveTab] = useState<'messages' | 'notifications'>('messages');
   const [messages, setMessages] = useState<MessageItem[]>(initialMessages);
   const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications);
@@ -79,7 +80,15 @@ const MessagesNotificationsScreen: React.FC<MessagesNotificationsScreenProps> = 
           <ScrollArea className="flex-grow custom-scrollbar">
             <TabsContent value="messages" className="m-0 p-3 space-y-3">
               {messages.length > 0 ? messages.map(msg => (
-                <Card key={msg.id} className={cn("hover:shadow-md transition-shadow", !msg.read && "border-primary ring-1 ring-primary/20 bg-primary/5")}>
+                <Card 
+                  key={msg.id} 
+                  className={cn("hover:shadow-md transition-shadow cursor-pointer", !msg.read && "border-primary ring-1 ring-primary/20 bg-primary/5")}
+                  onClick={() => onOpenChatDetail(msg)} // Make card clickable
+                  onKeyDown={(e) => e.key === 'Enter' && onOpenChatDetail(msg)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`View message from ${msg.sender} about ${msg.subject}`}
+                >
                   <CardContent className="p-3">
                     <div className="flex items-start space-x-3">
                       {msg.senderImage && (

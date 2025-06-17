@@ -18,7 +18,7 @@ export type TabName =
   | 'business-profiles'
   | 'business-detail'
   | 'manage-business-profile'
-  | 'messages-notifications'
+  | 'messages-notifications' // This screen itself will remain, but items will navigate away or to chat
   | 'individual-profile'
   | 'skillset-profile'
   | 'user-skillsets'
@@ -271,12 +271,12 @@ export interface BusinessProfileCardData {
   email?: string;
 }
 
-
 export interface MessageItem {
   id: string | number;
   sender: string;
   senderImage?: string;
   senderImageAiHint?: string;
+  chatPartnerId?: string; // Optional: To link to a full profile
   subject: string;
   content: string;
   timestamp: string;
@@ -285,12 +285,14 @@ export interface MessageItem {
 
 export interface NotificationItem {
   id: string | number;
-  type: string;
+  type: string; // E.g., 'Like', 'Comment', 'Follow', 'System Update'
   icon?: HeroIconType;
   content: string;
   timestamp: string;
   read: boolean;
-  link?: string;
+  link?: string; // Old link, can be deprecated or used as fallback
+  targetTab?: TabName; // New: For direct navigation
+  targetId?: string | number; // New: For specific item ID (e.g., postId, profileId)
 }
 
 export type ActivityDetails = {
@@ -570,3 +572,14 @@ export interface ShoppingCartItem {
   variantInfo?: string; // e.g., "Color: Red, Size: Large"
 }
 // --- End E-commerce (Shopping) Types ---
+
+// --- Chat & Messaging Types ---
+export interface ChatMessage {
+  id: string;
+  text: string;
+  timestamp: string;
+  isSender: boolean; // True if the current logged-in user sent this message
+  avatar?: string; // Avatar of the message sender (could be current user or other party)
+  avatarAiHint?: string;
+}
+// --- End Chat & Messaging Types ---
