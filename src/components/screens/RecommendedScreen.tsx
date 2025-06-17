@@ -4,10 +4,11 @@
 import React from 'react';
 import RecommendedPostCard from '@/components/recommended/RecommendedPostCard';
 import type { RecommendedPost } from '@/types';
+import { useToast } from "@/hooks/use-toast"; // Import useToast
 
 const recommendedPostsData: RecommendedPost[] = [
     {
-      id: 1, recommendedBy: 'Deepthi Suvarna', userImage: 'https://source.unsplash.com/random/40x40/?woman,ux,designer,professional', userImageAiHint: 'woman ux designer professional',
+      id: 1, recommendedBy: 'Deepthi Suvarna', userImage: 'https://images.unsplash.com/photo-1602233158242-3ba0ac4d2167?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnaXJsfGVufDB8fHx8MTc1MDA5Njc4NHww&ixlib=rb-4.1.0&q=80&w=1080', userImageAiHint: 'woman ux designer professional',
       recommenderProfileId: 'deepthi-suvarna-profile',
       title: 'Top 5 UX Principles for Mobile Apps', content: 'Boost your app\'s usability with these core UX principles, explained with examples.',
       thumbnail: 'https://source.unsplash.com/random/600x350/?mobile,app,design', thumbnailAiHint: 'mobile app design', type: 'image',
@@ -45,9 +46,21 @@ const recommendedPostsData: RecommendedPost[] = [
 interface RecommendedScreenProps {
   onViewUserMomentsClick: (profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => void;
   onViewUserProfile: (profileId: string) => void;
+  onViewPost: (postTitle: string) => void; // Ensured this is used
 }
 
-const RecommendedScreen: React.FC<RecommendedScreenProps> = ({ onViewUserMomentsClick, onViewUserProfile }) => {
+const RecommendedScreen: React.FC<RecommendedScreenProps> = ({ onViewUserMomentsClick, onViewUserProfile, onViewPost }) => {
+  const { toast } = useToast(); // Added toast hook
+
+  const handleViewRecommendedPost = (title: string) => { // This function now receives title
+    toast({
+      title: "Viewing Recommended Content",
+      description: `Opening: "${title}" (Simulated).`,
+    });
+    // In a real app, you might navigate to a detailed view of this content
+    // For now, a toast is sufficient for the prototype.
+  };
+  
   return (
     <main className="flex-grow bg-background overflow-y-auto h-full custom-scrollbar p-4">
       <h2 className="text-2xl font-bold text-foreground mb-6 font-headline">Recommended for You</h2>
@@ -58,9 +71,9 @@ const RecommendedScreen: React.FC<RecommendedScreenProps> = ({ onViewUserMoments
             post={post} 
             onViewUserMoments={onViewUserMomentsClick}
             onViewUserProfile={onViewUserProfile}
+            onViewPost={handleViewRecommendedPost} // Pass the new handler
           />
         ))}
-        {/* You can add more or duplicate for a longer list */}
       </div>
     </main>
   );

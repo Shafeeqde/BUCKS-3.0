@@ -20,8 +20,8 @@ export const individualProfiles: PublicProfileData[] = [
   {
     id: 'deepthi-suvarna-profile',
     name: 'Deepthi Suvarna',
-    avatarUrl: 'https://source.unsplash.com/random/100x100/?woman,ux,designer,professional',
-    avatarAiHint: 'woman ux designer professional',
+    avatarUrl: 'https://images.unsplash.com/photo-1602233158242-3ba0ac4d2167?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnaXJsfGVufDB8fHx8MTc1MDA5Njc4NHww&ixlib=rb-4.1.0&q=80&w=1080',
+    avatarAiHint: 'woman ux designer professional', // Hint remains relevant
     professionalTitle: 'UX UI Designer at Mikado.biz',
     bio: 'Creative UX UI Designer at Mikado.biz, focused on creating seamless user journeys and visually appealing interfaces. Strong believer in collaborative design and agile methodologies.',
     followers: 210,

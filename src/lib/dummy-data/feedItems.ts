@@ -16,11 +16,11 @@ export const feedItems: FeedItem[] = [
     comments: 7, recommendations: 32, notRecommendations: 1,
     commentsData: [
         ...commonComments.slice(0,1),
-        { id: 'c-sd-1', user: 'Deepthi Suvarna', userAvatar: 'https://source.unsplash.com/random/32x32/?woman,ux,designer', text: 'Totally agree, Senthil! Especially loving the use of glassmorphism.', timestamp: '20h ago' }
+        { id: 'c-sd-1', user: 'Deepthi Suvarna', userAvatar: 'https://images.unsplash.com/photo-1602233158242-3ba0ac4d2167?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnaXJsfGVufDB8fHx8MTc1MDA5Njc4NHww&ixlib=rb-4.1.0&q=80&w=1080', text: 'Totally agree, Senthil! Especially loving the use of glassmorphism.', timestamp: '20h ago' }
     ]
   },
   {
-    id: 2, type: 'post', user: 'Deepthi Suvarna', userImage: 'https://source.unsplash.com/random/100x100/?woman,ux,designer,professional', userImageAiHint: 'woman ux designer professional', profileId: 'deepthi-suvarna-profile',
+    id: 2, type: 'post', user: 'Deepthi Suvarna', userImage: 'https://images.unsplash.com/photo-1602233158242-3ba0ac4d2167?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnaXJsfGVufDB8fHx8MTc1MDA5Njc4NHww&ixlib=rb-4.1.0&q=80&w=1080', userImageAiHint: 'woman ux designer professional', profileId: 'deepthi-suvarna-profile',
     timestamp: '2 hours ago',
     content: 'Thrilled to be part of the Mikado.biz team! Working on some exciting projects. #MikadoLife #UXJobs',
     comments: 6, recommendations: 28, notRecommendations: 0,

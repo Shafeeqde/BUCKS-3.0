@@ -13,9 +13,10 @@ interface RecommendedPostCardProps {
   post: RecommendedPost;
   onViewUserMoments?: (profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => void;
   onViewUserProfile?: (profileId: string) => void;
+  onViewPost: (postTitle: string) => void; // Added this prop
 }
 
-const RecommendedPostCard: React.FC<RecommendedPostCardProps> = ({ post, onViewUserMoments, onViewUserProfile }) => {
+const RecommendedPostCard: React.FC<RecommendedPostCardProps> = ({ post, onViewUserMoments, onViewUserProfile, onViewPost }) => {
   
   const handleRecommenderClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
@@ -29,7 +30,13 @@ const RecommendedPostCard: React.FC<RecommendedPostCardProps> = ({ post, onViewU
   const isRecommenderClickable = !!(post.recommenderProfileId && (onViewUserMoments || onViewUserProfile));
 
   return (
-    <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
+    <Card 
+        className="shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+        onClick={() => onViewPost(post.title)} // Make entire card clickable
+        onKeyDown={(e) => e.key === 'Enter' && onViewPost(post.title)}
+        tabIndex={0}
+        aria-label={`View recommended post: ${post.title}`}
+    >
       <CardHeader className="flex flex-row items-start space-x-3 pb-3">
         <Avatar 
           className={cn(
@@ -87,5 +94,3 @@ const RecommendedPostCard: React.FC<RecommendedPostCardProps> = ({ post, onViewU
 };
 
 export default RecommendedPostCard;
-
-    
