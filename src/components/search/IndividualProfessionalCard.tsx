@@ -61,6 +61,9 @@ const IndividualProfessionalCard: React.FC<IndividualProfessionalCardProps> = ({
   onShareClick,
   onFollowClick,
 }) => {
+  const avatarHint = profile.avatarAiHint || "professional person";
+  const avatarSrc = profile.avatarUrl || `https://source.unsplash.com/random/80x80/?${avatarHint.split(' ').join(',') || 'person'}`;
+
   return (
     <Card
       className="shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer w-full overflow-hidden"
@@ -71,8 +74,8 @@ const IndividualProfessionalCard: React.FC<IndividualProfessionalCardProps> = ({
     >
       <CardHeader className="pb-4">
         <div className="flex items-start space-x-4">
-          <Avatar className="h-20 w-20 border-2 border-primary/20 flex-shrink-0"> {/* Increased Avatar size */}
-            <AvatarImage src={profile.avatarUrl || `https://source.unsplash.com/random/80x80/?${(profile.avatarAiHint || "professional person").split(' ').join(',')}`} alt={profile.name} data-ai-hint={profile.avatarAiHint || "professional person"} />
+          <Avatar className="h-20 w-20 border-2 border-primary/20 flex-shrink-0">
+            <AvatarImage src={avatarSrc} alt={profile.name} data-ai-hint={avatarHint} />
             <AvatarFallback className="text-xl">{profile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="flex-grow min-w-0">
@@ -90,18 +93,22 @@ const IndividualProfessionalCard: React.FC<IndividualProfessionalCardProps> = ({
       <CardContent className="pt-0 pb-4">
         {profile.previewImages && profile.previewImages.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-            {profile.previewImages.slice(0, 4).map((image, index) => (
-              <div key={index} className="relative aspect-[4/3] rounded-md overflow-hidden border shadow-sm">
-                <Image
-                  src={image.url || `https://source.unsplash.com/random/200x150/?${(image.aiHint || "preview").split(' ').join(',')}`}
-                  alt={`${profile.name} preview ${index + 1}`}
-                  fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 25vw, 150px"
-                  className="object-cover"
-                  data-ai-hint={image.aiHint}
-                />
-              </div>
-            ))}
+            {profile.previewImages.slice(0, 4).map((image, index) => {
+              const imageHint = image.aiHint || "preview";
+              const imageSrc = image.url || `https://source.unsplash.com/random/200x150/?${imageHint.split(' ').join(',') || 'item'}`;
+              return (
+                <div key={index} className="relative aspect-[4/3] rounded-md overflow-hidden border shadow-sm">
+                  <Image
+                    src={imageSrc}
+                    alt={`${profile.name} preview ${index + 1}`}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 25vw, 150px"
+                    className="object-cover"
+                    data-ai-hint={imageHint}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
 

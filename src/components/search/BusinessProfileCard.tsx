@@ -52,7 +52,7 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
   onFollowClick,
 }) => {
   const logoHint = business.logoAiHint || "business logo";
-  const logoSrc = business.logoUrl || `https://source.unsplash.com/random/80x80/?${logoHint.split(' ').join(',')}`;
+  const logoSrc = business.logoUrl || `https://source.unsplash.com/random/80x80/?${logoHint.split(' ').join(',') || 'logo'}`;
 
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 w-full overflow-hidden">
@@ -63,7 +63,7 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
         tabIndex={0}
         onKeyDown={(e) => e.key === 'Enter' && onPress?.(business.id)}
       >
-        <div className="relative h-20 w-20 flex-shrink-0"> 
+        <div className="relative h-20 w-20 flex-shrink-0">
           <Image
             src={logoSrc}
             alt={`${business.name} logo`}
@@ -92,7 +92,7 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
           <div className="flex overflow-x-auto space-x-3 pb-2 custom-scrollbar -mr-3">
             {business.products.map((product) => {
               const productHint = product.imageAiHint || "product item";
-              const productSrc = product.imageUrl || `https://source.unsplash.com/random/160x120/?${productHint.split(' ').join(',')}`;
+              const productSrc = product.imageUrl || `https://source.unsplash.com/random/160x120/?${productHint.split(' ').join(',') || 'product'}`;
               return (
                 <Card
                   key={product.id}
@@ -189,5 +189,3 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
 };
 
 export default BusinessProfileCard;
-
-    

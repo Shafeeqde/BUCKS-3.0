@@ -12,7 +12,7 @@ export const individualProfiles: PublicProfileData[] = [
     followers: 180,
     following: 95,
     posts: [
-      { id: 'sdp1', content: 'Exploring new design trends for 2024. So much inspiration out there! #UXdesign #UIDesign', timestamp: '1 day ago', likes: 32, comments: 7 },
+      { id: 'sdp1', content: 'Exploring new design trends for 2024. So much inspiration out there! #UXdesign #UIDesign', timestamp: '1 day ago', imageUrl: 'https://source.unsplash.com/random/600x400/?design,trends,moodboard', imageAiHint: 'design trends moodboard', likes: 32, comments: 7 },
       { id: 'sdp2', content: 'My latest article on "The Importance of User Feedback in Iterative Design" is now live on Medium. Link in bio!', timestamp: '3 days ago', imageUrl: 'https://source.unsplash.com/random/600x400/?design,article,mockup', imageAiHint: 'design article mockup', likes: 45, comments: 11 },
     ],
     contactInfo: { email: 'senthil.design@example.com', website: 'https://senthildesigns.com' }

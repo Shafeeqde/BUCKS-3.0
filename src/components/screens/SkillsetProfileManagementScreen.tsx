@@ -26,7 +26,7 @@ interface SkillsetProfileFormData {
   isActive: boolean;
   userName: string;
   userAvatarUrl?: string;
-  userAvatarAiHint?: string; 
+  userAvatarAiHint?: string;
   professionalTitle?: string;
   skillSpecificBio?: string;
   contactInfo?: {
@@ -98,7 +98,7 @@ const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: stri
         });
       }
       else {
-        resolve({ 
+        resolve({
             id: skillsetProfileId,
             skillName: `New Skillset (${skillsetProfileId.substring(0,5)})`,
             skillLevel: 'Beginner',
@@ -291,7 +291,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
             id: `pi-${Date.now()}`,
             title: currentPortfolioItem.title,
             description: currentPortfolioItem.description || '',
-            imageUrl: currentPortfolioItem.imageUrl || '',
+            imageUrl: currentPortfolioItem.imageUrl || `https://source.unsplash.com/random/600x400/?${(currentPortfolioItem.imageAiHint || 'project work').split(' ').join(',')}`,
             imageAiHint: currentPortfolioItem.imageAiHint || '',
             videoUrl: currentPortfolioItem.videoUrl || '',
             link: currentPortfolioItem.link || '',
@@ -346,7 +346,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
         const newItem: SkillsetSpecificFeedItem = {
             id: `feed-${Date.now()}`,
             content: currentFeedItem.content,
-            imageUrl: currentFeedItem.imageUrl || '',
+            imageUrl: currentFeedItem.imageUrl || `https://source.unsplash.com/random/400x200/?${(currentFeedItem.imageAiHint || 'update post').split(' ').join(',')}`,
             imageAiHint: currentFeedItem.imageAiHint || '',
             videoUrl: currentFeedItem.videoUrl || '',
             timestamp: currentFeedItem.timestamp || new Date().toLocaleDateString(),

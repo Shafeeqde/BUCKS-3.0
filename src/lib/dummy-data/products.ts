@@ -96,5 +96,3 @@ export const dummyProducts: ProductListing[] = [
     tags: ['fiction', 'contemporary', 'fantasy'],
   },
 ];
-
-    

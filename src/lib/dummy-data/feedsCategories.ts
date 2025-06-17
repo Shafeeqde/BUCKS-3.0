@@ -3,7 +3,7 @@ import type { Category } from '@/types';
 import { PlusIcon } from '@heroicons/react/24/outline';
 
 export const initialCategoriesData: Category[] = [
-  { id: 'moments-0', name: 'Your Moments', icon: PlusIcon, type: 'moments', viewed: false, color: 'bg-primary/10 text-primary' },
+  { id: 'moments-0', name: 'Your Moments', icon: PlusIcon, type: 'moments', viewed: false, color: 'bg-primary/10 text-primary', dataAiHint: 'add story' },
   { id: 'cat-deepthi', name: 'Deepthi S.', image: 'https://source.unsplash.com/random/100x100/?woman,ux,designer,professional', dataAiHint: 'woman ux designer professional', viewed: false, profileId: 'deepthi-suvarna-profile' },
   { id: 'cat-maanisha', name: 'Maanisha K.', image: 'https://source.unsplash.com/random/100x100/?woman,creative,designer,indian', dataAiHint: 'woman creative designer indian', viewed: false, profileId: 'maanisha-k-profile' },
   { id: 'cat-subhesh', name: 'Subhesh P.', image: 'https://source.unsplash.com/random/100x100/?man,team,lead,office', dataAiHint: 'man team lead office', viewed: false, profileId: 'subhesh-p-profile' },

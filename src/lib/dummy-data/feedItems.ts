@@ -29,7 +29,7 @@ export const feedItems: FeedItem[] = [
     ]
   },
   {
-    id: 3, type: 'post', user: 'Shoby C Chummar', userImage: 'https://source.unsplash.com/random/100x100/?man,founder,creative,studio', userImageAiHint: 'man founder creative studio', profileId: 'shoby-c-profile', 
+    id: 3, type: 'post', user: 'Shoby C Chummar', userImage: 'https://source.unsplash.com/random/100x100/?man,founder,creative,studio', userImageAiHint: 'man founder creative studio', profileId: 'shoby-c-profile',
     timestamp: '12 hours ago',
     content: 'Reflecting on Mikado.biz\'s journey and excited for what the future holds. Grateful for our amazing team and clients! #Entrepreneurship #MikadoStory',
     media: { type: 'image', url: 'https://source.unsplash.com/random/600x400/?business,growth,chart', aiHint: 'business growth chart' },
@@ -40,13 +40,13 @@ export const feedItems: FeedItem[] = [
   },
   {
     id: 4, type: 'ad', user: 'Creative Cloud', userImage: 'https://source.unsplash.com/random/40x40/?adobe,logo', userImageAiHint: 'adobe logo', profileId: 'adobe-creative-cloud-profile',
-    media: { type: 'image', url: 'https://source.unsplash.com/random/600x350/?design,software,creative', aiHint: 'design software creative' },
-    content: 'Unlock your creative potential with Adobe Creative Cloud. Get all your favorite apps!',
+    media: { type: 'image', url: 'https://images.unsplash.com/photo-1623079478319-945f25f0a97b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMnx8U2Nvb3RlcnxlbnwwfHx8fDE3NTAxNTI0NDZ8MA&ixlib=rb-4.1.0&q=80&w=1080', aiHint: 'scooter advertisement' },
+    content: 'TVS Ntorq 125 Price : Check On-Road & Ex-Showroom Prices of All Variants -',
     timestamp: 'Sponsored Ad', comments: 0, recommendations: 150, notRecommendations: 0,
     commentsData: []
   },
   {
-    id: 5, type: 'post', user: 'Anand Nanda Kumar', userImage: 'https://source.unsplash.com/random/100x100/?man,motion,graphics,artist', userImageAiHint: 'man motion graphics artist', profileId: 'anand-nk-profile', 
+    id: 5, type: 'post', user: 'Anand Nanda Kumar', userImage: 'https://source.unsplash.com/random/100x100/?man,motion,graphics,artist', userImageAiHint: 'man motion graphics artist', profileId: 'anand-nk-profile',
     timestamp: '10 hours ago',
     content: 'Just finished a new motion graphics piece for a product showcase. So satisfying to see it all come together! #MotionGraphics #AfterEffects',
     media: { type: 'image', url: 'https://source.unsplash.com/random/600x400/?abstract,motion,design', aiHint: 'abstract motion design' }, // Placeholder as video player not implemented
@@ -54,7 +54,7 @@ export const feedItems: FeedItem[] = [
     commentsData: commonComments
   },
   {
-    id: 6, type: 'post', user: 'Nirmal G.', userImage: 'https://source.unsplash.com/random/100x100/?man,graphic,artist,focused', userImageAiHint: 'man graphic artist focused', profileId: 'nirmal-g-profile', 
+    id: 6, type: 'post', user: 'Nirmal G.', userImage: 'https://source.unsplash.com/random/100x100/?man,graphic,artist,focused', userImageAiHint: 'man graphic artist focused', profileId: 'nirmal-g-profile',
     timestamp: '6 hours ago',
     content: 'New logo design for a local startup. Loved working on this brand identity! #GraphicDesign #Branding',
     media: { type: 'image', url: 'https://source.unsplash.com/random/600x400/?logo,design,mockup', aiHint: 'logo design mockup' },

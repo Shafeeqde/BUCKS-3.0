@@ -160,10 +160,10 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
 const newBusinessProfileTemplate: Omit<UserBusinessProfile, 'id'> = {
   name: '',
   bio: '',
-  logo: '',
-  logoAiHint: '',
-  coverPhoto: '',
-  coverPhotoAiHint: '',
+  logo: 'https://source.unsplash.com/random/100x100/?business,logo',
+  logoAiHint: 'business logo',
+  coverPhoto: 'https://source.unsplash.com/random/1200x400/?business,background',
+  coverPhotoAiHint: 'business background',
   website: '',
   phone: '',
   email: '',
@@ -345,12 +345,13 @@ export default function AppRoot() {
 
   const handleLoginSuccess = useCallback((user: UserDataForSideMenu) => {
     setIsLoggedIn(true);
+    const avatarAiHint = user.avatarAiHint || 'user avatar';
     setUserData({
         id: user.id,
         name: user.name,
         email: user.email,
-        avatarUrl: user.avatarUrl || `https://source.unsplash.com/random/48x48/?${(user.avatarAiHint || 'user avatar').split(' ').join(',')}`,
-        avatarAiHint: user.avatarAiHint || 'user avatar',
+        avatarUrl: user.avatarUrl || `https://source.unsplash.com/random/48x48/?${avatarAiHint.split(' ').join(',')}`,
+        avatarAiHint: avatarAiHint,
         moments: [], // Initialize with empty moments
     });
     setActiveTabInternal('home');
@@ -632,25 +633,26 @@ export default function AppRoot() {
 
   const handleViewUserMoments = useCallback((profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => {
     let ownerDetails: ViewingMomentOwnerDetails | null = null;
+    const defaultAvatarAiHint = 'person avatar';
 
     if (userName && profileId) { // Directly passed details
-        ownerDetails = { name: userName, avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint, profileId };
+        ownerDetails = { name: userName, avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint || defaultAvatarAiHint, profileId };
     } else if (profileId) { // Look up by profileId
         const categoryUser = initialCategoriesData.find(cat => cat.profileId === profileId);
         if (categoryUser) {
-            ownerDetails = { name: categoryUser.name || 'User', avatarUrl: categoryUser.image, avatarAiHint: categoryUser.dataAiHint, profileId };
+            ownerDetails = { name: categoryUser.name || 'User', avatarUrl: categoryUser.image, avatarAiHint: categoryUser.dataAiHint || defaultAvatarAiHint, profileId };
         } else {
              const businessProfileUser = businessProfilesData.find(bp => bp.id === profileId);
              if (businessProfileUser) {
-                 ownerDetails = { name: businessProfileUser.name, avatarUrl: businessProfileUser.logo, avatarAiHint: businessProfileUser.logoAiHint, profileId };
+                 ownerDetails = { name: businessProfileUser.name, avatarUrl: businessProfileUser.logo, avatarAiHint: businessProfileUser.logoAiHint || 'business logo', profileId };
              } else if (userData && profileId === userData.id) { // Current user's moments
-                 ownerDetails = { name: userData.name, avatarUrl: userData.avatarUrl, avatarAiHint: userData.avatarAiHint, profileId: userData.id };
+                 ownerDetails = { name: userData.name, avatarUrl: userData.avatarUrl, avatarAiHint: userData.avatarAiHint || defaultAvatarAiHint, profileId: userData.id };
              } else { // Fallback if profileId not found in known sources
-                ownerDetails = { name: `User ${profileId.substring(0,5)}...`, avatarUrl: `https://source.unsplash.com/random/48x48/?person,avatar`, avatarAiHint: 'person avatar', profileId };
+                ownerDetails = { name: `User ${profileId.substring(0,5)}...`, avatarUrl: `https://source.unsplash.com/random/48x48/?${defaultAvatarAiHint.split(' ').join(',')}`, avatarAiHint: defaultAvatarAiHint, profileId };
              }
         }
     } else if (userData) { // Default to current user if no specific profile is requested
-        ownerDetails = { name: userData.name, avatarUrl: userData.avatarUrl, avatarAiHint: userData.avatarAiHint, profileId: userData.id };
+        ownerDetails = { name: userData.name, avatarUrl: userData.avatarUrl, avatarAiHint: userData.avatarAiHint || defaultAvatarAiHint, profileId: userData.id };
     }
 
     if (ownerDetails) {
@@ -1056,8 +1058,8 @@ export default function AppRoot() {
       messages: mockMessages,
       originalMessageId: messageItem.id,
     });
-    setShowMessagesNotifications(false); // Close the list
-    setShowChatDetailScreen(true); // Open the chat detail
+    setShowMessagesNotifications(false);
+    setShowChatDetailScreen(true);
   }, [userData, toast]);
 
   const handleSendMessageInChatDetail = useCallback((text: string) => {
@@ -1277,7 +1279,7 @@ export default function AppRoot() {
     handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive,
     handleCreateNewPost, handleViewPostDetail, handlePostCommentOnDetail,
     handleAddMomentFromAccount, handleViewUserMomentsFromAccount,
-    handleViewUserMoments, // Removed specific "FromFeeds"
+    handleViewUserMoments,
     handleOpenServiceBooking, handleConfirmServiceBooking,
     handleSelectFoodRestaurant, handleAddItemToFoodCart, handleUpdateFoodCartItemQuantity, handleRemoveFoodCartItem, handleFoodCheckout,
     handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleRemoveShoppingCartItem, handleShoppingCheckout,
@@ -1366,8 +1368,6 @@ export default function AppRoot() {
           onClose={() => {
             setShowChatDetailScreen(false);
             setCurrentChatContext(null);
-            // Optionally, re-open MessagesNotificationsScreen if it was the previous context
-            // For now, just closes chat.
           }}
           chatContext={currentChatContext}
           onSendMessage={handleSendMessageInChatDetail}
@@ -1402,6 +1402,7 @@ export default function AppRoot() {
           onClose={() => {
             setShowServiceBookingDialog(false);
             setBookingTargetProfile(null);
+            setActiveTab('skillset-profile');
           }}
           professionalId={bookingTargetProfile.id}
           professionalName={bookingTargetProfile.name}
@@ -1412,5 +1413,3 @@ export default function AppRoot() {
     </div>
   );
 }
-
-    
