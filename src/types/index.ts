@@ -28,7 +28,8 @@ export type TabName =
   | 'account-settings'
   | 'digital-id-card'
   | 'create-post'
-  | 'detailed-post'; // Added
+  | 'detailed-post'
+  | 'service-booking'; // Added for service booking flow
 
 export interface Category {
   id: string;
@@ -60,33 +61,33 @@ export interface Comment {
 }
 
 export interface FeedItem {
-  id: number; // Using number for initialFeedItems for simplicity in FeedsScreen
+  id: number;
   type: 'post' | 'job' | 'ad';
   user: string;
   userImage: string;
   userImageAiHint?: string;
   timestamp: string;
   content: string;
-  media?: MediaAttachment; // Changed from postImage/postImageAiHint
-  comments: number; // This can be the count
+  media?: MediaAttachment;
+  comments: number;
   recommendations: number;
   notRecommendations: number;
   profileId?: string;
-  commentsData?: Comment[]; // Added for detailed view
+  commentsData?: Comment[];
 }
 
 export interface ProfilePost {
-  id: string; // Using string for userPosts as they might be from a DB
+  id: string;
   user: string;
   userId?: string;
   userImage?: string;
   userImageAiHint?: string;
   timestamp: string;
   likes: number;
-  comments: number; // This can be the count
+  comments: number;
   content?: string;
   media?: MediaAttachment;
-  commentsData?: Comment[]; // Added for detailed view
+  commentsData?: Comment[];
 }
 
 
@@ -354,11 +355,11 @@ export interface PublicProfileData {
   avatarAiHint?: string;
   professionalTitle?: string;
   bio?: string;
-  posts: { // This is for public profiles, which is slightly different from ProfilePost
+  posts: {
     id: string;
     content: string;
     timestamp: string;
-    imageUrl?: string; // Simplified media for this type
+    imageUrl?: string;
     imageAiHint?: string;
     likes: number;
     comments: number;
@@ -452,3 +453,27 @@ export interface UserDataForSideMenu {
   avatarAiHint?: string;
   moments?: UserMoment[];
 }
+
+// --- Service Booking Types ---
+export interface ServiceBookingRequest {
+  professionalId: string;
+  professionalName: string;
+  skillName: string;
+  serviceDescription: string;
+  requestedDate?: string; // ISO string or formatted
+  requestedTime?: string; // e.g., "10:00 AM", "Afternoon"
+}
+
+export type BookingStatus = 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed';
+
+export interface ActiveBooking {
+  id: string;
+  professionalId: string;
+  professionalName: string;
+  skillName: string;
+  serviceDescription: string;
+  status: BookingStatus;
+  bookingDate: string; // Could be a combination of requestedDate and requestedTime
+  createdAt: string; // ISO string
+}
+// --- End Service Booking Types ---

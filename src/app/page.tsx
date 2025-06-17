@@ -31,13 +31,14 @@ import CreatePostScreen from '@/components/screens/CreatePostScreen';
 import DetailedPostScreen from '@/components/screens/DetailedPostScreen';
 import CreateMomentDialog from '@/components/moments/CreateMomentDialog';
 import MomentViewerScreen from '@/components/moments/MomentViewerScreen';
+import ServiceBookingDialog from '@/components/services/ServiceBookingDialog'; // Added
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
 import { feedItems as initialFeedItemsData } from '@/lib/dummy-data/feedItems';
 
 
-import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, ProfilePost, MediaAttachment, UserMoment, Category as CategoryType, FeedItem, Comment } from '@/types';
+import type { TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu, ProfilePost, MediaAttachment, UserMoment, Category as CategoryType, FeedItem, Comment, ServiceBookingRequest, ActiveBooking, BookingStatus } from '@/types'; // Added ServiceBooking types
 import { useToast } from "@/hooks/use-toast";
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format } from 'date-fns';
 
 
 const initialBusinessProfilesData: UserBusinessProfile[] = [
@@ -167,6 +168,12 @@ interface ViewingMomentOwnerDetails {
     profileId: string;
 }
 
+interface BookingTargetProfile {
+  id: string;
+  name: string;
+  skillName: string;
+}
+
 export default function AppRoot() {
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
@@ -194,8 +201,8 @@ export default function AppRoot() {
   const [activityDetails, setActivityDetails] = useState<ActivityDetails>(null);
   const [isDriverOnlineSim, setIsDriverOnlineSim] = useState(false);
 
-  const [userPosts, setUserPosts] = useState<ProfilePost[]>([]); 
-  const [feedItems, setFeedItems] = useState<FeedItem[]>(initialFeedItemsData); 
+  const [userPosts, setUserPosts] = useState<ProfilePost[]>([]);
+  const [feedItems, setFeedItems] = useState<FeedItem[]>(initialFeedItemsData);
 
   const [userMoments, setUserMoments] = useState<UserMoment[]>([]);
   const [showCreateMomentDialog, setShowCreateMomentDialog] = useState(false);
@@ -203,6 +210,11 @@ export default function AppRoot() {
   const [viewingMomentOwnerDetails, setViewingMomentOwnerDetails] = useState<ViewingMomentOwnerDetails | null>(null);
 
   const [selectedPostForDetail, setSelectedPostForDetail] = useState<FeedItem | ProfilePost | null>(null);
+
+  // Service Booking State
+  const [showServiceBookingDialog, setShowServiceBookingDialog] = useState(false);
+  const [bookingTargetProfile, setBookingTargetProfile] = useState<BookingTargetProfile | null>(null);
+  const [activeBookings, setActiveBookings] = useState<ActiveBooking[]>([]);
 
 
   useEffect(() => {
@@ -291,7 +303,7 @@ export default function AppRoot() {
         email: user.email,
         avatarUrl: user.avatarUrl || `https://source.unsplash.com/random/48x48/?${(user.avatarAiHint || 'user avatar').split(' ').join(',')}`,
         avatarAiHint: user.avatarAiHint || 'user avatar',
-        moments: [], 
+        moments: [],
     });
     setActiveTabInternal('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
@@ -324,6 +336,9 @@ export default function AppRoot() {
     setShowMomentViewer(false);
     setViewingMomentOwnerDetails(null);
     setSelectedPostForDetail(null);
+    setShowServiceBookingDialog(false); // Added
+    setBookingTargetProfile(null); // Added
+    setActiveBookings([]); // Added
     toast({ title: "Logged Out", description: "You have been successfully logged out." });
   }, [toast]);
 
@@ -335,7 +350,7 @@ export default function AppRoot() {
         'business-detail', 'individual-profile', 'skillset-profile',
         'manage-skillset-profile', 'manage-business-profile', 'job-detail',
         'professional-profile', 'account-settings', 'digital-id-card',
-        'create-post', 'detailed-post'
+        'create-post', 'detailed-post', 'service-booking' // Added service-booking
     ];
 
     if (!detailTabs.includes(tab)) {
@@ -346,6 +361,7 @@ export default function AppRoot() {
         setSkillsetProfileToManageId(null);
         setSelectedJobId(null);
         setSelectedPostForDetail(null);
+        setBookingTargetProfile(null); // Clear booking target if not on booking screen
     }
 
     if (tab === 'business-profiles' && isLoggedIn) {
@@ -493,7 +509,7 @@ export default function AppRoot() {
       }
       return post;
     }));
-    
+
     if (selectedPostForDetail && selectedPostForDetail.id === postId) {
         setSelectedPostForDetail(prevSelectedPost => {
             if (!prevSelectedPost) return null;
@@ -553,9 +569,9 @@ export default function AppRoot() {
   const handleViewUserMoments = useCallback((profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => {
     let ownerDetails: ViewingMomentOwnerDetails | null = null;
 
-    if (userName && profileId) { 
+    if (userName && profileId) {
         ownerDetails = { name: userName, avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint, profileId };
-    } else if (profileId) { 
+    } else if (profileId) {
         const categoryUser = initialCategoriesData.find(cat => cat.profileId === profileId);
         if (categoryUser) {
             ownerDetails = { name: categoryUser.name || 'User', avatarUrl: categoryUser.image, avatarAiHint: categoryUser.dataAiHint, profileId };
@@ -567,7 +583,7 @@ export default function AppRoot() {
     if (ownerDetails) {
         setViewingMomentOwnerDetails(ownerDetails);
         setShowMomentViewer(true);
-    } else if (userData) { 
+    } else if (userData) {
         setViewingMomentOwnerDetails({
             name: userData.name,
             avatarUrl: userData.avatarUrl,
@@ -823,6 +839,33 @@ export default function AppRoot() {
     }
   }, [isActiveActivityViewVisible, activityDetails, isLoggedIn, handleAcceptRequest]);
 
+  // Service Booking Handlers
+  const handleOpenServiceBooking = useCallback((profileId: string, profileName: string, skillName: string) => {
+    setBookingTargetProfile({ id: profileId, name: profileName, skillName });
+    setShowServiceBookingDialog(true);
+    setActiveTab('service-booking'); // Or handle this transition more explicitly if needed
+  }, [setActiveTab]);
+
+  const handleConfirmServiceBooking = useCallback((request: ServiceBookingRequest) => {
+    const newBooking: ActiveBooking = {
+      id: `booking-${Date.now()}`,
+      ...request,
+      status: 'Pending',
+      createdAt: new Date().toISOString(),
+      bookingDate: `${request.requestedDate ? format(new Date(request.requestedDate), 'PPP') : 'Date TBD'}${request.requestedTime ? `, ${request.requestedTime}` : ''}`
+    };
+    setActiveBookings(prev => [newBooking, ...prev]);
+    setShowServiceBookingDialog(false);
+    setBookingTargetProfile(null);
+    toast({
+      title: "Booking Request Sent!",
+      description: `Your request for ${request.skillName} with ${request.professionalName} has been submitted.`,
+    });
+    // Optionally, navigate away from booking screen or back to profile
+    setActiveTab('skillset-profile'); // Or wherever is appropriate
+    // console.log("Active Bookings:", [newBooking, ...activeBookings]); // For debugging
+  }, [toast, setActiveTab]);
+
 
   const renderScreenContent = useCallback(() => {
     if (!isClient) return null;
@@ -939,7 +982,7 @@ export default function AppRoot() {
 
       case 'skillset-profile':
         if (selectedSkillsetProfileId) {
-          return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId} setActiveTab={setActiveTab} />;
+          return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId} setActiveTab={setActiveTab} onBookService={handleOpenServiceBooking} />;
         }
         return <p className="text-center text-muted-foreground">No skillset profile selected.</p>;
 
@@ -970,6 +1013,19 @@ export default function AppRoot() {
       case 'account-settings':
         return <AccountSettingsScreen />;
 
+      case 'service-booking': // Added
+        if (bookingTargetProfile) {
+            // This case might not be directly rendered as a full screen
+            // The dialog is shown on top.
+            // But if we wanted a dedicated screen, it would be here.
+            // For now, let's assume the dialog is sufficient.
+            // To prevent full screen flicker, we could return the underlying screen:
+            return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId!} setActiveTab={setActiveTab} onBookService={handleOpenServiceBooking} />;
+        }
+        // Fallback if bookingTargetProfile is not set (should not happen if flow is correct)
+        setActiveTab('home');
+        return <p className="p-4 text-center text-muted-foreground">Loading booking screen...</p>;
+
 
       default: return <HomeScreen
                         setActiveTab={setActiveTab}
@@ -982,6 +1038,7 @@ export default function AppRoot() {
     isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments, feedItems,
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, selectedPostForDetail,
+    bookingTargetProfile, // Added
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
     handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
@@ -990,6 +1047,7 @@ export default function AppRoot() {
     handleCreateNewPost, handleViewPostDetail, handlePostCommentOnDetail,
     handleAddMomentFromAccount, handleViewUserMomentsFromAccount,
     handleAddMomentFromFeeds, handleViewUserMoments,
+    handleOpenServiceBooking, // Added
     toast
   ]);
 
@@ -1028,7 +1086,7 @@ export default function AppRoot() {
         {renderScreenContent()}
       </div>
 
-      {isLoggedIn && !['detailed-post'].includes(activeTab) && ( 
+      {isLoggedIn && !['detailed-post', 'service-booking'].includes(activeTab) && (
         <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
       )}
 
@@ -1073,13 +1131,29 @@ export default function AppRoot() {
         <MomentViewerScreen
           isOpen={showMomentViewer}
           onClose={() => { setShowMomentViewer(false); setViewingMomentOwnerDetails(null); }}
-          moments={userMoments} 
+          moments={userMoments}
           ownerName={viewingMomentOwnerDetails.name}
           ownerAvatarUrl={viewingMomentOwnerDetails.avatarUrl}
           ownerAvatarAiHint={viewingMomentOwnerDetails.avatarAiHint}
           onViewOwnerProfile={viewingMomentOwnerDetails.profileId ? handleNavigateToOwnerProfileFromMomentViewer : undefined}
         />
       )}
+
+      {isClient && isLoggedIn && showServiceBookingDialog && bookingTargetProfile && (
+        <ServiceBookingDialog
+          isOpen={showServiceBookingDialog}
+          onClose={() => {
+            setShowServiceBookingDialog(false);
+            setBookingTargetProfile(null);
+            // setActiveTab('skillset-profile'); // Or previous tab logic
+          }}
+          professionalId={bookingTargetProfile.id}
+          professionalName={bookingTargetProfile.name}
+          skillName={bookingTargetProfile.skillName}
+          onSubmit={handleConfirmServiceBooking}
+        />
+      )}
     </div>
   );
 }
+
