@@ -58,8 +58,8 @@ import type {
     TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu,
     ProfilePost, MediaAttachment, UserMoment, Category as CategoryType, FeedItem, Comment,
     ServiceBookingRequest, ActiveBooking, BookingStatus,
-    Restaurant, MenuItem, // FoodCartItem removed as global cart will handle
-    ProductCategory, ProductListing, ShoppingCartItem, // ShoppingCartItem might be integrated or kept separate
+    Restaurant, MenuItem, FoodCartItem, // FoodCartItem kept for local food cart
+    ProductCategory, ProductListing, ShoppingCartItem,
     MessageItem, NotificationItem, ChatMessage
 } from '@/types';
 import { useToast } from "@/hooks/use-toast";
@@ -256,17 +256,18 @@ export default function AppRoot() {
   const [bookingTargetProfile, setBookingTargetProfile] = useState<BookingTargetProfile | null>(null);
   const [activeBookings, setActiveBookings] = useState<ActiveBooking[]>([]);
 
-  // Food Ordering State (Restaurant data is kept, cart items will use global context)
+  // Food Ordering State (Restaurant data is kept, cart items will use local context for this module)
   const [restaurantsData, setRestaurantsData] = useState<Restaurant[]>(dummyRestaurants);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
-  // FoodCartItems state removed, will use global context
+  const [localFoodCartItems, setLocalFoodCartItems] = useState<FoodCartItem[]>([]); // Local cart for food
 
-  // Shopping State
+
+  // Shopping State (uses local cart state for this module)
   const [productCategoriesData, setProductCategoriesData] = useState<ProductCategory[]>(dummyProductCategories);
   const [productsData, setProductsData] = useState<ProductListing[]>(dummyProducts);
   const [selectedShoppingCategoryId, setSelectedShoppingCategoryId] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [shoppingCartItems, setShoppingCartItems] = useState<ShoppingCartItem[]>([]); // This uses its own state for now
+  const [shoppingCartItems, setShoppingCartItems] = useState<ShoppingCartItem[]>([]);
 
   // Messaging & Notifications State
   const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
@@ -397,14 +398,11 @@ export default function AppRoot() {
     setShowServiceBookingDialog(false);
     setBookingTargetProfile(null);
     setActiveBookings([]);
-    // Reset food ordering state
     setSelectedRestaurantId(null);
-    // FoodCartItems are global, not reset here explicitly unless desired
-    // Reset shopping state
+    setLocalFoodCartItems([]);
     setSelectedShoppingCategoryId(null);
     setSelectedProductId(null);
-    setShoppingCartItems([]); // Still using local state for shopping cart
-    // Reset messaging state
+    setShoppingCartItems([]);
     setShowMessagesNotifications(false);
     setShowChatDetailScreen(false);
     setCurrentChatContext(null);
@@ -420,7 +418,7 @@ export default function AppRoot() {
         'manage-skillset-profile', 'manage-business-profile', 'job-detail',
         'professional-profile', 'account-settings', 'digital-id-card',
         'create-post', 'detailed-post', 'service-booking',
-        'food-restaurant-detail', 'unified-cart', // unified-cart instead of food-cart
+        'food-restaurant-detail', 'unified-cart',
         'shopping-products-list', 'shopping-product-detail', 'shopping-cart'
     ];
 
@@ -456,17 +454,15 @@ export default function AppRoot() {
   }, [setActiveTab]);
 
   const handleSelectIndividualProfile = useCallback((profileId: string) => {
-    if(profileId === 'individual-jenson-1' || profileId === 'jenson-interior-stylist-123') {
-        handleSelectSkillsetProfile('jenson-interior-stylist-123');
-        return;
-    } else if (profileId === 'prof2' || profileId === 'prof2-ux-designer-skillset'){
-        handleSelectSkillsetProfile('prof2-ux-designer-skillset');
+    // Check if the profile ID matches known skillset profile IDs and redirect
+    if (profileId === 'jenson-interior-stylist-123' || profileId === 'plumbing-profile-johndoe-123' ||
+        (profileId.startsWith('prof') && profileId.endsWith('-skillset'))) { // Example of a pattern
+        handleSelectSkillsetProfile(profileId);
         return;
     }
-
-    if (userData && profileId === userData.id) {
+    if (userData && profileId === userData.id) { // Current user
         setActiveTab('account');
-    } else if (profileId) {
+    } else if (profileId) { // Other individual
         setSelectedIndividualProfileId(profileId);
         setActiveTab('individual-profile');
     }
@@ -529,7 +525,6 @@ export default function AppRoot() {
         imageUrl: product.imageUrl,
         imageAiHint: product.imageAiHint
     });
-    // Toast is handled by CartContext
   }, [globalAddToCart]);
 
   const handleCreateNewPost = useCallback((content: string, media?: MediaAttachment) => {
@@ -684,7 +679,6 @@ export default function AppRoot() {
   const handleNavigateToOwnerProfileFromMomentViewer = useCallback(() => {
     if (viewingMomentOwnerDetails?.profileId) {
         setShowMomentViewer(false);
-        // Check if it's a business profile or individual
         const isBusiness = businessProfilesData.some(bp => bp.id === viewingMomentOwnerDetails.profileId);
         if (isBusiness) {
             handleSelectBusinessProfile(viewingMomentOwnerDetails.profileId);
@@ -954,13 +948,6 @@ export default function AppRoot() {
     setActiveTab('skillset-profile');
   }, [toast, setActiveTab]);
 
-  // --- Food Ordering Handlers (Specific to Food section, not using global cart yet) ---
-  const handleSelectFoodRestaurant = useCallback((restaurantId: string) => {
-    setSelectedRestaurantId(restaurantId);
-    setActiveTab('food-restaurant-detail');
-  }, [setActiveTab]);
-
-  const [localFoodCartItems, setLocalFoodCartItems] = useState<FoodCartItem[]>([]);
   const handleAddItemToLocalFoodCart = useCallback((menuItem: MenuItem, restaurantId: string, restaurantName: string) => {
     setLocalFoodCartItems(prevCart => {
       const existingItemIndex = prevCart.findIndex(item => item.menuItemId === menuItem.id && item.restaurantId === restaurantId);
@@ -994,17 +981,15 @@ export default function AppRoot() {
         return;
     }
     toast({ title: "Food Order Placed (Simulated)", description: "Your food order has been placed successfully!" });
-    setLocalFoodCartItems([]); // Clear local food cart
+    setLocalFoodCartItems([]);
     setActiveTab('home');
   }, [localFoodCartItems, toast, setActiveTab]);
-  // --- End Food Ordering Handlers ---
 
 
   const handleNavigateToCart = useCallback(() => {
     setActiveTab('unified-cart');
   }, [setActiveTab]);
 
-  // --- Shopping Handlers (Uses local cart state for now) ---
   const handleSelectShoppingCategory = useCallback((categoryId: string) => {
     setSelectedShoppingCategoryId(categoryId);
     setActiveTab('shopping-products-list');
@@ -1058,16 +1043,13 @@ export default function AppRoot() {
     setShoppingCartItems([]);
     setActiveTab('home');
   }, [shoppingCartItems, toast, setActiveTab]);
-  // --- End Shopping Handlers ---
 
 
-  // --- Messaging Handlers ---
   const handleOpenChatDetail = useCallback((messageItem: MessageItem) => {
     if (!userData) {
       toast({ title: "Error", description: "User data not available for chat.", variant: "destructive" });
       return;
     }
-    // Simulate a short chat history
     const mockMessages: ChatMessage[] = [
       { id: `msg-${Date.now() - 2000}`, text: messageItem.content, timestamp: messageItem.timestamp, isSender: false, avatar: messageItem.senderImage, avatarAiHint: messageItem.senderImageAiHint },
       { id: `msg-${Date.now() - 1000}`, text: "Okay, I see. Thanks for letting me know!", timestamp: "1 min ago", isSender: true, avatar: userData.avatarUrl, avatarAiHint: userData.avatarAiHint },
@@ -1140,6 +1122,7 @@ export default function AppRoot() {
       case 'recommended': return <RecommendedScreen
                                     onViewUserMomentsClick={handleViewUserMoments}
                                     onViewUserProfile={handleSelectIndividualProfile}
+                                    onViewPost={(title) => toast({ title: "Viewing Recommended Content", description: title})}
                                  />;
       case 'account': return <AccountScreen
                                 userData={userData}
@@ -1157,7 +1140,7 @@ export default function AppRoot() {
             <DetailedPostScreen
               post={selectedPostForDetail}
               onPostComment={(commentText) => handlePostCommentOnDetail(selectedPostForDetail.id, commentText)}
-              onBack={() => setActiveTab(selectedPostForDetail.userId === userData?.id ? 'account' : 'feeds')}
+              onBack={() => setActiveTab( (selectedPostForDetail as ProfilePost).userId === userData?.id ? 'account' : 'feeds')}
             />
           );
         }
@@ -1210,7 +1193,7 @@ export default function AppRoot() {
         if (selectedIndividualProfileId) {
              return <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={setActiveTab} />;
         }
-        if (userData && !selectedIndividualProfileId) {
+        if (userData && !selectedIndividualProfileId) { // Default to current user's account if no specific ID
              setActiveTab('account');
              return <AccountScreen
                         userData={userData}
@@ -1260,9 +1243,11 @@ export default function AppRoot() {
 
       case 'service-booking':
         if (bookingTargetProfile) {
+            // We need to make sure selectedSkillsetProfileId is set correctly if coming from a different flow
+            // For now, this re-renders SkillsetProfileScreen, which is fine for booking dialog context.
             return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId!} setActiveTab={setActiveTab} onBookService={handleOpenServiceBooking} />;
         }
-        setActiveTab('home');
+        setActiveTab('home'); // Fallback if no booking target
         return <p className="p-4 text-center text-muted-foreground">Loading booking screen...</p>;
 
       // Food Ordering Screens (using local cart for food still, for now)
@@ -1271,7 +1256,7 @@ export default function AppRoot() {
       case 'food-restaurant-detail':
         const selectedRestaurant = restaurantsData.find(r => r.id === selectedRestaurantId);
         return <FoodRestaurantDetailScreen restaurant={selectedRestaurant || null} onAddToCart={(item, qty) => handleAddItemToLocalFoodCart(item, selectedRestaurantId!, selectedRestaurant?.name || 'Restaurant')} onBack={() => setActiveTab('food-restaurants')} />;
-      
+
       // Shopping Screens
       case 'shopping-categories':
         return <ShoppingCategoriesScreen categories={productCategoriesData} onSelectCategory={handleSelectShoppingCategory} />;
@@ -1284,7 +1269,7 @@ export default function AppRoot() {
         return <ShoppingProductDetailScreen product={currentProduct || null} onAddToCart={handleAddItemToShoppingCart} onBack={() => setActiveTab('shopping-products-list')} />;
       case 'shopping-cart':
         return <ShoppingCartScreen cartItems={shoppingCartItems} onUpdateQuantity={handleUpdateShoppingCartItemQuantity} onRemoveItem={handleRemoveShoppingCartItem} onCheckout={handleShoppingCheckout} onBack={() => setActiveTab(selectedProductId ? 'shopping-product-detail' : (selectedShoppingCategoryId ? 'shopping-products-list' : 'shopping-categories'))} />;
-      
+
       case 'unified-cart':
         const previousTab = activeTab === 'food-restaurant-detail' && selectedRestaurantId ? 'food-restaurant-detail' : 'home';
         return <UnifiedCartScreen onBack={() => setActiveTab(previousTab)} setActiveTab={setActiveTab}/>;
@@ -1309,7 +1294,7 @@ export default function AppRoot() {
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, selectedPostForDetail,
     bookingTargetProfile,
-    restaurantsData, selectedRestaurantId, localFoodCartItems, // Using localFoodCartItems for food section
+    restaurantsData, selectedRestaurantId, localFoodCartItems,
     productCategoriesData, productsData, selectedShoppingCategoryId, selectedProductId, shoppingCartItems,
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
@@ -1322,7 +1307,7 @@ export default function AppRoot() {
     handleOpenServiceBooking, handleConfirmServiceBooking,
     handleSelectFoodRestaurant, handleAddItemToLocalFoodCart, handleUpdateLocalFoodCartItemQuantity, handleRemoveLocalFoodCartItem, handleLocalFoodCheckout,
     handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleRemoveShoppingCartItem, handleShoppingCheckout,
-    toast
+    toast // Added toast as a dependency
   ]);
 
 
@@ -1334,17 +1319,13 @@ export default function AppRoot() {
     );
   }
 
-  // const totalCartItems = localFoodCartItems.reduce((sum, item) => sum + item.quantity, 0) + shoppingCartItems.reduce((sum, item) => sum + item.quantity, 0);
-  // For global cart count: useCart().getCartItemCount() + shoppingCartItems (if shopping cart also uses global)
-
   return (
     <div className="flex flex-col h-screen bg-background">
       <Header
         onMenuClick={() => setShowSideMenu(true)}
         onMessagesClick={() => setShowMessagesNotifications(true)}
-        onCartClick={handleNavigateToCart} // Updated handler
+        onCartClick={handleNavigateToCart}
         unreadCount={isLoggedIn ? 5 : 0}
-        // Cart item count is now handled by Header itself via useCart
       />
 
       {isLoggedIn && (
@@ -1427,7 +1408,7 @@ export default function AppRoot() {
         <MomentViewerScreen
           isOpen={showMomentViewer}
           onClose={() => { setShowMomentViewer(false); setViewingMomentOwnerDetails(null); }}
-          moments={userMoments}
+          moments={userMoments} // This should display logged-in user's moments
           ownerName={viewingMomentOwnerDetails.name}
           ownerAvatarUrl={viewingMomentOwnerDetails.avatarUrl}
           ownerAvatarAiHint={viewingMomentOwnerDetails.avatarAiHint}
@@ -1452,3 +1433,4 @@ export default function AppRoot() {
     </div>
   );
 }
+
