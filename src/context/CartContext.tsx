@@ -1,7 +1,7 @@
 
 "use client"; // Mark as Client Component
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import type { BusinessProductCardItem } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
@@ -51,16 +51,20 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
             if (existingItemIndex > -1) {
                 const newCart = [...prevCart];
                 newCart[existingItemIndex].quantity += quantity;
-                toast({
-                    title: "Cart Updated",
-                    description: `${item.name} quantity increased to ${newCart[existingItemIndex].quantity} in your cart for ${item.businessName}.`,
-                });
+                setTimeout(() => {
+                    toast({
+                        title: "Cart Updated",
+                        description: `${item.name} quantity increased to ${newCart[existingItemIndex].quantity} in your cart for ${item.businessName}.`,
+                    });
+                }, 0);
                 return newCart;
             } else {
-                 toast({
-                    title: "Added to Cart",
-                    description: `${quantity} x ${item.name} added to your cart for ${item.businessName}.`,
-                });
+                setTimeout(() => {
+                    toast({
+                        title: "Added to Cart",
+                        description: `${quantity} x ${item.name} added to your cart for ${item.businessName}.`,
+                    });
+                }, 0);
                 return [...prevCart, { ...item, quantity }];
             }
         });
@@ -80,11 +84,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         setCart(prevCart => {
             const itemToRemove = prevCart.find(item => item.id === itemId && item.businessId === businessId);
             if (itemToRemove) {
-                toast({
-                    title: "Item Removed",
-                    description: `${itemToRemove.name} removed from your cart for ${itemToRemove.businessName}.`,
-                    variant: "destructive"
-                });
+                setTimeout(() => {
+                    toast({
+                        title: "Item Removed",
+                        description: `${itemToRemove.name} removed from your cart for ${itemToRemove.businessName}.`,
+                        variant: "destructive"
+                    });
+                }, 0);
             }
             return prevCart.filter(item => !(item.id === itemId && item.businessId === businessId));
         });
@@ -93,10 +99,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     const clearCartForBusiness = (businessId: string | number) => {
         const businessName = cart.find(item => item.businessId === businessId)?.businessName || 'this business';
         setCart(prevCart => prevCart.filter(item => item.businessId !== businessId));
-        toast({
-            title: `Cart Cleared for ${businessName}`,
-            description: `All items from ${businessName} have been removed from your cart.`,
-        });
+        setTimeout(() => {
+            toast({
+                title: `Cart Cleared for ${businessName}`,
+                description: `All items from ${businessName} have been removed from your cart.`,
+            });
+        }, 0);
     };
 
     const getCartForBusiness = (businessId: string | number): CartContextItem[] => {
