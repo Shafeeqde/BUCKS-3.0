@@ -155,7 +155,7 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
         </CardHeader>
 
         <CardContent className="border-t pt-6">
-          <form onSubmit={handleAddVehicle} className="space-y-6 bg-card p-6 rounded-lg shadow-md border mb-8">
+          <form onSubmit={handleAddVehicle} className="space-y-6 bg-card p-4 sm:p-6 rounded-lg shadow-md border mb-8">
             <h3 className="text-lg font-semibold text-foreground">Add New Vehicle</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
