@@ -24,7 +24,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 const initialServicesData: Service[] = [
-    { id: 'taxi', name: 'Taxi', icon: TruckIcon, locked: false, dataAiHint: "car taxi ride", targetTab: 'menu' }, // Remains on menu for taxi booking UI
+    { id: 'taxi', name: 'Taxi', icon: TruckIcon, locked: false, dataAiHint: "car taxi ride", targetTab: 'menu' },
     { id: 'jobs', name: 'Jobs', icon: BriefcaseIcon, locked: false, dataAiHint: "briefcase work", targetTab: 'job-board' },
     { id: 'foods', name: 'Foods', icon: BuildingStorefrontIcon, locked: false, dataAiHint: "utensils restaurant", targetTab: 'food-restaurants' },
     { id: 'shopping', name: 'Shopping', icon: ShoppingBagIcon, locked: false, dataAiHint: "shopping bag", targetTab: 'shopping-categories' },
@@ -224,5 +224,4 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
   );
 };
 export default ServicesScreen;
-
     
