@@ -2,44 +2,38 @@
 import 'server-only';
 import admin from 'firebase-admin';
 
-// Ensure this path is correct if your service account key is elsewhere.
-// You can also load it from environment variables as shown below.
-
-const serviceAccountKey = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-};
+let db: admin.firestore.Firestore | undefined = undefined;
 
 if (!admin.apps.length) {
   try {
-    if (serviceAccountKey.projectId && serviceAccountKey.clientEmail && serviceAccountKey.privateKey) {
+    const serviceAccount = {
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    };
+
+    if (serviceAccount.projectId && serviceAccount.clientEmail && serviceAccount.privateKey) {
       admin.initializeApp({
-        credential: admin.credential.cert(serviceAccountKey as admin.ServiceAccount),
+        credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
       });
       console.log('Firebase Admin SDK initialized successfully.');
+      db = admin.firestore(); // Assign db only after successful initialization
     } else {
-      console.warn('Firebase Admin SDK credentials are not fully configured. Skipping initialization. Please check your .env file:');
-      if (!serviceAccountKey.projectId) {
-        console.warn('- FIREBASE_PROJECT_ID is missing.');
-      }
-      if (!serviceAccountKey.clientEmail) {
-        console.warn('- FIREBASE_CLIENT_EMAIL is missing.');
-      }
-      if (!serviceAccountKey.privateKey) {
-        // This condition might be true if FIREBASE_PRIVATE_KEY is missing OR if it's present but becomes empty after the .replace() (e.g. if it was just "\\n")
-        console.warn('- FIREBASE_PRIVATE_KEY is missing or invalid after processing.');
-      }
-      console.warn('Ensure your .env file is at the project root and you have restarted your development server after changes.');
+      console.warn('Firebase Admin SDK credentials are not fully configured. Skipping initialization. Firestore `db` will be undefined.');
+      if (!serviceAccount.projectId) console.warn(' - FIREBASE_PROJECT_ID is missing or empty.');
+      if (!serviceAccount.clientEmail) console.warn(' - FIREBASE_CLIENT_EMAIL is missing or empty.');
+      if (!serviceAccount.privateKey) console.warn(' - FIREBASE_PRIVATE_KEY is missing, empty, or invalid after processing.');
     }
   } catch (error: any) {
     console.error('Firebase admin initialization error:', error.message);
-    console.error('Stack trace:', error.stack);
-    // For more detailed debugging of the private key, you could log parts of it, but be cautious with sensitive info.
-    // e.g., console.error('Private key (first 10 chars for check):', serviceAccountKey.privateKey?.substring(0, 10));
+    if (error.code) console.error('Error code:', error.code);
+    console.warn('Firestore `db` will be undefined due to initialization error.');
   }
+} else {
+  // App is already initialized
+  db = admin.firestore();
+  console.log('Firebase Admin SDK already initialized. Using existing app.');
 }
 
-export const db = admin.firestore();
-// export const authAdmin = admin.auth(); // For Firebase Authentication admin tasks
-
+export { db };
+    

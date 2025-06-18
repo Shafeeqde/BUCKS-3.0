@@ -8,17 +8,17 @@ const PROFILES_COLLECTION = 'business_profiles';
 // POST /api/business-profiles - Create a new business profile
 export async function POST(request: NextRequest) {
   try {
+    // Check if db is initialized
+    if (!db) {
+      console.error('Firebase Admin SDK not initialized, or Firestore is unavailable. Cannot create profile.');
+      return NextResponse.json({ error: 'Server configuration error: Database service not available.' }, { status: 500 });
+    }
+
     const body = await request.json();
     const { name, bio, ...otherData } = body as Partial<UserBusinessProfile>;
 
     if (!name || !bio) {
       return NextResponse.json({ error: 'Name and Bio are required' }, { status: 400 });
-    }
-
-    // Ensure db is initialized
-    if (!db.app) {
-      console.error('Firebase Admin SDK not initialized. Cannot access Firestore.');
-      return NextResponse.json({ error: 'Server configuration error, unable to create profile.' }, { status: 500 });
     }
 
     const newProfileData: Omit<UserBusinessProfile, 'id'> = {
@@ -66,10 +66,10 @@ export async function POST(request: NextRequest) {
 // GET /api/business-profiles - List all business profiles
 export async function GET() {
   try {
-    // Ensure db is initialized
-    if (!db.app) {
-      console.error('Firebase Admin SDK not initialized. Cannot access Firestore.');
-      return NextResponse.json({ error: 'Server configuration error, unable to list profiles.' }, { status: 500 });
+    // Check if db is initialized
+    if (!db) {
+      console.error('Firebase Admin SDK not initialized, or Firestore is unavailable. Cannot list profiles.');
+      return NextResponse.json({ error: 'Server configuration error: Database service not available.' }, { status: 500 });
     }
 
     const snapshot = await db.collection(PROFILES_COLLECTION).get();

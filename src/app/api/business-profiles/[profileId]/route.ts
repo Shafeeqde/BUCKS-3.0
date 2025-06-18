@@ -19,8 +19,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
     }
 
-    if (!db.app) {
-      console.error('Firebase Admin SDK not initialized. Cannot access Firestore.');
+    if (!db) {
+      console.error('Firebase Admin SDK not initialized or Firestore unavailable. Cannot access Firestore.');
       return NextResponse.json({ error: 'Server configuration error, unable to fetch profile.' }, { status: 500 });
     }
 
@@ -51,20 +51,19 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
     }
+    
+    if (!db) {
+      console.error('Firebase Admin SDK not initialized or Firestore unavailable. Cannot access Firestore.');
+      return NextResponse.json({ error: 'Server configuration error, unable to update profile.' }, { status: 500 });
+    }
 
     const body = await request.json();
-    // You might want to add more specific validation for the fields being updated
     const { id, ...updateData } = body as Partial<UserBusinessProfile>;
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: 'No update data provided' }, { status: 400 });
     }
     
-    if (!db.app) {
-      console.error('Firebase Admin SDK not initialized. Cannot access Firestore.');
-      return NextResponse.json({ error: 'Server configuration error, unable to update profile.' }, { status: 500 });
-    }
-
     const docRef = db.collection(PROFILES_COLLECTION).doc(profileId);
     const docSnap = await docRef.get();
 
@@ -72,9 +71,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Business profile not found' }, { status: 404 });
     }
     
-    // Add timestamp for update if desired
-    // updateData.updatedAt = new Date().toISOString(); 
-
     await docRef.update(updateData);
 
     console.log(`Business profile updated for ID: ${profileId}`);
@@ -98,8 +94,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
     }
 
-    if (!db.app) {
-      console.error('Firebase Admin SDK not initialized. Cannot access Firestore.');
+    if (!db) {
+      console.error('Firebase Admin SDK not initialized or Firestore unavailable. Cannot access Firestore.');
       return NextResponse.json({ error: 'Server configuration error, unable to delete profile.' }, { status: 500 });
     }
 
@@ -124,4 +120,5 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
+    
     
