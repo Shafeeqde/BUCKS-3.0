@@ -131,7 +131,10 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
       { id: 'serv-tf-screen', name: 'Mobile Screen Replacement', description: 'Original and high-quality compatible screens available.', price: '₹1500 - ₹15000 (Varies by model)' },
       { id: 'serv-tf-data', name: 'Data Recovery Service', description: 'Recover lost data from hard drives and SSDs.', price: 'Enquire for quote' },
     ],
-    jobs: [],
+    jobs: [
+        { id: 'job-tf-technician', businessId: 'bp-2-techfix-solutions', businessName: 'TechFix Solutions', title: 'Repair Technician (Full-Time)', location: 'Electronic City, Bangalore', type: 'Full-time', description: 'Skilled technician needed for laptop and mobile repairs. Min. 2 years experience.', postedDate: '2024-06-15', salaryRange: '₹25k-35k/month', requirements: ['Diploma/Degree in Electronics', 'Soldering skills', 'Customer service experience'] },
+        { id: 'job-tf-csr', businessId: 'bp-2-techfix-solutions', businessName: 'TechFix Solutions', title: 'Customer Service Rep', location: 'Electronic City, Bangalore', type: 'Full-time', description: 'Handle customer inquiries, manage bookings, and provide support.', postedDate: '2024-06-18', salaryRange: '₹18k-22k/month', requirements: ['Excellent communication skills', 'Basic computer knowledge'] },
+    ],
     reviews: [
       { id: 'rev-tf-1', reviewerName: 'Vikram G.', rating: 5, comment: 'Saved my laptop! Fast and professional service.', date: '2024-06-05' },
     ],
@@ -157,6 +160,9 @@ const initialBusinessProfilesData: UserBusinessProfile[] = [
     ],
     services: [
       { id: 'serv-gs-landscape', name: 'Full Landscaping Design', description: 'Custom garden design from concept to installation.', price: 'Starts at ₹50,000' },
+    ],
+    jobs: [
+        { id: 'job-gs-gardener', businessId: 'bp-3-greenscape-gardens', businessName: 'GreenScape Gardens', title: 'Horticulturist / Senior Gardener', location: 'Jayanagar, Bangalore', type: 'Full-time', description: 'Experienced horticulturist to manage garden projects and plant care. Knowledge of local flora is a plus.', postedDate: '2024-06-01', salaryRange: '₹22k-30k/month', requirements: ['Degree in Horticulture or related field', 'Plant identification skills'] },
     ],
     averageRating: 4.2,
     totalReviews: 45,
@@ -685,10 +691,10 @@ export default function AppRoot() {
             // Using predefined generic moments for simplicity in this prototype
             const otherUserDisplayMoments = genericOtherUserMoments.map(m => ({
                 ...m,
-                id: `${ownerDetails.profileId}-${m.id}`, // Make IDs unique per viewed user
-                caption: m.caption || `${ownerDetails.name}'s Moment`,
+                id: `${ownerDetails!.profileId}-${m.id}`, // Make IDs unique per viewed user
+                caption: m.caption || `${ownerDetails!.name}'s Moment`,
             }));
-            setMomentsToDisplayInViewer(otherUserDisplayMoments.length > 0 ? otherUserDisplayMoments : [{id: 'no-moments-placeholder', imageUrl: 'https://placehold.co/1080x1920.png', aiHint: 'empty state', caption: `${ownerDetails.name} hasn't posted any moments yet.`, timestamp: new Date().toISOString()}]);
+            setMomentsToDisplayInViewer(otherUserDisplayMoments.length > 0 ? otherUserDisplayMoments : [{id: 'no-moments-placeholder', imageUrl: 'https://placehold.co/1080x1920.png', aiHint: 'empty state', caption: `${ownerDetails!.name} hasn't posted any moments yet.`, timestamp: new Date().toISOString()}]);
         }
         setShowMomentViewer(true);
     } else {
@@ -972,7 +978,7 @@ export default function AppRoot() {
   const handleSelectFoodRestaurant = useCallback((restaurantId: string) => {
     setSelectedRestaurantId(restaurantId);
     setActiveTab('food-restaurant-detail');
-  }, [setActiveTab]);
+  }, [setActiveTab, setSelectedRestaurantId]);
 
   const handleAddItemToLocalFoodCart = useCallback((menuItem: MenuItem, restaurantId: string, restaurantName: string) => {
     setLocalFoodCartItems(prevCart => {
@@ -1333,8 +1339,8 @@ export default function AppRoot() {
     handleNavigateToOwnerProfileFromMomentViewer,
     handleOpenServiceBooking, handleConfirmServiceBooking,
     handleSelectFoodRestaurant, handleAddItemToLocalFoodCart, handleUpdateLocalFoodCartItemQuantity, handleRemoveLocalFoodCartItem, handleLocalFoodCheckout,
-    handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleShoppingCheckout,
-    toast // Added toast as a dependency
+    handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleRemoveShoppingCartItem, handleShoppingCheckout,
+    toast
   ]);
 
 
