@@ -4,29 +4,29 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogOverlay } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogOverlay, DialogHeader, DialogTitle } from '@/components/ui/dialog'; // Added DialogHeader, DialogTitle
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon, SpeakerWaveIcon, InformationCircleIcon } from '@heroicons/react/24/outline'; // Added InformationCircleIcon
+import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon, SpeakerWaveIcon, InformationCircleIcon } from '@heroicons/react/24/outline'; 
 import type { UserMoment } from '@/types';
 import { cn } from '@/lib/utils';
 
 interface MomentViewerScreenProps {
   isOpen: boolean;
   onClose: () => void;
-  moments: UserMoment[]; // These are always the logged-in user's moments
+  moments: UserMoment[]; 
   initialMomentIndex?: number;
-  ownerName?: string; // Name of the profile whose moments are being contextually viewed
+  ownerName?: string; 
   ownerAvatarUrl?: string;
   ownerAvatarAiHint?: string;
-  onViewOwnerProfile?: () => void; // To navigate to the owner's profile
+  onViewOwnerProfile?: () => void; 
 }
 
 const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
   isOpen,
   onClose,
-  moments, // Logged-in user's actual moments
+  moments, 
   initialMomentIndex = 0,
-  ownerName, // Name of the profile whose moments are being "viewed"
+  ownerName, 
   ownerAvatarUrl,
   ownerAvatarAiHint,
   onViewOwnerProfile,
@@ -41,7 +41,7 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (isOpen && moments.length > 0 && moments.length > 1) { // Only auto-advance if there are actual moments to show
+    if (isOpen && moments.length > 0 && moments.length > 1) { 
       timer = setTimeout(() => {
         goToNext();
       }, 7000);
@@ -50,7 +50,7 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
   }, [currentIndex, isOpen, moments.length]);
 
 
-  if (!isOpen) { // Only controlled by isOpen prop
+  if (!isOpen) { 
     return null;
   }
 
@@ -72,8 +72,11 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
       <DialogContent
         className="p-0 w-full h-full max-w-full max-h-full sm:max-w-full sm:max-h-full md:max-w-full md:max-h-full lg:max-w-full lg:max-h-full flex flex-col items-center justify-center bg-transparent border-0 shadow-none rounded-none !translate-x-0 !translate-y-0"
         onEscapeKeyDown={onClose}
-        hideCloseButton
+        hideCloseButton 
       >
+        <DialogHeader className="sr-only"> {/* Visually hidden header for accessibility */}
+          <DialogTitle>Moment Viewer: {ownerName ? `Viewing moments from ${ownerName}` : "Viewing your moments"}</DialogTitle>
+        </DialogHeader>
         <div className="relative w-full h-full max-w-screen-sm max-h-screen-md aspect-[9/16] sm:aspect-auto sm:max-h-[90vh] sm:max-w-[50vh] bg-black rounded-lg overflow-hidden shadow-2xl flex flex-col">
 
           {/* Top Section: Progress Bars & Owner Info */}
@@ -191,4 +194,3 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
 
 export default MomentViewerScreen;
 
-    
