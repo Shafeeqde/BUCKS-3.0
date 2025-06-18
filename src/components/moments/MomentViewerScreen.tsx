@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogOverlay, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon, SpeakerWaveIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import type { UserMoment } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -68,19 +68,25 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogOverlay className="bg-black/80" /> {/* Dimmed background */}
+      <DialogOverlay className="bg-black/90" /> {/* Darker overlay */}
       <DialogContent
-        className="fixed inset-0 z-[60] p-0 w-screen h-screen max-w-none flex flex-col items-center justify-center bg-transparent border-0 shadow-none rounded-none"
+        className={cn(
+          "fixed z-[60] p-0 border-0 shadow-none flex flex-col", // Base resets
+          "inset-0 w-full h-full bg-black rounded-none", // Mobile: fullscreen black
+          "sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[360px] sm:max-w-[360px] sm:h-[640px] sm:max-h-[90vh] sm:rounded-2xl sm:overflow-hidden sm:shadow-2xl" // Desktop: centered card
+        )}
         onEscapeKeyDown={onClose}
-        hideCloseButton
+        hideCloseButton 
       >
         <DialogHeader className="sr-only">
-          <DialogTitle>Moment Viewer: {ownerName ? `Viewing moments from ${ownerName}` : "Viewing your moments"}</DialogTitle>
+          <DialogTitle>
+            Moment Viewer: {ownerName ? `Viewing moments from ${ownerName}` : "Viewing your moments"}
+          </DialogTitle>
         </DialogHeader>
 
-        {/* This is the main "phone screen" like container for the moment */}
-        <div className="relative w-full h-full sm:w-[360px] sm:h-[640px] sm:max-h-[95vh] bg-black rounded-none sm:rounded-lg overflow-hidden shadow-2xl flex flex-col">
-
+        {/* Inner container for moment elements, relative for positioning */}
+        <div className="relative w-full h-full flex flex-col overflow-hidden">
+          
           {/* Top Section: Progress Bars & Owner Info */}
           <div className="absolute top-0 left-0 right-0 z-20 p-3">
             {moments.length > 1 && (
@@ -98,7 +104,7 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
                 ))}
               </div>
             )}
-             {ownerName && (
+            {ownerName && (
               <div
                 className={cn(
                   "flex items-center space-x-2",
@@ -108,6 +114,7 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
                 role={onViewOwnerProfile ? "button" : undefined}
                 tabIndex={onViewOwnerProfile ? 0 : undefined}
                 onKeyDown={onViewOwnerProfile ? (e) => e.key === 'Enter' && onViewOwnerProfile() : undefined}
+                aria-label={onViewOwnerProfile ? `View ${ownerName}'s profile` : undefined}
               >
                 <Avatar className="h-8 w-8 border-2 border-white/50">
                   <AvatarImage src={ownerAvatarUrl} alt={ownerName} data-ai-hint={ownerAvatarAiHint || "profile avatar"}/>
@@ -145,7 +152,7 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
                     src={currentMoment.imageUrl}
                     alt={currentMoment.caption || currentMoment.aiHint || `Moment ${currentIndex + 1}`}
                     layout="fill"
-                    objectFit="cover" // Changed from contain to cover
+                    objectFit="cover" 
                     className="z-0"
                     data-ai-hint={currentMoment.aiHint || "story moment"}
                     priority
@@ -190,12 +197,11 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
               </Button>
             </>
           )}
-        </div>
+        </div> {/* End of inner container */}
       </DialogContent>
     </Dialog>
   );
 };
 
 export default MomentViewerScreen;
-
         
