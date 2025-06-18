@@ -4,29 +4,29 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogOverlay, DialogHeader, DialogTitle } from '@/components/ui/dialog'; // Added DialogHeader, DialogTitle
+import { Dialog, DialogContent, DialogOverlay, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon, SpeakerWaveIcon, InformationCircleIcon } from '@heroicons/react/24/outline'; 
+import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon, SpeakerWaveIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import type { UserMoment } from '@/types';
 import { cn } from '@/lib/utils';
 
 interface MomentViewerScreenProps {
   isOpen: boolean;
   onClose: () => void;
-  moments: UserMoment[]; 
+  moments: UserMoment[];
   initialMomentIndex?: number;
-  ownerName?: string; 
+  ownerName?: string;
   ownerAvatarUrl?: string;
   ownerAvatarAiHint?: string;
-  onViewOwnerProfile?: () => void; 
+  onViewOwnerProfile?: () => void;
 }
 
 const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
   isOpen,
   onClose,
-  moments, 
+  moments,
   initialMomentIndex = 0,
-  ownerName, 
+  ownerName,
   ownerAvatarUrl,
   ownerAvatarAiHint,
   onViewOwnerProfile,
@@ -41,16 +41,16 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (isOpen && moments.length > 0 && moments.length > 1) { 
+    if (isOpen && moments.length > 0 && moments.length > 1) {
       timer = setTimeout(() => {
         goToNext();
-      }, 7000);
+      }, 7000); // Auto-advance after 7 seconds
     }
     return () => clearTimeout(timer);
   }, [currentIndex, isOpen, moments.length]);
 
 
-  if (!isOpen) { 
+  if (!isOpen) {
     return null;
   }
 
@@ -68,16 +68,18 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogOverlay className="bg-black/90" />
+      <DialogOverlay className="bg-black/80" /> {/* Dimmed background */}
       <DialogContent
-        className="p-0 w-full h-full max-w-full max-h-full sm:max-w-full sm:max-h-full md:max-w-full md:max-h-full lg:max-w-full lg:max-h-full flex flex-col items-center justify-center bg-transparent border-0 shadow-none rounded-none !translate-x-0 !translate-y-0"
+        className="fixed inset-0 z-[60] p-0 w-screen h-screen max-w-none flex flex-col items-center justify-center bg-transparent border-0 shadow-none rounded-none"
         onEscapeKeyDown={onClose}
-        hideCloseButton 
+        hideCloseButton
       >
-        <DialogHeader className="sr-only"> {/* Visually hidden header for accessibility */}
+        <DialogHeader className="sr-only">
           <DialogTitle>Moment Viewer: {ownerName ? `Viewing moments from ${ownerName}` : "Viewing your moments"}</DialogTitle>
         </DialogHeader>
-        <div className="relative w-full h-full max-w-screen-sm max-h-screen-md aspect-[9/16] sm:aspect-auto sm:max-h-[90vh] sm:max-w-[50vh] bg-black rounded-lg overflow-hidden shadow-2xl flex flex-col">
+
+        {/* This is the main "phone screen" like container for the moment */}
+        <div className="relative w-full h-full sm:w-[360px] sm:h-[640px] sm:max-h-[95vh] bg-black rounded-none sm:rounded-lg overflow-hidden shadow-2xl flex flex-col">
 
           {/* Top Section: Progress Bars & Owner Info */}
           <div className="absolute top-0 left-0 right-0 z-20 p-3">
@@ -109,7 +111,7 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
               >
                 <Avatar className="h-8 w-8 border-2 border-white/50">
                   <AvatarImage src={ownerAvatarUrl} alt={ownerName} data-ai-hint={ownerAvatarAiHint || "profile avatar"}/>
-                  <AvatarFallback className="bg-gray-600 text-white text-xs">{ownerName.substring(0,1)}</AvatarFallback>
+                  <AvatarFallback className="bg-gray-600 text-white text-xs">{ownerName.substring(0,1).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <span className="text-white text-sm font-semibold drop-shadow-md">{ownerName}</span>
               </div>
@@ -143,7 +145,7 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
                     src={currentMoment.imageUrl}
                     alt={currentMoment.caption || currentMoment.aiHint || `Moment ${currentIndex + 1}`}
                     layout="fill"
-                    objectFit="contain"
+                    objectFit="cover" // Changed from contain to cover
                     className="z-0"
                     data-ai-hint={currentMoment.aiHint || "story moment"}
                     priority
@@ -167,6 +169,7 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
 
           {moments.length > 1 && currentMoment && (
             <>
+              {/* Clickable areas for previous/next */}
               <div
                 className="absolute left-0 top-0 bottom-0 w-1/3 z-20 cursor-pointer"
                 onClick={goToPrevious}
@@ -178,10 +181,11 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
                 aria-label="Next moment"
               />
 
-              <Button variant="ghost" size="icon" onClick={goToPrevious} className="absolute left-2 top-1/2 -translate-y-1/2 z-30 text-white hover:bg-white/20">
+              {/* Visible navigation buttons (optional, but good for accessibility) */}
+              <Button variant="ghost" size="icon" onClick={goToPrevious} className="absolute left-2 top-1/2 -translate-y-1/2 z-30 text-white hover:bg-white/20 opacity-50 hover:opacity-100 sm:opacity-100">
                   <ChevronLeftIcon className="h-6 w-6"/>
               </Button>
-              <Button variant="ghost" size="icon" onClick={goToNext} className="absolute right-2 top-1/2 -translate-y-1/2 z-30 text-white hover:bg-white/20">
+              <Button variant="ghost" size="icon" onClick={goToNext} className="absolute right-2 top-1/2 -translate-y-1/2 z-30 text-white hover:bg-white/20 opacity-50 hover:opacity-100 sm:opacity-100">
                   <ChevronRightIcon className="h-6 w-6"/>
               </Button>
             </>
@@ -194,3 +198,4 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
 
 export default MomentViewerScreen;
 
+        
