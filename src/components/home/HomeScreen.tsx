@@ -32,14 +32,14 @@ const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'individual',
     data: {
-      id: 'jenson-interior-stylist-123',
+      id: 'jenson-interior-stylist-123', 
       name: 'Jenson Harris',
-      avatarUrl: 'https://source.unsplash.com/random/80x80/?man,smiling,professional',
+      avatarUrl: 'https://placehold.co/80x80.png',
       avatarAiHint: 'man smiling professional',
       professionalTitle: 'Interior Home Stylist',
       previewImages: [
-        { url: 'https://source.unsplash.com/random/200x150/?modern,living,room', aiHint: 'modern living room' },
-        { url: 'https://source.unsplash.com/random/200x150/?stylish,kitchen', aiHint: 'stylish kitchen' },
+        { url: 'https://placehold.co/200x150.png', aiHint: 'modern living room' },
+        { url: 'https://placehold.co/200x150.png', aiHint: 'stylish kitchen' },
       ],
       shortBio: "I'm a qualified interior designer and stylist with a keen eye for furniture, objects and art curation.",
       averageRating: 4.8,
@@ -52,17 +52,17 @@ const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'business',
     data: {
-      id: 1,
+      id: 1, 
       name: 'Hot Griddle Restaurant',
-      logoUrl: 'https://source.unsplash.com/random/80x80/?restaurant,logo',
+      logoUrl: 'https://placehold.co/80x80.png',
       logoAiHint: 'restaurant logo',
       briefInfo: '10-15 mins • 3km away • BTM layout',
       tagline: "International, locally sourced specialties. Best Griddle in town!",
       averageRating: 4.5,
       totalReviews: 232,
       products: [
-        { id: 'prod-biryani-101', name: 'Mutton Biryani (Serves 2)', imageUrl: 'https://source.unsplash.com/random/150x150/?mutton,biryani', imageAiHint: 'mutton biryani', price: '299', discountPrice: '229', discountPercentage: '22%' },
-        { id: 'prod-pizza-102', name: 'Spicy Chicken Pizza', imageUrl: 'https://source.unsplash.com/random/150x150/?pizza,slice', imageAiHint: 'pizza slice', price: '350' },
+        { id: 'prod-biryani-101', name: 'Mutton Biryani (Serves 2)', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'mutton biryani', price: '299', discountPrice: '229', discountPercentage: '22%' },
+        { id: 'prod-pizza-102', name: 'Spicy Chicken Pizza', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'pizza slice', price: '350' },
       ],
       phone: '+91 9876543210',
     },
@@ -70,13 +70,13 @@ const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'individual',
     data: {
-      id: 'plumbing-profile-johndoe-123',
+      id: 'plumbing-profile-johndoe-123', 
       name: 'John Doe',
-      avatarUrl: 'https://source.unsplash.com/random/80x80/?man,plumber,tools',
+      avatarUrl: 'https://placehold.co/80x80.png',
       avatarAiHint: 'man plumber tools',
       professionalTitle: 'Master Plumber',
       previewImages: [
-        { url: 'https://source.unsplash.com/random/200x150/?pipe,installation', aiHint: 'pipe installation' },
+        { url: 'https://placehold.co/200x150.png', aiHint: 'pipe installation' },
       ],
       shortBio: 'Reliable plumbing services for residential and commercial properties.',
       averageRating: 4.9,
@@ -89,18 +89,56 @@ const simulatedSearchResults: SearchResultItem[] = [
   {
     type: 'business',
     data: {
-      id: 2,
+      id: 2, 
       name: 'Mikado UX UI & Branding Studio',
-      logoUrl: 'https://source.unsplash.com/random/80x80/?design,studio',
+      logoUrl: 'https://placehold.co/80x80.png',
       logoAiHint: 'design studio',
       briefInfo: 'Indiranagar, Bengaluru',
       tagline: 'Curating digital experiences that connect with people.',
       averageRating: 4.9,
       totalReviews: 75,
       products: [
-         { id: 'serv-brand-pkg', name: 'Brand Identity Package', imageUrl: 'https://source.unsplash.com/random/150x150/?branding,design', imageAiHint: 'branding design', price: 'Quote' },
+         { id: 'serv-brand-pkg', name: 'Brand Identity Package', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'branding design', price: 'Quote' },
       ],
       phone: '+91 8197278080',
+    },
+  },
+  {
+    type: 'business',
+    data: {
+      id: 3,
+      name: 'Nandhana Palace',
+      logoUrl: 'https://placehold.co/80x80.png',
+      logoAiHint: 'andhra restaurant logo',
+      briefInfo: '20-30 mins • 5km away • Koramangala',
+      tagline: "Authentic Andhra Cuisine & Biryanis. Spice up your life!",
+      averageRating: 4.6,
+      totalReviews: 1500,
+      products: [
+        { id: 'prod-np-cb', name: 'Chicken Biryani', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'spicy chicken biryani', price: '380' },
+        { id: 'prod-np-pbm', name: 'Paneer Butter Masala', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'paneer butter masala curry', price: '320' },
+        { id: 'prod-np-gm', name: 'Gobi Manchurian', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'crispy gobi manchurian', price: '250' },
+      ],
+      phone: '+91 9012345678',
+    },
+  },
+  {
+    type: 'business',
+    data: {
+      id: 4,
+      name: "Luigi's Italian Kitchen",
+      logoUrl: 'https://placehold.co/80x80.png',
+      logoAiHint: 'italian restaurant logo',
+      briefInfo: '30-40 mins • 7km away • Indiranagar',
+      tagline: "Classic Italian pizzas, pastas, and desserts. Taste of Italy!",
+      averageRating: 4.3,
+      totalReviews: 850,
+      products: [
+        { id: 'prod-lik-mp', name: 'Margherita Pizza', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'margherita pizza wood fired', price: '480' },
+        { id: 'prod-lik-pc', name: 'Pasta Carbonara', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'creamy pasta carbonara', price: '550' },
+        { id: 'prod-lik-tiramisu', name: 'Tiramisu', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'classic tiramisu dessert', price: '300' },
+      ],
+      phone: '+91 9988776655',
     },
   },
 ];
@@ -259,7 +297,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
     setIsSearchMode(true);
     setShowSuggestions(false);
-    setAiSuggestions([]);
+    setAiSuggestions([]); 
 
     if (!queryToSubmit) {
       toast({
@@ -274,7 +312,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
       setIsLoadingSimulatedResults(false);
       return;
     }
-
+    
     if (!queryOverride && queryToSubmit) {
         setRecentSearches(prev => [queryToSubmit, ...prev.filter(s => s !== queryToSubmit)].slice(0, 10));
     }
@@ -361,7 +399,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     console.log(`[HomeScreen] Business card pressed: ${id}`);
     onSelectBusinessProfile(id);
   };
-
+  
   const handleCardEnquiryClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Enquiry for ${type}: ${id} (Simulated)` });
   const handleCardCallClick = (id: string | number, phone: string | undefined, type: 'individual' | 'business') => toast({ title: `Call ${type}: ${id} (Simulated)`, description: phone ? `Dialing ${phone}` : "No phone." });
   const handleCardRecommendClick = (id: string | number, type: 'individual' | 'business') => toast({ title: `Recommend ${type}: ${id} (Simulated)` });
@@ -390,7 +428,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         )}
 
-        <div className={cn("flex items-center", isSearchMode ? "p-4 space-x-2" : "")}>
+        <div className={cn("flex items-center", isSearchMode ? "p-4 space-x-2" : "p-4")}> {/* Added p-4 for non-search mode */}
           {isSearchMode && (
             <Button
               variant="ghost"
@@ -441,7 +479,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
             />
           </div>
         )}
-
+        
         {isSearchMode && (
           <div className="px-4 pt-2 pb-3 border-b bg-card sm:bg-transparent">
             <div className="flex items-center space-x-2 overflow-x-auto custom-scrollbar pb-1">
@@ -457,7 +495,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
       <ScrollArea className={cn(
           "flex-grow",
-           showResultsArea ? "pt-4 px-2 sm:px-4" : "relative"
+           showResultsArea ? "pt-4 px-2 sm:px-4" : "relative" 
       )}>
         {showMap && (
           <iframe
@@ -525,8 +563,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                 </div>
               </div>
             )}
-
-            {isLoadingSimulatedResults && !isAnsweringQuery && (
+            
+            {isLoadingSimulatedResults && !isAnsweringQuery && ( 
                 <div className="flex flex-col justify-center items-center h-40 text-center">
                     <svg className="animate-spin h-8 w-8 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -583,7 +621,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                     <p className="text-sm">Try a different search term or check your spelling.</p>
                 </div>
             )}
-
+            
             {isSearchMode && !isAnsweringQuery && !isLoadingSimulatedResults && displayedSearchResults.length === 0 && searchTerm.trim() === '' && (
                  <div className="text-center py-10 text-muted-foreground">
                      <InformationCircleIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
@@ -598,3 +636,5 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 };
 
 export default HomeScreen;
+
+    

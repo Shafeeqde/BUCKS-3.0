@@ -116,7 +116,7 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
   
   return (
     <ScrollArea className="h-full custom-scrollbar bg-background">
-      <main className="p-0"> 
+      <main className="p-4"> {/* Added p-4 for consistent padding */}
         <div className="flex items-center mb-6">
           {isTaxiBookingActive && (
             <Button variant="ghost" size="icon" onClick={() => setIsTaxiBookingActive(false)} className="mr-2 text-muted-foreground hover:text-primary">
