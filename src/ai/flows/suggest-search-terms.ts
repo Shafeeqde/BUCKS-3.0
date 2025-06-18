@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -51,7 +52,18 @@ const suggestSearchTermsFlow = ai.defineFlow(
     outputSchema: SuggestSearchTermsOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    try {
+      const { output } = await prompt(input);
+      if (!output) {
+        console.error('suggestSearchTermsFlow: AI model did not return output.');
+        // Return a default or error-indicating structure that matches SuggestSearchTermsOutputSchema
+        return { suggestedTerms: [] }; // Default to empty suggestions
+      }
+      return output;
+    } catch (e: any) {
+      console.error('Error in suggestSearchTermsFlow calling prompt:', e);
+      // Return a default or error-indicating structure
+      return { suggestedTerms: [] }; // Default to empty suggestions on error
+    }
   }
 );

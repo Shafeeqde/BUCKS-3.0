@@ -63,10 +63,24 @@ const answerGeneralQueryFlow = ai.defineFlow(
     outputSchema: GeneralQueryOutputSchema,
   },
   async (input) => {
-    const {output} = await prompt(input);
-    if (!output) {
-      throw new Error("Failed to get a response from the AI model.");
+    try {
+      const { output } = await prompt(input);
+      if (!output) {
+        console.error('answerGeneralQueryFlow: AI model did not return output.');
+        // Return a default or error-indicating structure that matches GeneralQueryOutputSchema
+        return {
+          answer: "Sorry, I encountered an issue processing your query. The AI model did not return a response.",
+          queryType: "general", // Default queryType
+        };
+      }
+      return output;
+    } catch (e: any) {
+      console.error('Error in answerGeneralQueryFlow calling prompt:', e);
+      // Return a default or error-indicating structure
+      return {
+        answer: `Sorry, I couldn't process your request due to an error: ${e.message || 'Unknown error'}. Please try again.`,
+        queryType: "general",
+      };
     }
-    return output;
   }
 );
