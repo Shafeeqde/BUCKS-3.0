@@ -26,8 +26,8 @@ import { cn } from '@/lib/utils';
 const initialServicesData: Service[] = [
     { id: 'taxi', name: 'Taxi', icon: TruckIcon, locked: false, dataAiHint: "car taxi ride", targetTab: 'menu' },
     { id: 'jobs', name: 'Jobs', icon: BriefcaseIcon, locked: false, dataAiHint: "briefcase work", targetTab: 'job-board' },
-    { id: 'foods', name: 'Foods', icon: BuildingStorefrontIcon, locked: false, dataAiHint: "utensils restaurant", targetTab: 'food-restaurants' },
-    { id: 'shopping', name: 'Shopping', icon: ShoppingBagIcon, locked: false, dataAiHint: "shopping bag", targetTab: 'shopping-categories' },
+    { id: 'foods', name: 'Foods', icon: BuildingStorefrontIcon, locked: true, dataAiHint: "utensils restaurant", targetTab: 'food-restaurants' },
+    { id: 'shopping', name: 'Shopping', icon: ShoppingBagIcon, locked: true, dataAiHint: "shopping bag", targetTab: 'shopping-categories' },
     { id: 'pay', name: 'Pay', icon: CreditCardIcon, locked: true, dataAiHint: "credit card" },
     { id: 'tickets', name: 'Tickets', icon: TicketIcon, locked: true, dataAiHint: "ticket movie" },
     { id: 'delivery', name: 'Delivery', icon: TruckIcon, locked: true, dataAiHint: "truck delivery" },
