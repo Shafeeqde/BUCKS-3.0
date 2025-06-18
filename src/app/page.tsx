@@ -213,6 +213,12 @@ interface CurrentChatContext {
   originalMessageId: string | number;
 }
 
+const genericOtherUserMoments: UserMoment[] = [
+  { id: 'other-moment-generic-1', imageUrl: 'https://placehold.co/1080x1920.png', aiHint: 'abstract art', caption: 'A moment from them!', timestamp: '2h ago' },
+  { id: 'other-moment-generic-2', imageUrl: 'https://placehold.co/1080x1920.png', aiHint: 'city scape', caption: 'Another cool moment.', timestamp: '1h ago' },
+];
+
+
 export default function AppRoot() {
   const { toast } = useToast();
   const { addToCart: globalAddToCart } = useCart(); // Using global cart
@@ -244,7 +250,8 @@ export default function AppRoot() {
   const [userPosts, setUserPosts] = useState<ProfilePost[]>([]);
   const [feedItems, setFeedItems] = useState<FeedItem[]>(initialFeedItemsData);
 
-  const [userMoments, setUserMoments] = useState<UserMoment[]>([]);
+  const [userMoments, setUserMoments] = useState<UserMoment[]>([]); // Logged-in user's moments
+  const [momentsToDisplayInViewer, setMomentsToDisplayInViewer] = useState<UserMoment[]>([]); // Moments for the viewer
   const [showCreateMomentDialog, setShowCreateMomentDialog] = useState(false);
   const [showMomentViewer, setShowMomentViewer] = useState(false);
   const [viewingMomentOwnerDetails, setViewingMomentOwnerDetails] = useState<ViewingMomentOwnerDetails | null>(null);
@@ -391,6 +398,7 @@ export default function AppRoot() {
     setBusinessProfilesData([]);
     setUserPosts([]);
     setUserMoments([]);
+    setMomentsToDisplayInViewer([]);
     setShowCreateMomentDialog(false);
     setShowMomentViewer(false);
     setViewingMomentOwnerDetails(null);
@@ -637,19 +645,20 @@ export default function AppRoot() {
             avatarAiHint: userData.avatarAiHint,
             profileId: userData.id
         });
+        setMomentsToDisplayInViewer(userMoments);
         setShowMomentViewer(true);
     } else {
       toast({ title: "Error", description: "User data not available." });
     }
-  }, [toast, userData]);
+  }, [toast, userData, userMoments]);
 
   const handleViewUserMoments = useCallback((profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => {
     let ownerDetails: ViewingMomentOwnerDetails | null = null;
     const defaultAvatarAiHint = 'person avatar';
 
-    if (userName && profileId) { // Directly passed details
+    if (userName && profileId) {
         ownerDetails = { name: userName, avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint || defaultAvatarAiHint, profileId };
-    } else if (profileId) { // Look up by profileId
+    } else if (profileId) {
         const categoryUser = initialCategoriesData.find(cat => cat.profileId === profileId);
         if (categoryUser) {
             ownerDetails = { name: categoryUser.name || 'User', avatarUrl: categoryUser.image, avatarAiHint: categoryUser.dataAiHint || defaultAvatarAiHint, profileId };
@@ -657,23 +666,35 @@ export default function AppRoot() {
              const businessProfileUser = businessProfilesData.find(bp => bp.id === profileId);
              if (businessProfileUser) {
                  ownerDetails = { name: businessProfileUser.name, avatarUrl: businessProfileUser.logo, avatarAiHint: businessProfileUser.logoAiHint || 'business logo', profileId };
-             } else if (userData && profileId === userData.id) { // Current user's moments
+             } else if (userData && profileId === userData.id) {
                  ownerDetails = { name: userData.name, avatarUrl: userData.avatarUrl, avatarAiHint: userData.avatarAiHint || defaultAvatarAiHint, profileId: userData.id };
-             } else { // Fallback if profileId not found in known sources
+             } else {
                 ownerDetails = { name: `User ${profileId.substring(0,5)}...`, avatarUrl: `https://source.unsplash.com/random/48x48/?${defaultAvatarAiHint.split(' ').join(',')}`, avatarAiHint: defaultAvatarAiHint, profileId };
              }
         }
-    } else if (userData) { // Default to current user if no specific profile is requested
+    } else if (userData) {
         ownerDetails = { name: userData.name, avatarUrl: userData.avatarUrl, avatarAiHint: userData.avatarAiHint || defaultAvatarAiHint, profileId: userData.id };
     }
 
     if (ownerDetails) {
         setViewingMomentOwnerDetails(ownerDetails);
+        if (ownerDetails.profileId === userData?.id) {
+            setMomentsToDisplayInViewer(userMoments);
+        } else {
+            // For other users, use generic placeholder moments or fetch their specific mock moments
+            // Using predefined generic moments for simplicity in this prototype
+            const otherUserDisplayMoments = genericOtherUserMoments.map(m => ({
+                ...m,
+                id: `${ownerDetails.profileId}-${m.id}`, // Make IDs unique per viewed user
+                caption: m.caption || `${ownerDetails.name}'s Moment`,
+            }));
+            setMomentsToDisplayInViewer(otherUserDisplayMoments.length > 0 ? otherUserDisplayMoments : [{id: 'no-moments-placeholder', imageUrl: 'https://placehold.co/1080x1920.png', aiHint: 'empty state', caption: `${ownerDetails.name} hasn't posted any moments yet.`, timestamp: new Date().toISOString()}]);
+        }
         setShowMomentViewer(true);
     } else {
         toast({ title: "Please Log In", description: "Log in to view or create moments." });
     }
-  }, [userData, toast, initialCategoriesData, businessProfilesData]);
+  }, [userData, userMoments, toast, initialCategoriesData, businessProfilesData]);
 
 
   const handleNavigateToOwnerProfileFromMomentViewer = useCallback(() => {
@@ -951,7 +972,7 @@ export default function AppRoot() {
   const handleSelectFoodRestaurant = useCallback((restaurantId: string) => {
     setSelectedRestaurantId(restaurantId);
     setActiveTab('food-restaurant-detail');
-  }, [setActiveTab, setSelectedRestaurantId]);
+  }, [setActiveTab]);
 
   const handleAddItemToLocalFoodCart = useCallback((menuItem: MenuItem, restaurantId: string, restaurantName: string) => {
     setLocalFoodCartItems(prevCart => {
@@ -998,12 +1019,12 @@ export default function AppRoot() {
   const handleSelectShoppingCategory = useCallback((categoryId: string) => {
     setSelectedShoppingCategoryId(categoryId);
     setActiveTab('shopping-products-list');
-  }, [setActiveTab, setSelectedShoppingCategoryId]);
+  }, [setActiveTab]);
 
   const handleSelectShoppingProduct = useCallback((productId: string) => {
     setSelectedProductId(productId);
     setActiveTab('shopping-product-detail');
-  }, [setActiveTab, setSelectedProductId]);
+  }, [setActiveTab]);
 
   const handleAddItemToShoppingCart = useCallback((product: ProductListing, quantity: number) => {
     setShoppingCartItems(prevCart => {
@@ -1127,7 +1148,7 @@ export default function AppRoot() {
       case 'recommended': return <RecommendedScreen
                                     onViewUserMomentsClick={handleViewUserMoments}
                                     onViewUserProfile={handleSelectIndividualProfile}
-                                    onViewPost={handleViewPostDetail}
+                                    onViewPost={(postTitle) => toast({title: "Viewing Post", description: postTitle})}
                                  />;
       case 'account': return <AccountScreen
                                 userData={userData}
@@ -1313,7 +1334,7 @@ export default function AppRoot() {
     handleOpenServiceBooking, handleConfirmServiceBooking,
     handleSelectFoodRestaurant, handleAddItemToLocalFoodCart, handleUpdateLocalFoodCartItemQuantity, handleRemoveLocalFoodCartItem, handleLocalFoodCheckout,
     handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleShoppingCheckout,
-    toast
+    toast // Added toast as a dependency
   ]);
 
 
@@ -1414,7 +1435,7 @@ export default function AppRoot() {
         <MomentViewerScreen
           isOpen={showMomentViewer}
           onClose={() => { setShowMomentViewer(false); setViewingMomentOwnerDetails(null); }}
-          moments={userMoments} // This should display logged-in user's moments
+          moments={momentsToDisplayInViewer} // Use momentsToDisplayInViewer here
           ownerName={viewingMomentOwnerDetails.name}
           ownerAvatarUrl={viewingMomentOwnerDetails.avatarUrl}
           ownerAvatarAiHint={viewingMomentOwnerDetails.avatarAiHint}
@@ -1439,6 +1460,4 @@ export default function AppRoot() {
     </div>
   );
 }
-
-
     
