@@ -1095,13 +1095,13 @@ export default function AppRoot() {
     if (!isClient) return null;
 
     if (!isLoggedIn) {
-      if (activeTab === 'registration') {
+      if (activeTabInternal === 'registration') {
         return <RegistrationScreen setActiveTab={setActiveTab} onRegistrationSuccess={handleRegistrationSuccess} />;
       }
       return <LoginScreen setActiveTab={setActiveTab} onLoginSuccess={handleLoginSuccess} />;
     }
 
-    switch (activeTab) {
+    switch (activeTabInternal) {
       case 'home': return <HomeScreen
                             setActiveTab={setActiveTab}
                             onSelectBusinessProfile={handleSelectBusinessProfile}
@@ -1127,7 +1127,7 @@ export default function AppRoot() {
       case 'recommended': return <RecommendedScreen
                                     onViewUserMomentsClick={handleViewUserMoments}
                                     onViewUserProfile={handleSelectIndividualProfile}
-                                    onViewPost={(title) => toast({ title: "Viewing Recommended Content", description: title})}
+                                    onViewPost={handleViewPostDetail}
                                  />;
       case 'account': return <AccountScreen
                                 userData={userData}
@@ -1276,7 +1276,7 @@ export default function AppRoot() {
         return <ShoppingCartScreen cartItems={shoppingCartItems} onUpdateQuantity={handleUpdateShoppingCartItemQuantity} onRemoveItem={handleRemoveShoppingCartItem} onCheckout={handleShoppingCheckout} onBack={() => setActiveTab(selectedProductId ? 'shopping-product-detail' : (selectedShoppingCategoryId ? 'shopping-products-list' : 'shopping-categories'))} />;
 
       case 'unified-cart':
-        const previousTab = activeTab === 'food-restaurant-detail' && selectedRestaurantId ? 'food-restaurant-detail' : 'home';
+        const previousTab = activeTabInternal === 'food-restaurant-detail' && selectedRestaurantId ? 'food-restaurant-detail' : 'home';
         return <UnifiedCartScreen onBack={() => setActiveTab(previousTab)} setActiveTab={setActiveTab}/>;
 
       default: return <HomeScreen
@@ -1295,7 +1295,7 @@ export default function AppRoot() {
                       />;
     }
   }, [
-    isClient, isLoggedIn, activeTab, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments, feedItems,
+    isClient, isLoggedIn, activeTabInternal, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments, feedItems,
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, selectedPostForDetail,
     bookingTargetProfile,
@@ -1312,8 +1312,8 @@ export default function AppRoot() {
     handleNavigateToOwnerProfileFromMomentViewer,
     handleOpenServiceBooking, handleConfirmServiceBooking,
     handleSelectFoodRestaurant, handleAddItemToLocalFoodCart, handleUpdateLocalFoodCartItemQuantity, handleRemoveLocalFoodCartItem, handleLocalFoodCheckout,
-    handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleRemoveShoppingCartItem, handleShoppingCheckout,
-    toast // Added toast as a dependency
+    handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleShoppingCheckout,
+    toast
   ]);
 
 
@@ -1338,7 +1338,7 @@ export default function AppRoot() {
         <SideMenu
           isOpen={showSideMenu}
           onClose={() => setShowSideMenu(false)}
-          activeTab={activeTab}
+          activeTab={activeTabInternal}
           setActiveTab={setActiveTab}
           businessProfiles={businessProfilesData}
           onSelectBusinessProfile={(id) => handleSelectBusinessProfile(String(id))}
@@ -1352,8 +1352,8 @@ export default function AppRoot() {
         {renderScreenContent()}
       </div>
 
-      {isLoggedIn && !['detailed-post', 'service-booking', 'food-restaurant-detail', 'unified-cart', 'shopping-product-detail', 'shopping-cart'].includes(activeTab) && (
-        <BottomNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+      {isLoggedIn && !['detailed-post', 'service-booking', 'food-restaurant-detail', 'unified-cart', 'shopping-product-detail', 'shopping-cart'].includes(activeTabInternal) && (
+        <BottomNavigation activeTab={activeTabInternal} setActiveTab={setActiveTab} />
       )}
 
       {isClient && isLoggedIn && isFabVisible && (
@@ -1440,3 +1440,5 @@ export default function AppRoot() {
   );
 }
 
+
+    
