@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, type ButtonProps } from '@/components/ui/button';
-import { TruckIcon, Bike } from 'lucide-react'; // Using Lucide for Bike
+import { TruckIcon, Bike, StoreIcon, BellIcon } from 'lucide-react'; // Added StoreIcon, BellIcon
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -11,7 +11,7 @@ interface FloatingActionButtonProps extends Omit<ButtonProps, 'onClick'> {
   onClick?: () => void;
   icon?: React.ReactNode;
   tooltipText?: string;
-  activityType?: 'taxi' | 'delivery' | null; // To help determine icon/tooltip
+  activityType?: 'taxi' | 'delivery' | 'business' | null; // Added 'business'
 }
 
 const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
@@ -19,8 +19,8 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   className,
   icon,
   children,
-  tooltipText = "Open activity view",
-  activityType, // Consume the new prop
+  tooltipText = "View Activity", // More generic default
+  activityType, 
   ...props
 }) => {
   const [isClient, setIsClient] = useState(false);
@@ -90,7 +90,19 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
 
   let displayIcon = icon;
   if (!displayIcon && !children) {
-    displayIcon = activityType === 'delivery' ? <Bike className="w-6 h-6" /> : <TruckIcon className="w-6 h-6" />;
+    switch (activityType) {
+      case 'taxi':
+        displayIcon = <TruckIcon className="w-6 h-6" />;
+        break;
+      case 'delivery':
+        displayIcon = <Bike className="w-6 h-6" />;
+        break;
+      case 'business':
+        displayIcon = <StoreIcon className="w-6 h-6" />;
+        break;
+      default: // For null or if activityDetails has a different type not covered by simple "online" modes
+        displayIcon = <BellIcon className="w-6 h-6" />; // Generic alert/activity icon
+    }
   }
   
   const fabButton = (

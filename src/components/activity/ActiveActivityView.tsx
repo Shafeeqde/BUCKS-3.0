@@ -3,14 +3,14 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { XMarkIcon, UserIcon, TruckIcon, MapPinIcon, CubeIcon, CurrencyDollarIcon, PhoneIcon } from '@heroicons/react/24/outline'; 
+import { XMarkIcon, UserIcon, TruckIcon, MapPinIcon, CubeIcon, CurrencyDollarIcon, PhoneIcon, ShoppingBagIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline'; 
 import { cn } from '@/lib/utils';
 import type { ActivityDetails, ActivityStatus, ActivityType } from '@/types'; 
 
 interface ActiveActivityViewProps {
   isVisible: boolean;
   onClose: () => void;
-  userRole: 'rider' | 'driver' | null;
+  userRole: 'rider' | 'driver' | 'business_owner' | null;
   activeActivityDetails: ActivityDetails; 
   // Ride actions
   onAcceptRequest?: () => void;
@@ -28,6 +28,10 @@ interface ActiveActivityViewProps {
   onItemPickedUp?: () => void;
   onArrivedAtDeliveryDropoff?: () => void;
   onCompleteDelivery?: () => void;
+  // Product Order actions
+  onAcceptProductOrder?: () => void;
+  onRejectProductOrder?: () => void;
+  // onProcessOrder?: () => void; // Future: Mark as processing, ready, etc.
 }
 
 const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
@@ -51,12 +55,15 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
   onItemPickedUp,
   onArrivedAtDeliveryDropoff,
   onCompleteDelivery,
+  // Product Order props
+  onAcceptProductOrder,
+  onRejectProductOrder,
 }) => {
   if (!isVisible) {
     return null;
   }
 
-  const InfoRow: React.FC<{ label: string; value?: string | null, icon?: React.ElementType }> = ({ label, value, icon: Icon }) => (
+  const InfoRow: React.FC<{ label: string; value?: string | null | number, icon?: React.ElementType }> = ({ label, value, icon: Icon }) => (
     <div className="flex items-start py-2">
       {Icon && <Icon className="h-5 w-5 text-primary mr-3 shrink-0 mt-0.5" />}
       <p className="text-sm font-medium text-muted-foreground w-28 shrink-0">{label}:</p>
@@ -288,7 +295,7 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
                 {(activeActivityDetails?.status === 'delivery_picked_up_en_route_dropoff' || activeActivityDetails?.status === 'delivery_arrived_at_dropoff') && onCompleteDelivery && (
                     <Button size="sm" onClick={onCompleteDelivery} className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white">Complete Delivery</Button>
                 )}
-                {onCancelRide && ( // Using onCancelRide for delivery cancellation as well
+                {onCancelRide && ( 
                     <Button variant="destructive" size="sm" onClick={onCancelRide} className="w-full sm:w-auto">Cancel Delivery</Button>
                 )}
             </div>
@@ -327,17 +334,74 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
     </>
   );
 
+  const renderProductOrderNotificationView = () => (
+    <>
+      <DetailSection title="New Product Order!">
+        <InfoRow label="Order ID" value={activeActivityDetails?.orderId} icon={ClipboardDocumentCheckIcon} />
+        <InfoRow label="For Business" value={activeActivityDetails?.businessName} />
+      </DetailSection>
+      <DetailSection title="Order Details">
+        <InfoRow label="Product" value={activeActivityDetails?.productName} icon={ShoppingBagIcon} />
+        <InfoRow label="Quantity" value={activeActivityDetails?.quantity} />
+        <InfoRow label="Total Amount" value={activeActivityDetails?.totalAmount} icon={CurrencyDollarIcon}/>
+      </DetailSection>
+      <DetailSection title="Customer Information">
+        <InfoRow label="Customer" value={activeActivityDetails?.customerName} icon={UserIcon} />
+        {activeActivityDetails?.customerAddress && <InfoRow label="Address" value={activeActivityDetails.customerAddress} icon={MapPinIcon} />}
+      </DetailSection>
+      
+      {(activeActivityDetails?.status === 'new_product_order' || activeActivityDetails?.status === 'product_order_accepted') && (
+        <div className="flex justify-around mt-6 pt-4 border-t border-border">
+          {activeActivityDetails?.status === 'new_product_order' && onAcceptProductOrder && (
+            <Button
+              size="sm"
+              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={onAcceptProductOrder}
+            >
+              Accept Order
+            </Button>
+          )}
+          {activeActivityDetails?.status === 'product_order_accepted' && (
+             <p className="text-sm text-green-600 font-semibold">Order Accepted. Start processing.</p>
+             // Add further actions like "Mark as Ready", "Dispatch" etc. later
+          )}
+          {activeActivityDetails?.status === 'new_product_order' && onRejectProductOrder && (
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={onRejectProductOrder}
+            >
+              Reject Order
+            </Button>
+          )}
+        </div>
+      )}
+      {activeActivityDetails?.status === 'product_order_rejected' && (
+        <p className="text-center text-destructive font-semibold mt-4">Order Rejected.</p>
+      )}
+      {activeActivityDetails?.status === 'product_order_completed' && (
+        <p className="text-center text-green-600 font-semibold mt-4">Order Marked as Completed!</p>
+      )}
+      {activeActivityDetails?.status === 'product_order_cancelled' && (
+        <p className="text-center text-destructive font-semibold mt-4">Order Cancelled by User/System.</p>
+      )}
+    </>
+  );
+
+  let viewTitle = "Active Activity";
+  if (activeActivityDetails?.type === 'request') viewTitle = "New Ride Request";
+  else if (activeActivityDetails?.type === 'delivery_request') viewTitle = "New Delivery Request";
+  else if (activeActivityDetails?.type === 'driver_status') viewTitle = "Your Driver Status";
+  else if (activeActivityDetails?.type === 'delivery_task') viewTitle = "Active Delivery Task";
+  else if (activeActivityDetails?.type === 'product_order_notification') viewTitle = "New Product Order";
+
 
   return (
     <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="active-activity-title">
       <div className="bg-card rounded-lg shadow-xl w-full max-w-md max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-4 border-b border-border">
           <h2 id="active-activity-title" className="text-lg font-semibold font-headline text-foreground">
-            {activeActivityDetails?.type === 'request' ? "New Ride Request" :
-             activeActivityDetails?.type === 'delivery_request' ? "New Delivery Request" :
-             activeActivityDetails?.type === 'driver_status' ? "Your Driver Status" :
-             activeActivityDetails?.type === 'delivery_task' ? "Active Delivery Task" :
-             "Active Activity"}
+            {viewTitle}
           </h2>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close active activity view">
             <XMarkIcon className="h-5 w-5 text-muted-foreground hover:text-foreground" />
@@ -355,12 +419,15 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
 
           {userRole === 'driver' && activeActivityDetails?.type === 'driver_status' && renderDriverStatusView()}
 
+          {userRole === 'business_owner' && activeActivityDetails?.type === 'product_order_notification' && renderProductOrderNotificationView()}
+
 
           {!activeActivityDetails && (
             <p className="text-sm text-muted-foreground text-center py-10">No active activity details to display.</p>
           )}
            {(userRole === 'rider' && activeActivityDetails?.type !== 'ride') && 
-             (userRole === 'driver' && activeActivityDetails?.type !== 'request' && activeActivityDetails?.type !== 'ride' && activeActivityDetails?.type !== 'driver_status' && activeActivityDetails?.type !== 'delivery_request' && activeActivityDetails?.type !== 'delivery_task') && (
+             (userRole === 'driver' && activeActivityDetails?.type !== 'request' && activeActivityDetails?.type !== 'ride' && activeActivityDetails?.type !== 'driver_status' && activeActivityDetails?.type !== 'delivery_request' && activeActivityDetails?.type !== 'delivery_task') && 
+             (userRole === 'business_owner' && activeActivityDetails?.type !== 'product_order_notification') && (
             <p className="text-sm text-muted-foreground text-center py-10">Loading activity details...</p>
           )}
         </div>

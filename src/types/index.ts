@@ -308,7 +308,8 @@ export type ActivityType =
   | 'request' // Driver receives a ride request
   | 'driver_status' // Driver is online/offline, not on a ride
   | 'delivery_request' // Delivery driver receives a request
-  | 'delivery_task'; // Delivery driver accepted a task and is in progress
+  | 'delivery_task' // Delivery driver accepted a task and is in progress
+  | 'product_order_notification'; // Business owner receives a product order
 
 export type ActivityStatus =
   // Ride statuses
@@ -329,7 +330,16 @@ export type ActivityStatus =
   | 'delivery_picked_up_en_route_dropoff'
   | 'delivery_arrived_at_dropoff' // Optional intermediate
   | 'delivery_completed'
-  | 'delivery_cancelled';
+  | 'delivery_cancelled'
+  // Product Order statuses
+  | 'new_product_order'
+  | 'product_order_accepted'
+  | 'product_order_rejected'
+  | 'product_order_processing'
+  | 'product_order_ready_for_pickup'
+  | 'product_order_out_for_delivery'
+  | 'product_order_completed'
+  | 'product_order_cancelled';
 
 
 export interface ActivityDetails {
@@ -354,6 +364,16 @@ export interface ActivityDetails {
     estimatedPayment?: string;
     recipientName?: string;
     recipientPhone?: string;
+
+    // Product Order specific
+    orderId?: string;
+    businessName?: string; // Name of the business receiving the order
+    productName?: string;
+    quantity?: number;
+    customerName?: string;
+    customerAddress?: string; // For product delivery
+    totalAmount?: string;
+
 
     // For user placing a delivery (not implemented yet, but for future)
     deliveryPartnerName?: string; 

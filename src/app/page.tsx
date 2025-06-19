@@ -246,9 +246,11 @@ export default function AppRoot() {
   const [isFabVisible, setIsFabVisible] = useState(false);
   const [isActiveActivityViewVisible, setIsActiveActivityViewVisible] = useState(false);
   const [activityDetails, setActivityDetails] = useState<ActivityDetails>(null);
+  
+  // Simulation states for different "online" modes
   const [isTaxiDriverOnlineSim, setIsTaxiDriverOnlineSim] = useState(false);
-  const [isDeliveryDriverOnlineSim, setIsDeliveryDriverOnlineSim] = useState(false); // New state for delivery
-
+  const [isDeliveryDriverOnlineSim, setIsDeliveryDriverOnlineSim] = useState(false);
+  const [isBusinessActiveSim, setIsBusinessActiveSim] = useState(false); // Simulate user's business being active for receiving orders. Hardcode to true for testing.
 
   const [userPosts, setUserPosts] = useState<ProfilePost[]>([]);
   const [feedItems, setFeedItems] = useState<FeedItem[]>(initialFeedItemsData);
@@ -283,6 +285,8 @@ export default function AppRoot() {
 
   useEffect(() => {
     setIsClient(true);
+    // For testing product order notifications:
+    // setIsBusinessActiveSim(true); 
   }, []);
 
   const fetchBusinessProfiles = useCallback(async () => {
@@ -390,6 +394,7 @@ export default function AppRoot() {
     setActivityDetails(null);
     setIsTaxiDriverOnlineSim(false);
     setIsDeliveryDriverOnlineSim(false);
+    setIsBusinessActiveSim(false);
     setSelectedBusinessProfileId(null);
     setBusinessProfileToManageId(null);
     setSelectedIndividualProfileId(null);
@@ -707,7 +712,7 @@ export default function AppRoot() {
     }
   }, [viewingMomentOwnerDetails, handleSelectIndividualProfile, handleSelectBusinessProfile, businessProfilesData]);
 
-  // --- Ride Hailing Simulation ---
+  // --- Ride Hailing / Delivery / Business Order Simulation ---
   const handleRideRequest = useCallback((rideData: { pickup: string; dropoff: string; vehicleId: string }) => {
       console.log('Ride request received in page.tsx:', rideData);
       const rideDetails: ActivityDetails = {
@@ -737,53 +742,65 @@ export default function AppRoot() {
   }, []);
 
   useEffect(() => {
-    console.log('[Driver/Delivery Sim Effect] Running. States:', { isLoggedIn, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, activityDetailsType: activityDetails?.type, isActiveActivityViewVisible });
+    console.log('[Sim Effect] Running. States:', { isLoggedIn, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim, activityDetailsType: activityDetails?.type, isActiveActivityViewVisible });
     let onlineTimer: NodeJS.Timeout;
     let requestTimeout: NodeJS.Timeout;
 
     const canSimulate = isLoggedIn && !activityDetails && !isActiveActivityViewVisible;
 
-    if (canSimulate && (isTaxiDriverOnlineSim || isDeliveryDriverOnlineSim)) {
-        console.log('[Driver/Delivery Sim Effect] Condition 1 MET. Starting onlineTimer (5s).');
+    if (canSimulate && (isTaxiDriverOnlineSim || isDeliveryDriverOnlineSim || isBusinessActiveSim)) {
         onlineTimer = setTimeout(() => {
-            console.log('[Driver/Delivery Sim Effect] onlineTimer FIRED. Re-checking conditions.');
-            if (isLoggedIn && !activityDetails && !isActiveActivityViewVisible) { // Re-check if still valid
+            if (isLoggedIn && !activityDetails && !isActiveActivityViewVisible) {
                 if (isTaxiDriverOnlineSim) {
-                    console.log('[Driver/Delivery Sim Effect] Condition 2 MET for Taxi. Simulating driver going online.');
                     toast({ title: "You are Online (Taxi Driver Sim)", description: "Waiting for ride requests." });
                     setActivityDetails({ type: 'driver_status', status: 'driver_online_idle'});
-                    setIsActiveActivityViewVisible(true); // Show the FAB immediately
+                    setIsActiveActivityViewVisible(true);
 
                     requestTimeout = setTimeout(() => {
                         if (isTaxiDriverOnlineSim && activityDetails?.type === 'driver_status' && activityDetails?.status === 'driver_online_idle' && isLoggedIn) {
-                            console.log('[Driver/Delivery Sim Effect] Condition 3 MET for Taxi. Simulating taxi request.');
                             setActivityDetails({
-                                type: 'request', status: 'ride_in_progress', // Simplified for now
-                                riderName: 'Simulated Rider', pickup: '123 Frontend St, Anytown', dropoff: '789 Backend Ave, Otherville',
+                                type: 'request', status: 'ride_in_progress', // Simplified
+                                riderName: 'Simulated Rider', pickup: '123 Frontend St', dropoff: '789 Backend Ave',
                                 fare: '₹180', vehicleType: 'Car (Mini)', distance: '5 km',
                             });
                         }
                     }, 8000);
                 } else if (isDeliveryDriverOnlineSim) {
-                    console.log('[Driver/Delivery Sim Effect] Condition 2 MET for Delivery. Simulating driver going online for deliveries.');
                     toast({ title: "You are Online (Delivery Sim)", description: "Waiting for delivery requests." });
-                    setActivityDetails({ type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)' }); // Specify context
+                    setActivityDetails({ type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)' });
                     setIsActiveActivityViewVisible(true);
 
                     requestTimeout = setTimeout(() => {
                          if (isDeliveryDriverOnlineSim && activityDetails?.type === 'driver_status' && activityDetails?.status === 'driver_online_idle' && isLoggedIn) {
-                            console.log('[Driver/Delivery Sim Effect] Condition 3 MET for Delivery. Simulating delivery request.');
                             setActivityDetails({
                                 type: 'delivery_request', status: 'delivery_pending_acceptance',
-                                pickup: 'Green Veggies Store, Main St', dropoff: 'Apt 101, Park View Residency',
+                                pickup: 'Green Veggies Store', dropoff: 'Apt 101, Park View',
                                 itemName: 'Groceries Package', itemDescription: '1 bag, approx 2kg',
                                 estimatedPayment: '₹55',
                             });
                         }
-                    }, 9000); // Slightly different timing for variety
+                    }, 9000);
+                } else if (isBusinessActiveSim) {
+                    toast({ title: "Your Business is Active", description: "Waiting for product orders." });
+                    // No 'business_online_idle' status yet for FAB, so don't open ActiveActivityView immediately for this.
+                    // A FAB change could indicate this, or direct notification.
+                    // For simulation, we'll directly trigger an order after a delay.
+                    requestTimeout = setTimeout(() => {
+                         if (isBusinessActiveSim && !activityDetails && isLoggedIn) { // Check again if still relevant
+                            console.log('[Sim Effect] Simulating incoming product order.');
+                            setActivityDetails({
+                                type: 'product_order_notification', status: 'new_product_order',
+                                orderId: `order-${Date.now()}`,
+                                businessName: 'Your Simulated Store', // User's actual active business
+                                productName: 'Super Widget Pro',
+                                quantity: 2,
+                                customerName: 'Simulated Customer',
+                                totalAmount: '₹1998.00',
+                            });
+                            setIsActiveActivityViewVisible(true); // Open view for new order
+                        }
+                    }, 10000); // 10 seconds for a product order
                 }
-            } else {
-                console.log('[Driver/Delivery Sim Effect] onlineTimer fired, but conditions no longer met.');
             }
         }, 5000);
     }
@@ -792,38 +809,44 @@ export default function AppRoot() {
         clearTimeout(onlineTimer);
         clearTimeout(requestTimeout);
     };
-  }, [isLoggedIn, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, activityDetails, isActiveActivityViewVisible, toast]);
+  }, [isLoggedIn, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim, activityDetails, isActiveActivityViewVisible, toast]);
 
 
   const handleFabClick = useCallback(() => {
     if (!isLoggedIn) return;
 
-    if (isTaxiDriverOnlineSim && !activityDetails) {
+    if (activityDetails) { // If there's an active detail (ride, delivery, order), always show it
          setIsActiveActivityViewVisible(true);
-         setActivityDetails({ type: 'driver_status', status: 'driver_online_idle'});
          return;
     }
-    if (isDeliveryDriverOnlineSim && !activityDetails) {
+    // If no active detail, but user is "online" in some capacity
+    if (isTaxiDriverOnlineSim) {
+         setIsActiveActivityViewVisible(true);
+         setActivityDetails({ type: 'driver_status', status: 'driver_online_idle'});
+    } else if (isDeliveryDriverOnlineSim) {
         setIsActiveActivityViewVisible(true);
         setActivityDetails({ type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)' });
-        return;
+    } else if (isBusinessActiveSim) {
+        // For business, FAB click might show a summary or "You are online"
+        // For now, let's just toast, as ActiveActivityView doesn't have a generic "business online" state yet
+        toast({ title: "Business Active", description: "Your business is active for orders."});
+        // Or, we can open ActiveActivityView with a placeholder if we design one:
+        // setActivityDetails({ type: 'business_status', status: 'business_online_idle' });
+        // setIsActiveActivityViewVisible(true);
     }
-
-     if (activityDetails) {
-         setIsActiveActivityViewVisible(true);
-     }
-  }, [isLoggedIn, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, activityDetails]);
+  }, [isLoggedIn, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim, activityDetails, toast]);
   
    useEffect(() => {
-    if (isLoggedIn && (isTaxiDriverOnlineSim || isDeliveryDriverOnlineSim || activityDetails)) {
+    // FAB is visible if logged in AND (any online mode is active OR there's an activity detail to show)
+    if (isLoggedIn && (isTaxiDriverOnlineSim || isDeliveryDriverOnlineSim || isBusinessActiveSim || activityDetails)) {
         setIsFabVisible(true);
     } else {
         setIsFabVisible(false);
-        if (!activityDetails) {
+        if (!activityDetails) { // Ensure view closes if no reason for FAB
              setIsActiveActivityViewVisible(false);
         }
     }
-  }, [isLoggedIn, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, activityDetails]);
+  }, [isLoggedIn, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim, activityDetails]);
 
 
   const handleCloseActivityView = useCallback(() => {
@@ -831,27 +854,41 @@ export default function AppRoot() {
     const currentType = activityDetails?.type;
     const currentStatus = activityDetails?.status;
 
+    // Don't clear details if driver is just idle or business is just active
     if (currentType === 'driver_status' && currentStatus === 'driver_online_idle') {
-        // Don't clear, driver is just idle
-    } else if (
-        (currentType === 'request' || currentType === 'ride' || currentType === 'delivery_request' || currentType === 'delivery_task') &&
+        // Keep activityDetails to show they are idle
+    } else if (currentType === 'product_order_notification' && currentStatus === 'new_product_order') {
+        // Keep the new order notification until accepted/rejected
+    }
+     else if (
+        (currentType === 'request' || currentType === 'ride' || currentType === 'delivery_request' || currentType === 'delivery_task' || currentType === 'product_order_notification') &&
         currentStatus !== 'ride_completed' && currentStatus !== 'ride_cancelled' &&
-        currentStatus !== 'delivery_completed' && currentStatus !== 'delivery_cancelled'
+        currentStatus !== 'delivery_completed' && currentStatus !== 'delivery_cancelled' &&
+        currentStatus !== 'product_order_completed' && currentStatus !== 'product_order_cancelled' && currentStatus !== 'product_order_rejected'
     ) {
-        // Keep the activity if it's ongoing (e.g., en_route, picked_up)
-        // but not if it's just an incoming request that wasn't accepted or a final state.
-        // If it was just a 'request' or 'delivery_request' and not accepted, clear it.
-        if (currentType === 'request' || (currentType === 'delivery_request' && currentStatus === 'delivery_pending_acceptance')) {
-           // No, actually keep it if driver closes it.
+        // Keep activity if it's ongoing and not yet in a final state
+        if ( (currentType === 'request' || currentType === 'delivery_request') && 
+             (currentStatus === 'ride_in_progress' || currentStatus === 'delivery_pending_acceptance') ) { // These are not correct here, check status from ActivityDetails type
+           // No, actually keep it if driver closes it while it's an incoming request
         }
     } else {
-        // For completed/cancelled or if no specific ongoing condition met
-        // setActivityDetails(null); // This might be too aggressive, let user "go offline" or complete task
+        // For completed/cancelled states or if no specific ongoing condition met,
+        // Set a placeholder status or clear if appropriate
+        // This logic might need refinement based on desired behavior for each activity type
+        if (isTaxiDriverOnlineSim) setActivityDetails({ type: 'driver_status', status: 'driver_online_idle' });
+        else if (isDeliveryDriverOnlineSim) setActivityDetails({ type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)' });
+        else if (isBusinessActiveSim && currentType === 'product_order_notification' && (currentStatus === 'product_order_accepted' || currentStatus === 'product_order_rejected' || currentStatus === 'product_order_completed' || currentStatus === 'product_order_cancelled')) {
+            setActivityDetails(null); // Business owner handled the order, clear it
+        }
+        else if (!isTaxiDriverOnlineSim && !isDeliveryDriverOnlineSim && !isBusinessActiveSim){
+            setActivityDetails(null); // If all modes are off, clear activity
+        }
     }
-  }, [activityDetails]);
+  }, [activityDetails, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim]);
 
   useEffect(() => {
-    if (isLoggedIn && activityDetails && (activityDetails.type === 'request' || activityDetails.type === 'delivery_request') && !isActiveActivityViewVisible) {
+    if (isLoggedIn && activityDetails && (activityDetails.type === 'request' || activityDetails.type === 'delivery_request' || activityDetails.type === 'product_order_notification') && !isActiveActivityViewVisible) {
+        // If a new request/order comes in (activityDetails is set) and the view isn't open, open it.
         setIsActiveActivityViewVisible(true);
     }
   }, [isLoggedIn, activityDetails, isActiveActivityViewVisible]);
@@ -861,7 +898,7 @@ export default function AppRoot() {
       if (activityDetails?.type === 'request') {
           setActivityDetails(prev => ({
             ...prev,
-            type: 'ride',
+            type: 'ride', // Change type to 'ride' as it's now an active ride
             status: 'en_route_to_pickup',
           }));
           toast({ title: "Ride Accepted", description: "Proceed to pickup location." });
@@ -869,12 +906,11 @@ export default function AppRoot() {
   }, [activityDetails, toast]);
 
   const handleRejectRequest = useCallback(() => { // Taxi Ride
-      setActivityDetails(null); // Clears the request from driver's view
+      setActivityDetails(null); 
       setIsActiveActivityViewVisible(false);
-      // Potentially go back to 'driver_online_idle' if they were online
       if (isTaxiDriverOnlineSim) {
           setActivityDetails({ type: 'driver_status', status: 'driver_online_idle' });
-          setIsActiveActivityViewVisible(true); // Keep FAB view open showing idle status
+          setIsActiveActivityViewVisible(true); 
       }
       toast({ title: "Request Rejected", description: "You rejected the ride request." });
   }, [toast, isTaxiDriverOnlineSim]);
@@ -895,7 +931,7 @@ export default function AppRoot() {
 
   const handleEndRide = useCallback(() => { // Taxi Ride
       if (activityDetails?.type === 'ride') {
-          const currentRole = activityDetails.driverName ? 'rider' : 'driver';
+          const currentRole = activityDetails.driverName ? 'rider' : 'driver'; // Assuming rider view has driverName
           toast({ title: "Ride Completed", description: `Ride has ended. (${currentRole} perspective)` });
           setActivityDetails(prev => prev ? ({ ...prev, status: 'ride_completed' }) : null);
           setTimeout(() => {
@@ -906,32 +942,55 @@ export default function AppRoot() {
       }
   }, [activityDetails, toast, isTaxiDriverOnlineSim]);
 
-  const handleCancelRide = useCallback(() => { // Taxi Ride & Delivery
-      if (activityDetails?.type === 'ride' || activityDetails?.type === 'request' || activityDetails?.type === 'delivery_task' || activityDetails?.type === 'delivery_request') {
-        const isDelivery = activityDetails.type === 'delivery_task' || activityDetails.type === 'delivery_request';
-        const newStatus = isDelivery ? 'delivery_cancelled' : 'ride_cancelled';
-        toast({ title: isDelivery ? "Delivery Cancelled" : "Ride Cancelled", description: `The ${isDelivery ? 'delivery' : 'ride'} has been cancelled.` });
-        setActivityDetails(prev => prev ? ({ ...prev, status: newStatus }) : null);
-        setTimeout(() => {
-            setActivityDetails(null);
-            setIsActiveActivityViewVisible(false);
-            if (isTaxiDriverOnlineSim && !isDelivery) setActivityDetails({ type: 'driver_status', status: 'driver_online_idle' });
-            if (isDeliveryDriverOnlineSim && isDelivery) setActivityDetails({ type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)' });
-        }, 3000);
-      }
+  const handleCancelRide = useCallback(() => {
+    if (!activityDetails) return;
+    const type = activityDetails.type;
+    const newStatus: ActivityStatus = 
+        type === 'delivery_task' || type === 'delivery_request' ? 'delivery_cancelled' :
+        type === 'product_order_notification' ? 'product_order_cancelled' :
+        'ride_cancelled';
+    
+    const toastTitle = 
+        type === 'delivery_task' || type === 'delivery_request' ? "Delivery Cancelled" :
+        type === 'product_order_notification' ? "Order Cancelled" :
+        "Ride Cancelled";
+    
+    toast({ title: toastTitle, description: `The ${type === 'product_order_notification' ? 'order' : (type === 'delivery_task' || type === 'delivery_request' ? 'delivery' : 'ride')} has been cancelled.` });
+    setActivityDetails(prev => prev ? ({ ...prev, status: newStatus }) : null);
+    
+    setTimeout(() => {
+        setActivityDetails(null);
+        setIsActiveActivityViewVisible(false);
+        if (isTaxiDriverOnlineSim && (type === 'ride' || type === 'request')) setActivityDetails({ type: 'driver_status', status: 'driver_online_idle' });
+        else if (isDeliveryDriverOnlineSim && (type === 'delivery_task' || type === 'delivery_request')) setActivityDetails({ type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)' });
+        // For business orders, cancelling just clears the notification for now
+    }, 3000);
   }, [activityDetails, toast, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim]);
+
 
   const handleContactDriver = useCallback(() => {
       toast({ title: "Contacting Driver", description: "Simulating contact..." });
   }, [toast]);
 
-  const handleGoOffline = useCallback((mode: 'taxi' | 'delivery') => {
+  const handleGoOffline = useCallback((mode: 'taxi' | 'delivery' | 'business') => {
       if (mode === 'taxi') setIsTaxiDriverOnlineSim(false);
       if (mode === 'delivery') setIsDeliveryDriverOnlineSim(false);
-      setActivityDetails(null);
-      setIsActiveActivityViewVisible(false);
+      if (mode === 'business') setIsBusinessActiveSim(false); // Placeholder for business offline
+      
+      // If current activity matches the mode going offline, clear it
+      if (activityDetails && 
+          ((mode === 'taxi' && (activityDetails.type === 'request' || activityDetails.type === 'ride' || (activityDetails.type === 'driver_status' && !activityDetails.vehicleType))) ||
+           (mode === 'delivery' && (activityDetails.type === 'delivery_request' || activityDetails.type === 'delivery_task' || (activityDetails.type === 'driver_status' && activityDetails.vehicleType === 'Bike (Delivery)'))) ||
+           (mode === 'business' && activityDetails.type === 'product_order_notification') )) {
+          setActivityDetails(null);
+          setIsActiveActivityViewVisible(false);
+      } else if (!isTaxiDriverOnlineSim && !isDeliveryDriverOnlineSim && !isBusinessActiveSim && !activityDetails) {
+          // If all modes are now off and no specific activity, ensure FAB/view is hidden
+          setIsActiveActivityViewVisible(false);
+      }
+      
       toast({ title: "Offline", description: `You are now offline for ${mode} services.` });
-  }, [toast]);
+  }, [toast, activityDetails]);
 
   // --- Delivery Specific Handlers ---
   const handleAcceptDelivery = useCallback(() => {
@@ -988,14 +1047,37 @@ export default function AppRoot() {
       }, 3000);
     }
   }, [activityDetails, toast, isDeliveryDriverOnlineSim]);
+  
+  // --- Product Order Handlers ---
+  const handleAcceptProductOrder = useCallback(() => {
+    if (activityDetails?.type === 'product_order_notification') {
+      setActivityDetails(prev => prev ? ({ ...prev, status: 'product_order_accepted' }) : null);
+      toast({ title: "Order Accepted", description: `Order ${activityDetails.orderId} has been accepted. Start processing.` });
+    }
+  }, [activityDetails, toast]);
+
+  const handleRejectProductOrder = useCallback(() => {
+    if (activityDetails?.type === 'product_order_notification') {
+      setActivityDetails(prev => prev ? ({ ...prev, status: 'product_order_rejected' }) : null);
+      toast({ title: "Order Rejected", description: `Order ${activityDetails.orderId} has been rejected.` });
+      setTimeout(() => { // Optionally clear after a delay
+          setActivityDetails(null);
+          setIsActiveActivityViewVisible(false);
+          // If business still active, they can receive more orders.
+      }, 3000);
+    }
+  }, [activityDetails, toast]);
+
 
   useEffect(() => {
     let autoAcceptTimer: NodeJS.Timeout;
-    if (isActiveActivityViewVisible && (activityDetails?.type === 'request' || activityDetails?.type === 'delivery_request') && isLoggedIn) {
+    if (isActiveActivityViewVisible && (activityDetails?.type === 'request' || activityDetails?.type === 'delivery_request' || activityDetails?.type === 'product_order_notification') && isLoggedIn) {
       const isTaxiRequest = activityDetails?.type === 'request' && !activityDetails?.driverName;
       const isDeliveryReq = activityDetails?.type === 'delivery_request';
+      const isProductOrder = activityDetails?.type === 'product_order_notification' && activityDetails.status === 'new_product_order';
 
-      if(isTaxiRequest || isDeliveryReq) {
+
+      if(isTaxiRequest || isDeliveryReq || isProductOrder) {
         console.log(`Setting up auto-action timer for ${activityDetails?.type}.`);
         autoAcceptTimer = setTimeout(() => {
           if(activityDetails?.type === 'request' && isTaxiRequest && isLoggedIn) {
@@ -1004,14 +1086,17 @@ export default function AppRoot() {
           } else if (activityDetails?.type === 'delivery_request' && isDeliveryReq && isLoggedIn) {
             console.log("Simulating driver auto-accept for delivery due to timeout.");
             handleAcceptDelivery();
+          } else if (activityDetails?.type === 'product_order_notification' && isProductOrder && isLoggedIn) {
+            console.log("Simulating business auto-accept for product order due to timeout.");
+            handleAcceptProductOrder();
           }
-        }, 7000); // 7 seconds for auto-accept
+        }, 7000); 
       }
       return () => {
         clearTimeout(autoAcceptTimer);
       }
     }
-  }, [isActiveActivityViewVisible, activityDetails, isLoggedIn, handleAcceptRequest, handleAcceptDelivery]);
+  }, [isActiveActivityViewVisible, activityDetails, isLoggedIn, handleAcceptRequest, handleAcceptDelivery, handleAcceptProductOrder]);
 
   const handleOpenServiceBooking = useCallback((profileId: string, profileName: string, skillName: string) => {
     setBookingTargetProfile({ id: profileId, name: profileName, skillName });
@@ -1183,7 +1268,8 @@ export default function AppRoot() {
     setIsDeliveryDriverOnlineSim(prev => {
         const newState = !prev;
         if (newState) {
-            setIsTaxiDriverOnlineSim(false); // Can't be both
+            setIsTaxiDriverOnlineSim(false); 
+            setIsBusinessActiveSim(false); // Only one "active work" mode at a time for simplicity
             setActivityDetails({type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)'});
             setIsActiveActivityViewVisible(true);
             toast({ title: "Online for Deliveries", description: "You are now available for delivery requests." });
@@ -1202,7 +1288,8 @@ export default function AppRoot() {
       setIsTaxiDriverOnlineSim(prev => {
           const newState = !prev;
           if (newState) {
-              setIsDeliveryDriverOnlineSim(false); // Can't be both
+              setIsDeliveryDriverOnlineSim(false); 
+              setIsBusinessActiveSim(false);
               setActivityDetails({ type: 'driver_status', status: 'driver_online_idle' });
               setIsActiveActivityViewVisible(true);
               toast({ title: "Online for Rides", description: "You are now available for taxi ride requests." });
@@ -1212,6 +1299,25 @@ export default function AppRoot() {
                   setIsActiveActivityViewVisible(false);
               }
               toast({ title: "Offline for Rides", description: "You are no longer available for taxi ride requests." });
+          }
+          return newState;
+      });
+  }, [toast, activityDetails]);
+
+  const handleToggleBusinessActiveSim = useCallback(() => { // Placeholder for future AccountScreen toggle
+      setIsBusinessActiveSim(prev => {
+          const newState = !prev;
+          if (newState) {
+              setIsTaxiDriverOnlineSim(false);
+              setIsDeliveryDriverOnlineSim(false);
+              // Potentially set activityDetails to a "business_online" status if we want FAB view for it
+              toast({title: "Business Mode Active", description: "Your business is now active for simulated orders."});
+          } else {
+              if (activityDetails?.type === 'product_order_notification') { // Clear any pending order if going offline
+                  setActivityDetails(null);
+                  setIsActiveActivityViewVisible(false);
+              }
+              toast({title: "Business Mode Inactive", description: "Your business is no longer actively simulated for orders."});
           }
           return newState;
       });
@@ -1432,7 +1538,7 @@ export default function AppRoot() {
     bookingTargetProfile,
     restaurantsData, selectedRestaurantId, localFoodCartItems,
     productCategoriesData, productsData, selectedShoppingCategoryId, selectedProductId, shoppingCartItems,
-    isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, // Include new states
+    isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim, // Include new states
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
     handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
@@ -1445,7 +1551,7 @@ export default function AppRoot() {
     handleOpenServiceBooking, handleConfirmServiceBooking,
     handleSelectFoodRestaurant, handleAddItemToLocalFoodCart, handleUpdateLocalFoodCartItemQuantity, handleRemoveLocalFoodCartItem, handleLocalFoodCheckout,
     handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleRemoveShoppingCartItem, handleShoppingCheckout,
-    handleToggleTaxiDriverOnline, handleToggleDeliveryDriverOnline, // Include new handlers
+    handleToggleTaxiDriverOnline, handleToggleDeliveryDriverOnline, handleToggleBusinessActiveSim, // Include new handlers
     toast
   ]);
 
@@ -1492,12 +1598,17 @@ export default function AppRoot() {
       {isClient && isLoggedIn && isFabVisible && (
         <FloatingActionButton
             onClick={handleFabClick}
+            activityType={
+              isTaxiDriverOnlineSim ? 'taxi' : 
+              isDeliveryDriverOnlineSim ? 'delivery' :
+              isBusinessActiveSim ? 'business' : // Add a new type for business
+              null 
+            }
             tooltipText={
-              activityDetails?.type === 'driver_status' && activityDetails.status === 'driver_online_idle' && activityDetails.vehicleType === 'Bike (Delivery)'
-                ? "Online for Deliveries"
-                : activityDetails?.type === 'driver_status' && activityDetails.status === 'driver_online_idle'
-                ? "Online for Rides"
-                : "Open Activity View"
+              activityDetails?.type === 'driver_status' && activityDetails.status === 'driver_online_idle' && activityDetails.vehicleType === 'Bike (Delivery)' ? "Online for Deliveries" :
+              activityDetails?.type === 'driver_status' && activityDetails.status === 'driver_online_idle' ? "Online for Rides" :
+              (activityDetails?.type !== 'product_order_notification' && isBusinessActiveSim && !activityDetails) ? "Business Active for Orders" : // Generic if business is active, no specific order
+              "Open Activity View"
             }
         />
       )}
@@ -1509,6 +1620,7 @@ export default function AppRoot() {
           userRole={
             (activityDetails?.type === 'request' || (activityDetails?.type === 'ride' && !activityDetails.driverName) || (activityDetails?.type === 'driver_status' && !activityDetails.vehicleType) || (activityDetails?.type === 'delivery_request') || (activityDetails?.type === 'delivery_task')) ? 'driver' :
             (activityDetails?.type === 'ride' && activityDetails.driverName) ? 'rider' :
+            (activityDetails?.type === 'product_order_notification') ? 'business_owner' : // Role for business owner
             null
           }
           activeActivityDetails={activityDetails}
@@ -1521,6 +1633,7 @@ export default function AppRoot() {
           onContactDriver={handleContactDriver}
           onGoOffline={() => {
               if (activityDetails?.vehicleType === 'Bike (Delivery)' || isDeliveryDriverOnlineSim) handleGoOffline('delivery');
+              else if (activityDetails?.type === 'product_order_notification' || isBusinessActiveSim) handleGoOffline('business');
               else handleGoOffline('taxi');
           }}
           // Delivery actions
@@ -1530,6 +1643,9 @@ export default function AppRoot() {
           onItemPickedUp={handleItemPickedUp}
           onArrivedAtDeliveryDropoff={handleArrivedAtDeliveryDropoff}
           onCompleteDelivery={handleCompleteDelivery}
+          // Product Order actions
+          onAcceptProductOrder={handleAcceptProductOrder}
+          onRejectProductOrder={handleRejectProductOrder}
         />
       )}
 
