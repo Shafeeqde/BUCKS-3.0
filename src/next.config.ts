@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: false, // Changed to false for stricter builds
   },
   images: {
-    domains: ['placehold.co', 'source.unsplash.com', 'images.unsplash.com', 'api.qrserver.com'], // Added api.qrserver.com
+    domains: ['placehold.co', 'source.unsplash.com', 'images.unsplash.com', 'api.qrserver.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -22,15 +22,15 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'source.unsplash.com',
         port: '',
-        pathname: '/**', // This will cover /random/ and direct paths
+        pathname: '/**', 
       },
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
+        hostname: 'images.unsplash.com', 
         port: '',
         pathname: '/**',
       },
-      { // Added for QR code generation
+      { 
         protocol: 'https',
         hostname: 'api.qrserver.com',
         port: '',
@@ -41,5 +41,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
-    
