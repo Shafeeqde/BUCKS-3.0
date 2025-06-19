@@ -17,8 +17,8 @@ interface LoginScreenProps {
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ setActiveTab, onLoginSuccess }) => {
   const { toast } = useToast();
-  const [userId, setUserId] = useState(''); // Can be email or custom user ID
-  const [password, setPassword] = useState('');
+  const [userId, setUserId] = useState('test@bucks.com'); // Can be email or custom user ID
+  const [password, setPassword] = useState('password123');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
@@ -74,7 +74,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ setActiveTab, onLoginSuccess 
             <div className="flex items-start">
               <InformationCircleIcon className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-accent" />
               <div>
-                <span className="font-semibold">For Testing:</span>
+                <span className="font-semibold">Test Credentials (Pre-filled):</span>
                 <p>User ID: <code className="bg-accent/30 px-1 py-0.5 rounded">test@bucks.com</code></p>
                 <p>Password: <code className="bg-accent/30 px-1 py-0.5 rounded">password123</code></p>
               </div>
