@@ -158,10 +158,12 @@ export interface UserProfile {
 
 export interface UserVehicle {
   id: string;
-  vehicleType: string;
+  vehicleType: string; // e.g., "Car (Sedan)", "Bike", "Auto Rickshaw"
+  vehicleCategory?: 'car' | 'bike' | 'auto'; // More specific category for logic
   licensePlate: string;
   isActive: boolean;
 }
+
 
 export interface BusinessProduct {
   id: string;
@@ -301,18 +303,63 @@ export interface NotificationItem {
   targetId?: string | number;
 }
 
-export type ActivityDetails = {
-    type?: 'ride' | 'request' | 'driver_status';
-    status?: string;
+export type ActivityType =
+  | 'ride' // Rider is on a ride, Driver is on a ride
+  | 'request' // Driver receives a ride request
+  | 'driver_status' // Driver is online/offline, not on a ride
+  | 'delivery_request' // Delivery driver receives a request
+  | 'delivery_task'; // Delivery driver accepted a task and is in progress
+
+export type ActivityStatus =
+  // Ride statuses
+  | 'looking_for_driver'
+  | 'driver_assigned'
+  | 'en_route_to_pickup' // Driver going to rider
+  | 'arrived_at_pickup'
+  | 'ride_in_progress' // Rider and Driver on the way to destination
+  | 'ride_completed'
+  | 'ride_cancelled'
+  // Driver statuses
+  | 'driver_online_idle'
+  | 'driver_offline'
+  // Delivery statuses for driver
+  | 'delivery_pending_acceptance'
+  | 'delivery_accepted_en_route_pickup'
+  | 'delivery_arrived_at_pickup'
+  | 'delivery_picked_up_en_route_dropoff'
+  | 'delivery_arrived_at_dropoff' // Optional intermediate
+  | 'delivery_completed'
+  | 'delivery_cancelled';
+
+
+export interface ActivityDetails {
+    type?: ActivityType;
+    status?: ActivityStatus;
+    
+    // Common for ride & delivery
     pickup?: string;
     dropoff?: string;
-    driverName?: string;
-    riderName?: string;
-    vehicle?: string;
-    fare?: string;
-    distance?: string;
-    vehicleType?: string;
+
+    // Ride specific
+    driverName?: string; // Rider's view
+    riderName?: string;  // Driver's view (for request & active ride)
+    vehicle?: string;    // Rider's view
+    fare?: string;       // Driver's view (for request & active ride)
+    distance?: string;   // Driver's view (for request)
+    vehicleType?: string;// Driver's view (for request)
+
+    // Delivery specific (for request and active task)
+    itemName?: string;
+    itemDescription?: string;
+    estimatedPayment?: string;
+    recipientName?: string;
+    recipientPhone?: string;
+
+    // For user placing a delivery (not implemented yet, but for future)
+    deliveryPartnerName?: string; 
+    deliveryVehicleInfo?: string; 
 } | null;
+
 
 export interface WorkExperienceEntry {
     id: string;
@@ -466,7 +513,7 @@ export interface UserMoment {
 export interface UserDataForSideMenu {
   id: string;
   name: string;
-  email: string;
+  email: string; // This is the User ID
   avatarUrl?: string;
   avatarAiHint?: string;
   moments?: UserMoment[];

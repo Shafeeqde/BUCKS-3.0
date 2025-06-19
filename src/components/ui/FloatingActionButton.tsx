@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, type ButtonProps } from '@/components/ui/button';
-import { TruckIcon } from '@heroicons/react/24/outline'; // Replaced Car
+import { TruckIcon, Bike } from 'lucide-react'; // Using Lucide for Bike
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -11,6 +11,7 @@ interface FloatingActionButtonProps extends Omit<ButtonProps, 'onClick'> {
   onClick?: () => void;
   icon?: React.ReactNode;
   tooltipText?: string;
+  activityType?: 'taxi' | 'delivery' | null; // To help determine icon/tooltip
 }
 
 const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
@@ -19,6 +20,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   icon,
   children,
   tooltipText = "Open activity view",
+  activityType, // Consume the new prop
   ...props
 }) => {
   const [isClient, setIsClient] = useState(false);
@@ -86,6 +88,11 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
     };
   }, [isDragging, dragStartMouse, initialTranslationOnDrag, originalOnClick, hasDragged]);
 
+  let displayIcon = icon;
+  if (!displayIcon && !children) {
+    displayIcon = activityType === 'delivery' ? <Bike className="w-6 h-6" /> : <TruckIcon className="w-6 h-6" />;
+  }
+  
   const fabButton = (
     <Button
       ref={fabRef}
@@ -105,7 +112,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
       {...props}
       onClick={!isClient ? originalOnClick : undefined} 
     >
-      {icon ? icon : children ? children : <TruckIcon className="w-6 h-6" />}
+      {displayIcon ? displayIcon : children}
     </Button>
   );
 
