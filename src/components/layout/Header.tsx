@@ -5,12 +5,12 @@ import React from 'react';
 import { Bars3Icon, ChatBubbleOvalLeftEllipsisIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useCart } from '@/context/CartContext'; // Import useCart hook
+import { useCart } from '@/context/CartContext'; 
 
 interface HeaderProps {
   onMenuClick: () => void;
   onMessagesClick: () => void;
-  onCartClick: () => void; // This will navigate to the unified cart
+  onCartClick: () => void; 
   unreadCount?: number;
 }
 
@@ -20,8 +20,8 @@ const Header: React.FC<HeaderProps> = ({
   onCartClick,
   unreadCount = 0,
 }) => {
-  const { getCartItemCount } = useCart(); // Consume the cart context
-  const cartItemCount = getCartItemCount(); // Get the total item count from global cart
+  const { getCartItemCount } = useCart(); 
+  const cartItemCount = getCartItemCount(); 
 
   return (
     <header className="bg-card shadow-sm p-4 flex items-center justify-between z-20 sticky top-0">
@@ -36,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({
             <p>Open Menu</p>
           </TooltipContent>
         </Tooltip>
-        <span className="text-2xl font-bold text-primary font-headline">bucks</span>
+        <span className="text-2xl font-bold text-primary font-headline">Bucks</span>
       </div>
       <div className="flex items-center space-x-1 sm:space-x-2">
         <div className="relative">

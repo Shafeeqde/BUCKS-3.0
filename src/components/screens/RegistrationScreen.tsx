@@ -1,57 +1,76 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, UserDataForSideMenu } from '@/types';
+import { EyeIcon, EyeSlashIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 
 interface RegistrationScreenProps {
   setActiveTab: (tab: TabName) => void;
-  onRegistrationSuccess: (user: Pick<UserDataForSideMenu, 'name' | 'email'>) => void; // email can be identifier
+  onRegistrationSuccess: (user: { name: string; userId: string; email?: string }) => void;
 }
+
+const generatePassword = (length = 10) => {
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=";
+  let retVal = "";
+  for (let i = 0, n = charset.length; i < length; ++i) {
+    retVal += charset.charAt(Math.floor(Math.random() * n));
+  }
+  return retVal;
+};
 
 const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, onRegistrationSuccess }) => {
   const { toast } = useToast();
   const [name, setName] = useState('');
-  const [identifier, setIdentifier] = useState(''); // For email or mobile
+  const [userId, setUserId] = useState(''); // User ID / Email
+  const [suggestedPassword, setSuggestedPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    // Auto-generate password when component mounts or when User ID field is interacted with (optional)
+    // For simplicity, let's generate it once on mount, user can regenerate if needed.
+    setSuggestedPassword(generatePassword());
+  }, []);
+
+  const handleRegeneratePassword = () => {
+    setSuggestedPassword(generatePassword());
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast({ title: "Copied!", description: "Password copied to clipboard." });
+    }).catch(err => {
+      toast({ title: "Copy Failed", description: "Could not copy password.", variant: "destructive" });
+    });
+  };
+
   const handleRegister = async () => {
-    if (!name.trim() || !identifier.trim()) {
-      toast({ title: "Registration Error", description: "Please fill in all fields.", variant: "destructive" });
+    if (!name.trim() || !userId.trim() || !suggestedPassword) {
+      toast({ title: "Registration Error", description: "Please fill in all fields and ensure a password is suggested.", variant: "destructive" });
       return;
     }
     
-    // Basic validation for email or mobile (can be improved)
-    const isEmail = identifier.includes('@');
-    const isMobile = /^\+?[0-9\s-]{10,15}$/.test(identifier);
-
-    if (!isEmail && !isMobile) {
-      toast({ title: "Invalid Input", description: "Please enter a valid email or mobile number.", variant: "destructive" });
-      return;
-    }
-
     setIsLoading(true);
     try {
-      // The API will determine if it's an email or mobile.
-      // For this prototype, 'email' field in API request will hold the identifier.
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, emailOrMobile: identifier }), // Sending identifier
+        body: JSON.stringify({ name, userId, password: suggestedPassword }),
       });
       const result = await response.json();
 
       if (response.ok && result.success) {
         toast({
           title: "Registration Successful!",
-          description: `Welcome, ${result.user.name}! You can now log in with an OTP.`,
+          description: `Welcome, ${result.user.name}! Please log in with your User ID and the password provided.`,
         });
-        onRegistrationSuccess({ name: result.user.name, email: result.user.email }); // email here represents the identifier
+        onRegistrationSuccess({ name: result.user.name, userId: result.user.userId, email: result.user.email });
       } else {
         toast({
           title: "Registration Failed",
@@ -72,8 +91,8 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, o
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-primary font-headline">Create Account</CardTitle>
-          <CardDescription>Join Locality Hub today!</CardDescription>
+          <CardTitle className="text-3xl font-bold text-primary font-headline">Create Bucks Account</CardTitle>
+          <CardDescription>Your credentials will be auto-suggested. Please save them securely.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -89,20 +108,43 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, o
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="identifier">Email or Mobile Number</Label>
+            <Label htmlFor="userId">User ID / Email</Label>
             <Input
-              id="identifier"
+              id="userId"
               type="text"
-              placeholder="Enter your email or mobile"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
+              placeholder="Enter your email or preferred User ID"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
               className="text-base"
               disabled={isLoading}
             />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="suggestedPassword">Suggested Password</Label>
+            <div className="flex items-center space-x-2">
+              <Input
+                id="suggestedPassword"
+                type={showPassword ? "text" : "password"}
+                value={suggestedPassword}
+                readOnly
+                className="text-base bg-muted flex-grow"
+                disabled={isLoading}
+              />
+              <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"}>
+                {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+              </Button>
+              <Button type="button" variant="ghost" size="icon" onClick={() => copyToClipboard(suggestedPassword)} aria-label="Copy password">
+                <ClipboardDocumentIcon className="h-5 w-5" />
+              </Button>
+            </div>
+            <Button type="button" variant="link" size="sm" className="p-0 h-auto text-xs" onClick={handleRegeneratePassword} disabled={isLoading}>
+              Regenerate Password
+            </Button>
+            <p className="text-xs text-destructive">Please copy and save this password securely before registering.</p>
+          </div>
         </CardContent>
         <CardFooter className="flex flex-col space-y-3">
-          <Button className="w-full text-lg py-6" onClick={handleRegister} disabled={isLoading}>
+          <Button className="w-full text-lg py-6" onClick={handleRegister} disabled={isLoading || !suggestedPassword}>
             {isLoading && (
               <svg
                 className="mr-2 h-5 w-5 animate-spin text-primary-foreground"

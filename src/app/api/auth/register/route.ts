@@ -2,44 +2,51 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
 // This is a mock in-memory user store for the prototype.
-// In a real app, use a database like Firestore.
-const users: Record<string, { id: string; name: string; emailOrMobile: string }> = {};
+// In a real app, use a database like Firestore and hash passwords.
+export interface UserEntry {
+  id: string;
+  name: string;
+  userId: string; // This can be an email or a custom user ID
+  email?: string; // Explicit email if userId is not an email
+  password?: string; // Plain text for prototype
+}
+export const users: Record<string, UserEntry> = {}; // Export for login route to access
 
 export async function POST(request: NextRequest) {
   console.log(`[API /api/auth/register] Received POST request at ${new Date().toISOString()}`);
   try {
     const body = await request.json();
     console.log("[API /api/auth/register] Request body parsed:", body);
-    const { name, emailOrMobile } = body; // 'email' can now be email or mobile
+    const { name, userId, password } = body; // Expecting userId (email or custom) and password
 
-    if (!name || !emailOrMobile) {
-      console.log("[API /api/auth/register] Validation failed: Name or identifier (email/mobile) missing.");
-      return NextResponse.json({ success: false, message: 'Name and Email/Mobile are required' }, { status: 400 });
+    if (!name || !userId || !password) {
+      console.log("[API /api/auth/register] Validation failed: Name, User ID, or Password missing.");
+      return NextResponse.json({ success: false, message: 'Name, User ID, and Password are required' }, { status: 400 });
     }
 
-    // Simulate checking if user already exists (using emailOrMobile as key)
-    if (users[emailOrMobile]) {
-      console.log(`[API /api/auth/register] Registration failed: User already exists with identifier ${emailOrMobile}`);
-      return NextResponse.json({ success: false, message: 'An account with this email/mobile already exists.' }, { status: 409 });
+    if (users[userId]) {
+      console.log(`[API /api/auth/register] Registration failed: User ID ${userId} already exists.`);
+      return NextResponse.json({ success: false, message: 'This User ID is already taken.' }, { status: 409 });
     }
     
-    // Simulate user creation
-    const userId = `mock-user-${Date.now()}`;
-    const newUser = {
-      id: userId,
+    const internalUserId = `mock-user-${Date.now()}`;
+    const newUser: UserEntry = {
+      id: internalUserId,
       name: name,
-      emailOrMobile: emailOrMobile,
-      email: emailOrMobile.includes('@') ? emailOrMobile : undefined, // Store email if it is one
-      // mobile: !emailOrMobile.includes('@') ? emailOrMobile : undefined, // Store mobile if it is one
+      userId: userId,
+      password: password, // Storing plain text for prototype
     };
     
-    users[emailOrMobile] = newUser; // Store user by their identifier
-    console.log("[API /api/auth/register] Registration successful for:", emailOrMobile, "New user:", newUser);
-    
-    // Return only non-sensitive parts of the user object
-    const publicUser = { id: newUser.id, name: newUser.name, email: newUser.email };
+    if (userId.includes('@')) { // Simple check if userId is an email
+        newUser.email = userId;
+    }
 
-    return NextResponse.json({ success: true, message: 'Registration successful. You can now log in using OTP.', user: publicUser }, { status: 201 });
+    users[userId] = newUser; // Store user by their chosen User ID
+    console.log("[API /api/auth/register] Registration successful for User ID:", userId, "New user internal ID:", internalUserId);
+    
+    const publicUser = { id: newUser.id, name: newUser.name, userId: newUser.userId, email: newUser.email };
+
+    return NextResponse.json({ success: true, message: 'Registration successful. You can now log in.', user: publicUser }, { status: 201 });
 
   } catch (error) {
     console.error('[API /api/auth/register] Error in POST handler:', error);

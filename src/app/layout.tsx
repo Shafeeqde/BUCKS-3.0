@@ -3,11 +3,11 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { CartProvider } from '@/context/CartContext'; // Import CartProvider
+import { CartProvider } from '@/context/CartContext';
 
 export const metadata: Metadata = {
-  title: 'Bucks 3.0',
-  description: 'Your personal finance and lifestyle companion.',
+  title: 'Bucks',
+  description: 'Your personal finance and lifestyle companion by Bucks.',
 };
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning={true}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

@@ -36,21 +36,17 @@ import ServiceBookingDialog from '@/components/services/ServiceBookingDialog';
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
 import { feedItems as initialFeedItemsData } from '@/lib/dummy-data/feedItems';
 
-// Food Ordering Imports (kept for data, screens to be reviewed/removed if UnifiedCartScreen covers all)
 import FoodRestaurantsScreen from '@/components/screens/food/FoodRestaurantsScreen';
 import FoodRestaurantDetailScreen from '@/components/screens/food/FoodRestaurantDetailScreen';
-// import FoodCartScreen from '@/components/screens/food/FoodCartScreen'; // To be replaced by UnifiedCartScreen
 import { dummyRestaurants } from '@/lib/dummy-data/restaurants';
 
-// Shopping Imports (kept for data, screens to be reviewed/removed if UnifiedCartScreen handles this too)
 import ShoppingCategoriesScreen from '@/components/screens/shopping/ShoppingCategoriesScreen';
 import ShoppingProductsListScreen from '@/components/screens/shopping/ShoppingProductsListScreen';
 import ShoppingProductDetailScreen from '@/components/screens/shopping/ShoppingProductDetailScreen';
-import ShoppingCartScreen from '@/components/screens/shopping/ShoppingCartScreen'; // This currently uses its own state.
+import ShoppingCartScreen from '@/components/screens/shopping/ShoppingCartScreen'; 
 import { dummyProductCategories } from '@/lib/dummy-data/productCategories';
 import { dummyProducts } from '@/lib/dummy-data/products';
 
-// Unified Cart Screen
 import UnifiedCartScreen from '@/components/screens/cart/UnifiedCartScreen';
 
 
@@ -58,7 +54,7 @@ import type {
     TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu,
     ProfilePost, MediaAttachment, UserMoment, Category as CategoryType, FeedItem, Comment,
     ServiceBookingRequest, ActiveBooking, BookingStatus,
-    Restaurant, MenuItem, FoodCartItem, // FoodCartItem kept for local food cart
+    Restaurant, MenuItem, FoodCartItem, 
     ProductCategory, ProductListing, ShoppingCartItem,
     MessageItem, NotificationItem, ChatMessage
 } from '@/types';
@@ -210,7 +206,6 @@ interface BookingTargetProfile {
   skillName: string;
 }
 
-// Chat state
 interface CurrentChatContext {
   senderName: string;
   senderAvatar?: string;
@@ -227,7 +222,7 @@ const genericOtherUserMoments: UserMoment[] = [
 
 export default function AppRoot() {
   const { toast } = useToast();
-  const { addToCart: globalAddToCart } = useCart(); // Using global cart
+  const { addToCart: globalAddToCart } = useCart(); 
   const [isClient, setIsClient] = useState(false);
 
   const [activeTabInternal, setActiveTabInternal] = useState<TabName>('login');
@@ -256,33 +251,29 @@ export default function AppRoot() {
   const [userPosts, setUserPosts] = useState<ProfilePost[]>([]);
   const [feedItems, setFeedItems] = useState<FeedItem[]>(initialFeedItemsData);
 
-  const [userMoments, setUserMoments] = useState<UserMoment[]>([]); // Logged-in user's moments
-  const [momentsToDisplayInViewer, setMomentsToDisplayInViewer] = useState<UserMoment[]>([]); // Moments for the viewer
+  const [userMoments, setUserMoments] = useState<UserMoment[]>([]); 
+  const [momentsToDisplayInViewer, setMomentsToDisplayInViewer] = useState<UserMoment[]>([]); 
   const [showCreateMomentDialog, setShowCreateMomentDialog] = useState(false);
   const [showMomentViewer, setShowMomentViewer] = useState(false);
   const [viewingMomentOwnerDetails, setViewingMomentOwnerDetails] = useState<ViewingMomentOwnerDetails | null>(null);
 
   const [selectedPostForDetail, setSelectedPostForDetail] = useState<FeedItem | ProfilePost | null>(null);
 
-  // Service Booking State
   const [showServiceBookingDialog, setShowServiceBookingDialog] = useState(false);
   const [bookingTargetProfile, setBookingTargetProfile] = useState<BookingTargetProfile | null>(null);
   const [activeBookings, setActiveBookings] = useState<ActiveBooking[]>([]);
 
-  // Food Ordering State (Restaurant data is kept, cart items will use local context for this module)
   const [restaurantsData, setRestaurantsData] = useState<Restaurant[]>(dummyRestaurants);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
-  const [localFoodCartItems, setLocalFoodCartItems] = useState<FoodCartItem[]>([]); // Local cart for food
+  const [localFoodCartItems, setLocalFoodCartItems] = useState<FoodCartItem[]>([]); 
 
 
-  // Shopping State (uses local cart state for this module)
   const [productCategoriesData, setProductCategoriesData] = useState<ProductCategory[]>(dummyProductCategories);
   const [productsData, setProductsData] = useState<ProductListing[]>(dummyProducts);
   const [selectedShoppingCategoryId, setSelectedShoppingCategoryId] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [shoppingCartItems, setShoppingCartItems] = useState<ShoppingCartItem[]>([]);
 
-  // Messaging & Notifications State
   const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
   const [showChatDetailScreen, setShowChatDetailScreen] = useState(false);
   const [currentChatContext, setCurrentChatContext] = useState<CurrentChatContext | null>(null);
@@ -372,19 +363,20 @@ export default function AppRoot() {
     setUserData({
         id: user.id,
         name: user.name,
-        email: user.email, // This 'email' field will now hold the identifier used for login (email or mobile)
+        email: user.email, // This holds the User ID / Email
         avatarUrl: user.avatarUrl || `https://source.unsplash.com/random/48x48/?${avatarAiHint.split(' ').join(',')}`,
         avatarAiHint: avatarAiHint,
-        moments: [], // Initialize with empty moments
+        moments: [], 
     });
     setActiveTabInternal('home');
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
   }, [toast]);
 
-  const handleRegistrationSuccess = useCallback((user: Pick<UserDataForSideMenu, 'name' | 'email'>) => { // email here is the identifier
-    setActiveTabInternal('login'); // Changed to 'login' as per new OTP flow
-    toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in using OTP.` });
+  const handleRegistrationSuccess = useCallback((user: { name: string; userId: string; email?: string }) => {
+    setActiveTabInternal('login'); 
+    toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in with your User ID (${user.userId}) and the auto-suggested password.` });
   }, [toast]);
+
 
   const handleLogout = useCallback(() => {
     setIsLoggedIn(false);
@@ -468,15 +460,14 @@ export default function AppRoot() {
   }, [setActiveTab]);
 
   const handleSelectIndividualProfile = useCallback((profileId: string) => {
-    // Check if the profile ID matches known skillset profile IDs and redirect
     if (profileId === 'jenson-interior-stylist-123' || profileId === 'plumbing-profile-johndoe-123' ||
-        (profileId.startsWith('prof') && profileId.endsWith('-skillset'))) { // Example of a pattern
+        (profileId.startsWith('prof') && profileId.endsWith('-skillset'))) { 
         handleSelectSkillsetProfile(profileId);
         return;
     }
-    if (userData && profileId === userData.id) { // Current user
+    if (userData && profileId === userData.id) { 
         setActiveTab('account');
-    } else if (profileId) { // Other individual
+    } else if (profileId) { 
         setSelectedIndividualProfileId(profileId);
         setActiveTab('individual-profile');
     }
@@ -541,7 +532,7 @@ export default function AppRoot() {
     });
   }, [globalAddToCart]);
 
-  const handleCreateNewPost = useCallback((content: string, media?: MediaAttachment) => {
+  const handleCreatePost = useCallback((content: string, media?: MediaAttachment) => {
     if (!userData) {
         toast({ title: "Not Logged In", description: "You must be logged in to create a post.", variant: "destructive" });
         return;
@@ -687,11 +678,9 @@ export default function AppRoot() {
         if (ownerDetails.profileId === userData?.id) {
             setMomentsToDisplayInViewer(userMoments);
         } else {
-            // For other users, use generic placeholder moments or fetch their specific mock moments
-            // Using predefined generic moments for simplicity in this prototype
             const otherUserDisplayMoments = genericOtherUserMoments.map(m => ({
                 ...m,
-                id: `${ownerDetails!.profileId}-${m.id}`, // Make IDs unique per viewed user
+                id: `${ownerDetails!.profileId}-${m.id}`, 
                 caption: m.caption || `${ownerDetails!.name}'s Moment`,
             }));
             setMomentsToDisplayInViewer(otherUserDisplayMoments.length > 0 ? otherUserDisplayMoments : [{id: 'no-moments-placeholder', imageUrl: 'https://placehold.co/1080x1920.png', aiHint: 'empty state', caption: `${ownerDetails!.name} hasn't posted any moments yet.`, timestamp: new Date().toISOString()}]);
@@ -950,7 +939,6 @@ export default function AppRoot() {
     }
   }, [isActiveActivityViewVisible, activityDetails, isLoggedIn, handleAcceptRequest]);
 
-  // Service Booking Handlers
   const handleOpenServiceBooking = useCallback((profileId: string, profileName: string, skillName: string) => {
     setBookingTargetProfile({ id: profileId, name: profileName, skillName });
     setShowServiceBookingDialog(true);
@@ -1165,7 +1153,7 @@ export default function AppRoot() {
                                 onViewUserMomentsClick={handleViewUserMomentsFromAccount}
                                 onViewPostDetail={handleViewPostDetail}
                              />;
-      case 'create-post': return <CreatePostScreen onPost={handleCreateNewPost} onCancel={() => setActiveTab('account')} />;
+      case 'create-post': return <CreatePostScreen onPost={handleCreatePost} onCancel={() => setActiveTab('account')} />;
       case 'detailed-post':
         if (selectedPostForDetail) {
           return (
@@ -1225,7 +1213,7 @@ export default function AppRoot() {
         if (selectedIndividualProfileId) {
              return <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={setActiveTab} />;
         }
-        if (userData && !selectedIndividualProfileId) { // Default to current user's account if no specific ID
+        if (userData && !selectedIndividualProfileId) { 
              setActiveTab('account');
              return <AccountScreen
                         userData={userData}
@@ -1275,21 +1263,17 @@ export default function AppRoot() {
 
       case 'service-booking':
         if (bookingTargetProfile) {
-            // We need to make sure selectedSkillsetProfileId is set correctly if coming from a different flow
-            // For now, this re-renders SkillsetProfileScreen, which is fine for booking dialog context.
             return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId!} setActiveTab={setActiveTab} onBookService={handleOpenServiceBooking} />;
         }
-        setActiveTab('home'); // Fallback if no booking target
+        setActiveTab('home'); 
         return <p className="p-4 text-center text-muted-foreground">Loading booking screen...</p>;
 
-      // Food Ordering Screens (using local cart for food still, for now)
       case 'food-restaurants':
         return <FoodRestaurantsScreen restaurants={restaurantsData} onSelectRestaurant={handleSelectFoodRestaurant} />;
       case 'food-restaurant-detail':
         const selectedRestaurant = restaurantsData.find(r => r.id === selectedRestaurantId);
         return <FoodRestaurantDetailScreen restaurant={selectedRestaurant || null} onAddToCart={(item, qty) => handleAddItemToLocalFoodCart(item, selectedRestaurantId!, selectedRestaurant?.name || 'Restaurant')} onBack={() => setActiveTab('food-restaurants')} />;
 
-      // Shopping Screens
       case 'shopping-categories':
         return <ShoppingCategoriesScreen categories={productCategoriesData} onSelectCategory={handleSelectShoppingCategory} />;
       case 'shopping-products-list':
@@ -1333,7 +1317,7 @@ export default function AppRoot() {
     handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
     handleSelectJob, handleBackFromJobDetail, handleGlobalAddToCart, handleRideRequest,
     handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive,
-    handleCreateNewPost, handleViewPostDetail, handlePostCommentOnDetail,
+    handleCreatePost, handleViewPostDetail, handlePostCommentOnDetail,
     handleAddMomentFromAccount, handleViewUserMomentsFromAccount,
     handleViewUserMoments,
     handleNavigateToOwnerProfileFromMomentViewer,
@@ -1441,7 +1425,7 @@ export default function AppRoot() {
         <MomentViewerScreen
           isOpen={showMomentViewer}
           onClose={() => { setShowMomentViewer(false); setViewingMomentOwnerDetails(null); }}
-          moments={momentsToDisplayInViewer} // Use momentsToDisplayInViewer here
+          moments={momentsToDisplayInViewer} 
           ownerName={viewingMomentOwnerDetails.name}
           ownerAvatarUrl={viewingMomentOwnerDetails.avatarUrl}
           ownerAvatarAiHint={viewingMomentOwnerDetails.avatarAiHint}
