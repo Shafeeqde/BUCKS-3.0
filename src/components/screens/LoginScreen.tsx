@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import type { TabName, UserDataForSideMenu } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { InformationCircleIcon } from '@heroicons/react/24/outline';
 
 interface LoginScreenProps {
   setActiveTab: (tab: TabName) => void;
@@ -17,8 +16,8 @@ interface LoginScreenProps {
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ setActiveTab, onLoginSuccess }) => {
   const { toast } = useToast();
-  const [userId, setUserId] = useState('test@bucks.com'); // Can be email or custom user ID
-  const [password, setPassword] = useState('password123');
+  const [userId, setUserId] = useState('test@bucks.com'); // Pre-filled
+  const [password, setPassword] = useState('password123'); // Pre-filled
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
@@ -70,16 +69,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ setActiveTab, onLoginSuccess 
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="bg-accent/20 p-3 rounded-md border border-accent/50 text-accent-foreground text-xs">
-            <div className="flex items-start">
-              <InformationCircleIcon className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-accent" />
-              <div>
-                <span className="font-semibold">Test Credentials (Pre-filled):</span>
-                <p>User ID: <code className="bg-accent/30 px-1 py-0.5 rounded">test@bucks.com</code></p>
-                <p>Password: <code className="bg-accent/30 px-1 py-0.5 rounded">password123</code></p>
-              </div>
-            </div>
-          </div>
           <div className="space-y-2">
             <Label htmlFor="userId">User ID / Email</Label>
             <Input
