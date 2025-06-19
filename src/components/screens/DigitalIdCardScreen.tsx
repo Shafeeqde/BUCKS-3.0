@@ -62,7 +62,7 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
         toast({ title: "Edit Display Info", description: "Opening settings to edit your ID card display name, avatar, etc." });
     };
 
-    const qrCodeDataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJySURBVHhe7dJBDQAgDAAx2P+FF7JgSRMAAAAAAAAAAAAAAAAAAAAAAABAQkmb/Vf2nAHtMkH+P3AGtMsE+f/AGdAuE+T/A2dAu0yQ/w+cAW0zQ0IWMiIiIzIicyIiIjMiIzIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMyIiIiMxf3f4A9hMHg8gS7LwAAAAASUVORK5CYII=";
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(userUUID)}`;
 
     const avatarHint = userData.avatarAiHint || "user portrait";
     const avatarSrc = userData.avatarUrl || `https://source.unsplash.com/random/120x120/?${avatarHint.split(' ').join(',')}`;
@@ -115,12 +115,12 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
                                     <AvatarFallback className="text-xl sm:text-2xl bg-muted rounded-md">{loggedInUserName?.substring(0, 1).toUpperCase() || "U"}</AvatarFallback>
                                 </Avatar>
                                 <Image
-                                    src={qrCodeDataUri}
-                                    alt="QR Code"
+                                    src={qrCodeUrl}
+                                    alt="User ID QR Code"
                                     width={60}
                                     height={60}
                                     className="object-contain rounded-sm border p-0.5 bg-white"
-                                    data-ai-hint="qr code"
+                                    data-ai-hint="user identifier qr"
                                 />
                             </div>
                         </div>
