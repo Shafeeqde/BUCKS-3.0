@@ -53,10 +53,8 @@ const RecommendedScreen: React.FC<RecommendedScreenProps> = ({ onViewUserMoments
   const { toast } = useToast();
 
   const handleViewRecommendedPost = (title: string) => {
-    toast({
-      title: "Viewing Recommended Content",
-      description: `Opening: "${title}" (Simulated).`,
-    });
+    // This might eventually navigate to a detailed view. For now, it uses the onViewPost prop from AppRoot.
+    onViewPost(title); 
   };
   
   return (

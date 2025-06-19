@@ -445,10 +445,11 @@ export default function AppRoot() {
         setSelectedJobId(null);
         setSelectedPostForDetail(null);
         setBookingTargetProfile(null);
-        if (!tab.startsWith('food-') && tab !== 'unified-cart') {
+        // Smart reset for food and shopping selections
+        if (tab !== 'food-restaurant-detail' && tab !== 'unified-cart' && !tab.startsWith('food-')) {
             setSelectedRestaurantId(null);
         }
-        if (!tab.startsWith('shopping-')) {
+        if (tab !== 'shopping-product-detail' && tab !== 'shopping-cart' && tab !== 'unified-cart' && !tab.startsWith('shopping-')) {
             setSelectedShoppingCategoryId(null);
             setSelectedProductId(null);
         }
@@ -457,6 +458,13 @@ export default function AppRoot() {
     if (tab === 'business-profiles' && isLoggedIn) {
         fetchBusinessProfiles();
     }
+    if (tab === 'home') { // Clear specific selections when going home
+        setSelectedPostForDetail(null);
+        setSelectedRestaurantId(null);
+        setSelectedShoppingCategoryId(null);
+        setSelectedProductId(null);
+    }
+
   }, [fetchBusinessProfiles, isLoggedIn]);
 
   const setActiveTab = handleTabSelection;
@@ -782,24 +790,21 @@ export default function AppRoot() {
                     }, 9000);
                 } else if (isBusinessActiveSim) {
                     toast({ title: "Your Business is Active", description: "Waiting for product orders." });
-                    // No 'business_online_idle' status yet for FAB, so don't open ActiveActivityView immediately for this.
-                    // A FAB change could indicate this, or direct notification.
-                    // For simulation, we'll directly trigger an order after a delay.
                     requestTimeout = setTimeout(() => {
-                         if (isBusinessActiveSim && !activityDetails && isLoggedIn) { // Check again if still relevant
+                         if (isBusinessActiveSim && !activityDetails && isLoggedIn) { 
                             console.log('[Sim Effect] Simulating incoming product order.');
                             setActivityDetails({
                                 type: 'product_order_notification', status: 'new_product_order',
                                 orderId: `order-${Date.now()}`,
-                                businessName: 'Your Simulated Store', // User's actual active business
+                                businessName: 'Your Simulated Store', 
                                 productName: 'Super Widget Pro',
                                 quantity: 2,
                                 customerName: 'Simulated Customer',
                                 totalAmount: '₹1998.00',
                             });
-                            setIsActiveActivityViewVisible(true); // Open view for new order
+                            setIsActiveActivityViewVisible(true); 
                         }
-                    }, 10000); // 10 seconds for a product order
+                    }, 10000); 
                 }
             }
         }, 5000);
@@ -815,11 +820,10 @@ export default function AppRoot() {
   const handleFabClick = useCallback(() => {
     if (!isLoggedIn) return;
 
-    if (activityDetails) { // If there's an active detail (ride, delivery, order), always show it
+    if (activityDetails) { 
          setIsActiveActivityViewVisible(true);
          return;
     }
-    // If no active detail, but user is "online" in some capacity
     if (isTaxiDriverOnlineSim) {
          setIsActiveActivityViewVisible(true);
          setActivityDetails({ type: 'driver_status', status: 'driver_online_idle'});
@@ -827,22 +831,16 @@ export default function AppRoot() {
         setIsActiveActivityViewVisible(true);
         setActivityDetails({ type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)' });
     } else if (isBusinessActiveSim) {
-        // For business, FAB click might show a summary or "You are online"
-        // For now, let's just toast, as ActiveActivityView doesn't have a generic "business online" state yet
         toast({ title: "Business Active", description: "Your business is active for orders."});
-        // Or, we can open ActiveActivityView with a placeholder if we design one:
-        // setActivityDetails({ type: 'business_status', status: 'business_online_idle' });
-        // setIsActiveActivityViewVisible(true);
     }
   }, [isLoggedIn, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim, activityDetails, toast]);
   
    useEffect(() => {
-    // FAB is visible if logged in AND (any online mode is active OR there's an activity detail to show)
     if (isLoggedIn && (isTaxiDriverOnlineSim || isDeliveryDriverOnlineSim || isBusinessActiveSim || activityDetails)) {
         setIsFabVisible(true);
     } else {
         setIsFabVisible(false);
-        if (!activityDetails) { // Ensure view closes if no reason for FAB
+        if (!activityDetails) { 
              setIsActiveActivityViewVisible(false);
         }
     }
@@ -854,58 +852,48 @@ export default function AppRoot() {
     const currentType = activityDetails?.type;
     const currentStatus = activityDetails?.status;
 
-    // Don't clear details if driver is just idle or business is just active
     if (currentType === 'driver_status' && currentStatus === 'driver_online_idle') {
-        // Keep activityDetails to show they are idle
+        // Keep details
     } else if (currentType === 'product_order_notification' && currentStatus === 'new_product_order') {
-        // Keep the new order notification until accepted/rejected
-    }
-     else if (
+        // Keep details
+    } else if (
         (currentType === 'request' || currentType === 'ride' || currentType === 'delivery_request' || currentType === 'delivery_task' || currentType === 'product_order_notification') &&
         currentStatus !== 'ride_completed' && currentStatus !== 'ride_cancelled' &&
         currentStatus !== 'delivery_completed' && currentStatus !== 'delivery_cancelled' &&
         currentStatus !== 'product_order_completed' && currentStatus !== 'product_order_cancelled' && currentStatus !== 'product_order_rejected'
     ) {
-        // Keep activity if it's ongoing and not yet in a final state
-        if ( (currentType === 'request' || currentType === 'delivery_request') && 
-             (currentStatus === 'ride_in_progress' || currentStatus === 'delivery_pending_acceptance') ) { // These are not correct here, check status from ActivityDetails type
-           // No, actually keep it if driver closes it while it's an incoming request
-        }
+        // Keep if ongoing
     } else {
-        // For completed/cancelled states or if no specific ongoing condition met,
-        // Set a placeholder status or clear if appropriate
-        // This logic might need refinement based on desired behavior for each activity type
         if (isTaxiDriverOnlineSim) setActivityDetails({ type: 'driver_status', status: 'driver_online_idle' });
         else if (isDeliveryDriverOnlineSim) setActivityDetails({ type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)' });
         else if (isBusinessActiveSim && currentType === 'product_order_notification' && (currentStatus === 'product_order_accepted' || currentStatus === 'product_order_rejected' || currentStatus === 'product_order_completed' || currentStatus === 'product_order_cancelled')) {
-            setActivityDetails(null); // Business owner handled the order, clear it
+            setActivityDetails(null); 
         }
         else if (!isTaxiDriverOnlineSim && !isDeliveryDriverOnlineSim && !isBusinessActiveSim){
-            setActivityDetails(null); // If all modes are off, clear activity
+            setActivityDetails(null); 
         }
     }
   }, [activityDetails, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim]);
 
   useEffect(() => {
     if (isLoggedIn && activityDetails && (activityDetails.type === 'request' || activityDetails.type === 'delivery_request' || activityDetails.type === 'product_order_notification') && !isActiveActivityViewVisible) {
-        // If a new request/order comes in (activityDetails is set) and the view isn't open, open it.
         setIsActiveActivityViewVisible(true);
     }
   }, [isLoggedIn, activityDetails, isActiveActivityViewVisible]);
 
 
-  const handleAcceptRequest = useCallback(() => { // Taxi Ride
+  const handleAcceptRequest = useCallback(() => { 
       if (activityDetails?.type === 'request') {
           setActivityDetails(prev => ({
             ...prev,
-            type: 'ride', // Change type to 'ride' as it's now an active ride
+            type: 'ride', 
             status: 'en_route_to_pickup',
           }));
           toast({ title: "Ride Accepted", description: "Proceed to pickup location." });
       }
   }, [activityDetails, toast]);
 
-  const handleRejectRequest = useCallback(() => { // Taxi Ride
+  const handleRejectRequest = useCallback(() => { 
       setActivityDetails(null); 
       setIsActiveActivityViewVisible(false);
       if (isTaxiDriverOnlineSim) {
@@ -915,23 +903,23 @@ export default function AppRoot() {
       toast({ title: "Request Rejected", description: "You rejected the ride request." });
   }, [toast, isTaxiDriverOnlineSim]);
 
-  const handleArrivedAtPickup = useCallback(() => { // Taxi Ride
+  const handleArrivedAtPickup = useCallback(() => { 
       if (activityDetails?.type === 'ride' && activityDetails.status === 'en_route_to_pickup') {
           setActivityDetails(prev => prev ? ({ ...prev, status: 'arrived_at_pickup' }) : null);
           toast({ title: "Arrived", description: "You have arrived at the pickup location." });
       }
   }, [activityDetails, toast]);
 
-  const handleStartRide = useCallback(() => { // Taxi Ride
+  const handleStartRide = useCallback(() => { 
       if (activityDetails?.type === 'ride' && activityDetails.status === 'arrived_at_pickup') {
           setActivityDetails(prev => prev ? ({ ...prev, status: 'ride_in_progress' }) : null);
           toast({ title: "Ride Started", description: "Ride in progress." });
       }
   }, [activityDetails, toast]);
 
-  const handleEndRide = useCallback(() => { // Taxi Ride
+  const handleEndRide = useCallback(() => { 
       if (activityDetails?.type === 'ride') {
-          const currentRole = activityDetails.driverName ? 'rider' : 'driver'; // Assuming rider view has driverName
+          const currentRole = activityDetails.driverName ? 'rider' : 'driver'; 
           toast({ title: "Ride Completed", description: `Ride has ended. (${currentRole} perspective)` });
           setActivityDetails(prev => prev ? ({ ...prev, status: 'ride_completed' }) : null);
           setTimeout(() => {
@@ -963,7 +951,6 @@ export default function AppRoot() {
         setIsActiveActivityViewVisible(false);
         if (isTaxiDriverOnlineSim && (type === 'ride' || type === 'request')) setActivityDetails({ type: 'driver_status', status: 'driver_online_idle' });
         else if (isDeliveryDriverOnlineSim && (type === 'delivery_task' || type === 'delivery_request')) setActivityDetails({ type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)' });
-        // For business orders, cancelling just clears the notification for now
     }, 3000);
   }, [activityDetails, toast, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim]);
 
@@ -975,9 +962,8 @@ export default function AppRoot() {
   const handleGoOffline = useCallback((mode: 'taxi' | 'delivery' | 'business') => {
       if (mode === 'taxi') setIsTaxiDriverOnlineSim(false);
       if (mode === 'delivery') setIsDeliveryDriverOnlineSim(false);
-      if (mode === 'business') setIsBusinessActiveSim(false); // Placeholder for business offline
+      if (mode === 'business') setIsBusinessActiveSim(false); 
       
-      // If current activity matches the mode going offline, clear it
       if (activityDetails && 
           ((mode === 'taxi' && (activityDetails.type === 'request' || activityDetails.type === 'ride' || (activityDetails.type === 'driver_status' && !activityDetails.vehicleType))) ||
            (mode === 'delivery' && (activityDetails.type === 'delivery_request' || activityDetails.type === 'delivery_task' || (activityDetails.type === 'driver_status' && activityDetails.vehicleType === 'Bike (Delivery)'))) ||
@@ -985,7 +971,6 @@ export default function AppRoot() {
           setActivityDetails(null);
           setIsActiveActivityViewVisible(false);
       } else if (!isTaxiDriverOnlineSim && !isDeliveryDriverOnlineSim && !isBusinessActiveSim && !activityDetails) {
-          // If all modes are now off and no specific activity, ensure FAB/view is hidden
           setIsActiveActivityViewVisible(false);
       }
       
@@ -1060,10 +1045,9 @@ export default function AppRoot() {
     if (activityDetails?.type === 'product_order_notification') {
       setActivityDetails(prev => prev ? ({ ...prev, status: 'product_order_rejected' }) : null);
       toast({ title: "Order Rejected", description: `Order ${activityDetails.orderId} has been rejected.` });
-      setTimeout(() => { // Optionally clear after a delay
+      setTimeout(() => { 
           setActivityDetails(null);
           setIsActiveActivityViewVisible(false);
-          // If business still active, they can receive more orders.
       }, 3000);
     }
   }, [activityDetails, toast]);
@@ -1128,41 +1112,31 @@ export default function AppRoot() {
   }, [setActiveTab, setSelectedRestaurantId]);
 
   const handleAddItemToLocalFoodCart = useCallback((menuItem: MenuItem, restaurantId: string, restaurantName: string) => {
-    setLocalFoodCartItems(prevCart => {
-      const existingItemIndex = prevCart.findIndex(item => item.menuItemId === menuItem.id && item.restaurantId === restaurantId);
-      if (existingItemIndex > -1) {
-        const updatedCart = [...prevCart];
-        updatedCart[existingItemIndex].quantity += 1;
-        return updatedCart;
-      } else {
-        return [...prevCart, { ...menuItem, menuItemId: menuItem.id, quantity: 1, restaurantId, restaurantName }];
-      }
+    globalAddToCart({
+        id: menuItem.id,
+        name: menuItem.name,
+        price: String(menuItem.price),
+        businessId: restaurantId,
+        businessName: restaurantName,
+        imageUrl: menuItem.imageUrl,
+        imageAiHint: menuItem.imageAiHint
     });
-    toast({ title: "Added to Food Order", description: `${menuItem.name} added.` });
-  }, [toast]);
+  }, [globalAddToCart]);
 
   const handleUpdateLocalFoodCartItemQuantity = useCallback((menuItemId: string, newQuantity: number) => {
-    setLocalFoodCartItems(prevCart =>
-      prevCart.map(item =>
-        item.menuItemId === menuItemId ? { ...item, quantity: newQuantity } : item
-      ).filter(item => item.quantity > 0)
-    );
+    // This local cart logic is superseded by global cart
   }, []);
 
   const handleRemoveLocalFoodCartItem = useCallback((menuItemId: string) => {
-    setLocalFoodCartItems(prevCart => prevCart.filter(item => item.menuItemId !== menuItemId));
-    toast({ title: "Item Removed", description: "Item removed from your food order.", variant: "destructive" });
+    // This local cart logic is superseded by global cart
   }, [toast]);
 
   const handleLocalFoodCheckout = useCallback(() => {
-    if (localFoodCartItems.length === 0) {
-        toast({ title: "Empty Food Order", description: "Your food order is empty.", variant: "destructive"});
-        return;
-    }
+    // This specific local food checkout is superseded by global cart checkout logic
     toast({ title: "Food Order Placed (Simulated)", description: "Your food order has been placed successfully!" });
-    setLocalFoodCartItems([]);
+    // Logic to clear food items from global cart, specific to a business, would be needed.
     setActiveTab('home');
-  }, [localFoodCartItems, toast, setActiveTab]);
+  }, [toast, setActiveTab]);
 
 
   const handleNavigateToCart = useCallback(() => {
@@ -1180,48 +1154,30 @@ export default function AppRoot() {
   }, [setActiveTab]);
 
   const handleAddItemToShoppingCart = useCallback((product: ProductListing, quantity: number) => {
-    setShoppingCartItems(prevCart => {
-        const existingItemIndex = prevCart.findIndex(item => item.productId === product.id);
-        if (existingItemIndex > -1) {
-            const updatedCart = [...prevCart];
-            updatedCart[existingItemIndex].quantity += quantity;
-            return updatedCart;
-        } else {
-            return [...prevCart, {
-                productId: product.id,
-                name: product.name,
-                price: product.price,
-                quantity,
-                imageUrl: product.imageUrl,
-                imageAiHint: product.imageAiHint
-            }];
-        }
-    });
-    toast({ title: "Added to Shopping Cart", description: `${quantity} x ${product.name} added.` });
-  }, [toast]);
+    globalAddToCart({
+        id: product.id,
+        name: product.name,
+        price: String(product.price),
+        businessId: product.brand || 'generic-shop', // Assuming brand can be a businessId
+        businessName: product.brand || 'Online Store',
+        imageUrl: product.imageUrl,
+        imageAiHint: product.imageAiHint
+    }, quantity);
+  }, [globalAddToCart]);
 
   const handleUpdateShoppingCartItemQuantity = useCallback((productId: string, newQuantity: number) => {
-    setShoppingCartItems(prevCart =>
-      prevCart.map(item =>
-        item.productId === productId ? { ...item, quantity: newQuantity } : item
-      ).filter(item => item.quantity > 0)
-    );
+    // Superseded by global cart
   }, []);
 
   const handleRemoveShoppingCartItem = useCallback((productId: string) => {
-    setShoppingCartItems(prevCart => prevCart.filter(item => item.productId !== productId));
-    toast({ title: "Item Removed", description: "Item removed from your shopping cart.", variant: "destructive" });
+    // Superseded by global cart
   }, [toast]);
 
   const handleShoppingCheckout = useCallback(() => {
-    if (shoppingCartItems.length === 0) {
-        toast({ title: "Empty Cart", description: "Your shopping cart is empty.", variant: "destructive"});
-        return;
-    }
+    // Superseded by global cart checkout
     toast({ title: "Purchase Complete (Simulated)", description: "Thank you for your purchase!" });
-    setShoppingCartItems([]);
     setActiveTab('home');
-  }, [shoppingCartItems, toast, setActiveTab]);
+  }, [toast, setActiveTab]);
 
 
   const handleOpenChatDetail = useCallback((messageItem: MessageItem) => {
@@ -1269,7 +1225,7 @@ export default function AppRoot() {
         const newState = !prev;
         if (newState) {
             setIsTaxiDriverOnlineSim(false); 
-            setIsBusinessActiveSim(false); // Only one "active work" mode at a time for simplicity
+            setIsBusinessActiveSim(false); 
             setActivityDetails({type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)'});
             setIsActiveActivityViewVisible(true);
             toast({ title: "Online for Deliveries", description: "You are now available for delivery requests." });
@@ -1304,16 +1260,15 @@ export default function AppRoot() {
       });
   }, [toast, activityDetails]);
 
-  const handleToggleBusinessActiveSim = useCallback(() => { // Placeholder for future AccountScreen toggle
+  const handleToggleBusinessActiveSim = useCallback(() => { 
       setIsBusinessActiveSim(prev => {
           const newState = !prev;
           if (newState) {
               setIsTaxiDriverOnlineSim(false);
               setIsDeliveryDriverOnlineSim(false);
-              // Potentially set activityDetails to a "business_online" status if we want FAB view for it
               toast({title: "Business Mode Active", description: "Your business is now active for simulated orders."});
           } else {
-              if (activityDetails?.type === 'product_order_notification') { // Clear any pending order if going offline
+              if (activityDetails?.type === 'product_order_notification') { 
                   setActivityDetails(null);
                   setIsActiveActivityViewVisible(false);
               }
@@ -1360,7 +1315,7 @@ export default function AppRoot() {
       case 'recommended': return <RecommendedScreen
                                     onViewUserMomentsClick={handleViewUserMoments}
                                     onViewUserProfile={handleSelectIndividualProfile}
-                                    onViewPost={(postTitle) => toast({title: "Viewing Post", description: postTitle})}
+                                    onViewPost={(postTitle) => handleViewPostDetail(feedItems.find(f => f.title === postTitle) || userPosts.find(p => p.title === postTitle) || { id: Date.now(), type: 'post', user:'Unknown', userImage:'', content:postTitle, timestamp:'Now', comments:0, recommendations:0, notRecommendations:0 } as FeedItem) }
                                  />;
       case 'account': return <AccountScreen
                                 userData={userData}
@@ -1488,11 +1443,14 @@ export default function AppRoot() {
         return <AccountSettingsScreen />;
 
       case 'service-booking':
-        if (bookingTargetProfile) {
-            return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId!} setActiveTab={setActiveTab} onBookService={handleOpenServiceBooking} />;
+        // The ServiceBookingDialog is an overlay, so the underlying screen should still be rendered.
+        // Often, it's the skillset profile screen.
+        if (bookingTargetProfile && selectedSkillsetProfileId) {
+            return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId} setActiveTab={setActiveTab} onBookService={handleOpenServiceBooking} />;
         }
-        setActiveTab('home'); 
-        return <p className="p-4 text-center text-muted-foreground">Loading booking screen...</p>;
+        // Fallback if context is lost
+        setActiveTab('home');
+        return <p className="p-4 text-center text-muted-foreground">Loading booking details...</p>;
 
       case 'food-restaurants':
         return <FoodRestaurantsScreen restaurants={restaurantsData} onSelectRestaurant={handleSelectFoodRestaurant} />;
@@ -1509,11 +1467,13 @@ export default function AppRoot() {
       case 'shopping-product-detail':
         const currentProduct = productsData.find(p => p.id === selectedProductId);
         return <ShoppingProductDetailScreen product={currentProduct || null} onAddToCart={handleAddItemToShoppingCart} onBack={() => setActiveTab('shopping-products-list')} />;
-      case 'shopping-cart':
-        return <ShoppingCartScreen cartItems={shoppingCartItems} onUpdateQuantity={handleUpdateShoppingCartItemQuantity} onRemoveItem={handleRemoveShoppingCartItem} onCheckout={handleShoppingCheckout} onBack={() => setActiveTab(selectedProductId ? 'shopping-product-detail' : (selectedShoppingCategoryId ? 'shopping-products-list' : 'shopping-categories'))} />;
-
+      
+      // `shopping-cart` case is now handled by `unified-cart`
       case 'unified-cart':
-        const previousTab = activeTabInternal === 'food-restaurant-detail' && selectedRestaurantId ? 'food-restaurant-detail' : 'home';
+        const previousTab = 
+            activeTabInternal === 'food-restaurant-detail' && selectedRestaurantId ? 'food-restaurant-detail' :
+            activeTabInternal === 'shopping-product-detail' && selectedProductId ? 'shopping-product-detail' :
+            'home';
         return <UnifiedCartScreen onBack={() => setActiveTab(previousTab)} setActiveTab={setActiveTab}/>;
 
       default: return <HomeScreen
@@ -1536,9 +1496,9 @@ export default function AppRoot() {
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, selectedPostForDetail,
     bookingTargetProfile,
-    restaurantsData, selectedRestaurantId, localFoodCartItems,
-    productCategoriesData, productsData, selectedShoppingCategoryId, selectedProductId, shoppingCartItems,
-    isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim, // Include new states
+    restaurantsData, selectedRestaurantId, 
+    productCategoriesData, productsData, selectedShoppingCategoryId, selectedProductId, 
+    isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim, 
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
     handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
@@ -1549,9 +1509,9 @@ export default function AppRoot() {
     handleViewUserMoments,
     handleNavigateToOwnerProfileFromMomentViewer,
     handleOpenServiceBooking, handleConfirmServiceBooking,
-    handleSelectFoodRestaurant, handleAddItemToLocalFoodCart, handleUpdateLocalFoodCartItemQuantity, handleRemoveLocalFoodCartItem, handleLocalFoodCheckout,
-    handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, handleUpdateShoppingCartItemQuantity, handleRemoveShoppingCartItem, handleShoppingCheckout,
-    handleToggleTaxiDriverOnline, handleToggleDeliveryDriverOnline, handleToggleBusinessActiveSim, // Include new handlers
+    handleSelectFoodRestaurant, handleAddItemToLocalFoodCart, 
+    handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, 
+    handleToggleTaxiDriverOnline, handleToggleDeliveryDriverOnline, handleToggleBusinessActiveSim, 
     toast
   ]);
 
@@ -1591,7 +1551,7 @@ export default function AppRoot() {
         {renderScreenContent()}
       </div>
 
-      {isLoggedIn && !['detailed-post', 'service-booking', 'food-restaurant-detail', 'unified-cart', 'shopping-product-detail', 'shopping-cart'].includes(activeTabInternal) && (
+      {isLoggedIn && !['detailed-post', 'service-booking', 'food-restaurant-detail', 'shopping-product-detail', 'unified-cart'].includes(activeTabInternal) && (
         <BottomNavigation activeTab={activeTabInternal} setActiveTab={setActiveTab} />
       )}
 
@@ -1599,16 +1559,20 @@ export default function AppRoot() {
         <FloatingActionButton
             onClick={handleFabClick}
             activityType={
+              activityDetails?.type === 'request' || (activityDetails?.type === 'ride' && activityDetails?.status !== 'ride_completed' && activityDetails?.status !== 'ride_cancelled') ? 'taxi' :
+              activityDetails?.type === 'delivery_request' || (activityDetails?.type === 'delivery_task' && activityDetails?.status !== 'delivery_completed' && activityDetails?.status !== 'delivery_cancelled') ? 'delivery' :
+              activityDetails?.type === 'product_order_notification' && activityDetails.status !== 'product_order_completed' && activityDetails.status !== 'product_order_cancelled' && activityDetails.status !== 'product_order_rejected' ? 'business' :
               isTaxiDriverOnlineSim ? 'taxi' : 
               isDeliveryDriverOnlineSim ? 'delivery' :
-              isBusinessActiveSim ? 'business' : // Add a new type for business
+              isBusinessActiveSim ? 'business' : 
               null 
             }
             tooltipText={
-              activityDetails?.type === 'driver_status' && activityDetails.status === 'driver_online_idle' && activityDetails.vehicleType === 'Bike (Delivery)' ? "Online for Deliveries" :
-              activityDetails?.type === 'driver_status' && activityDetails.status === 'driver_online_idle' ? "Online for Rides" :
-              (activityDetails?.type !== 'product_order_notification' && isBusinessActiveSim && !activityDetails) ? "Business Active for Orders" : // Generic if business is active, no specific order
-              "Open Activity View"
+              activityDetails ? "View Current Activity" :
+              isTaxiDriverOnlineSim ? "Online for Rides" : 
+              isDeliveryDriverOnlineSim ? "Online for Deliveries" :
+              isBusinessActiveSim ? "Business Active (Orders)" :
+              "View Activity"
             }
         />
       )}
@@ -1620,7 +1584,7 @@ export default function AppRoot() {
           userRole={
             (activityDetails?.type === 'request' || (activityDetails?.type === 'ride' && !activityDetails.driverName) || (activityDetails?.type === 'driver_status' && !activityDetails.vehicleType) || (activityDetails?.type === 'delivery_request') || (activityDetails?.type === 'delivery_task')) ? 'driver' :
             (activityDetails?.type === 'ride' && activityDetails.driverName) ? 'rider' :
-            (activityDetails?.type === 'product_order_notification') ? 'business_owner' : // Role for business owner
+            (activityDetails?.type === 'product_order_notification') ? 'business_owner' : 
             null
           }
           activeActivityDetails={activityDetails}
@@ -1696,7 +1660,7 @@ export default function AppRoot() {
           onClose={() => {
             setShowServiceBookingDialog(false);
             setBookingTargetProfile(null);
-            setActiveTab('skillset-profile');
+            // setActiveTab('skillset-profile'); // Commented out to prevent unintended navigation
           }}
           professionalId={bookingTargetProfile.id}
           professionalName={bookingTargetProfile.name}

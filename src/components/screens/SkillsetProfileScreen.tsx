@@ -255,7 +255,7 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
           </CardContent>
         </Card>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-6 p-4">
           <div className="md:col-span-1 space-y-6">
             {profileData.contactInfo && (
               <Card>
@@ -398,4 +398,3 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
 };
 
 export default SkillsetProfileScreen;
-    

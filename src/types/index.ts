@@ -1,5 +1,4 @@
 
-
 import type { ForwardRefExoticComponent, RefAttributes, SVGProps } from 'react'; // For Heroicons
 
 // Used by Heroicons
@@ -31,14 +30,14 @@ export type TabName =
   | 'create-post'
   | 'detailed-post'
   | 'service-booking'
-  // Food Ordering Tabs (keeping for reference, but unified cart is goal)
+  // Food Ordering Tabs
   | 'food-restaurants'
   | 'food-restaurant-detail'
-  // Shopping Tabs (keeping for reference)
+  // Shopping Tabs
   | 'shopping-categories'
   | 'shopping-products-list'
   | 'shopping-product-detail'
-  | 'shopping-cart'
+  | 'shopping-cart' // This might be replaced by unified-cart or become business-specific
   // Unified Cart
   | 'unified-cart';
 
@@ -81,10 +80,14 @@ export interface FeedItem {
   timestamp: string;
   content: string;
   media?: MediaAttachment;
+  postImage?: string; // For older structure, try to consolidate into media
+  postImageAiHint?: string;
   comments: number;
   recommendations: number;
   notRecommendations: number;
   profileId?: string;
+  showCommentBox?: boolean; // UI state, might not be ideal here
+  currentComment?: string; // UI state
   commentsData?: Comment[];
 }
 
@@ -226,7 +229,7 @@ export interface UserBusinessProfile {
   coverPhoto?: string;
   coverPhotoAiHint?: string;
   bio: string;
-  businessType: BusinessType;
+  businessType?: BusinessType; // Make optional for easier partial updates initially
   website?: string;
   phone?: string;
   email?: string;
@@ -563,7 +566,7 @@ export interface ActiveBooking {
 }
 // --- End Service Booking Types ---
 
-// --- Food Ordering Types (kept for reference, might be integrated into generic cart later) ---
+// --- Food Ordering Types ---
 export interface MenuItem {
   id: string;
   name: string;
@@ -582,26 +585,26 @@ export interface Restaurant {
   cuisine: string;
   rating: number;
   deliveryTime: string;
-  priceRange: string;
+  priceRange: string; // e.g., "$", "$$", "$$$"
   imageUrl?: string;
   imageAiHint?: string;
   address?: string;
   menu: MenuItem[];
 }
 
-export interface FoodCartItem {
-  menuItemId: string;
+export interface FoodCartItem { // Specific for local food cart if needed, or unified CartContextItem
+  menuItemId: string; // Could be product.id for consistency
   name: string;
   price: number;
   quantity: number;
   imageUrl?: string;
   imageAiHint?: string;
-  restaurantId: string;
-  restaurantName: string;
+  restaurantId: string; // Corresponds to businessId
+  restaurantName: string; // Corresponds to businessName
 }
 // --- End Food Ordering Types ---
 
-// --- E-commerce (Shopping) Types (kept for reference) ---
+// --- E-commerce (Shopping) Types ---
 export interface ProductCategory {
   id: string;
   name: string;
@@ -616,7 +619,7 @@ export interface ProductListing {
   description: string;
   price: number;
   originalPrice?: number;
-  categoryIds: string[];
+  categoryIds: string[]; // To link product to one or more categories
   imageUrl?: string;
   imageAiHint?: string;
   brand?: string;
@@ -625,24 +628,24 @@ export interface ProductListing {
   stock?: number;
   tags?: string[];
   variants?: {
-    id: string;
-    name: string;
+    id: string; // e.g., 'color', 'size'
+    name: string; // e.g., 'Color', 'Size'
     options: {
-      value: string;
-      imageUrl?: string;
-      additionalPrice?: number;
+      value: string; // e.g., 'Red', 'Large'
+      imageUrl?: string; // For color swatches
+      additionalPrice?: number; // If this option changes the price
     }[];
   }[];
 }
 
-export interface ShoppingCartItem {
-  productId: string;
+export interface ShoppingCartItem { // Specific for local shopping cart if needed, or unified CartContextItem
+  productId: string; // Could be product.id
   name: string;
-  price: number;
+  price: number; // Price per unit at the time of adding
   quantity: number;
   imageUrl?: string;
   imageAiHint?: string;
-  variantInfo?: string;
+  variantInfo?: string; // e.g., "Color: Red, Size: L"
 }
 // --- End E-commerce (Shopping) Types ---
 

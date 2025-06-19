@@ -22,6 +22,7 @@ interface BusinessProfileCardProps {
   business: BusinessProfileCardData;
   onPress?: (id: string | number) => void;
   onProductClick?: (businessId: string | number, productId: string) => void;
+  onAddToCartClick: (productId: string) => void; // Modified to only take productId
   onEnquiryClick?: (id: string | number) => void;
   onCallClick?: (id: string | number, phone?: string) => void;
   onRecommendClick?: (id: string | number) => void;
@@ -53,28 +54,16 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
   business,
   onPress,
   onProductClick,
+  onAddToCartClick,
   onEnquiryClick,
   onCallClick,
   onRecommendClick,
   onShareClick,
   onFollowClick,
 }) => {
-    const { addToCart } = useCart(); // Consume the cart context
     const logoHint = business.logoAiHint || "business logo";
     const logoSrc = business.logoUrl || `https://source.unsplash.com/random/80x80/?${logoHint.split(' ').join(',') || 'logo'}`;
 
-
-    const handleProductAddToCart = (product: BusinessProductCardItem) => {
-        addToCart({
-            id: product.id,
-            name: product.name,
-            price: product.discountPrice || product.price,
-            businessId: business.id,
-            businessName: business.name,
-            imageUrl: product.imageUrl,
-            imageAiHint: product.imageAiHint,
-        });
-    };
 
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 w-full overflow-hidden">
@@ -155,7 +144,7 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
                       variant="outline"
                       size="sm"
                       className="w-full mt-2 text-xs h-8"
-                      onClick={(e) => { e.stopPropagation(); handleProductAddToCart(product); }}
+                      onClick={(e) => { e.stopPropagation(); onAddToCartClick(product.id); }}
                     >
                       <ShoppingCartIcon className="h-3.5 w-3.5 mr-1.5" /> Add to Cart
                     </Button>

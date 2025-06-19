@@ -63,5 +63,3 @@ const FoodCartItemCard: React.FC<FoodCartItemCardProps> = ({ item, onUpdateQuant
 };
 
 export default FoodCartItemCard;
-
-    
