@@ -1,30 +1,45 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 
+// This is a mock in-memory user store for the prototype.
+// In a real app, use a database like Firestore.
+const users: Record<string, { id: string; name: string; emailOrMobile: string }> = {};
+
 export async function POST(request: NextRequest) {
   console.log(`[API /api/auth/register] Received POST request at ${new Date().toISOString()}`);
   try {
-    console.log("[API /api/auth/register] Attempting to parse request body...");
     const body = await request.json();
     console.log("[API /api/auth/register] Request body parsed:", body);
-    const { name, email, password } = body; // Corrected line
+    const { name, emailOrMobile } = body; // 'email' can now be email or mobile
 
-    if (!name || !email || !password) {
-      console.log("[API /api/auth/register] Validation failed: Name, email or password missing.");
-      return NextResponse.json({ success: false, message: 'Name, email and password are required' }, { status: 400 });
+    if (!name || !emailOrMobile) {
+      console.log("[API /api/auth/register] Validation failed: Name or identifier (email/mobile) missing.");
+      return NextResponse.json({ success: false, message: 'Name and Email/Mobile are required' }, { status: 400 });
     }
 
+    // Simulate checking if user already exists (using emailOrMobile as key)
+    if (users[emailOrMobile]) {
+      console.log(`[API /api/auth/register] Registration failed: User already exists with identifier ${emailOrMobile}`);
+      return NextResponse.json({ success: false, message: 'An account with this email/mobile already exists.' }, { status: 409 });
+    }
+    
     // Simulate user creation
-    // In a real app, you would save the user to a database
+    const userId = `mock-user-${Date.now()}`;
     const newUser = {
-      id: `mock-user-${Date.now()}`, // Simple unique ID
+      id: userId,
       name: name,
-      email: email,
+      emailOrMobile: emailOrMobile,
+      email: emailOrMobile.includes('@') ? emailOrMobile : undefined, // Store email if it is one
+      // mobile: !emailOrMobile.includes('@') ? emailOrMobile : undefined, // Store mobile if it is one
     };
-    console.log("[API /api/auth/register] Registration successful for:", email, "New user:", newUser);
-    // Typically, you wouldn't send the password back, even in a mock.
-    // The success message and user object (without sensitive info) is usually sufficient.
-    return NextResponse.json({ success: true, message: 'Registration successful', user: newUser }, { status: 201 });
+    
+    users[emailOrMobile] = newUser; // Store user by their identifier
+    console.log("[API /api/auth/register] Registration successful for:", emailOrMobile, "New user:", newUser);
+    
+    // Return only non-sensitive parts of the user object
+    const publicUser = { id: newUser.id, name: newUser.name, email: newUser.email };
+
+    return NextResponse.json({ success: true, message: 'Registration successful. You can now log in using OTP.', user: publicUser }, { status: 201 });
 
   } catch (error) {
     console.error('[API /api/auth/register] Error in POST handler:', error);

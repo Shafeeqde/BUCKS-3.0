@@ -372,7 +372,7 @@ export default function AppRoot() {
     setUserData({
         id: user.id,
         name: user.name,
-        email: user.email,
+        email: user.email, // This 'email' field will now hold the identifier used for login (email or mobile)
         avatarUrl: user.avatarUrl || `https://source.unsplash.com/random/48x48/?${avatarAiHint.split(' ').join(',')}`,
         avatarAiHint: avatarAiHint,
         moments: [], // Initialize with empty moments
@@ -381,9 +381,9 @@ export default function AppRoot() {
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
   }, [toast]);
 
-  const handleRegistrationSuccess = useCallback((user: {name: string; email: string}) => {
-    setActiveTabInternal('login');
-    toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in to Bucks.` });
+  const handleRegistrationSuccess = useCallback((user: Pick<UserDataForSideMenu, 'name' | 'email'>) => { // email here is the identifier
+    setActiveTabInternal('login'); // Changed to 'login' as per new OTP flow
+    toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in using OTP.` });
   }, [toast]);
 
   const handleLogout = useCallback(() => {
@@ -1466,4 +1466,3 @@ export default function AppRoot() {
     </div>
   );
 }
-    
