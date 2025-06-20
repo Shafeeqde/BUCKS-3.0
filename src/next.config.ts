@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: false, // Changed to false for stricter builds
   },
   images: {
-    domains: ['placehold.co', 'source.unsplash.com', 'images.unsplash.com', 'api.qrserver.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -22,15 +21,15 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'source.unsplash.com',
         port: '',
-        pathname: '/**', 
+        pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com', 
+        hostname: 'images.unsplash.com',
         port: '',
         pathname: '/**',
       },
-      { 
+      {
         protocol: 'https',
         hostname: 'api.qrserver.com',
         port: '',
