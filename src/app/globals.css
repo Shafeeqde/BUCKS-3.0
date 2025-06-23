@@ -9,7 +9,7 @@ body {
 
 @layer base {
   :root {
-    /* Locality Hub Theme - Light Mode */
+    /* Bucks Theme - Light Mode */
     --background: 227 56% 97%;    /* Very light indigo (#F0F2F9) */
     --foreground: 220 20% 25%;    /* Dark Slate Blue/Grey (for text) */
 
@@ -57,7 +57,7 @@ body {
   }
 
   .dark {
-    /* Locality Hub Theme - Dark Mode */
+    /* Bucks Theme - Dark Mode */
     --background: 230 20% 10%;     /* Very Dark Desaturated Indigo/Blue */
     --foreground: 220 20% 90%;     /* Light Grey/Off-white text */
 

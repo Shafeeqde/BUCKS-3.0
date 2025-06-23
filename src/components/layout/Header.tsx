@@ -36,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({
             <p>Open Menu</p>
           </TooltipContent>
         </Tooltip>
-        <span className="text-2xl font-bold text-primary font-headline">Bucks</span>
+        <span className="text-3xl font-bold text-primary font-logo">bucks</span>
       </div>
       <div className="flex items-center space-x-1 sm:space-x-2">
         <div className="relative">
