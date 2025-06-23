@@ -32,6 +32,7 @@ import CreatePostScreen from '@/components/screens/CreatePostScreen';
 import DetailedPostScreen from '@/components/screens/DetailedPostScreen';
 import MomentViewerScreen from '@/components/moments/MomentViewerScreen';
 import ServiceBookingDialog from '@/components/services/ServiceBookingDialog';
+import SplashScreen from '@/components/screens/SplashScreen'; // New Splash Screen
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
 import { feedItems as initialFeedItemsData } from '@/lib/dummy-data/feedItems';
 import { recommendedItems as initialRecommendedItemsData } from '@/lib/dummy-data/recommendedItems';
@@ -224,8 +225,10 @@ export default function AppRoot() {
   const { toast } = useToast();
   const { addToCart: globalAddToCart } = useCart(); 
   const [isClient, setIsClient] = useState(false);
+  const [showSplashScreen, setShowSplashScreen] = useState(true);
 
-  const [activeTabInternal, setActiveTabInternal] = useState<TabName>('login');
+  const [activeTabInternal, setActiveTabInternal] = useState<TabName>('home');
+  const [authScreen, setAuthScreen] = useState<'login' | 'registration'>('login');
   const [showSideMenu, setShowSideMenu] = useState(false);
 
 
@@ -406,19 +409,20 @@ export default function AppRoot() {
         moments: [], 
     });
     setActiveTabInternal('home');
+    setAuthScreen('login'); // Reset auth view for next time
     toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
   }, [toast]);
 
-  const handleRegistrationSuccess = useCallback((user: { name: string; userId: string; email?: string }) => {
-    setActiveTabInternal('login'); 
-    toast({ title: "Registration Complete!", description: `Welcome, ${user.name}! Please log in with your User ID (${user.userId}) and the auto-suggested password.` });
+  const handleRegistrationSuccess = useCallback(() => {
+    setAuthScreen('login');
+    toast({ title: "Registration Complete!", description: `Welcome! Please log in with your User ID and the password provided.` });
   }, [toast]);
 
 
   const handleLogout = useCallback(() => {
     setIsLoggedIn(false);
     setUserData(null);
-    setActiveTabInternal('login');
+    setActiveTabInternal('home'); // Go to home screen on logout
     setShowSideMenu(false);
     setIsFabVisible(false);
     setIsActiveActivityViewVisible(false);
@@ -1221,11 +1225,8 @@ export default function AppRoot() {
   const renderScreenContent = useCallback(() => {
     if (!isClient) return null;
 
-    if (!isLoggedIn) {
-      if (activeTabInternal === 'registration') {
-        return <RegistrationScreen setActiveTab={setActiveTab} onRegistrationSuccess={handleRegistrationSuccess} />;
-      }
-      return <LoginScreen setActiveTab={setActiveTab} onLoginSuccess={handleLoginSuccess} />;
+    if (showSplashScreen) {
+      return <SplashScreen onDismiss={() => setShowSplashScreen(false)} />;
     }
 
     switch (activeTabInternal) {
@@ -1256,16 +1257,25 @@ export default function AppRoot() {
                                       onViewUserMoments={handleViewUserMoments}
                                   />;
       case 'menu': return <ServicesScreen setActiveTab={setActiveTab} onRequestRide={handleRideRequest} />;
-      case 'account': return <AccountScreen
-                                userData={userData}
-                                setActiveTab={setActiveTab}
-                                userPosts={userPosts}
-                                userMoments={userMoments}
-                                onAddMomentClick={handleAddMomentFromAccount}
-                                onViewUserMomentsClick={handleViewUserMomentsFromAccount}
-                                onViewPostDetail={handleViewPostDetail}
-                                onCreatePost={handleCreatePost}
-                             />;
+      case 'account':
+        if (isLoggedIn) {
+          return <AccountScreen
+                   userData={userData}
+                   setActiveTab={setActiveTab}
+                   userPosts={userPosts}
+                   userMoments={userMoments}
+                   onAddMomentClick={handleAddMomentFromAccount}
+                   onViewUserMomentsClick={handleViewUserMomentsFromAccount}
+                   onViewPostDetail={handleViewPostDetail}
+                   onCreatePost={handleCreatePost}
+                 />;
+        } else {
+            if (authScreen === 'login') {
+                return <LoginScreen setActiveTab={() => setAuthScreen('registration')} onLoginSuccess={handleLoginSuccess} />;
+            } else {
+                return <RegistrationScreen setActiveTab={() => setAuthScreen('login')} onRegistrationSuccess={handleRegistrationSuccess} />;
+            }
+        }
       case 'create-post': return <CreatePostScreen onPost={handlePostSubmit} onCancel={() => setActiveTab(userPosts.length > 0 ? 'account' : 'feeds')} />;
       case 'detailed-post':
         if (selectedPostForDetail) {
@@ -1441,7 +1451,9 @@ export default function AppRoot() {
     handleSelectFoodRestaurant, handleAddItemToLocalFoodCart, 
     handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, 
     handleToggleVehicleActive, 
-    toast
+    toast,
+    authScreen, // Dependency for re-rendering when auth screen changes
+    showSplashScreen
   ]);
 
 
@@ -1455,12 +1467,15 @@ export default function AppRoot() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <Header
-        onMenuClick={() => setShowSideMenu(true)}
-        onMessagesClick={() => setShowMessagesNotifications(true)}
-        onCartClick={handleNavigateToCart}
-        unreadCount={isLoggedIn ? 5 : 0}
-      />
+      {!showSplashScreen && (
+        <Header
+          isLoggedIn={isLoggedIn}
+          onMenuClick={() => setShowSideMenu(true)}
+          onMessagesClick={() => setShowMessagesNotifications(true)}
+          onCartClick={handleNavigateToCart}
+          unreadCount={isLoggedIn ? 5 : 0}
+        />
+      )}
 
       {isLoggedIn && (
         <SideMenu
@@ -1480,7 +1495,7 @@ export default function AppRoot() {
         {renderScreenContent()}
       </div>
 
-      {isLoggedIn && !['detailed-post', 'create-post', 'service-booking', 'food-restaurant-detail', 'shopping-product-detail', 'unified-cart'].includes(activeTabInternal) && (
+      {!showSplashScreen && !['detailed-post', 'create-post', 'service-booking', 'food-restaurant-detail', 'shopping-product-detail', 'unified-cart'].includes(activeTabInternal) && (
         <BottomNavigation activeTab={activeTabInternal} setActiveTab={setActiveTab} />
       )}
 
@@ -1601,3 +1616,4 @@ export default function AppRoot() {
     </div>
   );
 }
+

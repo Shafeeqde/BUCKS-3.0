@@ -21,7 +21,7 @@ import type { BusinessProfileCardData as BusinessCardDataType, BusinessProductCa
 const initialPlaceholders = [
   "What are you looking for, e.g., plumber, cafe?",
   "Search professionals, services, or businesses...",
-  "Find local experts or ask Bucks AI...",
+  "Find local experts or ask bucks AI...",
 ];
 
 export type SearchResultItem =
@@ -121,9 +121,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [aiTextAnswer, setAiTextAnswer] = useState<string | null>(null);
-  const [foundLocations, setFoundLocations] = useState<LocationResult[]>([]);
-  const [currentQueryType, setCurrentQueryType] = useState<'general' | 'location_search' | null>(null);
+  const [aiResponse, setAiResponse] = useState<GeneralQueryOutput | null>(null);
   const [isAnsweringQuery, setIsAnsweringQuery] = useState(false);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [currentPlaceholder, setCurrentPlaceholder] = useState(initialPlaceholders[0]);
@@ -148,7 +146,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         setCurrentPlaceholderIndex(prevIndex => (prevIndex + 1) % initialPlaceholders.length);
       }, 3000);
     } else {
-      setCurrentPlaceholder("Ask Bucks AI or search again...");
+      setCurrentPlaceholder("Ask bucks AI or search again...");
     }
     return () => clearInterval(intervalId);
   }, [isSearchMode, currentPlaceholderIndex]);
@@ -163,9 +161,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     setSearchTerm(e.target.value);
     if (e.target.value.trim() === '' && isSearchMode) {
         setDisplayedSearchResults([]);
-        setAiTextAnswer(null);
-        setFoundLocations([]);
-        setCurrentQueryType(null);
+        setAiResponse(null);
     }
   };
 
@@ -209,15 +205,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   }, [recentSearches]);
 
   useEffect(() => {
-    if (showSuggestions && searchTerm.trim() !== '' && !isAnsweringQuery && currentQueryType === null) {
+    if (showSuggestions && searchTerm.trim() !== '' && !isAnsweringQuery && !aiResponse) {
       const debounceTimer = setTimeout(() => {
         fetchAiSuggestions(searchTerm);
       }, 750);
       return () => clearTimeout(debounceTimer);
-    } else if (!showSuggestions || searchTerm.trim() === '' || currentQueryType !== null) {
+    } else if (!showSuggestions || searchTerm.trim() === '' || !!aiResponse) {
       if(!isLoadingAiSuggestions) setAiSuggestions([]);
     }
-  }, [searchTerm, showSuggestions, fetchAiSuggestions, isAnsweringQuery, currentQueryType, isLoadingAiSuggestions]);
+  }, [searchTerm, showSuggestions, fetchAiSuggestions, isAnsweringQuery, aiResponse, isLoadingAiSuggestions]);
 
   const performSimulatedSearch = useCallback((query: string) => {
     const trimmedQuery = query.trim();
@@ -266,9 +262,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         title: "Empty Search",
         description: "Please enter a query to search.",
       });
-      setAiTextAnswer(null);
-      setFoundLocations([]);
-      setCurrentQueryType(null);
+      setAiResponse(null);
       setDisplayedSearchResults([]);
       setIsAnsweringQuery(false);
       setIsLoadingSimulatedResults(false);
@@ -285,19 +279,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     try {
       const input: GeneralQueryInput = { query: queryToSubmit };
       const result: GeneralQueryOutput = await answerGeneralQuery(input);
-
-      setAiTextAnswer(result.answer);
-      setCurrentQueryType(result.queryType);
-      if (result.queryType === 'location_search' && result.locations) {
-        setFoundLocations(result.locations);
-      } else {
-        setFoundLocations([]);
-      }
+      setAiResponse(result);
     } catch (error) {
       console.error("Error answering query:", error);
-      setAiTextAnswer("Sorry, I couldn't get an AI answer for that. Please try again.");
-      setCurrentQueryType('general');
-      setFoundLocations([]);
+      setAiResponse({
+        answer: "Sorry, I couldn't get an AI answer for that. Please try again.",
+        queryType: 'general'
+      });
     } finally {
       setIsAnsweringQuery(false);
     }
@@ -318,9 +306,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const handleCloseSearchResults = () => {
     setIsSearchMode(false);
     setSearchTerm('');
-    setAiTextAnswer(null);
-    setFoundLocations([]);
-    setCurrentQueryType(null);
+    setAiResponse(null);
     setShowSuggestions(false);
     setAiSuggestions([]);
     setDisplayedSearchResults([]);
@@ -331,7 +317,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   let currentSuggestionTitle: string = '';
 
   const shouldTryShowSuggestionsContainer = showSuggestions &&
-                                          (!isSearchMode || (isSearchMode && !aiTextAnswer && !isAnsweringQuery && foundLocations.length === 0 && displayedSearchResults.length === 0 && !isLoadingSimulatedResults));
+                                          (!isSearchMode || (isSearchMode && !aiResponse && !isAnsweringQuery && displayedSearchResults.length === 0 && !isLoadingSimulatedResults));
 
 
   if (shouldTryShowSuggestionsContainer) {
@@ -479,31 +465,39 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <p className="text-muted-foreground">Bucks AI is thinking...</p>
+                  <p className="text-muted-foreground">bucks AI is thinking...</p>
                </div>
             )}
 
-            {!isAnsweringQuery && aiTextAnswer && (
+            {!isAnsweringQuery && aiResponse?.answer && (
               <Card className="shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-xl font-headline flex items-center">
                     <ChatBubbleLeftEllipsisIcon className="mr-2 h-5 w-5 text-primary"/>
-                    {currentQueryType === 'location_search' ? "AI Summary:" : "Bucks AI says:"}
+                    {aiResponse.queryType === 'location_search' ? "AI Summary:" : "bucks AI says:"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-foreground whitespace-pre-wrap">{aiTextAnswer}</p>
+                  <p className="text-foreground whitespace-pre-wrap">{aiResponse.answer}</p>
+                  {aiResponse.suggestedAction && (
+                    <Button 
+                        onClick={() => setActiveTab(aiResponse.suggestedAction?.targetTab as TabName)}
+                        className="mt-4"
+                    >
+                        {aiResponse.suggestedAction.label}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             )}
 
-            {!isAnsweringQuery && currentQueryType === 'location_search' && foundLocations.length > 0 && (
+            {!isAnsweringQuery && aiResponse?.queryType === 'location_search' && aiResponse.locations && aiResponse.locations.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold text-foreground font-headline mb-3 flex items-center">
                     <MapPinIcon className="mr-2 h-5 w-5 text-primary"/> Places Found:
                 </h3>
                 <div className="space-y-3">
-                  {foundLocations.map((location, index) => (
+                  {aiResponse.locations.map((location, index) => (
                     <Card
                       key={index}
                       className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"

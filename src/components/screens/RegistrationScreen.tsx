@@ -7,12 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
-import type { TabName, UserDataForSideMenu } from '@/types';
+import type { UserDataForSideMenu } from '@/types';
 import { EyeIcon, EyeSlashIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 
 interface RegistrationScreenProps {
-  setActiveTab: (tab: TabName) => void;
-  onRegistrationSuccess: (user: { name: string; userId: string; email?: string }) => void;
+  setActiveTab: (tab: 'login') => void; // More specific type
+  onRegistrationSuccess: () => void;
 }
 
 const generatePassword = (length = 10) => {
@@ -66,11 +66,7 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, o
       const result = await response.json();
 
       if (response.ok && result.success) {
-        toast({
-          title: "Registration Successful!",
-          description: `Welcome, ${result.user.name}! Please log in with your User ID and the password provided.`,
-        });
-        onRegistrationSuccess({ name: result.user.name, userId: result.user.userId, email: result.user.email });
+        onRegistrationSuccess();
       } else {
         toast({
           title: "Registration Failed",
@@ -88,7 +84,7 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, o
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
+    <div className="flex flex-col items-center justify-center min-h-full bg-background p-4">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold text-primary font-headline">

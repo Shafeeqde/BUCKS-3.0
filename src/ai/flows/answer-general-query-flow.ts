@@ -20,14 +20,19 @@ export type GeneralQueryInput = z.infer<typeof GeneralQueryInputSchema>;
 const LocationResultSchema = z.object({
   name: z.string().describe('Name of the place.'),
   address: z.string().describe('Address of the place.'),
-  // Future enhancements could include latitude, longitude, type
 });
 export type LocationResult = z.infer<typeof LocationResultSchema>;
 
+const SuggestedActionSchema = z.object({
+    label: z.string().describe("A short, actionable label for a button, e.g., 'Explore Food Services'."),
+    targetTab: z.string().describe("The specific tab name in the app to navigate to, e.g., 'food-restaurants'. Must be a valid TabName from the app's types."),
+}).optional();
+
 const GeneralQueryOutputSchema = z.object({
-  answer: z.string().describe('The AI-generated textual answer or summary for the query.'),
+  answer: z.string().describe("The AI-generated conversational answer or summary for the query. Be helpful and proactive."),
   locations: z.array(LocationResultSchema).optional().describe('A list of relevant mock locations if the query is location-based (e.g., "petrol bunks near me"). Provide 2-3 sample locations in Bangalore for demonstration. If not a location query, this should be undefined.'),
   queryType: z.enum(['general', 'location_search']).describe('Indicates if the query was primarily treated as a general question or a location search. If the query asks for places like "petrol bunks", "restaurants", etc., set this to "location_search". Otherwise, set to "general".'),
+  suggestedAction: SuggestedActionSchema,
 });
 export type GeneralQueryOutput = z.infer<typeof GeneralQueryOutputSchema>;
 
@@ -39,18 +44,29 @@ const prompt = ai.definePrompt({
   name: 'answerGeneralQueryPrompt',
   input: {schema: GeneralQueryInputSchema},
   output: {schema: GeneralQueryOutputSchema},
-  prompt: `You are bucks's intelligent assistant.
+  prompt: `You are bucks's intelligent assistant. Your goal is to be helpful, conversational, and guide the user within the app.
+The app has the following features accessible via tabs: 'home', 'feeds', 'menu', 'recommended', 'account', 'job-board', 'food-restaurants', 'shopping-categories'.
+
 Analyze the user's query: "{{{query}}}"
 
-First, determine if the query is primarily asking to find places or locations (e.g., "petrol bunks", "restaurants near me", "atm").
-- If it is a location-based query:
-  - Set 'queryType' to 'location_search'.
-  - Provide a brief textual 'answer' like "Okay, I found some [type of place] for you:".
-  - Populate the 'locations' array with 2-3 fictional but realistic mock examples of such places in Bangalore, India, including a 'name' and 'address' for each. For example, if the query is "petrol bunks", provide a few petrol bunk names and addresses.
-- If it is a general question or statement not primarily about finding places:
-  - Set 'queryType' to 'general'.
-  - Provide a concise and helpful textual 'answer' to the query.
-  - Leave the 'locations' array undefined.
+1.  **Determine User Intent**: First, determine if the query is a general question, a command, or a search for places/services available in the app.
+
+2.  **Formulate a Conversational Answer**:
+    - If it's a general question (e.g., "what is the capital of France?"), provide a direct and concise answer.
+    - If it's a search for something available in the app (e.g., "good pizza", "find a plumber", "I want to buy headphones"), provide a helpful lead-in like "I can help with that! Here's what I found..."
+
+3.  **Identify Query Type & Provide Data**:
+    - If it is a **location-based query** (e.g., "petrol bunks", "restaurants near me", "atm"):
+      - Set 'queryType' to 'location_search'.
+      - Provide a brief textual 'answer' like "Okay, I found some places for you:".
+      - Populate the 'locations' array with 2-3 fictional but realistic mock examples of such places in Bangalore, India, including a 'name' and 'address'.
+      - If the query matches an app feature (like "restaurants"), add a 'suggestedAction'. For "restaurants", suggest: \`{ "label": "Explore Food Services", "targetTab": "food-restaurants" }\`.
+    - If it is a **general question** not primarily about finding places:
+      - Set 'queryType' to 'general'.
+      - Provide a concise and helpful textual 'answer' to the query.
+      - Leave the 'locations' array undefined.
+      - If the query hints at an app feature (e.g., "I need a job" or "I want to buy clothes"), add a 'suggestedAction'. For "I need a job", suggest: \`{ "label": "Search Job Board", "targetTab": "job-board" }\`. For "buy clothes", suggest: \`{ "label": "Browse Shopping", "targetTab": "shopping-categories" }\`.
+    - If no specific action is relevant, leave 'suggestedAction' undefined.
 
 User Query: {{{query}}}
 `,
@@ -67,16 +83,14 @@ const answerGeneralQueryFlow = ai.defineFlow(
       const { output } = await prompt(input);
       if (!output) {
         console.error('answerGeneralQueryFlow: AI model did not return output.');
-        // Return a default or error-indicating structure that matches GeneralQueryOutputSchema
         return {
           answer: "Sorry, I encountered an issue processing your query. The AI model did not return a response.",
-          queryType: "general", // Default queryType
+          queryType: "general",
         };
       }
       return output;
     } catch (e: any) {
       console.error('Error in answerGeneralQueryFlow calling prompt:', e);
-      // Return a default or error-indicating structure
       return {
         answer: `Sorry, I couldn't process your request due to an error: ${e.message || 'Unknown error'}. Please try again.`,
         queryType: "general",

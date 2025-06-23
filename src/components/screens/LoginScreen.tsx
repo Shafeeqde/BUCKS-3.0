@@ -10,7 +10,7 @@ import type { TabName, UserDataForSideMenu } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
 interface LoginScreenProps {
-  setActiveTab: (tab: TabName) => void;
+  setActiveTab: (tab: 'registration') => void; // More specific type
   onLoginSuccess: (user: UserDataForSideMenu) => void;
 }
 
@@ -60,7 +60,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ setActiveTab, onLoginSuccess 
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
+    <div className="flex flex-col items-center justify-center min-h-full bg-background p-4">
       <Card className="w-full max-w-sm shadow-xl">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold text-primary font-logo">bucks</CardTitle>
@@ -122,3 +122,4 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ setActiveTab, onLoginSuccess 
 };
 
 export default LoginScreen;
+
