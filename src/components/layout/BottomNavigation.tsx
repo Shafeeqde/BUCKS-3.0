@@ -1,5 +1,5 @@
 
-import { HomeIcon, NewspaperIcon, MagnifyingGlassIcon, Squares2X2Icon, UserIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, NewspaperIcon, StarIcon, Squares2X2Icon, UserIcon } from '@heroicons/react/24/outline';
 import BottomNavItem from './BottomNavItem';
 import type { TabName } from '@/types';
 
@@ -13,7 +13,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, setActiv
     { tabName: 'home' as TabName, label: 'Home', Icon: HomeIcon },
     { tabName: 'feeds' as TabName, label: 'Feeds', Icon: NewspaperIcon },
     { tabName: 'menu' as TabName, label: 'Services', Icon: Squares2X2Icon },
-    { tabName: 'recommended' as TabName, label: 'Recommended', Icon: MagnifyingGlassIcon },
+    { tabName: 'recommended' as TabName, label: 'Recommended', Icon: StarIcon },
     { tabName: 'account' as TabName, label: 'Account', Icon: UserIcon }, 
   ];
 
