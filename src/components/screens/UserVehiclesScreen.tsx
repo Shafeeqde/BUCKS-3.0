@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { TruckIcon, PlusCircleIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline'; // Replaced Car, Edit3, etc.
+import { TruckIcon, PlusCircleIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, UserVehicle } from '@/types';
 import { cn } from '@/lib/utils';
@@ -17,13 +17,12 @@ const simulateFetchVehicles = async (): Promise<UserVehicle[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       const mockVehicles: UserVehicle[] = [
-        { id: 'v1', vehicleType: 'Car (Sedan)', licensePlate: 'ABC-123', isActive: true },
+        { id: 'v1', vehicleType: 'Car (Sedan)', licensePlate: 'ABC-123', isActive: false },
         { id: 'v2', vehicleType: 'Bike', licensePlate: 'XYZ-789', isActive: false },
-        { id: 'v3', vehicleType: 'Auto Rickshaw', licensePlate: 'PQR-456', isActive: true },
+        { id: 'v3', vehicleType: 'Auto Rickshaw', licensePlate: 'PQR-456', isActive: false },
       ];
-      console.log('Simulated user vehicles fetched:', mockVehicles);
       resolve(mockVehicles);
-    }, 1000);
+    }, 750);
   });
 };
 
@@ -36,27 +35,17 @@ const simulateAddVehicle = async (vehicleData: Pick<UserVehicle, 'vehicleType' |
         ...vehicleData,
         isActive: false, 
       };
-      console.log('Simulated vehicle added:', newVehicle);
       resolve(newVehicle);
-    }, 1000);
-  });
-};
-
-const simulateToggleVehicleStatus = async (vehicleId: string, currentStatus: boolean): Promise<boolean> => {
-  console.log(`Simulating toggling vehicle ${vehicleId} active status to ${!currentStatus}`);
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log(`Simulated status toggled for vehicle ${vehicleId}`);
-      resolve(!currentStatus);
     }, 500);
   });
 };
 
 interface UserVehiclesScreenProps {
   setActiveTab: (tab: TabName) => void;
+  onToggleVehicleActive: (vehicle: UserVehicle, newStatus: boolean) => void;
 }
 
-const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab }) => {
+const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab, onToggleVehicleActive }) => {
   const { toast } = useToast();
 
   const [vehicleType, setVehicleType] = useState('');
@@ -119,29 +108,16 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
     }
   };
 
-  const handleToggleActive = async (vehicleId: string, currentStatus: boolean) => {
-    const originalVehicles = [...vehicles];
+  const handleToggleActive = async (vehicle: UserVehicle) => {
+    const newStatus = !vehicle.isActive;
+    // Visually update immediately for better UX
     setVehicles(prevVehicles =>
       prevVehicles.map(v =>
-        v.id === vehicleId ? { ...v, isActive: !currentStatus } : v
+        v.id === vehicle.id ? { ...v, isActive: newStatus } : v
       )
     );
-
-    try {
-      await simulateToggleVehicleStatus(vehicleId, currentStatus);
-      toast({
-        title: 'Status Updated',
-        description: `Vehicle ${!currentStatus ? 'activated' : 'deactivated'}.`,
-      });
-    } catch (error) {
-      console.error('Error toggling vehicle status:', error);
-      toast({
-        title: 'Update Failed',
-        description: 'Could not update vehicle status. Please try again.',
-        variant: 'destructive',
-      });
-      setVehicles(originalVehicles); 
-    }
+    // Call the handler passed from the parent component
+    onToggleVehicleActive(vehicle, newStatus);
   };
   
   return (
@@ -151,7 +127,7 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
           <CardTitle className="text-2xl font-headline flex items-center">
             <TruckIcon className="mr-2 h-6 w-6 text-primary" /> My Vehicles
           </CardTitle>
-          <CardDescription>Manage your vehicles for providing services.</CardDescription>
+          <CardDescription>Manage your vehicles for providing services. Activate a vehicle to go online.</CardDescription>
         </CardHeader>
 
         <CardContent className="border-t pt-6">
@@ -210,13 +186,13 @@ const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab })
                         </div>
                         <div className="flex items-center space-x-3 mt-2 sm:mt-0">
                             <Label htmlFor={`status-${vehicle.id}`} className="text-sm text-muted-foreground whitespace-nowrap">
-                                {vehicle.isActive ? 'Active' : 'Inactive'}
+                                {vehicle.isActive ? 'Online' : 'Offline'}
                             </Label>
                             <Switch
                                 id={`status-${vehicle.id}`}
                                 checked={vehicle.isActive}
-                                onCheckedChange={() => handleToggleActive(vehicle.id, vehicle.isActive)}
-                                aria-label={vehicle.isActive ? "Deactivate vehicle" : "Activate vehicle"}
+                                onCheckedChange={() => handleToggleActive(vehicle)}
+                                aria-label={vehicle.isActive ? `Deactivate ${vehicle.vehicleType}` : `Activate ${vehicle.vehicleType}`}
                             />
                         </div>
                       </div>

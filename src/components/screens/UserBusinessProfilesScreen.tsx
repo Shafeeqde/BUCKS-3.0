@@ -19,8 +19,8 @@ interface UserBusinessProfilesScreenProps {
   businessProfiles: UserBusinessProfile[];
   onSelectProfile: (id: string) => void;
   onManageProfile: (id: string) => void;
-  onDeleteProfile: (id: string) => void; // Changed from onProfileUpdate
-  onToggleProfileActive: (id: string) => void; // New prop for toggling
+  onDeleteProfile: (id: string) => void; 
+  onToggleProfileActive: (id: string, newStatus: boolean) => void;
   isLoading: boolean;
 }
 
@@ -34,8 +34,7 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [profileToConfirmDelete, setProfileToConfirmDelete] = useState<UserBusinessProfile | null>(null);
-  // const { toast } = useToast(); // Toasting will be handled by page.tsx
-
+  
   const handleDeleteConfirmation = () => {
     if (!profileToConfirmDelete) return;
     onDeleteProfile(profileToConfirmDelete.id);
@@ -125,7 +124,7 @@ const UserBusinessProfilesScreen: React.FC<UserBusinessProfilesScreenProps> = ({
                           <Switch
                             id={`status-${profile.id}`}
                             checked={!!profile.isActive}
-                            onCheckedChange={() => onToggleProfileActive(profile.id)} // Call prop
+                            onCheckedChange={(checked) => onToggleProfileActive(profile.id, checked)}
                             aria-label={profile.isActive ? "Deactivate profile" : "Activate profile"}
                           />
                         </div>

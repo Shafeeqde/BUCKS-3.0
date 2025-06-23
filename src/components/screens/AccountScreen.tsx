@@ -8,8 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { UserCircleIcon, PlusCircleIcon, PhotoIcon, FilmIcon, LinkIcon as LinkOutlineIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, QueueListIcon, DocumentIcon, VideoCameraIcon, PlusIcon, TruckIcon, BikeIcon } from '@heroicons/react/24/outline'; // Using BikeIcon from lucide-react below instead if available
-import { Bike } from 'lucide-react'; // Using Lucide for Bike icon
+import { UserCircleIcon, PlusCircleIcon, PhotoIcon, FilmIcon, LinkIcon as LinkOutlineIcon, DocumentTextIcon, ChatBubbleLeftRightIcon, QueueListIcon, DocumentIcon, VideoCameraIcon, PlusIcon } from '@heroicons/react/24/outline';
 import type { TabName, UserDataForSideMenu, ProfilePost, UserMoment, FeedItem } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
@@ -22,10 +21,6 @@ interface AccountScreenProps {
   onAddMomentClick: () => void;
   onViewUserMomentsClick: () => void;
   onViewPostDetail: (post: ProfilePost | FeedItem) => void;
-  isTaxiDriverOnline: boolean;
-  onToggleTaxiDriverOnline: () => void;
-  isDeliveryDriverOnline: boolean;
-  onToggleDeliveryDriverOnline: () => void;
 }
 
 const AccountScreen: React.FC<AccountScreenProps> = ({ 
@@ -36,10 +31,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
   onAddMomentClick, 
   onViewUserMomentsClick,
   onViewPostDetail,
-  isTaxiDriverOnline,
-  onToggleTaxiDriverOnline,
-  isDeliveryDriverOnline,
-  onToggleDeliveryDriverOnline,
 }) => {
   const { toast } = useToast();
 
@@ -116,24 +107,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
                 </Button>
                 <Button size="sm" onClick={handleCreatePost} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                   <PlusCircleIcon className="mr-2 h-4 w-4" /> Create Post
-                </Button>
-            </div>
-             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <Button 
-                    variant={isTaxiDriverOnline ? "secondary" : "outline"}
-                    size="sm" 
-                    onClick={onToggleTaxiDriverOnline} 
-                    className="w-full"
-                >
-                    <TruckIcon className="mr-2 h-4 w-4" /> {isTaxiDriverOnline ? "Go Offline (Taxi)" : "Go Online (Taxi)"}
-                </Button>
-                <Button 
-                    variant={isDeliveryDriverOnline ? "secondary" : "outline"}
-                    size="sm" 
-                    onClick={onToggleDeliveryDriverOnline} 
-                    className="w-full"
-                >
-                    <Bike className="mr-2 h-4 w-4" /> {isDeliveryDriverOnline ? "Go Offline (Delivery)" : "Go Online (Delivery)"}
                 </Button>
             </div>
           </CardHeader>

@@ -54,7 +54,7 @@ import type {
     ServiceBookingRequest, ActiveBooking, BookingStatus,
     Restaurant, MenuItem,
     ProductCategory, ProductListing,
-    MessageItem, NotificationItem, ChatMessage, ActivityType, ActivityStatus
+    MessageItem, NotificationItem, ChatMessage, ActivityType, ActivityStatus, UserVehicle
 } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from 'date-fns';
@@ -341,17 +341,53 @@ export default function AppRoot() {
     });
   }, [toast]);
 
-  const handleToggleBusinessProfileActive = useCallback((profileId: string) => {
-    setBusinessProfilesData(prevProfiles => {
-      const profileToToggle = prevProfiles.find(p => p.id === profileId);
-      const newProfiles = prevProfiles.map(p =>
-        p.id === profileId ? { ...p, isActive: !p.isActive } : p
-      );
-      if (profileToToggle) {
-        toast({ title: "Status Updated", description: `"${profileToToggle.name}" is now ${!profileToToggle.isActive ? 'active' : 'inactive'}.` });
+  const handleToggleBusinessProfileActive = useCallback((profileId: string, newStatus: boolean) => {
+    setBusinessProfilesData(prevProfiles =>
+      prevProfiles.map(p =>
+        p.id === profileId ? { ...p, isActive: newStatus } : p
+      )
+    );
+    // Simulation Logic
+    setIsBusinessActiveSim(newStatus);
+    if (newStatus) {
+      setIsTaxiDriverOnlineSim(false);
+      setIsDeliveryDriverOnlineSim(false);
+      toast({ title: "Business Now Active", description: "You are now available to receive simulated product orders." });
+    } else {
+      if (activityDetails?.type === 'product_order_notification') {
+        setActivityDetails(null);
+        setIsActiveActivityViewVisible(false);
       }
-      return newProfiles;
-    });
+      toast({ title: "Business Now Inactive", description: "You will no longer receive product orders." });
+    }
+  }, [toast, activityDetails]);
+
+  const handleToggleVehicleActive = useCallback((vehicle: UserVehicle, newStatus: boolean) => {
+      // In a real app, you'd probably prevent multiple vehicles from being active.
+      const lowerType = vehicle.vehicleType.toLowerCase();
+      if (lowerType.includes('car') || lowerType.includes('auto')) {
+          setIsTaxiDriverOnlineSim(newStatus);
+          if (newStatus) {
+              setIsDeliveryDriverOnlineSim(false);
+              setIsBusinessActiveSim(false);
+              setActivityDetails({ type: 'driver_status', status: 'driver_online_idle' });
+              setIsActiveActivityViewVisible(true);
+              toast({ title: "Online for Rides", description: `You are now available for taxi requests with ${vehicle.vehicleType}.` });
+          } else {
+              handleGoOffline('taxi');
+          }
+      } else if (lowerType.includes('bike')) {
+          setIsDeliveryDriverOnlineSim(newStatus);
+          if (newStatus) {
+              setIsTaxiDriverOnlineSim(false);
+              setIsBusinessActiveSim(false);
+              setActivityDetails({type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)'});
+              setIsActiveActivityViewVisible(true);
+              toast({ title: "Online for Deliveries", description: `You are now available for delivery requests with your ${vehicle.vehicleType}.` });
+          } else {
+              handleGoOffline('delivery');
+          }
+      }
   }, [toast]);
 
 
@@ -1170,65 +1206,6 @@ export default function AppRoot() {
     } : null);
   }, [currentChatContext, userData]);
 
-  const handleToggleDeliveryDriverOnline = useCallback(() => {
-    setIsDeliveryDriverOnlineSim(prev => {
-        const newState = !prev;
-        if (newState) {
-            setIsTaxiDriverOnlineSim(false); 
-            setIsBusinessActiveSim(false); 
-            setActivityDetails({type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)'});
-            setIsActiveActivityViewVisible(true);
-            toast({ title: "Online for Deliveries", description: "You are now available for delivery requests." });
-        } else {
-            if(activityDetails?.type === 'driver_status' && activityDetails?.vehicleType === 'Bike (Delivery)') {
-                setActivityDetails(null);
-                setIsActiveActivityViewVisible(false);
-            }
-            toast({ title: "Offline for Deliveries", description: "You are no longer available for delivery requests." });
-        }
-        return newState;
-    });
-  }, [toast, activityDetails]);
-  
-  const handleToggleTaxiDriverOnline = useCallback(() => {
-      setIsTaxiDriverOnlineSim(prev => {
-          const newState = !prev;
-          if (newState) {
-              setIsDeliveryDriverOnlineSim(false); 
-              setIsBusinessActiveSim(false);
-              setActivityDetails({ type: 'driver_status', status: 'driver_online_idle' });
-              setIsActiveActivityViewVisible(true);
-              toast({ title: "Online for Rides", description: "You are now available for taxi ride requests." });
-          } else {
-              if(activityDetails?.type === 'driver_status' && !activityDetails?.vehicleType) {
-                  setActivityDetails(null);
-                  setIsActiveActivityViewVisible(false);
-              }
-              toast({ title: "Offline for Rides", description: "You are no longer available for taxi ride requests." });
-          }
-          return newState;
-      });
-  }, [toast, activityDetails]);
-
-  const handleToggleBusinessActiveSim = useCallback(() => { 
-      setIsBusinessActiveSim(prev => {
-          const newState = !prev;
-          if (newState) {
-              setIsTaxiDriverOnlineSim(false);
-              setIsDeliveryDriverOnlineSim(false);
-              toast({title: "Business Mode Active", description: "Your business is now active for simulated orders."});
-          } else {
-              if (activityDetails?.type === 'product_order_notification') { 
-                  setActivityDetails(null);
-                  setIsActiveActivityViewVisible(false);
-              }
-              toast({title: "Business Mode Inactive", description: "Your business is no longer actively simulated for orders."});
-          }
-          return newState;
-      });
-  }, [toast, activityDetails]);
-
-
   const renderScreenContent = useCallback(() => {
     if (!isClient) return null;
 
@@ -1270,10 +1247,6 @@ export default function AppRoot() {
                                 onAddMomentClick={handleAddMomentFromAccount}
                                 onViewUserMomentsClick={handleViewUserMomentsFromAccount}
                                 onViewPostDetail={handleViewPostDetail}
-                                isTaxiDriverOnline={isTaxiDriverOnlineSim}
-                                onToggleTaxiDriverOnline={handleToggleTaxiDriverOnline}
-                                isDeliveryDriverOnline={isDeliveryDriverOnlineSim}
-                                onToggleDeliveryDriverOnline={handleToggleDeliveryDriverOnline}
                              />;
       case 'create-post': return <CreatePostScreen onPost={handleCreatePost} onCancel={() => setActiveTab(userPosts.length > 0 ? 'account' : 'feeds')} />;
       case 'detailed-post':
@@ -1295,7 +1268,7 @@ export default function AppRoot() {
                                 onManageSkillsetProfile={handleManageSkillsetProfile}
                             />
                         );
-      case 'vehicles': return <UserVehiclesScreen setActiveTab={setActiveTab} />;
+      case 'vehicles': return <UserVehiclesScreen setActiveTab={setActiveTab} onToggleVehicleActive={handleToggleVehicleActive} />;
       case 'business-profiles': return (
         <UserBusinessProfilesScreen
           businessProfiles={businessProfilesData}
@@ -1345,10 +1318,6 @@ export default function AppRoot() {
                         onAddMomentClick={handleAddMomentFromAccount}
                         onViewUserMomentsClick={handleViewUserMomentsFromAccount}
                         onViewPostDetail={handleViewPostDetail}
-                        isTaxiDriverOnline={isTaxiDriverOnlineSim}
-                        onToggleTaxiDriverOnline={handleToggleTaxiDriverOnline}
-                        isDeliveryDriverOnline={isDeliveryDriverOnlineSim}
-                        onToggleDeliveryDriverOnline={handleToggleDeliveryDriverOnline}
                      />;
         }
         return <p className="p-4 text-center text-muted-foreground">No individual profile selected or user data missing.</p>;
@@ -1452,7 +1421,7 @@ export default function AppRoot() {
     handleOpenServiceBooking, handleConfirmServiceBooking,
     handleSelectFoodRestaurant, handleAddItemToLocalFoodCart, 
     handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, 
-    handleToggleTaxiDriverOnline, handleToggleDeliveryDriverOnline, handleToggleBusinessActiveSim, 
+    handleToggleVehicleActive, 
     toast
   ]);
 
