@@ -91,7 +91,9 @@ const RegistrationScreen: React.FC<RegistrationScreenProps> = ({ setActiveTab, o
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-primary font-headline">Create Bucks Account</CardTitle>
+          <CardTitle className="text-3xl font-bold text-primary font-headline">
+            Create <span className="font-logo">bucks</span> Account
+          </CardTitle>
           <CardDescription>Your credentials will be auto-suggested. Please save them securely.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

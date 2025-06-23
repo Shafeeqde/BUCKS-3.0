@@ -39,7 +39,7 @@ const prompt = ai.definePrompt({
   name: 'answerGeneralQueryPrompt',
   input: {schema: GeneralQueryInputSchema},
   output: {schema: GeneralQueryOutputSchema},
-  prompt: `You are Bucks's intelligent assistant.
+  prompt: `You are bucks's intelligent assistant.
 Analyze the user's query: "{{{query}}}"
 
 First, determine if the query is primarily asking to find places or locations (e.g., "petrol bunks", "restaurants near me", "atm").

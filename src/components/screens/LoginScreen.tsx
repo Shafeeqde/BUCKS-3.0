@@ -63,7 +63,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ setActiveTab, onLoginSuccess 
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
       <Card className="w-full max-w-sm shadow-xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-primary font-headline">Bucks</CardTitle>
+          <CardTitle className="text-3xl font-bold text-primary font-logo">bucks</CardTitle>
           <CardDescription>
             Welcome back! Please login to continue.
           </CardDescription>

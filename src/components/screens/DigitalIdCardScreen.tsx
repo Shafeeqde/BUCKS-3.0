@@ -77,7 +77,7 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
                         <div className="flex justify-between items-center mb-3 sm:mb-4">
                             <div className="flex items-center space-x-1.5">
                                 <BuildingOfficeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                                <p className="text-sm sm:text-md font-semibold text-primary">Digital user id</p>
+                                <p className="text-sm sm:text-md font-semibold text-primary">digital user id</p>
                             </div>
                             <CheckBadgeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-green-500" />
                         </div>
@@ -85,7 +85,7 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
                         <div className="flex-grow grid grid-cols-3 gap-3 sm:gap-4">
                             <div className="col-span-2 flex flex-col justify-between space-y-2 sm:space-y-3">
                                 <div>
-                                    <p className="text-xs text-muted-foreground uppercase tracking-wider">Bucks ID</p>
+                                    <p className="text-xs text-muted-foreground uppercase tracking-wider">bucks ID</p>
                                     <p className="text-xl sm:text-2xl font-bold text-primary tracking-wider font-mono break-all">
                                         {formattedCardNumberUUID}
                                     </p>
@@ -125,7 +125,7 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
                         </div>
 
                         <div className="mt-auto pt-3 sm:pt-4 border-t border-border/30 flex justify-between items-center">
-                             <p className="text-xs text-muted-foreground/70">Bucks Network</p>
+                             <p className="text-xs text-muted-foreground/70">bucks Network</p>
                              <Button variant="link" size="sm" className="text-xs h-auto p-0 text-primary/80 hover:text-primary" onClick={handleEditPersonalProfile}>
                                  Update Info
                              </Button>
