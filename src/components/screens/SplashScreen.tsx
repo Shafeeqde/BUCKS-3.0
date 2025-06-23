@@ -12,7 +12,6 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
   return (
     <div
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#0c0c1e] overflow-hidden animate-fade-in"
-      // Removed onClick and role from the main container
       aria-label="Application Splash Screen"
     >
       <style jsx>{`
@@ -20,13 +19,15 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        @keyframes glow {
-          0%, 100% { 
-            text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #00aaff, 0 0 20px #00aaff, 0 0 25px #00aaff, 0 0 30px #00aaff, 0 0 35px #00aaff;
-          }
-          50% { 
-            text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #00ccff, 0 0 40px #00ccff, 0 0 50px #00ccff, 0 0 60px #00ccff, 0 0 70px #00ccff;
-          }
+        @keyframes subtle-glow {
+            0% {
+                text-shadow: 0 0 2px #fff, 0 0 4px #fff, 0 0 6px #00aaff;
+                opacity: 0.8;
+            }
+            100% {
+                text-shadow: 0 0 5px #fff, 0 0 8px #00aaff, 0 0 12px #00aaff;
+                opacity: 1;
+            }
         }
         @keyframes space-travel {
             0% {
@@ -36,18 +37,23 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
                 transform: rotate(45deg) translateY(-200vh);
             }
         }
-        @keyframes pulse-light {
+        @keyframes core-pulse {
             0%, 100% {
-                box-shadow: 0 0 15px rgba(0, 191, 255, 0.4);
-                opacity: 0.9;
+                transform: scale(0.9);
+                opacity: 0.7;
+                box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
             }
             50% {
-                box-shadow: 0 0 30px rgba(0, 191, 255, 0.8);
+                transform: scale(1);
                 opacity: 1;
+                box-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
             }
         }
         .animate-fade-in {
           animation: fade-in 1.5s ease-in-out;
+        }
+        .animate-glow-once {
+          animation: subtle-glow 2.5s ease-out forwards;
         }
         .space-bg {
           position: absolute;
@@ -73,8 +79,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
 
       <div className="relative z-10 text-center">
         <span 
-          className="text-7xl font-bold text-white font-logo"
-          style={{ animation: 'glow 3s ease-in-out infinite' }}
+          className="text-7xl font-bold text-white font-logo animate-glow-once"
         >
           bucks
         </span>
@@ -85,12 +90,16 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
 
       <button
         onClick={onDismiss}
-        className="absolute bottom-20 z-20 px-6 py-3 text-lg font-semibold text-white bg-white/10 border border-white/20 rounded-full backdrop-blur-sm transition-all hover:bg-white/20 hover:border-white/40"
-        style={{ animation: 'pulse-light 2.5s infinite ease-in-out', animationDelay: '2s' }}
-        aria-label="Tap to begin"
+        className="absolute bottom-16 sm:bottom-20 z-20 flex flex-col items-center gap-3 group"
+        aria-label="Touch to begin"
       >
-        Tap to Begin
-      </button>
+        <div className="h-20 w-20 rounded-full flex items-center justify-center bg-white/5 border border-white/20 backdrop-blur-sm shadow-[0_0_20px_rgba(0,191,255,0.5)] transition-transform group-hover:scale-105">
+            <div className="h-16 w-16 rounded-full bg-white/10 flex items-center justify-center border border-white/30">
+                <div className="h-10 w-10 rounded-full bg-cyan-400" style={{ animation: 'core-pulse 2s infinite ease-in-out' }}></div>
+            </div>
+        </div>
+        <span className="text-white/70 tracking-widest text-sm uppercase transition-all group-hover:text-white group-hover:tracking-wider">touch here</span>
+    </button>
 
     </div>
   );
