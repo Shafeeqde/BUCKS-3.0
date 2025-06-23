@@ -2,7 +2,6 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -114,7 +113,7 @@ const DigitalIdCardScreen: React.FC<DigitalIdCardScreenProps> = ({ userData, set
                                     <AvatarImage src={avatarSrc} alt={loggedInUserName} data-ai-hint={avatarHint}/>
                                     <AvatarFallback className="text-xl sm:text-2xl bg-muted rounded-md">{loggedInUserName?.substring(0, 1).toUpperCase() || "U"}</AvatarFallback>
                                 </Avatar>
-                                <Image
+                                <img
                                     src={qrCodeUrl}
                                     alt="User ID QR Code"
                                     width={60}
