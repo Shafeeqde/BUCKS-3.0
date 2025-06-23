@@ -9,7 +9,6 @@ import RegistrationScreen from '@/components/screens/RegistrationScreen';
 import HomeScreen from '@/components/screens/HomeScreen';
 import FeedsScreen from '@/components/screens/FeedsScreen';
 import ServicesScreen from '@/components/screens/ServicesScreen';
-import RecommendedScreen from '@/components/screens/RecommendedScreen';
 import AccountScreen from '@/components/screens/AccountScreen';
 import DigitalIdCardScreen from '@/components/screens/DigitalIdCardScreen';
 import ProfessionalProfileScreen from '@/components/screens/ProfessionalProfileScreen';
@@ -43,7 +42,6 @@ import { dummyRestaurants } from '@/lib/dummy-data/restaurants';
 import ShoppingCategoriesScreen from '@/components/screens/shopping/ShoppingCategoriesScreen';
 import ShoppingProductsListScreen from '@/components/screens/shopping/ShoppingProductsListScreen';
 import ShoppingProductDetailScreen from '@/components/screens/shopping/ShoppingProductDetailScreen';
-import ShoppingCartScreen from '@/components/screens/shopping/ShoppingCartScreen'; 
 import { dummyProductCategories } from '@/lib/dummy-data/productCategories';
 import { dummyProducts } from '@/lib/dummy-data/products';
 
@@ -54,8 +52,8 @@ import type {
     TabName, UserBusinessProfile, ActivityDetails, BusinessJob, UserDataForSideMenu,
     ProfilePost, MediaAttachment, UserMoment, Category as CategoryType, FeedItem, Comment,
     ServiceBookingRequest, ActiveBooking, BookingStatus,
-    Restaurant, MenuItem, FoodCartItem, 
-    ProductCategory, ProductListing, ShoppingCartItem,
+    Restaurant, MenuItem,
+    ProductCategory, ProductListing,
     MessageItem, NotificationItem, ChatMessage, ActivityType, ActivityStatus
 } from '@/types';
 import { useToast } from "@/hooks/use-toast";
@@ -247,10 +245,9 @@ export default function AppRoot() {
   const [isActiveActivityViewVisible, setIsActiveActivityViewVisible] = useState(false);
   const [activityDetails, setActivityDetails] = useState<ActivityDetails>(null);
   
-  // Simulation states for different "online" modes
   const [isTaxiDriverOnlineSim, setIsTaxiDriverOnlineSim] = useState(false);
   const [isDeliveryDriverOnlineSim, setIsDeliveryDriverOnlineSim] = useState(false);
-  const [isBusinessActiveSim, setIsBusinessActiveSim] = useState(false); // Simulate user's business being active for receiving orders. Hardcode to true for testing.
+  const [isBusinessActiveSim, setIsBusinessActiveSim] = useState(false);
 
   const [userPosts, setUserPosts] = useState<ProfilePost[]>([]);
   const [feedItems, setFeedItems] = useState<FeedItem[]>(initialFeedItemsData);
@@ -269,14 +266,11 @@ export default function AppRoot() {
 
   const [restaurantsData, setRestaurantsData] = useState<Restaurant[]>(dummyRestaurants);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
-  const [localFoodCartItems, setLocalFoodCartItems] = useState<FoodCartItem[]>([]); 
-
 
   const [productCategoriesData, setProductCategoriesData] = useState<ProductCategory[]>(dummyProductCategories);
   const [productsData, setProductsData] = useState<ProductListing[]>(dummyProducts);
   const [selectedShoppingCategoryId, setSelectedShoppingCategoryId] = useState<string | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [shoppingCartItems, setShoppingCartItems] = useState<ShoppingCartItem[]>([]);
 
   const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
   const [showChatDetailScreen, setShowChatDetailScreen] = useState(false);
@@ -285,8 +279,6 @@ export default function AppRoot() {
 
   useEffect(() => {
     setIsClient(true);
-    // For testing product order notifications:
-    // setIsBusinessActiveSim(true); 
   }, []);
 
   const fetchBusinessProfiles = useCallback(async () => {
@@ -369,7 +361,7 @@ export default function AppRoot() {
     setUserData({
         id: user.id,
         name: user.name,
-        email: user.email, // This holds the User ID / Email
+        email: user.email,
         avatarUrl: user.avatarUrl || `https://source.unsplash.com/random/48x48/?${avatarAiHint.split(' ').join(',')}`,
         avatarAiHint: avatarAiHint,
         moments: [], 
@@ -413,10 +405,8 @@ export default function AppRoot() {
     setBookingTargetProfile(null);
     setActiveBookings([]);
     setSelectedRestaurantId(null);
-    setLocalFoodCartItems([]);
     setSelectedShoppingCategoryId(null);
     setSelectedProductId(null);
-    setShoppingCartItems([]);
     setShowMessagesNotifications(false);
     setShowChatDetailScreen(false);
     setCurrentChatContext(null);
@@ -433,7 +423,7 @@ export default function AppRoot() {
         'professional-profile', 'account-settings', 'digital-id-card',
         'create-post', 'detailed-post', 'service-booking',
         'food-restaurant-detail', 'unified-cart',
-        'shopping-products-list', 'shopping-product-detail', 'shopping-cart'
+        'shopping-products-list', 'shopping-product-detail',
     ];
 
     if (!detailTabs.includes(tab)) {
@@ -445,11 +435,10 @@ export default function AppRoot() {
         setSelectedJobId(null);
         setSelectedPostForDetail(null);
         setBookingTargetProfile(null);
-        // Smart reset for food and shopping selections
         if (tab !== 'food-restaurant-detail' && tab !== 'unified-cart' && !tab.startsWith('food-')) {
             setSelectedRestaurantId(null);
         }
-        if (tab !== 'shopping-product-detail' && tab !== 'shopping-cart' && tab !== 'unified-cart' && !tab.startsWith('shopping-')) {
+        if (tab !== 'shopping-product-detail' && tab !== 'unified-cart' && !tab.startsWith('shopping-')) {
             setSelectedShoppingCategoryId(null);
             setSelectedProductId(null);
         }
@@ -458,7 +447,7 @@ export default function AppRoot() {
     if (tab === 'business-profiles' && isLoggedIn) {
         fetchBusinessProfiles();
     }
-    if (tab === 'home') { // Clear specific selections when going home
+    if (tab === 'home') {
         setSelectedPostForDetail(null);
         setSelectedRestaurantId(null);
         setSelectedShoppingCategoryId(null);
@@ -476,11 +465,6 @@ export default function AppRoot() {
   }, [setActiveTab]);
 
   const handleSelectIndividualProfile = useCallback((profileId: string) => {
-    if (profileId === 'jenson-interior-stylist-123' || profileId === 'plumbing-profile-johndoe-123' ||
-        (profileId.startsWith('prof') && profileId.endsWith('-skillset'))) { 
-        handleSelectSkillsetProfile(profileId);
-        return;
-    }
     if (userData && profileId === userData.id) { 
         setActiveTab('account');
     } else if (profileId) { 
@@ -488,7 +472,7 @@ export default function AppRoot() {
         setActiveTab('individual-profile');
     }
     setShowSideMenu(false);
-  }, [userData, handleSelectSkillsetProfile, setActiveTab]);
+  }, [userData, setActiveTab]);
 
 
   const handleSelectBusinessProfile = useCallback((profileId: string) => {
@@ -720,7 +704,6 @@ export default function AppRoot() {
     }
   }, [viewingMomentOwnerDetails, handleSelectIndividualProfile, handleSelectBusinessProfile, businessProfilesData]);
 
-  // --- Ride Hailing / Delivery / Business Order Simulation ---
   const handleRideRequest = useCallback((rideData: { pickup: string; dropoff: string; vehicleId: string }) => {
       console.log('Ride request received in page.tsx:', rideData);
       const rideDetails: ActivityDetails = {
@@ -767,7 +750,7 @@ export default function AppRoot() {
                     requestTimeout = setTimeout(() => {
                         if (isTaxiDriverOnlineSim && activityDetails?.type === 'driver_status' && activityDetails?.status === 'driver_online_idle' && isLoggedIn) {
                             setActivityDetails({
-                                type: 'request', status: 'ride_in_progress', // Simplified
+                                type: 'request', status: 'ride_in_progress',
                                 riderName: 'Simulated Rider', pickup: '123 Frontend St', dropoff: '789 Backend Ave',
                                 fare: '₹180', vehicleType: 'Car (Mini)', distance: '5 km',
                             });
@@ -977,7 +960,6 @@ export default function AppRoot() {
       toast({ title: "Offline", description: `You are now offline for ${mode} services.` });
   }, [toast, activityDetails]);
 
-  // --- Delivery Specific Handlers ---
   const handleAcceptDelivery = useCallback(() => {
     if (activityDetails?.type === 'delivery_request') {
       setActivityDetails(prev => ({
@@ -1033,7 +1015,6 @@ export default function AppRoot() {
     }
   }, [activityDetails, toast, isDeliveryDriverOnlineSim]);
   
-  // --- Product Order Handlers ---
   const handleAcceptProductOrder = useCallback(() => {
     if (activityDetails?.type === 'product_order_notification') {
       setActivityDetails(prev => prev ? ({ ...prev, status: 'product_order_accepted' }) : null);
@@ -1123,22 +1104,6 @@ export default function AppRoot() {
     });
   }, [globalAddToCart]);
 
-  const handleUpdateLocalFoodCartItemQuantity = useCallback((menuItemId: string, newQuantity: number) => {
-    // This local cart logic is superseded by global cart
-  }, []);
-
-  const handleRemoveLocalFoodCartItem = useCallback((menuItemId: string) => {
-    // This local cart logic is superseded by global cart
-  }, [toast]);
-
-  const handleLocalFoodCheckout = useCallback(() => {
-    // This specific local food checkout is superseded by global cart checkout logic
-    toast({ title: "Food Order Placed (Simulated)", description: "Your food order has been placed successfully!" });
-    // Logic to clear food items from global cart, specific to a business, would be needed.
-    setActiveTab('home');
-  }, [toast, setActiveTab]);
-
-
   const handleNavigateToCart = useCallback(() => {
     setActiveTab('unified-cart');
   }, [setActiveTab]);
@@ -1158,27 +1123,12 @@ export default function AppRoot() {
         id: product.id,
         name: product.name,
         price: String(product.price),
-        businessId: product.brand || 'generic-shop', // Assuming brand can be a businessId
+        businessId: product.brand || 'generic-shop',
         businessName: product.brand || 'Online Store',
         imageUrl: product.imageUrl,
         imageAiHint: product.imageAiHint
     }, quantity);
   }, [globalAddToCart]);
-
-  const handleUpdateShoppingCartItemQuantity = useCallback((productId: string, newQuantity: number) => {
-    // Superseded by global cart
-  }, []);
-
-  const handleRemoveShoppingCartItem = useCallback((productId: string) => {
-    // Superseded by global cart
-  }, [toast]);
-
-  const handleShoppingCheckout = useCallback(() => {
-    // Superseded by global cart checkout
-    toast({ title: "Purchase Complete (Simulated)", description: "Thank you for your purchase!" });
-    setActiveTab('home');
-  }, [toast, setActiveTab]);
-
 
   const handleOpenChatDetail = useCallback((messageItem: MessageItem) => {
     if (!userData) {
@@ -1293,7 +1243,7 @@ export default function AppRoot() {
       case 'home': return <HomeScreen
                             setActiveTab={setActiveTab}
                             onSelectBusinessProfile={handleSelectBusinessProfile}
-                            onSelectSkillsetProfile={handleSelectSkillsetProfile}
+                            onSelectIndividualProfile={handleSelectIndividualProfile}
                             onAddToCart={(businessId, productId) => {
                                 const business = businessProfilesData.find(b => b.id === businessId) || initialBusinessProfilesData.find(b => b.id === businessId);
                                 const product = business?.products?.find(p => p.id === productId);
@@ -1312,11 +1262,6 @@ export default function AppRoot() {
                               onViewPostDetail={handleViewPostDetail}
                            />;
       case 'menu': return <ServicesScreen setActiveTab={setActiveTab} onRequestRide={handleRideRequest} />;
-      case 'recommended': return <RecommendedScreen
-                                    onViewUserMomentsClick={handleViewUserMoments}
-                                    onViewUserProfile={handleSelectIndividualProfile}
-                                    onViewPost={(postTitle) => handleViewPostDetail(feedItems.find(f => f.title === postTitle) || userPosts.find(p => p.title === postTitle) || { id: Date.now(), type: 'post', user:'Unknown', userImage:'', content:postTitle, timestamp:'Now', comments:0, recommendations:0, notRecommendations:0 } as FeedItem) }
-                                 />;
       case 'account': return <AccountScreen
                                 userData={userData}
                                 setActiveTab={setActiveTab}
@@ -1330,7 +1275,7 @@ export default function AppRoot() {
                                 isDeliveryDriverOnline={isDeliveryDriverOnlineSim}
                                 onToggleDeliveryDriverOnline={handleToggleDeliveryDriverOnline}
                              />;
-      case 'create-post': return <CreatePostScreen onPost={handleCreatePost} onCancel={() => setActiveTab('account')} />;
+      case 'create-post': return <CreatePostScreen onPost={handleCreatePost} onCancel={() => setActiveTab(userPosts.length > 0 ? 'account' : 'feeds')} />;
       case 'detailed-post':
         if (selectedPostForDetail) {
           return (
@@ -1443,12 +1388,9 @@ export default function AppRoot() {
         return <AccountSettingsScreen />;
 
       case 'service-booking':
-        // The ServiceBookingDialog is an overlay, so the underlying screen should still be rendered.
-        // Often, it's the skillset profile screen.
         if (bookingTargetProfile && selectedSkillsetProfileId) {
             return <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId} setActiveTab={setActiveTab} onBookService={handleOpenServiceBooking} />;
         }
-        // Fallback if context is lost
         setActiveTab('home');
         return <p className="p-4 text-center text-muted-foreground">Loading booking details...</p>;
 
@@ -1468,7 +1410,6 @@ export default function AppRoot() {
         const currentProduct = productsData.find(p => p.id === selectedProductId);
         return <ShoppingProductDetailScreen product={currentProduct || null} onAddToCart={handleAddItemToShoppingCart} onBack={() => setActiveTab('shopping-products-list')} />;
       
-      // `shopping-cart` case is now handled by `unified-cart`
       case 'unified-cart':
         const previousTab = 
             activeTabInternal === 'food-restaurant-detail' && selectedRestaurantId ? 'food-restaurant-detail' :
@@ -1479,7 +1420,7 @@ export default function AppRoot() {
       default: return <HomeScreen
                         setActiveTab={setActiveTab}
                         onSelectBusinessProfile={handleSelectBusinessProfile}
-                        onSelectSkillsetProfile={handleSelectSkillsetProfile}
+                        onSelectIndividualProfile={handleSelectIndividualProfile}
                         onAddToCart={(businessId, productId) => {
                             const business = businessProfilesData.find(b => b.id === businessId) || initialBusinessProfilesData.find(b => b.id === businessId);
                             const product = business?.products?.find(p => p.id === productId);
@@ -1501,7 +1442,7 @@ export default function AppRoot() {
     isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim, 
     handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
-    handleSelectIndividualProfile, handleSelectSkillsetProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
+    handleSelectIndividualProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
     handleSelectJob, handleBackFromJobDetail, handleGlobalAddToCart, handleRideRequest,
     handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive,
     handleCreatePost, handleViewPostDetail, handlePostCommentOnDetail,
@@ -1551,7 +1492,7 @@ export default function AppRoot() {
         {renderScreenContent()}
       </div>
 
-      {isLoggedIn && !['detailed-post', 'service-booking', 'food-restaurant-detail', 'shopping-product-detail', 'unified-cart'].includes(activeTabInternal) && (
+      {isLoggedIn && !['detailed-post', 'create-post', 'service-booking', 'food-restaurant-detail', 'shopping-product-detail', 'unified-cart'].includes(activeTabInternal) && (
         <BottomNavigation activeTab={activeTabInternal} setActiveTab={setActiveTab} />
       )}
 
@@ -1600,14 +1541,12 @@ export default function AppRoot() {
               else if (activityDetails?.type === 'product_order_notification' || isBusinessActiveSim) handleGoOffline('business');
               else handleGoOffline('taxi');
           }}
-          // Delivery actions
           onAcceptDelivery={handleAcceptDelivery}
           onRejectDelivery={handleRejectDelivery}
           onArrivedAtDeliveryPickup={handleArrivedAtDeliveryPickup}
           onItemPickedUp={handleItemPickedUp}
           onArrivedAtDeliveryDropoff={handleArrivedAtDeliveryDropoff}
           onCompleteDelivery={handleCompleteDelivery}
-          // Product Order actions
           onAcceptProductOrder={handleAcceptProductOrder}
           onRejectProductOrder={handleRejectProductOrder}
         />
@@ -1660,7 +1599,6 @@ export default function AppRoot() {
           onClose={() => {
             setShowServiceBookingDialog(false);
             setBookingTargetProfile(null);
-            // setActiveTab('skillset-profile'); // Commented out to prevent unintended navigation
           }}
           professionalId={bookingTargetProfile.id}
           professionalName={bookingTargetProfile.name}

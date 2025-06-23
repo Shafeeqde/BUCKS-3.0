@@ -103,57 +103,19 @@ const simulatedSearchResults: SearchResultItem[] = [
       phone: '+91 8197278080',
     },
   },
-  {
-    type: 'business',
-    data: {
-      id: 3,
-      name: 'Nandhana Palace',
-      logoUrl: 'https://placehold.co/80x80.png',
-      logoAiHint: 'andhra restaurant logo',
-      briefInfo: '20-30 mins • 5km away • Koramangala',
-      tagline: "Authentic Andhra Cuisine & Biryanis. Spice up your life!",
-      averageRating: 4.6,
-      totalReviews: 1500,
-      products: [
-        { id: 'prod-np-cb', name: 'Chicken Biryani', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'spicy chicken biryani', price: '380' },
-        { id: 'prod-np-pbm', name: 'Paneer Butter Masala', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'paneer butter masala curry', price: '320' },
-        { id: 'prod-np-gm', name: 'Gobi Manchurian', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'crispy gobi manchurian', price: '250' },
-      ],
-      phone: '+91 9012345678',
-    },
-  },
-  {
-    type: 'business',
-    data: {
-      id: 4,
-      name: "Luigi's Italian Kitchen",
-      logoUrl: 'https://placehold.co/80x80.png',
-      logoAiHint: 'italian restaurant logo',
-      briefInfo: '30-40 mins • 7km away • Indiranagar',
-      tagline: "Classic Italian pizzas, pastas, and desserts. Taste of Italy!",
-      averageRating: 4.3,
-      totalReviews: 850,
-      products: [
-        { id: 'prod-lik-mp', name: 'Margherita Pizza', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'margherita pizza wood fired', price: '480' },
-        { id: 'prod-lik-pc', name: 'Pasta Carbonara', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'creamy pasta carbonara', price: '550' },
-        { id: 'prod-lik-tiramisu', name: 'Tiramisu', imageUrl: 'https://placehold.co/150x150.png', imageAiHint: 'classic tiramisu dessert', price: '300' },
-      ],
-      phone: '+91 9988776655',
-    },
-  },
 ];
 
 interface HomeScreenProps {
   setActiveTab: (tab: TabName) => void;
   onSelectBusinessProfile: (profileId: string | number) => void;
-  onSelectSkillsetProfile: (skillsetProfileId: string) => void;
+  onSelectIndividualProfile: (profileId: string) => void; // Changed from onSelectSkillsetProfile
   onAddToCart: (businessId: string | number, productId: string) => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
   setActiveTab,
   onSelectBusinessProfile,
-  onSelectSkillsetProfile,
+  onSelectIndividualProfile, // Changed from onSelectSkillsetProfile
   onAddToCart
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -391,8 +353,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const showResultsArea = isSearchMode;
 
   const handleIndividualCardPress = (profileId: string) => {
-    console.log(`[HomeScreen] Individual/Skillset card pressed, navigating to skillset profile: ${profileId}`);
-    onSelectSkillsetProfile(profileId);
+    console.log(`[HomeScreen] Individual card pressed, navigating to individual profile: ${profileId}`);
+    onSelectIndividualProfile(profileId);
   };
 
   const handleBusinessCardPress = (id: string | number) => {
@@ -636,5 +598,3 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 };
 
 export default HomeScreen;
-
-    

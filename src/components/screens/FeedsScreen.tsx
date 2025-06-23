@@ -7,28 +7,26 @@ import FeedCard from '@/components/feeds/FeedCard';
 import type { Category, FeedItem as FeedItemType } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
-// Removed initialFeedItemsData as it's now a prop
 
 interface FeedsScreenProps {
   onViewUserProfile?: (profileId: string) => void;
   onAddMomentClick: () => void;
   onViewUserMomentsClick: (profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => void;
-  onViewPostDetail: (post: FeedItemType) => void; // New prop
-  feedItems: FeedItemType[]; // New prop
+  onViewPostDetail: (post: FeedItemType) => void;
+  feedItems: FeedItemType[];
 }
 
 const FeedsScreen: React.FC<FeedsScreenProps> = ({ 
   onViewUserProfile,
   onAddMomentClick,
   onViewUserMomentsClick,
-  onViewPostDetail, // Use new prop
-  feedItems: initialFeedItems // Use new prop
+  onViewPostDetail,
+  feedItems: initialFeedItems
 }) => {
   const [categories, setCategories] = useState<Category[]>(initialCategoriesData);
-  const [feedItems, setFeedItems] = useState<FeedItemType[]>(initialFeedItems); // State now uses passed prop
+  const [feedItems, setFeedItems] = useState<FeedItemType[]>(initialFeedItems);
   const { toast } = useToast();
 
-  // Effect to update local feedItems state if the prop changes (e.g., after a comment)
   React.useEffect(() => {
     setFeedItems(initialFeedItems);
   }, [initialFeedItems]);
@@ -98,6 +96,7 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
         </div>
 
         <div className="p-4 space-y-4">
+          {/* You could add a "Recommended" section here if desired */}
           {feedItems.map((item) => (
             <FeedCard
               key={item.id}
@@ -105,7 +104,7 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
               onInteraction={handleInteraction}
               onViewUserProfile={onViewUserProfile} 
               onViewUserMoments={onViewUserMomentsClick}
-              onViewDetail={() => onViewPostDetail(item)} // Pass the item to the handler
+              onViewDetail={() => onViewPostDetail(item)}
             />
           ))}
         </div>

@@ -1,5 +1,5 @@
 
-import { HomeIcon, NewspaperIcon, Squares2X2Icon, StarIcon, UserIcon } from '@heroicons/react/24/outline'; // Changed ChatBubbleOvalLeftEllipsisIcon to NewspaperIcon
+import { HomeIcon, NewspaperIcon, PlusCircleIcon, Squares2X2Icon, UserIcon } from '@heroicons/react/24/outline';
 import BottomNavItem from './BottomNavItem';
 import type { TabName } from '@/types';
 
@@ -11,9 +11,9 @@ interface BottomNavigationProps {
 const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, setActiveTab }) => {
   const navItems = [
     { tabName: 'home' as TabName, label: 'Home', Icon: HomeIcon },
-    { tabName: 'feeds' as TabName, label: 'Feeds', Icon: NewspaperIcon }, // Changed Icon here
+    { tabName: 'feeds' as TabName, label: 'Feeds', Icon: NewspaperIcon },
+    { tabName: 'create-post' as TabName, label: 'Create', Icon: PlusCircleIcon },
     { tabName: 'menu' as TabName, label: 'Services', Icon: Squares2X2Icon },
-    { tabName: 'recommended' as TabName, label: 'Recommended', Icon: StarIcon },
     { tabName: 'account' as TabName, label: 'Account', Icon: UserIcon }, 
   ];
 

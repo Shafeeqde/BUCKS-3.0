@@ -11,7 +11,6 @@ export type TabName =
   | 'home'
   | 'feeds'
   | 'menu'
-  | 'recommended'
   | 'account'
   | 'professional-profile'
   | 'vehicles'
@@ -37,7 +36,6 @@ export type TabName =
   | 'shopping-categories'
   | 'shopping-products-list'
   | 'shopping-product-detail'
-  | 'shopping-cart' // This might be replaced by unified-cart or become business-specific
   // Unified Cart
   | 'unified-cart';
 
@@ -113,20 +111,6 @@ export interface Service {
   locked: boolean;
   dataAiHint?: string;
   targetTab?: TabName; // Optional: to directly navigate to a specific tab
-}
-
-export interface RecommendedPost {
-  id: number;
-  recommendedBy: string;
-  userImage: string;
-  userImageAiHint?: string;
-  recommenderProfileId?: string;
-  title: string;
-  content: string;
-  thumbnail: string;
-  thumbnailAiHint?: string;
-  type: 'image' | 'video';
-  otherRecommendersCount?: number;
 }
 
 export interface LocationResult {
@@ -591,17 +575,6 @@ export interface Restaurant {
   address?: string;
   menu: MenuItem[];
 }
-
-export interface FoodCartItem { // Specific for local food cart if needed, or unified CartContextItem
-  menuItemId: string; // Could be product.id for consistency
-  name: string;
-  price: number;
-  quantity: number;
-  imageUrl?: string;
-  imageAiHint?: string;
-  restaurantId: string; // Corresponds to businessId
-  restaurantName: string; // Corresponds to businessName
-}
 // --- End Food Ordering Types ---
 
 // --- E-commerce (Shopping) Types ---
@@ -636,16 +609,6 @@ export interface ProductListing {
       additionalPrice?: number; // If this option changes the price
     }[];
   }[];
-}
-
-export interface ShoppingCartItem { // Specific for local shopping cart if needed, or unified CartContextItem
-  productId: string; // Could be product.id
-  name: string;
-  price: number; // Price per unit at the time of adding
-  quantity: number;
-  imageUrl?: string;
-  imageAiHint?: string;
-  variantInfo?: string; // e.g., "Color: Red, Size: L"
 }
 // --- End E-commerce (Shopping) Types ---
 
