@@ -9,7 +9,7 @@ import RegistrationScreen from '@/components/screens/RegistrationScreen';
 import HomeScreen from '@/components/screens/HomeScreen';
 import FeedsScreen from '@/components/screens/FeedsScreen';
 import RecommendedScreen from '@/components/screens/RecommendedScreen';
-import ServicesScreen from '@/components/screens/services/ServicesScreen'; // Corrected Path
+import ServicesScreen from '@/components/services/ServicesScreen';
 import AccountScreen from '@/components/screens/AccountScreen';
 import DigitalIdCardScreen from '@/components/screens/DigitalIdCardScreen';
 import ProfessionalProfileScreen from '@/components/screens/ProfessionalProfileScreen';
@@ -30,7 +30,6 @@ import JobDetailScreen from '@/components/screens/JobDetailScreen';
 import AccountSettingsScreen from '@/components/screens/AccountSettingsScreen';
 import CreatePostScreen from '@/components/screens/CreatePostScreen';
 import DetailedPostScreen from '@/components/screens/DetailedPostScreen';
-import CreateMomentDialog from '@/components/moments/CreateMomentDialog';
 import MomentViewerScreen from '@/components/moments/MomentViewerScreen';
 import ServiceBookingDialog from '@/components/services/ServiceBookingDialog';
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
@@ -572,7 +571,11 @@ export default function AppRoot() {
     });
   }, [globalAddToCart]);
 
-  const handleCreatePost = useCallback((content: string, media?: MediaAttachment) => {
+  const handleCreatePost = useCallback(() => {
+    setActiveTab('create-post');
+  }, [setActiveTab]);
+  
+  const handlePostSubmit = useCallback((content: string, media?: MediaAttachment) => {
     if (!userData) {
         toast({ title: "Not Logged In", description: "You must be logged in to create a post.", variant: "destructive" });
         return;
@@ -1261,8 +1264,9 @@ export default function AppRoot() {
                                 onAddMomentClick={handleAddMomentFromAccount}
                                 onViewUserMomentsClick={handleViewUserMomentsFromAccount}
                                 onViewPostDetail={handleViewPostDetail}
+                                onCreatePost={handleCreatePost}
                              />;
-      case 'create-post': return <CreatePostScreen onPost={handleCreatePost} onCancel={() => setActiveTab(userPosts.length > 0 ? 'account' : 'feeds')} />;
+      case 'create-post': return <CreatePostScreen onPost={handlePostSubmit} onCancel={() => setActiveTab(userPosts.length > 0 ? 'account' : 'feeds')} />;
       case 'detailed-post':
         if (selectedPostForDetail) {
           return (
@@ -1332,6 +1336,7 @@ export default function AppRoot() {
                         onAddMomentClick={handleAddMomentFromAccount}
                         onViewUserMomentsClick={handleViewUserMomentsFromAccount}
                         onViewPostDetail={handleViewPostDetail}
+                        onCreatePost={handleCreatePost}
                      />;
         }
         return <p className="p-4 text-center text-muted-foreground">No individual profile selected or user data missing.</p>;
@@ -1416,7 +1421,7 @@ export default function AppRoot() {
                       />;
     }
   }, [
-    isClient, isLoggedIn, activeTabInternal, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments, feedItems,
+    isClient, isLoggedIn, activeTabInternal, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments, feedItems, recommendedItems,
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, selectedPostForDetail,
     bookingTargetProfile,
@@ -1428,7 +1433,7 @@ export default function AppRoot() {
     handleSelectIndividualProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
     handleSelectJob, handleBackFromJobDetail, handleGlobalAddToCart, handleRideRequest,
     handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive,
-    handleCreatePost, handleViewPostDetail, handlePostCommentOnDetail,
+    handleCreatePost, handlePostSubmit, handleViewPostDetail, handlePostCommentOnDetail,
     handleAddMomentFromAccount, handleViewUserMomentsFromAccount,
     handleViewUserMoments,
     handleNavigateToOwnerProfileFromMomentViewer,
@@ -1556,11 +1561,15 @@ export default function AppRoot() {
         />
       )}
 
-      {isClient && isLoggedIn && showCreateMomentDialog && userData && (
-        <CreateMomentDialog
+      {isLoggedIn && showCreateMomentDialog && (
+        <MomentViewerScreen
           isOpen={showCreateMomentDialog}
           onClose={() => setShowCreateMomentDialog(false)}
-          onCreateMoment={handleCreateMoment}
+          moments={[]}
+          ownerName={userData?.name}
+          ownerAvatarUrl={userData?.avatarUrl}
+          ownerAvatarAiHint={userData?.avatarAiHint}
+          onViewOwnerProfile={() => setActiveTab('account')}
         />
       )}
 

@@ -1,28 +1,20 @@
 
-"use client"; // Mark as Client Component
+"use client";
 
 import React from 'react';
-// Assuming standard React components
 import Image from 'next/image';
-import Link from 'next/link'; // If products will have detail pages
-import { cn } from '@/lib/utils'; // Assuming utility for classes
-
- // Example using lucide-react for icons
- import { StarIcon, ChatBubbleOvalLeftEllipsisIcon, PhoneIcon, HandThumbUpIcon, ShareIcon, UserPlusIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
-
-
- import { useCart } from '@/context/CartContext'; // Import useCart hook
- import type { BusinessProfileCardData, BusinessProductCardItem } from '@/types';
- import { Button } from '@/components/ui/button';
- import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
- import { Badge } from '@/components/ui/badge';
-
+import { cn } from '@/lib/utils';
+import { StarIcon, ChatBubbleOvalLeftEllipsisIcon, PhoneIcon, HandThumbUpIcon, ShareIcon, UserPlusIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+import type { BusinessProfileCardData, BusinessProductCardItem } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface BusinessProfileCardProps {
   business: BusinessProfileCardData;
   onPress?: (id: string | number) => void;
   onProductClick?: (businessId: string | number, productId: string) => void;
-  onAddToCartClick: (productId: string) => void; // Modified to only take productId
+  onAddToCartClick: (productId: string) => void;
   onEnquiryClick?: (id: string | number) => void;
   onCallClick?: (id: string | number, phone?: string) => void;
   onRecommendClick?: (id: string | number) => void;
@@ -30,10 +22,9 @@ interface BusinessProfileCardProps {
   onFollowClick?: (id: string | number) => void;
 }
 
-// Helper component for rendering stars
 const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: string }> = ({ rating, size = 4, className }) => {
     const fullStars = Math.floor(rating);
-    const halfStar = rating % 1 >= 0.4; // Use 0.4 to round up .5 and above to full, but show half for .4 like 4.4
+    const halfStar = rating % 1 >= 0.4;
     const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
 
     return (
@@ -49,7 +40,6 @@ const StarRatingDisplay: React.FC<{ rating: number; size?: number; className?: s
     );
 };
 
-
 const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
   business,
   onPress,
@@ -63,7 +53,6 @@ const BusinessProfileCard: React.FC<BusinessProfileCardProps> = ({
 }) => {
     const logoHint = business.logoAiHint || "business logo";
     const logoSrc = business.logoUrl || `https://source.unsplash.com/random/80x80/?${logoHint.split(' ').join(',') || 'logo'}`;
-
 
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 w-full overflow-hidden">

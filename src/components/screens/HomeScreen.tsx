@@ -108,14 +108,14 @@ const simulatedSearchResults: SearchResultItem[] = [
 interface HomeScreenProps {
   setActiveTab: (tab: TabName) => void;
   onSelectBusinessProfile: (profileId: string | number) => void;
-  onSelectSkillsetProfile: (skillsetProfileId: string) => void;
+  onSelectIndividualProfile: (profileId: string) => void;
   onAddToCart: (businessId: string | number, productId: string) => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
   setActiveTab,
   onSelectBusinessProfile,
-  onSelectSkillsetProfile,
+  onSelectIndividualProfile,
   onAddToCart
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -353,8 +353,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const showResultsArea = isSearchMode;
 
   const handleIndividualCardPress = (profileId: string) => {
-    console.log(`[HomeScreen] Individual/Skillset card pressed, navigating to skillset profile: ${profileId}`);
-    onSelectSkillsetProfile(profileId);
+    console.log(`[HomeScreen] Individual card pressed, navigating to individual profile: ${profileId}`);
+    onSelectIndividualProfile(profileId);
   };
 
   const handleBusinessCardPress = (id: string | number) => {
@@ -390,7 +390,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         )}
 
-        <div className={cn("flex items-center", isSearchMode ? "p-4 space-x-2" : "")}>
+        <div className={cn("flex items-center", isSearchMode ? "p-4 space-x-2" : "p-4")}> {/* Added p-4 for non-search mode */}
           {isSearchMode && (
             <Button
               variant="ghost"
@@ -598,5 +598,3 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 };
 
 export default HomeScreen;
-
-    
