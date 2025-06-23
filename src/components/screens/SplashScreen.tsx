@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -6,6 +7,13 @@ import { cn } from '@/lib/utils';
 interface SplashScreenProps {
   onDismiss: () => void;
 }
+
+const FingerprintIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.864 4.243A7.5 7.5 0 0 1 19.5 7.864M6.75 19.5A7.5 7.5 0 0 0 19.5 7.864M6.75 19.5A7.5 7.5 0 0 1 5.25 12m14.25 7.5a7.5 7.5 0 0 0-14.25 0M4.125 12a7.5 7.5 0 0 1 14.25 0M8.625 12a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0Z" />
+    </svg>
+);
+
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
 
@@ -39,21 +47,26 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
         }
         @keyframes core-pulse {
             0%, 100% {
-                transform: scale(0.9);
-                opacity: 0.7;
-                box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+                transform: scale(0.95);
+                opacity: 0.8;
             }
             50% {
                 transform: scale(1);
                 opacity: 1;
-                box-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
             }
+        }
+        @keyframes slow-load {
+            0% { width: 0%; }
+            100% { width: 100%; }
         }
         .animate-fade-in {
           animation: fade-in 1.5s ease-in-out;
         }
         .animate-glow-once {
           animation: subtle-glow 2.5s ease-out forwards;
+        }
+        .animate-slow-load {
+            animation: slow-load 4s ease-out forwards;
         }
         .space-bg {
           position: absolute;
@@ -75,6 +88,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
         }
       `}</style>
       
+      <div className="absolute top-0 left-0 h-1 bg-cyan-400/50 shadow-[0_0_10px_rgba(0,255,255,0.5)] animate-slow-load"></div>
       <div className="space-bg"></div>
 
       <div className="relative z-10 text-center">
@@ -94,11 +108,10 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
         aria-label="Touch to begin"
       >
         <div className="h-20 w-20 rounded-full flex items-center justify-center bg-white/5 border border-white/20 backdrop-blur-sm shadow-[0_0_20px_rgba(0,191,255,0.5)] transition-transform group-hover:scale-105">
-            <div className="h-16 w-16 rounded-full bg-white/10 flex items-center justify-center border border-white/30">
-                <div className="h-10 w-10 rounded-full bg-cyan-400" style={{ animation: 'core-pulse 2s infinite ease-in-out' }}></div>
+            <div className="h-16 w-16 rounded-full bg-white/10 flex items-center justify-center border border-white/30" style={{ animation: 'core-pulse 2s infinite ease-in-out' }}>
+                 <FingerprintIcon className="w-8 h-8 text-cyan-200/80 group-hover:text-white transition-colors" />
             </div>
         </div>
-        <span className="text-white/70 tracking-widest text-sm uppercase transition-all group-hover:text-white group-hover:tracking-wider">touch here</span>
     </button>
 
     </div>
