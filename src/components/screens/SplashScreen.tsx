@@ -9,21 +9,23 @@ interface SplashScreenProps {
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
+  // Automatically dismiss after a few seconds if not clicked
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      onDismiss();
+    }, 3500); // 3.5 seconds
+    return () => clearTimeout(timer);
+  }, [onDismiss]);
+
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background cursor-pointer animate-fade-out"
-      style={{ animationFillMode: 'forwards', animationDelay: '2.5s' }}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background cursor-pointer animate-fade-in"
       onClick={onDismiss}
-      onAnimationEnd={onDismiss} // Dismiss when animation finishes
     >
       <style jsx>{`
         @keyframes fade-in {
           from { opacity: 0; }
           to { opacity: 1; }
-        }
-        @keyframes fade-out {
-          from { opacity: 1; }
-          to { opacity: 0; pointer-events: none; }
         }
         @keyframes pulse {
           0%, 100% { transform: scale(1); opacity: 1; }
@@ -36,16 +38,12 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
           animation: pulse 2s ease-in-out infinite;
           animation-delay: 0.5s;
         }
-        .animate-fade-out {
-            animation: fade-out 0.5s ease-in-out;
-            animation-delay: 2s;
-        }
       `}</style>
-      <div className="animate-fade-in text-center">
+      <div className="text-center">
         <span className="text-7xl font-bold text-primary font-logo animate-pulse-logo">
           bucks
         </span>
-        <p className="mt-4 text-muted-foreground animate-fade-in" style={{animationDelay: '1s'}}>
+        <p className="mt-4 text-muted-foreground animate-fade-in" style={{animationDelay: '0.5s'}}>
           Your personal finance and lifestyle companion.
         </p>
       </div>
