@@ -9,7 +9,7 @@
  * - GeneralQueryOutput - The return type for the answerGeneralQuery function.
  */
 
-import {ai} from '@/ai/genkit';
+import {ai, defaultGenkitModel} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GeneralQueryInputSchema = z.object({
@@ -37,6 +37,13 @@ const GeneralQueryOutputSchema = z.object({
 export type GeneralQueryOutput = z.infer<typeof GeneralQueryOutputSchema>;
 
 export async function answerGeneralQuery(input: GeneralQueryInput): Promise<GeneralQueryOutput> {
+  if (!defaultGenkitModel) {
+    console.warn('answerGeneralQueryFlow: AI model not configured. Returning default message.');
+    return {
+      answer: "The AI assistant is not configured. Please set the GOOGLE_GENAI_API_KEY environment variable to enable this feature.",
+      queryType: "general",
+    };
+  }
   return answerGeneralQueryFlow(input);
 }
 

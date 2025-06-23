@@ -9,7 +9,7 @@
  * - SuggestSearchTermsOutput - The return type for the suggestSearchTerms function.
  */
 
-import {ai} from '@/ai/genkit';
+import {ai, defaultGenkitModel} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const SuggestSearchTermsInputSchema = z.object({
@@ -26,6 +26,10 @@ const SuggestSearchTermsOutputSchema = z.object({
 export type SuggestSearchTermsOutput = z.infer<typeof SuggestSearchTermsOutputSchema>;
 
 export async function suggestSearchTerms(input: SuggestSearchTermsInput): Promise<SuggestSearchTermsOutput> {
+  if (!defaultGenkitModel) {
+    console.warn('suggestSearchTermsFlow: AI model not configured. Returning empty suggestions.');
+    return { suggestedTerms: [] };
+  }
   return suggestSearchTermsFlow(input);
 }
 

@@ -3,7 +3,7 @@ import {genkit, type GenkitPlugin, type ModelReference} from 'genkit';
 import {googleAI, gemini20Flash} from '@genkit-ai/googleai';
 
 const pluginsList: GenkitPlugin[] = [];
-let defaultGenkitModel: ModelReference<any> | undefined = undefined;
+export let defaultGenkitModel: ModelReference<any> | undefined = undefined;
 
 if (process.env.GOOGLE_GENAI_API_KEY) {
   pluginsList.push(googleAI());
