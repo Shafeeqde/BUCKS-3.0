@@ -6,7 +6,8 @@ export const recommendedItems: FeedItem[] = [
     id: 101, type: 'recommended', user: 'Travel Vlogger', userImage: 'https://source.unsplash.com/random/40x40/?traveler,profile', userImageAiHint: 'traveler profile', profileId: 'travel-vlogger-profile',
     timestamp: '2 days ago', content: 'Incredible sunset view from the cliffs of Varkala. A must-visit for any traveler in Kerala! #travel #india #sunset',
     media: { type: 'image', url: 'https://source.unsplash.com/random/600x400/?varkala,cliffs,sunset', aiHint: 'varkala cliffs sunset' },
-    comments: 15, recommendations: 120, notRecommendations: 2, commentsData: []
+    comments: 15, recommendations: 120, notRecommendations: 2, commentsData: [],
+    recommendedBy: { name: 'Senthil D.', othersCount: 22 }
   },
   {
     id: 102, type: 'recommended', user: 'Food Explorer', userImage: 'https://source.unsplash.com/random/40x40/?foodie,profile', userImageAiHint: 'foodie profile', profileId: 'food-explorer-profile',
@@ -15,10 +16,17 @@ export const recommendedItems: FeedItem[] = [
     comments: 25, recommendations: 200, notRecommendations: 5, commentsData: []
   },
   {
+    id: 107, type: 'ad', user: 'Bucks Pro Tools', userImage: 'https://source.unsplash.com/random/40x40/?tools,logo', userImageAiHint: 'tools logo', profileId: 'bucks-pro-tools-profile',
+    timestamp: 'Sponsored', content: 'Get the job done right with Bucks Pro Tools. Premium quality, unbeatable prices. Shop now!',
+    media: { type: 'image', url: 'https://source.unsplash.com/random/600x400/?power,tools,workshop', aiHint: 'power tools workshop' },
+    comments: 0, recommendations: 0, notRecommendations: 0, commentsData: []
+  },
+  {
     id: 103, type: 'recommended', user: 'DIY Crafts', userImage: 'https://source.unsplash.com/random/40x40/?crafts,profile,woman', userImageAiHint: 'crafts profile woman', profileId: 'diy-crafts-profile',
     timestamp: '5 hours ago', content: 'Here\'s a quick tutorial on how to make your own macrame plant hangers. It\'s easier than you think! #diy #crafts #macrame',
     media: { type: 'image', url: 'https://source.unsplash.com/random/600x400/?macrame,plant,hanger', aiHint: 'macrame plant hanger' },
-    comments: 8, recommendations: 85, notRecommendations: 1, commentsData: []
+    comments: 8, recommendations: 85, notRecommendations: 1, commentsData: [],
+    recommendedBy: { name: 'Deepthi S.', othersCount: 15 }
   },
   {
     id: 104, type: 'recommended', user: 'Tech Reviews', userImage: 'https://source.unsplash.com/random/40x40/?tech,reviewer,profile', userImageAiHint: 'tech reviewer profile', profileId: 'tech-reviews-profile',
@@ -36,6 +44,7 @@ export const recommendedItems: FeedItem[] = [
     id: 106, type: 'recommended', user: 'Fitness Coach', userImage: 'https://source.unsplash.com/random/40x40/?fitness,coach,profile', userImageAiHint: 'fitness coach profile', profileId: 'fitness-coach-profile',
     timestamp: '8 hours ago', content: 'Quick 15-minute HIIT workout you can do at home with no equipment. Let\'s get moving! #fitness #workout #hiit',
     media: { type: 'image', url: 'https://source.unsplash.com/random/600x400/?home,workout,fitness', aiHint: 'home workout fitness' },
-    comments: 18, recommendations: 110, notRecommendations: 4, commentsData: []
+    comments: 18, recommendations: 110, notRecommendations: 4, commentsData: [],
+    recommendedBy: { name: 'Subhesh P.', othersCount: 41 }
   }
 ];

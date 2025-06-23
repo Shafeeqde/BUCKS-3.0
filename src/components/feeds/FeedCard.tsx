@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { ChatBubbleOvalLeftEllipsisIcon, EllipsisVerticalIcon } from '@heroicons/react/24/outline';
+import { ChatBubbleOvalLeftEllipsisIcon, EllipsisVerticalIcon, HandThumbUpIcon } from '@heroicons/react/24/outline';
 import ArrowUpIcon from '@/components/icons/ArrowUpIcon';
 import ArrowDownIcon from '@/components/icons/ArrowDownIcon';
 import type { FeedItem as FeedItemType } from '@/types';
@@ -92,7 +92,7 @@ const FeedCard: React.FC<FeedCardProps> = ({
           aria-label={isNameClickable ? `View ${item.user}'s profile` : undefined}
         >
           <CardTitle className={cn("text-base font-semibold text-foreground font-headline", isNameClickable && "hover:text-primary hover:underline")}>{item.user}</CardTitle>
-          <p className="text-sm text-muted-foreground">{item.timestamp}</p>
+          <p className="text-sm text-muted-foreground">{item.type === 'ad' ? 'Sponsored' : item.timestamp}</p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -113,6 +113,12 @@ const FeedCard: React.FC<FeedCardProps> = ({
         </DropdownMenu>
       </CardHeader>
       <CardContent className="pb-3">
+        {item.recommendedBy && (
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2 p-2 bg-muted/50 rounded-md">
+            <HandThumbUpIcon className="h-4 w-4 text-green-500"/>
+            <span className="font-semibold">Recommended by {item.recommendedBy.name} and {item.recommendedBy.othersCount} others</span>
+          </div>
+        )}
         <p className="text-foreground mb-3 whitespace-pre-line">{item.content}</p>
         {item.media && item.media.type === 'image' && item.media.url && (
           <div className="relative w-full aspect-[16/9] rounded-lg overflow-hidden mb-3 cursor-pointer" onClick={onViewDetail}>

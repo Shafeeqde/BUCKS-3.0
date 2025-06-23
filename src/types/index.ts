@@ -1,4 +1,5 @@
 
+
 import type { ForwardRefExoticComponent, RefAttributes, SVGProps } from 'react'; // For Heroicons
 
 // Used by Heroicons
@@ -88,6 +89,10 @@ export interface FeedItem {
   showCommentBox?: boolean; // UI state, might not be ideal here
   currentComment?: string; // UI state
   commentsData?: Comment[];
+  recommendedBy?: {
+    name: string;
+    othersCount: number;
+  };
 }
 
 export interface ProfilePost {
