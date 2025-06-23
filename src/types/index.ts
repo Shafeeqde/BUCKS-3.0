@@ -10,6 +10,7 @@ export type TabName =
   | 'registration'
   | 'home'
   | 'feeds'
+  | 'recommended' // Reinstated
   | 'menu'
   | 'account'
   | 'professional-profile'
@@ -71,7 +72,7 @@ export interface Comment {
 
 export interface FeedItem {
   id: number;
-  type: 'post' | 'job' | 'ad';
+  type: 'post' | 'job' | 'ad' | 'recommended';
   user: string;
   userImage: string;
   userImageAiHint?: string;

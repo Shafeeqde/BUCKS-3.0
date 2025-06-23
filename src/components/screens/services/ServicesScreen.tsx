@@ -18,8 +18,8 @@ import {
   TicketIcon,
   BuildingLibraryIcon, 
 } from '@heroicons/react/24/outline'; 
-import { Button } from '../ui/button';
-import { ScrollArea } from '../ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 

@@ -8,7 +8,8 @@ import LoginScreen from '@/components/screens/LoginScreen';
 import RegistrationScreen from '@/components/screens/RegistrationScreen';
 import HomeScreen from '@/components/screens/HomeScreen';
 import FeedsScreen from '@/components/screens/FeedsScreen';
-import ServicesScreen from '@/components/screens/ServicesScreen';
+import RecommendedScreen from '@/components/screens/RecommendedScreen';
+import ServicesScreen from '@/components/screens/services/ServicesScreen'; // Corrected Path
 import AccountScreen from '@/components/screens/AccountScreen';
 import DigitalIdCardScreen from '@/components/screens/DigitalIdCardScreen';
 import ProfessionalProfileScreen from '@/components/screens/ProfessionalProfileScreen';
@@ -34,6 +35,8 @@ import MomentViewerScreen from '@/components/moments/MomentViewerScreen';
 import ServiceBookingDialog from '@/components/services/ServiceBookingDialog';
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
 import { feedItems as initialFeedItemsData } from '@/lib/dummy-data/feedItems';
+import { recommendedItems as initialRecommendedItemsData } from '@/lib/dummy-data/recommendedItems';
+
 
 import FoodRestaurantsScreen from '@/components/screens/food/FoodRestaurantsScreen';
 import FoodRestaurantDetailScreen from '@/components/screens/food/FoodRestaurantDetailScreen';
@@ -251,6 +254,7 @@ export default function AppRoot() {
 
   const [userPosts, setUserPosts] = useState<ProfilePost[]>([]);
   const [feedItems, setFeedItems] = useState<FeedItem[]>(initialFeedItemsData);
+  const [recommendedItems, setRecommendedItems] = useState<FeedItem[]>(initialRecommendedItemsData);
 
   const [userMoments, setUserMoments] = useState<UserMoment[]>([]); 
   const [momentsToDisplayInViewer, setMomentsToDisplayInViewer] = useState<UserMoment[]>([]); 
@@ -856,14 +860,19 @@ export default function AppRoot() {
   
    useEffect(() => {
     if (isLoggedIn && (isTaxiDriverOnlineSim || isDeliveryDriverOnlineSim || isBusinessActiveSim || activityDetails)) {
-        setIsFabVisible(true);
+        // Exclude FAB on account screen to avoid overlap with create FAB
+        if (activeTabInternal !== 'account') {
+          setIsFabVisible(true);
+        } else {
+          setIsFabVisible(false);
+        }
     } else {
         setIsFabVisible(false);
         if (!activityDetails) { 
              setIsActiveActivityViewVisible(false);
         }
     }
-  }, [isLoggedIn, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim, activityDetails]);
+  }, [isLoggedIn, isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim, activityDetails, activeTabInternal]);
 
 
   const handleCloseActivityView = useCallback(() => {
@@ -1238,6 +1247,11 @@ export default function AppRoot() {
                               onViewUserMomentsClick={handleViewUserMoments}
                               onViewPostDetail={handleViewPostDetail}
                            />;
+      case 'recommended': return <RecommendedScreen
+                                      onViewPostDetail={handleViewPostDetail}
+                                      onViewUserProfile={handleSelectIndividualProfile}
+                                      onViewUserMoments={handleViewUserMoments}
+                                  />;
       case 'menu': return <ServicesScreen setActiveTab={setActiveTab} onRequestRide={handleRideRequest} />;
       case 'account': return <AccountScreen
                                 userData={userData}
