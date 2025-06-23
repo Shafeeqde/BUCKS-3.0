@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -9,20 +8,12 @@ interface SplashScreenProps {
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
-  // Automatically dismiss after a few seconds if not clicked
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      onDismiss();
-    }, 5000); // Let user enjoy the view for 5s
-    return () => clearTimeout(timer);
-  }, [onDismiss]);
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#0c0c1e] cursor-pointer overflow-hidden animate-fade-in"
-      onClick={onDismiss}
-      role="button"
-      aria-label="Launch application"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#0c0c1e] overflow-hidden animate-fade-in"
+      // Removed onClick and role from the main container
+      aria-label="Application Splash Screen"
     >
       <style jsx>{`
         @keyframes fade-in {
@@ -43,6 +34,16 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
             }
             100% {
                 transform: rotate(45deg) translateY(-200vh);
+            }
+        }
+        @keyframes pulse-light {
+            0%, 100% {
+                box-shadow: 0 0 15px rgba(0, 191, 255, 0.4);
+                opacity: 0.9;
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(0, 191, 255, 0.8);
+                opacity: 1;
             }
         }
         .animate-fade-in {
@@ -81,6 +82,16 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onDismiss }) => {
           Your companion for the financial universe.
         </p>
       </div>
+
+      <button
+        onClick={onDismiss}
+        className="absolute bottom-20 z-20 px-6 py-3 text-lg font-semibold text-white bg-white/10 border border-white/20 rounded-full backdrop-blur-sm transition-all hover:bg-white/20 hover:border-white/40"
+        style={{ animation: 'pulse-light 2.5s infinite ease-in-out', animationDelay: '2s' }}
+        aria-label="Tap to begin"
+      >
+        Tap to Begin
+      </button>
+
     </div>
   );
 };
