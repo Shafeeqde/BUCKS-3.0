@@ -22,6 +22,7 @@ interface AccountScreenProps {
   onAddMomentClick: () => void;
   onViewUserMomentsClick: () => void;
   onViewPostDetail: (post: ProfilePost | FeedItem) => void;
+  onCreatePost: () => void;
 }
 
 const AccountScreen: React.FC<AccountScreenProps> = ({ 
@@ -32,6 +33,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
   onAddMomentClick, 
   onViewUserMomentsClick,
   onViewPostDetail,
+  onCreatePost,
 }) => {
   const { toast } = useToast();
 
@@ -47,10 +49,6 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
 
   const handleManageProfessionalProfile = () => {
     setActiveTab('professional-profile');
-  };
-
-  const handleCreatePost = () => {
-    setActiveTab('create-post');
   };
 
   const hasMoments = userMoments && userMoments.length > 0;
@@ -103,12 +101,9 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
                   </div>
                 </div>
               </div>
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="mt-4">
                   <Button variant="outline" size="sm" onClick={handleManageProfessionalProfile} className="w-full">
-                    <UserCircleIcon className="mr-2 h-4 w-4" /> Profile
-                  </Button>
-                  <Button size="sm" onClick={handleCreatePost} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-                    <PlusCircleIcon className="mr-2 h-4 w-4" /> Create Post
+                    <UserCircleIcon className="mr-2 h-4 w-4" /> Manage Profile
                   </Button>
               </div>
             </CardHeader>
@@ -200,7 +195,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
         </div>
       </ScrollArea>
       <FloatingActionButton
-        onClick={handleCreatePost}
+        onClick={onCreatePost}
         icon={<PlusIcon className="h-6 w-6"/>}
         tooltipText="Create New Post"
         className="bottom-24 right-6"
