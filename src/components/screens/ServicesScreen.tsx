@@ -24,10 +24,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 const initialServicesData: Service[] = [
-    { id: 'taxi', name: 'Taxi', icon: TruckIcon, locked: false, dataAiHint: "car taxi ride" },
-    { id: 'jobs', name: 'Jobs', icon: BriefcaseIcon, locked: false, dataAiHint: "briefcase work" },
-    { id: 'foods', name: 'Foods', icon: BuildingStorefrontIcon, locked: true, dataAiHint: "utensils restaurant" },
-    { id: 'shopping', name: 'Shopping', icon: ShoppingBagIcon, locked: true, dataAiHint: "shopping bag" },
+    { id: 'taxi', name: 'Taxi', icon: TruckIcon, locked: false, dataAiHint: "car taxi ride", targetTab: 'menu' },
+    { id: 'jobs', name: 'Jobs', icon: BriefcaseIcon, locked: false, dataAiHint: "briefcase work", targetTab: 'job-board' },
+    { id: 'restaurants', name: 'Restaurants', icon: BuildingStorefrontIcon, locked: false, dataAiHint: "utensils restaurant", targetTab: 'food-restaurants' },
+    { id: 'shops', name: 'Shops', icon: ShoppingBagIcon, locked: false, dataAiHint: "shopping bag", targetTab: 'shopping-categories' },
     { id: 'pay', name: 'Pay', icon: CreditCardIcon, locked: true, dataAiHint: "credit card" },
     { id: 'tickets', name: 'Tickets', icon: TicketIcon, locked: true, dataAiHint: "ticket movie" },
     { id: 'delivery', name: 'Delivery', icon: TruckIcon, locked: true, dataAiHint: "truck delivery" },
@@ -58,19 +58,28 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
 
 
   const handleServiceClick = (service: Service) => {
-    if (service.id === 'taxi' && !service.locked) {
+    if (service.locked) {
+      toast({
+        title: `${service.name} Service`,
+        description: "This service is coming soon!",
+      });
+      return;
+    }
+
+    if (service.id === 'taxi') {
       setIsTaxiBookingActive(true);
       setPickupLocation('Your Current Location (Simulated)'); 
       return;
     }
-    if (service.id === 'jobs' && !service.locked) {
-      setActiveTab('job-board');
-      return;
+    
+    if (service.targetTab) {
+        setActiveTab(service.targetTab);
+    } else {
+        toast({
+            title: `${service.name} Service`,
+            description: `Exploring ${service.name}. This service is under development.`,
+        });
     }
-    toast({
-      title: `${service.name} Service`,
-      description: service.locked ? "This service is coming soon!" : `Exploring ${service.name}.`,
-    });
   };
 
   const handleBookRide = async () => {
@@ -107,7 +116,7 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
   
   return (
     <ScrollArea className="h-full custom-scrollbar bg-background">
-      <main className="p-0"> 
+      <main className="p-4">
         <div className="flex items-center mb-6">
           {isTaxiBookingActive && (
             <Button variant="ghost" size="icon" onClick={() => setIsTaxiBookingActive(false)} className="mr-2 text-muted-foreground hover:text-primary">
