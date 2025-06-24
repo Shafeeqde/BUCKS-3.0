@@ -9,7 +9,7 @@ import RegistrationScreen from '@/components/screens/RegistrationScreen';
 import HomeScreen from '@/components/screens/HomeScreen';
 import FeedsScreen from '@/components/screens/FeedsScreen';
 import RecommendedScreen from '@/components/screens/RecommendedScreen';
-import ServicesScreen from '@/components/services/ServicesScreen';
+import ServicesScreen from '@/components/screens/ServicesScreen';
 import AccountScreen from '@/components/screens/AccountScreen';
 import DigitalIdCardScreen from '@/components/screens/DigitalIdCardScreen';
 import ProfessionalProfileScreen from '@/components/screens/ProfessionalProfileScreen';
@@ -518,8 +518,8 @@ export default function AppRoot() {
   }, [userData, setActiveTab]);
 
 
-  const handleSelectBusinessProfile = useCallback((profileId: string) => {
-    setSelectedBusinessProfileId(profileId);
+  const handleSelectBusinessProfile = useCallback((profileId: string | number) => {
+    setSelectedBusinessProfileId(String(profileId));
     setActiveTab('business-detail');
     setShowSideMenu(false);
   }, [setActiveTab]);
@@ -1399,7 +1399,11 @@ export default function AppRoot() {
         return <FoodRestaurantDetailScreen restaurant={selectedRestaurant || null} onAddToCart={(item, qty) => handleAddItemToLocalFoodCart(item, selectedRestaurantId!, selectedRestaurant?.name || 'Restaurant')} onBack={() => setActiveTab('food-restaurants')} />;
 
       case 'shopping-categories':
-        return <ShoppingCategoriesScreen categories={productCategoriesData} onSelectCategory={handleSelectShoppingCategory} />;
+        return <ShoppingCategoriesScreen 
+            categories={productCategoriesData} 
+            onSelectCategory={handleSelectShoppingCategory} 
+            onSelectBusinessProfile={handleSelectBusinessProfile}
+        />;
       case 'shopping-products-list':
         const currentCategory = productCategoriesData.find(c => c.id === selectedShoppingCategoryId);
         const productsForCategory = productsData.filter(p => selectedShoppingCategoryId ? p.categoryIds.includes(selectedShoppingCategoryId) : true);
