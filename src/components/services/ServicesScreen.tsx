@@ -26,8 +26,8 @@ import { cn } from '@/lib/utils';
 const initialServicesData: Service[] = [
     { id: 'taxi', name: 'Taxi', icon: TruckIcon, locked: false, dataAiHint: "car taxi ride", targetTab: 'menu' },
     { id: 'jobs', name: 'Jobs', icon: BriefcaseIcon, locked: false, dataAiHint: "briefcase work", targetTab: 'job-board' },
-    { id: 'foods', name: 'Foods', icon: BuildingStorefrontIcon, locked: true, dataAiHint: "utensils restaurant", targetTab: 'food-restaurants' },
-    { id: 'shopping', name: 'Shopping', icon: ShoppingBagIcon, locked: true, dataAiHint: "shopping bag", targetTab: 'shopping-categories' },
+    { id: 'restaurants', name: 'Restaurants', icon: BuildingStorefrontIcon, locked: false, dataAiHint: "utensils restaurant", targetTab: 'food-restaurants' },
+    { id: 'shops', name: 'Shops', icon: ShoppingBagIcon, locked: false, dataAiHint: "shopping bag", targetTab: 'shopping-categories' },
     { id: 'pay', name: 'Pay', icon: CreditCardIcon, locked: true, dataAiHint: "credit card" },
     { id: 'tickets', name: 'Tickets', icon: TicketIcon, locked: true, dataAiHint: "ticket movie" },
     { id: 'delivery', name: 'Delivery', icon: TruckIcon, locked: true, dataAiHint: "truck delivery" },
@@ -116,7 +116,7 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
   
   return (
     <ScrollArea className="h-full custom-scrollbar bg-background">
-      <main className="p-4"> {/* Added p-4 for consistent padding */}
+      <main className="p-0"> 
         <div className="flex items-center mb-6">
           {isTaxiBookingActive && (
             <Button variant="ghost" size="icon" onClick={() => setIsTaxiBookingActive(false)} className="mr-2 text-muted-foreground hover:text-primary">
@@ -224,4 +224,3 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
   );
 };
 export default ServicesScreen;
-    
