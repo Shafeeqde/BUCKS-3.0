@@ -195,33 +195,36 @@ export default function AppRoot() {
     console.log("Fetching business profiles from API...");
     try {
       const response = await fetch('/api/business-profiles');
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to fetch profiles: ${response.statusText}`);
-      }
-      const profiles: UserBusinessProfile[] = await response.json();
-      setBusinessProfilesData(profiles);
-      console.log("Business profiles loaded from API.");
-    } catch (error) {
-      console.error("Error fetching business profiles:", error);
-      let detailedErrorMessage = "Could not load business profiles.";
-      if (error instanceof Error) {
-        detailedErrorMessage = error.message;
-      }
-      
-      // Check for specific server configuration error
-      if (detailedErrorMessage.includes('Database service not available')) {
-          toast({
-              title: "Using Local Data",
-              description: "Could not connect to the database. Showing sample business profiles instead. To see live data, please configure your Firebase Admin SDK credentials in your environment variables.",
-              variant: "default",
-              duration: 9000,
-          });
-          setBusinessProfilesData(dummyBusinessProfiles); // Fallback to dummy data
+      if (response.ok) {
+        const profiles: UserBusinessProfile[] = await response.json();
+        setBusinessProfilesData(profiles);
+        console.log("Business profiles loaded from API.");
       } else {
-          toast({ title: "Error Loading Profiles", description: detailedErrorMessage, variant: "destructive" });
-          setBusinessProfilesData([]); // Clear data on other errors
+        const errorData = await response.json();
+        const errorMessage = errorData.error || `Failed to fetch profiles: ${response.statusText}`;
+        console.error("API error fetching business profiles:", errorMessage);
+
+        if (errorMessage.includes('Database service not available')) {
+          toast({
+            title: "Using Local Data",
+            description: "Could not connect to the database. Showing sample business profiles instead. To see live data, please configure your Firebase Admin SDK credentials in your environment variables.",
+            variant: "default",
+            duration: 9000,
+          });
+          setBusinessProfilesData(dummyBusinessProfiles);
+        } else {
+          toast({ title: "Error Loading Profiles", description: errorMessage, variant: "destructive" });
+          setBusinessProfilesData([]);
+        }
       }
+    } catch (error) {
+      console.error("Network error fetching business profiles:", error);
+      let detailedErrorMessage = "Could not load business profiles due to a network issue.";
+      if (error instanceof Error) {
+          detailedErrorMessage = error.message;
+      }
+      toast({ title: "Error Loading Profiles", description: detailedErrorMessage, variant: "destructive" });
+      setBusinessProfilesData([]);
     } finally {
       setIsLoadingBusinessProfiles(false);
     }
