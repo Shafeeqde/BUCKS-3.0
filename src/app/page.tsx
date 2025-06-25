@@ -64,109 +64,6 @@ import { formatDistanceToNow, format } from 'date-fns';
 import { useCart } from '@/context/CartContext';
 
 
-const initialBusinessProfilesData: UserBusinessProfile[] = [
-  {
-    id: 'bp-1-cafe-bliss',
-    name: 'Cafe Bliss',
-    logo: 'https://source.unsplash.com/random/100x100/?modern,cafe,logo',
-    logoAiHint: 'modern cafe logo',
-    coverPhoto: 'https://source.unsplash.com/random/1200x400/?cozy,cafe,interior',
-    coverPhotoAiHint: 'cozy cafe interior',
-    bio: 'Your friendly neighborhood cafe serving artisanal coffee and delicious pastries. A perfect spot to relax or work.',
-    businessType: 'products_and_services',
-    website: 'https://cafebliss.example.com',
-    phone: '+91 98765 43210',
-    email: 'hello@cafebliss.example.com',
-    location: '123 Coffee Lane, MG Road, Bangalore',
-    specialties: ['Artisanal Coffee', 'Fresh Pastries', 'Quiet Ambiance', 'Free Wi-Fi'],
-    followers: 1250,
-    following: 50,
-    feed: [
-      { id: 'feed-cb-1', content: 'Try our new seasonal Pumpkin Spice Latte! 🍂☕', image: 'https://source.unsplash.com/random/600x400/?latte,coffee', imageAiHint: 'latte coffee', timestamp: '2 days ago' },
-      { id: 'feed-cb-2', content: 'Live music this Friday evening from 7 PM. Don\'t miss out!', timestamp: '5 days ago' },
-    ],
-    products: [
-      { id: 'prod-cb-cappuccino', name: 'Cappuccino', price: '180', description: 'Classic Italian cappuccino with rich espresso and steamed milk foam.', imageUrl: 'https://source.unsplash.com/random/200x200/?cappuccino,cup', imageAiHint: 'cappuccino cup' },
-      { id: 'prod-cb-croissant', name: 'Butter Croissant', price: '120', discountPrice: '100', discountPercentage: '16%', description: 'Flaky, buttery, and freshly baked.', imageUrl: 'https://source.unsplash.com/random/200x200/?croissant,pastry', imageAiHint: 'croissant pastry' },
-    ],
-    services: [
-      { id: 'serv-cb-catering', name: 'Small Event Catering', description: 'We cater for small gatherings and office meetings. Contact us for a custom menu.', price: 'Enquire for quote' },
-    ],
-    jobs: [
-      { id: 'job-cb-barista', businessId: 'bp-1-cafe-bliss', businessName: 'Cafe Bliss', title: 'Barista (Part-Time)', location: 'MG Road, Bangalore', type: 'Part-time', description: 'Looking for an enthusiastic barista to join our team. Experience preferred.', postedDate: '2024-06-10', salaryRange: '₹10k-15k/month' },
-    ],
-    reviews: [
-      { id: 'rev-cb-1', reviewerName: 'Aisha R.', rating: 5, comment: 'Best coffee in town! Love the atmosphere.', date: '2024-06-01' },
-      { id: 'rev-cb-2', reviewerName: 'Rohan S.', rating: 4, comment: 'Great place to work. Pastries are a bit pricey but good.', date: '2024-05-28' },
-    ],
-    averageRating: 4.5,
-    totalReviews: 78,
-    isActive: true,
-  },
-  {
-    id: 'bp-2-techfix-solutions',
-    name: 'TechFix Solutions',
-    logo: 'https://source.unsplash.com/random/100x100/?tech,repair,logo',
-    logoAiHint: 'tech repair logo',
-    coverPhoto: 'https://source.unsplash.com/random/1200x400/?computer,repair,workshop',
-    coverPhotoAiHint: 'computer repair workshop',
-    bio: 'Expert repairs for laptops, mobiles, and all your gadgets. Quick, reliable, and affordable services.',
-    businessType: 'services',
-    website: 'https://techfix.example.com',
-    phone: '+91 90000 11111',
-    email: 'support@techfix.example.com',
-    location: 'Unit 5, Electronic City, Bangalore',
-    specialties: ['Laptop Repair', 'Mobile Screen Replacement', 'Data Recovery', 'Virus Removal'],
-    followers: 850,
-    following: 20,
-    feed: [
-      { id: 'feed-tf-1', content: 'Smashed phone screen? We can fix it today! Visit us for quick screen replacements.', timestamp: '1 day ago', image: 'https://source.unsplash.com/random/600x400/?broken,phone,screen', imageAiHint: 'broken phone screen' },
-    ],
-    products: [],
-    services: [
-      { id: 'serv-tf-laptop', name: 'Laptop Motherboard Repair', description: 'Component-level repair for all major laptop brands.', price: 'Starting at ₹2500' },
-      { id: 'serv-tf-screen', name: 'Mobile Screen Replacement', description: 'Original and high-quality compatible screens available.', price: '₹1500 - ₹15000 (Varies by model)' },
-      { id: 'serv-tf-data', name: 'Data Recovery Service', description: 'Recover lost data from hard drives and SSDs.', price: 'Enquire for quote' },
-    ],
-    jobs: [
-        { id: 'job-tf-technician', businessId: 'bp-2-techfix-solutions', businessName: 'TechFix Solutions', title: 'Repair Technician (Full-Time)', location: 'Electronic City, Bangalore', type: 'Full-time', description: 'Skilled technician needed for laptop and mobile repairs. Min. 2 years experience.', postedDate: '2024-06-15', salaryRange: '₹25k-35k/month', requirements: ['Diploma/Degree in Electronics', 'Soldering skills', 'Customer service experience'] },
-        { id: 'job-tf-csr', businessId: 'bp-2-techfix-solutions', businessName: 'TechFix Solutions', title: 'Customer Service Rep', location: 'Electronic City, Bangalore', type: 'Full-time', description: 'Handle customer inquiries, manage bookings, and provide support.', postedDate: '2024-06-18', salaryRange: '₹18k-22k/month', requirements: ['Excellent communication skills', 'Basic computer knowledge'] },
-    ],
-    reviews: [
-      { id: 'rev-tf-1', reviewerName: 'Vikram G.', rating: 5, comment: 'Saved my laptop! Fast and professional service.', date: '2024-06-05' },
-    ],
-    averageRating: 4.8,
-    totalReviews: 120,
-    isActive: true,
-  },
-  {
-    id: 'bp-3-greenscape-gardens',
-    name: 'GreenScape Gardens',
-    logo: 'https://source.unsplash.com/random/100x100/?gardening,service,logo',
-    logoAiHint: 'gardening service logo',
-    coverPhoto: 'https://source.unsplash.com/random/1200x400/?lush,green,garden',
-    coverPhotoAiHint: 'lush green garden',
-    bio: 'Professional landscaping and garden maintenance services. We create and maintain beautiful green spaces.',
-    businessType: 'products_and_services',
-    location: 'Jayanagar, Bangalore',
-    specialties: ['Landscaping Design', 'Garden Maintenance', 'Organic Gardening', 'Plant Nursery'],
-    followers: 600,
-    following: 30,
-    products: [
-        { id: 'prod-gs-rose', name: 'Hybrid Tea Rose Plant', price: '350', description: 'Healthy, blooming rose plant in various colors.', imageUrl: 'https://source.unsplash.com/random/200x200/?rose,plant', imageAiHint: 'rose plant' },
-    ],
-    services: [
-      { id: 'serv-gs-landscape', name: 'Full Landscaping Design', description: 'Custom garden design from concept to installation.', price: 'Starts at ₹50,000' },
-    ],
-    jobs: [
-        { id: 'job-gs-gardener', businessId: 'bp-3-greenscape-gardens', businessName: 'GreenScape Gardens', title: 'Horticulturist / Senior Gardener', location: 'Jayanagar, Bangalore', type: 'Full-time', description: 'Experienced horticulturist to manage garden projects and plant care. Knowledge of local flora is a plus.', postedDate: '2024-06-01', salaryRange: '₹22k-30k/month', requirements: ['Degree in Horticulture or related field', 'Plant identification skills'] },
-    ],
-    averageRating: 4.2,
-    totalReviews: 45,
-    isActive: false,
-  }
-];
-
 const newBusinessProfileTemplate: Omit<UserBusinessProfile, 'id'> = {
   name: '',
   bio: '',
@@ -294,19 +191,24 @@ export default function AppRoot() {
       return;
     }
     setIsLoadingBusinessProfiles(true);
-    console.log("Fetching business profiles (local mock)...");
-    await new Promise(resolve => setTimeout(resolve, 750));
+    console.log("Fetching business profiles from API...");
     try {
-      setBusinessProfilesData(initialBusinessProfilesData);
-      console.log("Mock business profiles loaded into state.");
+      const response = await fetch('/api/business-profiles');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Failed to fetch profiles: ${response.statusText}`);
+      }
+      const profiles: UserBusinessProfile[] = await response.json();
+      setBusinessProfilesData(profiles);
+      console.log("Business profiles loaded from API.");
     } catch (error) {
-      console.error("Error setting mock business profiles:", error);
-      let detailedErrorMessage = "Could not load mock business profiles.";
+      console.error("Error fetching business profiles:", error);
+      let detailedErrorMessage = "Could not load business profiles.";
       if (error instanceof Error) {
         detailedErrorMessage = error.message;
       }
       toast({ title: "Error Loading Profiles", description: detailedErrorMessage, variant: "destructive" });
-      setBusinessProfilesData([]);
+      setBusinessProfilesData([]); // Clear data on error
     } finally {
       setIsLoadingBusinessProfiles(false);
     }
@@ -321,52 +223,108 @@ export default function AppRoot() {
     }
   }, [isLoggedIn, fetchBusinessProfiles]);
 
-  const handleSaveBusinessProfile = useCallback((profileData: UserBusinessProfile) => {
-    setBusinessProfilesData(prevProfiles => {
-      const existingIndex = prevProfiles.findIndex(p => p.id === profileData.id);
-      if (existingIndex > -1) {
-        const updatedProfiles = [...prevProfiles];
-        updatedProfiles[existingIndex] = profileData;
-        toast({ title: "Profile Updated", description: `"${profileData.name}" has been updated locally.` });
-        return updatedProfiles;
-      } else {
-        const newProfileWithId = { ...profileData, id: profileData.id || `bp-local-${Date.now()}` };
-        toast({ title: "Profile Created", description: `"${newProfileWithId.name}" has been created locally.` });
-        return [...prevProfiles, newProfileWithId];
-      }
-    });
-  }, [toast]);
+  const handleSaveBusinessProfile = useCallback(async (profileData: UserBusinessProfile) => {
+    // A profile is new if it doesn't have an ID from the database yet.
+    const isNew = !profileData.id || profileData.id.startsWith('bp-local-');
+    const url = isNew ? '/api/business-profiles' : `/api/business-profiles/${profileData.id}`;
+    const method = isNew ? 'POST' : 'PUT';
 
-  const handleDeleteBusinessProfile = useCallback((profileId: string) => {
-    setBusinessProfilesData(prevProfiles => {
-      const profileToDelete = prevProfiles.find(p => p.id === profileId);
-      if (profileToDelete) {
-        toast({ title: "Profile Deleted", description: `"${profileToDelete.name}" has been deleted locally.`, variant: "destructive" });
-      }
-      return prevProfiles.filter(p => p.id !== profileId);
-    });
-  }, [toast]);
+    setIsLoadingBusinessProfiles(true);
+    try {
+      const response = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profileData),
+      });
 
-  const handleToggleBusinessProfileActive = useCallback((profileId: string, newStatus: boolean) => {
-    setBusinessProfilesData(prevProfiles =>
-      prevProfiles.map(p =>
-        p.id === profileId ? { ...p, isActive: newStatus } : p
-      )
-    );
-    // Simulation Logic
-    setIsBusinessActiveSim(newStatus);
-    if (newStatus) {
-      setIsTaxiDriverOnlineSim(false);
-      setIsDeliveryDriverOnlineSim(false);
-      toast({ title: "Business Now Active", description: "You are now available to receive simulated product orders." });
-    } else {
-      if (activityDetails?.type === 'product_order_notification') {
-        setActivityDetails(null);
-        setIsActiveActivityViewVisible(false);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || `Failed to ${isNew ? 'create' : 'update'} profile.`);
       }
-      toast({ title: "Business Now Inactive", description: "You will no longer receive product orders." });
+      
+      toast({
+        title: isNew ? "Profile Created" : "Profile Updated",
+        description: `"${result.name || profileData.name}" has been saved successfully.`,
+      });
+      await fetchBusinessProfiles(); // Refetch the list to show the latest data.
+    } catch (error) {
+       console.error("Error saving business profile:", error);
+       toast({ title: "Save Failed", description: error instanceof Error ? error.message : "An unknown error occurred.", variant: "destructive" });
+    } finally {
+        setIsLoadingBusinessProfiles(false);
     }
-  }, [toast, activityDetails]);
+  }, [toast, fetchBusinessProfiles]);
+
+  const handleDeleteBusinessProfile = useCallback(async (profileId: string) => {
+    setIsLoadingBusinessProfiles(true);
+    try {
+      const response = await fetch(`/api/business-profiles/${profileId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || "Failed to delete profile.");
+      }
+      toast({ title: "Profile Deleted", description: "The business profile has been deleted.", variant: "destructive" });
+      await fetchBusinessProfiles(); // Refetch to update the list.
+    } catch (error) {
+      console.error("Error deleting business profile:", error);
+      toast({ title: "Deletion Failed", description: error instanceof Error ? error.message : "An unknown error occurred.", variant: "destructive" });
+    } finally {
+        setIsLoadingBusinessProfiles(false);
+    }
+  }, [toast, fetchBusinessProfiles]);
+
+  const handleToggleBusinessProfileActive = useCallback(async (profileId: string, newStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/business-profiles/${profileId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: newStatus }),
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || "Failed to update profile status.");
+      }
+
+      setBusinessProfilesData(prevProfiles =>
+        prevProfiles.map(p =>
+          p.id === profileId ? { ...p, isActive: newStatus } : p
+        )
+      );
+
+      toast({
+        title: "Status Updated",
+        description: `Profile is now ${newStatus ? 'active' : 'inactive'}.`,
+      });
+
+      // Simulation Logic
+      setIsBusinessActiveSim(newStatus);
+      if (newStatus) {
+        setIsTaxiDriverOnlineSim(false);
+        setIsDeliveryDriverOnlineSim(false);
+        toast({ title: "Business Now Active", description: "You are now available to receive simulated product orders." });
+      } else {
+        if (activityDetails?.type === 'product_order_notification') {
+          setActivityDetails(null);
+          setIsActiveActivityViewVisible(false);
+        }
+        toast({ title: "Business Now Inactive", description: "You will no longer receive product orders." });
+      }
+      
+      // Optionally, refetch in the background to ensure full consistency
+      fetchBusinessProfiles();
+
+    } catch (error) {
+      console.error("Error toggling profile status:", error);
+      toast({ title: "Update Failed", description: error instanceof Error ? error.message : "Could not update status.", variant: "destructive" });
+      await fetchBusinessProfiles(); // Revert UI on failure
+    }
+  }, [toast, fetchBusinessProfiles, activityDetails]);
+
 
   const handleToggleVehicleActive = useCallback((vehicle: UserVehicle, newStatus: boolean) => {
       // In a real app, you'd probably prevent multiple vehicles from being active.
@@ -1235,7 +1193,7 @@ export default function AppRoot() {
                             onSelectBusinessProfile={handleSelectBusinessProfile}
                             onSelectIndividualProfile={handleSelectIndividualProfile}
                             onAddToCart={(businessId, productId) => {
-                                const business = businessProfilesData.find(b => b.id === businessId) || initialBusinessProfilesData.find(b => b.id === businessId);
+                                const business = businessProfilesData.find(b => b.id === businessId);
                                 const product = business?.products?.find(p => p.id === productId);
                                 if (business && product) {
                                     handleGlobalAddToCart(business, product);
@@ -1424,7 +1382,7 @@ export default function AppRoot() {
                         onSelectBusinessProfile={handleSelectBusinessProfile}
                         onSelectIndividualProfile={handleSelectIndividualProfile}
                         onAddToCart={(businessId, productId) => {
-                            const business = businessProfilesData.find(b => b.id === businessId) || initialBusinessProfilesData.find(b => b.id === businessId);
+                            const business = businessProfilesData.find(b => b.id === businessId);
                             const product = business?.products?.find(p => p.id === productId);
                             if (business && product) {
                                 handleGlobalAddToCart(business, product);
@@ -1620,4 +1578,3 @@ export default function AppRoot() {
     </div>
   );
 }
-
