@@ -63,6 +63,8 @@ import type {
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from 'date-fns';
 import { useCart } from '@/context/CartContext';
+import { auth } from '@/lib/firebase/client';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 
 
 const newBusinessProfileTemplate: Omit<UserBusinessProfile, 'id'> = {
@@ -183,7 +185,29 @@ export default function AppRoot() {
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in
+        setIsLoggedIn(true);
+        const avatarAiHint = 'user avatar';
+        setUserData({
+          id: user.uid,
+          name: user.displayName || 'Bucks User',
+          email: user.email || '',
+          avatarUrl: user.photoURL || `https://source.unsplash.com/random/48x48/?${avatarAiHint.split(' ').join(',')}`,
+          avatarAiHint: avatarAiHint,
+          moments: [],
+        });
+        setActiveTabInternal('home');
+        toast({ title: "Login Successful", description: `Welcome back, ${user.displayName || 'User'}!` });
+      } else {
+        // User is signed out
+        handleLogout(false); // Call logout without showing toast again
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup subscription on unmount
+  }, [toast]);
 
   const fetchBusinessProfiles = useCallback(async () => {
     if (!isLoggedIn) {
@@ -371,63 +395,50 @@ export default function AppRoot() {
   }, [toast]);
 
 
-  const handleLoginSuccess = useCallback((user: UserDataForSideMenu) => {
-    setIsLoggedIn(true);
-    const avatarAiHint = user.avatarAiHint || 'user avatar';
-    setUserData({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        avatarUrl: user.avatarUrl || `https://source.unsplash.com/random/48x48/?${avatarAiHint.split(' ').join(',')}`,
-        avatarAiHint: avatarAiHint,
-        moments: [], 
-    });
-    setActiveTabInternal('home');
-    setAuthScreen('login'); // Reset auth view for next time
-    toast({ title: "Login Successful", description: `Welcome back, ${user.name || 'User'}!` });
-  }, [toast]);
-
-  const handleRegistrationSuccess = useCallback(() => {
-    setAuthScreen('login');
-    toast({ title: "Registration Complete!", description: `Welcome! Please log in with your User ID and the password provided.` });
-  }, [toast]);
-
-
-  const handleLogout = useCallback(() => {
-    setIsLoggedIn(false);
-    setUserData(null);
-    setActiveTabInternal('home'); // Go to home screen on logout
-    setShowSideMenu(false);
-    setIsFabVisible(false);
-    setIsActiveActivityViewVisible(false);
-    setActivityDetails(null);
-    setIsTaxiDriverOnlineSim(false);
-    setIsDeliveryDriverOnlineSim(false);
-    setIsBusinessActiveSim(false);
-    setSelectedBusinessProfileId(null);
-    setBusinessProfileToManageId(null);
-    setSelectedIndividualProfileId(null);
-    setSelectedSkillsetProfileId(null);
-    setSkillsetProfileToManageId(null);
-    setSelectedJobId(null);
-    setBusinessProfilesData([]);
-    setUserPosts([]);
-    setUserMoments([]);
-    setMomentsToDisplayInViewer([]);
-    setShowCreateMomentDialog(false);
-    setShowMomentViewer(false);
-    setViewingMomentOwnerDetails(null);
-    setSelectedPostForDetail(null);
-    setShowServiceBookingDialog(false);
-    setBookingTargetProfile(null);
-    setActiveBookings([]);
-    setSelectedRestaurantId(null);
-    setSelectedShoppingCategoryId(null);
-    setSelectedProductId(null);
-    setShowMessagesNotifications(false);
-    setShowChatDetailScreen(false);
-    setCurrentChatContext(null);
-    toast({ title: "Logged Out", description: "You have been successfully logged out." });
+  const handleLogout = useCallback(async (showToast = true) => {
+    try {
+      await signOut(auth);
+      // The onAuthStateChanged listener will handle state updates
+      if (showToast) {
+        toast({ title: "Logged Out", description: "You have been successfully logged out." });
+      }
+      setIsLoggedIn(false);
+      setUserData(null);
+      setActiveTabInternal('home');
+      setShowSideMenu(false);
+      setIsFabVisible(false);
+      setIsActiveActivityViewVisible(false);
+      setActivityDetails(null);
+      setIsTaxiDriverOnlineSim(false);
+      setIsDeliveryDriverOnlineSim(false);
+      setIsBusinessActiveSim(false);
+      setSelectedBusinessProfileId(null);
+      setBusinessProfileToManageId(null);
+      setSelectedIndividualProfileId(null);
+      setSelectedSkillsetProfileId(null);
+      setSkillsetProfileToManageId(null);
+      setSelectedJobId(null);
+      setBusinessProfilesData([]);
+      setUserPosts([]);
+      setUserMoments([]);
+      setMomentsToDisplayInViewer([]);
+      setShowCreateMomentDialog(false);
+      setShowMomentViewer(false);
+      setViewingMomentOwnerDetails(null);
+      setSelectedPostForDetail(null);
+      setShowServiceBookingDialog(false);
+      setBookingTargetProfile(null);
+      setActiveBookings([]);
+      setSelectedRestaurantId(null);
+      setSelectedShoppingCategoryId(null);
+      setSelectedProductId(null);
+      setShowMessagesNotifications(false);
+      setShowChatDetailScreen(false);
+      setCurrentChatContext(null);
+    } catch (error) {
+      console.error("Logout Error", error);
+      toast({ title: "Logout Failed", description: "Could not log you out. Please try again.", variant: "destructive" });
+    }
   }, [toast]);
 
   const handleTabSelection = useCallback((tab: TabName) => {
@@ -1245,9 +1256,9 @@ export default function AppRoot() {
                  />;
         } else {
             if (authScreen === 'login') {
-                return <LoginScreen setActiveTab={() => setAuthScreen('registration')} onLoginSuccess={handleLoginSuccess} />;
+                return <LoginScreen onSwitchToRegister={() => setAuthScreen('registration')} />;
             } else {
-                return <RegistrationScreen setActiveTab={() => setAuthScreen('login')} onRegistrationSuccess={handleRegistrationSuccess} />;
+                return <RegistrationScreen onSwitchToLogin={() => setAuthScreen('login')} onRegistrationSuccess={() => setAuthScreen('login')} />;
             }
         }
       case 'create-post': return <CreatePostScreen onPost={handlePostSubmit} onCancel={() => setActiveTab(userPosts.length > 0 ? 'account' : 'feeds')} />;
@@ -1416,7 +1427,9 @@ export default function AppRoot() {
     restaurantsData, selectedRestaurantId, 
     productCategoriesData, productsData, selectedShoppingCategoryId, selectedProductId, 
     isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim, 
-    handleLoginSuccess, handleRegistrationSuccess, setActiveTab,
+    authScreen, // Dependency for re-rendering when auth screen changes
+    handleLogout,
+    setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
     handleSelectIndividualProfile, handleManageSkillsetProfile, handleBackFromManageSkillsetProfile,
     handleSelectJob, handleBackFromJobDetail, handleGlobalAddToCart, handleRideRequest,
@@ -1430,7 +1443,6 @@ export default function AppRoot() {
     handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, 
     handleToggleVehicleActive, 
     toast,
-    authScreen, // Dependency for re-rendering when auth screen changes
     showSplashScreen
   ]);
 

@@ -6,52 +6,54 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import type { TabName, UserDataForSideMenu } from '@/types';
 import { useToast } from "@/hooks/use-toast";
+import { auth } from '@/lib/firebase/client';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 interface LoginScreenProps {
-  setActiveTab: (tab: 'registration') => void; // More specific type
-  onLoginSuccess: (user: UserDataForSideMenu) => void;
+  onSwitchToRegister: () => void;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ setActiveTab, onLoginSuccess }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ onSwitchToRegister }) => {
   const { toast } = useToast();
-  const [userId, setUserId] = useState('test@bucks.com'); // Pre-filled
-  const [password, setPassword] = useState('password123'); // Pre-filled
+  const [email, setEmail] = useState('testuser@example.com'); // Pre-filled for demo
+  const [password, setPassword] = useState('password123'); // Pre-filled for demo
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
-    if (!userId.trim() || !password.trim()) {
+    if (!email.trim() || !password.trim()) {
       toast({
         title: "Input Required",
-        description: "Please enter your User ID and Password.",
+        description: "Please enter your email and password.",
         variant: "destructive",
       });
       return;
     }
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, password }),
-      });
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        onLoginSuccess({ id: result.user.id, name: result.user.name, email: result.user.email });
-      } else {
-        toast({
-          title: "Login Failed",
-          description: result.message || "Invalid User ID or Password.",
-          variant: "destructive",
-        });
+      await signInWithEmailAndPassword(auth, email, password);
+      // onAuthStateChanged in page.tsx will handle the rest
+    } catch (error: any) {
+      console.error("Firebase Login error:", error);
+      let errorMessage = "An unknown error occurred.";
+      switch (error.code) {
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          errorMessage = 'Invalid email or password. Please try again.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'The email address is not valid.';
+          break;
+        case 'auth/too-many-requests':
+           errorMessage = 'Access to this account has been temporarily disabled due to many failed login attempts.';
+           break;
+        default:
+          errorMessage = 'Could not sign in. Please check your network connection.';
       }
-    } catch (error) {
-      console.error("Login error:", error);
       toast({
-        title: "Network Error",
-        description: error instanceof Error ? error.message : "Could not connect to the server.",
+        title: "Login Failed",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -70,15 +72,16 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ setActiveTab, onLoginSuccess 
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="userId">User ID / Email</Label>
+            <Label htmlFor="userId">Email</Label>
             <Input
               id="userId"
-              type="text"
-              placeholder="Enter your User ID or Email"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
+              type="email"
+              placeholder="Enter your Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="text-base"
               disabled={isLoading}
+              autoComplete="email"
             />
           </div>
           <div className="space-y-2">
@@ -91,6 +94,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ setActiveTab, onLoginSuccess 
               onChange={(e) => setPassword(e.target.value)}
               className="text-base"
               disabled={isLoading}
+              autoComplete="current-password"
             />
           </div>
         </CardContent>
@@ -111,7 +115,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ setActiveTab, onLoginSuccess 
           </Button>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <Button variant="link" className="p-0 h-auto text-sm text-primary" onClick={() => setActiveTab('registration')} disabled={isLoading}>
+            <Button variant="link" className="p-0 h-auto text-sm text-primary" onClick={onSwitchToRegister} disabled={isLoading}>
               Sign up
             </Button>
           </p>
@@ -122,4 +126,3 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ setActiveTab, onLoginSuccess 
 };
 
 export default LoginScreen;
-
