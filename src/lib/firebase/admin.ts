@@ -5,41 +5,53 @@ import admin from 'firebase-admin';
 let db: admin.firestore.Firestore | undefined = undefined;
 
 if (!admin.apps.length) {
-  try {
-    // A more robust way to handle the private key, which can be tricky with environment variables
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY
-      // The key might be wrapped in quotes, so we remove them
-      ?.replace(/^"|"$/g, '')
-      // The key contains newlines, which need to be un-escaped
-      ?.replace(/\\n/g, '\n');
+  console.log("Attempting to initialize Firebase Admin SDK...");
 
-    const serviceAccount = {
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: privateKey,
-    };
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
-    if (serviceAccount.projectId && serviceAccount.clientEmail && serviceAccount.privateKey) {
+  const hasProjectId = !!projectId;
+  const hasClientEmail = !!clientEmail;
+  const hasPrivateKey = !!privateKey;
+
+  console.log(`- FIREBASE_PROJECT_ID: ${hasProjectId ? 'Found' : 'MISSING!'}`);
+  console.log(`- FIREBASE_CLIENT_EMAIL: ${hasClientEmail ? 'Found' : 'MISSING!'}`);
+  console.log(`- FIREBASE_PRIVATE_KEY: ${hasPrivateKey ? 'Found' : 'MISSING!'}`);
+
+  if (hasProjectId && hasClientEmail && hasPrivateKey) {
+    try {
+      // The private key from the .env file might be wrapped in quotes, which we need to remove.
+      // It also contains literal "\\n" strings that need to be replaced with actual newline characters.
+      privateKey = privateKey.replace(/^"|"$/g, '').replace(/\\n/g, '\n');
+
+      const serviceAccount = {
+        projectId: projectId,
+        clientEmail: clientEmail,
+        privateKey: privateKey,
+      };
+
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
       });
+
       console.log('Firebase Admin SDK initialized successfully.');
-      db = admin.firestore(); // Assign db only after successful initialization
-    } else {
-      console.warn('Firebase Admin SDK credentials are not fully configured. Skipping initialization. Firestore `db` will be undefined.');
-      if (!serviceAccount.projectId) console.warn(' - FIREBASE_PROJECT_ID is missing or empty.');
-      if (!serviceAccount.clientEmail) console.warn(' - FIREBASE_CLIENT_EMAIL is missing or empty.');
-      if (!serviceAccount.privateKey) console.warn(' - FIREBASE_PRIVATE_KEY is missing, empty, or invalid after processing.');
+      db = admin.firestore();
+
+    } catch (error: any) {
+      console.error('\n--- FIREBASE ADMIN INITIALIZATION FAILED ---');
+      console.error('This usually means the FIREBASE_PRIVATE_KEY in your .env file is not formatted correctly.');
+      console.error('Please ensure it is a single line, wrapped in double quotes, with "\\n" for newlines.');
+      console.error('Example: FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\\nYOUR_KEY_HERE\\n-----END PRIVATE KEY-----\\n"');
+      console.error('\nOriginal Error:', error.message);
+      db = undefined;
     }
-  } catch (error: any) {
-    console.error('Firebase admin initialization error:', error.message);
-    if (error.code) console.error('Error code:', error.code);
-    console.warn('Firestore `db` will be undefined due to initialization error.');
+  } else {
+    console.warn('\nFirebase Admin SDK not initialized because one or more required environment variables are missing.');
+    db = undefined;
   }
 } else {
-  // App is already initialized
   db = admin.firestore();
-  console.log('Firebase Admin SDK already initialized. Using existing app.');
 }
 
 export { db };
