@@ -16,51 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import type { TabName, UserDataForSideMenu, OverallProfessionalProfileData, WorkExperienceEntry, EducationEntry, LicenseCertificationEntry } from '@/types';
 import { cn } from '@/lib/utils';
 
-interface ProfessionalProfileScreenProps {
-  setActiveTab: (tab: TabName) => void;
-  userData: UserDataForSideMenu | null; 
-}
-
-const simulateFetchOverallProfessionalProfile = async (userId: string): Promise<OverallProfessionalProfileData> => {
-  console.log(`Simulating fetching overall professional profile for User ID: ${userId}`);
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  return {
-    id: `prof-profile-${userId}`,
-    userId: userId,
-    name: 'Demo User', 
-    professionalTitle: 'Versatile Professional & Lifelong Learner',
-    avatarUrl: 'https://source.unsplash.com/random/160x160/?person,professional,smiling',
-    avatarAiHint: 'person professional smiling',
-    coverPhotoUrl: 'https://source.unsplash.com/random/1200x300/?office,desk,modern',
-    coverPhotoAiHint: 'office desk modern',
-    professionalBio: 'A highly motivated and adaptable professional with a passion for continuous learning and applying skills across diverse projects. Experienced in team collaboration, problem-solving, and driving results in dynamic environments. Always seeking new challenges and opportunities for growth.',
-    areasOfExpertise: ['Project Management', 'Client Communication', 'Agile Methodologies', 'Software Development Lifecycle (SDLC)', 'UX/UI Principles'],
-    externalProfileLinks: [
-      { id: 'link-linkedin', platform: 'LinkedIn', url: 'https://linkedin.com/in/demouser' },
-      { id: 'link-github', platform: 'GitHub', url: 'https://github.com/demouser' },
-      { id: 'link-portfolio', platform: 'Personal Portfolio', url: 'https://demouser.dev' }
-    ],
-    workExperience: [
-      { id: 'exp1', title: 'Senior Project Manager', company: 'Innovatech Solutions', employmentType: 'Full-time', location: 'San Francisco, CA', startDate: '2020-01', endDate: 'Present', description: 'Led cross-functional teams in delivering complex software projects. Managed project timelines, budgets, and stakeholder communications.' },
-      { id: 'exp2', title: 'Software Developer', company: 'TechForward Inc.', employmentType: 'Full-time', location: 'Remote', startDate: '2017-06', endDate: '2019-12', description: 'Developed and maintained web applications using modern JavaScript frameworks. Contributed to code reviews and agile development processes.' },
-    ],
-    education: [
-      { id: 'edu1', institution: 'State University', degree: 'Master of Science', fieldOfStudy: 'Computer Science', startDate: '2015-08', endDate: '2017-05', description: 'Thesis on Machine Learning applications.' },
-      { id: 'edu2', institution: 'City College', degree: 'Bachelor of Arts', fieldOfStudy: 'Business Administration', startDate: '2011-08', endDate: '2015-05', description: 'Graduated with honors.' },
-    ],
-    licensesCertifications: [
-      { id: 'cert1', name: 'Certified ScrumMaster (CSM)', issuingOrganization: 'Scrum Alliance', issueDate: '2020-03-15', credentialUrl: '#' },
-      { id: 'cert2', name: 'AWS Certified Solutions Architect – Associate', issuingOrganization: 'Amazon Web Services', issueDate: '2021-07-20', credentialUrl: '#' },
-    ],
-  };
-};
-
-const simulateUpdateOverallProfessionalProfile = async (profileData: OverallProfessionalProfileData): Promise<boolean> => {
-    console.log('Simulating update of overall professional profile:', profileData);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    return true;
-};
-
 
 const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ setActiveTab, userData }) => {
   const { toast } = useToast();
@@ -89,7 +44,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
 
 
   useEffect(() => {
-    const currentUserId = userData?.id || 'dummy-user-id-for-professional-profile'; 
+    const currentUserId = userData?.id; 
     if (currentUserId) {
       fetchProfileData(currentUserId);
     } else {
@@ -102,13 +57,35 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
   const fetchProfileData = async (userId: string) => {
     setLoading(true); setError(null);
     try {
-      const data = await simulateFetchOverallProfessionalProfile(userId);
+      const response = await fetch(`/api/professional-profile/${userId}`);
+      if (!response.ok) {
+        if (response.status === 404) {
+            // Profile doesn't exist, create a new blank one
+            const newProfile: OverallProfessionalProfileData = {
+                id: userId,
+                userId: userId,
+                name: userData?.name || 'New User',
+                avatarUrl: userData?.avatarUrl,
+                avatarAiHint: userData?.avatarAiHint,
+                areasOfExpertise: [],
+                externalProfileLinks: [],
+                workExperience: [],
+                education: [],
+                licensesCertifications: []
+            };
+            setProfileData(newProfile);
+            setEditedData(JSON.parse(JSON.stringify(newProfile)));
+            return;
+        }
+        throw new Error(`Failed to fetch profile: ${response.statusText}`);
+      }
+      const data: OverallProfessionalProfileData = await response.json();
       setProfileData(data);
       setEditedData(JSON.parse(JSON.stringify(data))); 
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching overall professional profile:', err);
       setError("Failed to load professional profile.");
-      toast({ title: "Error", description: "Failed to load professional profile.", variant: "destructive" });
+      toast({ title: "Error", description: err.message || "Failed to load professional profile.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -290,28 +267,27 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
   };
 
   const handleSaveAll = async () => {
-    if (!editedData || !profileData) return;
+    if (!editedData || !profileData || !userData?.id) return;
     setIsSaving(true);
     try {
-      const updatedProfileWithImageUrls: OverallProfessionalProfileData = {
-        ...profileData,
-        ...editedData,
-        avatarUrl: editedData.avatarUrl || profileData.avatarUrl,
-        coverPhotoUrl: editedData.coverPhotoUrl || profileData.coverPhotoUrl,
-      };
-      
-      const success = await simulateUpdateOverallProfessionalProfile(updatedProfileWithImageUrls); 
+        const response = await fetch(`/api/professional-profile/${userData.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(editedData)
+        });
 
-      if (success) {
-        setProfileData(JSON.parse(JSON.stringify(updatedProfileWithImageUrls))); 
-        setEditedData(JSON.parse(JSON.stringify(updatedProfileWithImageUrls)));
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to save profile.");
+        }
+
+        const updatedProfile = await response.json();
+        setProfileData(updatedProfile);
+        setEditedData(JSON.parse(JSON.stringify(updatedProfile)));
         toast({ title: "Profile Saved", description: "Your professional profile has been updated." });
-      } else {
-        toast({ title: "Save Failed", description: "Could not update profile.", variant: "destructive" });
-      }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error saving professional profile:', err);
-      toast({ title: "Save Error", description: "An unexpected error occurred.", variant: "destructive" });
+      toast({ title: "Save Error", description: err.message || "An unexpected error occurred.", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -329,7 +305,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
             <Button 
                 onClick={() => fetchProfileData(userData?.id || 'dummy-user-id-123')} 
                 variant="outline"
-                disabled={!userData?.id && !profileData?.userId}
+                disabled={!userData?.id}
             >
                 Try Again
             </Button>
