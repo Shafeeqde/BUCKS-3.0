@@ -13,6 +13,7 @@ import type { TabName, UserDataForSideMenu, ProfilePost, UserMoment, FeedItem } 
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
 import FloatingActionButton from '@/components/ui/FloatingActionButton'; // Import the FAB
+import { formatDistanceToNow } from 'date-fns';
 
 interface AccountScreenProps {
   userData: UserDataForSideMenu | null;
@@ -137,7 +138,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
                                     </Avatar>
                                     <div>
                                         <p className="text-sm font-semibold text-foreground">{post.user}</p>
-                                        <p className="text-xs text-muted-foreground">{post.timestamp}</p>
+                                        <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(post.timestamp), { addSuffix: true })}</p>
                                     </div>
                                 </div>
                             </CardHeader>

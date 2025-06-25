@@ -64,9 +64,9 @@ import type {
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from 'date-fns';
 import { useCart } from '@/context/CartContext';
-import { auth } from '@/lib/firebase/client';
 import { signOut } from 'firebase/auth';
 import { useAuth } from '@/context/AuthContext';
+import { auth } from '@/lib/firebase/client';
 
 
 const newBusinessProfileTemplate: Omit<UserBusinessProfile, 'id'> = {
@@ -153,6 +153,7 @@ export default function AppRoot() {
   const [isBusinessActiveSim, setIsBusinessActiveSim] = useState(false);
 
   const [userPosts, setUserPosts] = useState<ProfilePost[]>([]);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [feedItems, setFeedItems] = useState<FeedItem[]>(initialFeedItemsData);
   const [recommendedItems, setRecommendedItems] = useState<FeedItem[]>(initialRecommendedItemsData);
 
@@ -182,12 +183,36 @@ export default function AppRoot() {
 
   const isLoggedIn = !!user;
 
+  const fetchUserPosts = useCallback(async (userId: string) => {
+    setIsLoadingPosts(true);
+    try {
+        const response = await fetch(`/api/posts?userId=${userId}`);
+        if (!response.ok) {
+            console.error("Failed to fetch user posts");
+            toast({ title: "Error", description: "Could not load your posts.", variant: "destructive"});
+            setUserPosts([]);
+        } else {
+            const posts: ProfilePost[] = await response.json();
+            setUserPosts(posts);
+        }
+    } catch (error) {
+        console.error("Network error fetching user posts:", error);
+        toast({ title: "Error", description: "Could not load your posts due to a network error.", variant: "destructive"});
+    } finally {
+        setIsLoadingPosts(false);
+    }
+  }, [toast]);
+
   useEffect(() => {
     // This effect now reacts to the user state from the context
     if (user) {
         setActiveTabInternal('home');
+        fetchUserPosts(user.id);
+        fetchBusinessProfiles();
     } else {
         setActiveTabInternal('account'); // Show login screen
+        setBusinessProfilesData([]);
+        setUserPosts([]);
     }
   }, [user]);
 
@@ -195,7 +220,6 @@ export default function AppRoot() {
   const fetchBusinessProfiles = useCallback(async () => {
     if (!isLoggedIn) {
       setBusinessProfilesData([]);
-      setIsLoadingBusinessProfiles(false);
       return;
     }
     setIsLoadingBusinessProfiles(true);
@@ -207,11 +231,11 @@ export default function AppRoot() {
         const errorData = await response.json().catch(() => ({ error: 'Could not parse error response from server.' }));
         const errorMessage = errorData.error || `Failed to fetch profiles: ${response.statusText}`;
         
-        console.warn(`Could not load profiles from backend: ${errorMessage}`);
+        console.error("API error fetching business profiles:", errorMessage);
         
         toast({
           title: "Displaying Sample Data",
-          description: "Could not connect to the database. Please check your backend configuration and server logs for more details.",
+          description: "Could not connect to the database. Please check backend configuration.",
           variant: "default",
           duration: 10000,
         });
@@ -237,15 +261,6 @@ export default function AppRoot() {
       setIsLoadingBusinessProfiles(false);
     }
   }, [toast, isLoggedIn]);
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      fetchBusinessProfiles();
-    } else {
-      setBusinessProfilesData([]);
-      setIsLoadingBusinessProfiles(false);
-    }
-  }, [isLoggedIn, fetchBusinessProfiles]);
 
   const handleSaveBusinessProfile = useCallback(async (profileData: UserBusinessProfile) => {
     const isNew = !profileData.id || profileData.id.startsWith('bp-local-');
@@ -542,28 +557,43 @@ export default function AppRoot() {
     setActiveTab('create-post');
   }, [setActiveTab]);
   
-  const handlePostSubmit = useCallback((content: string, media?: MediaAttachment) => {
+  const handlePostSubmit = useCallback(async (content: string, media?: MediaAttachment) => {
     if (!user) {
         toast({ title: "Not Logged In", description: "You must be logged in to create a post.", variant: "destructive" });
         return;
     }
-    const newPost: ProfilePost = {
-        id: `post-${Date.now()}`,
-        user: user.name,
+    
+    const postData = {
         userId: user.id,
+        user: user.name,
         userImage: user.avatarUrl,
         userImageAiHint: user.avatarAiHint,
         content: content,
         media: media,
-        timestamp: formatDistanceToNow(new Date(), { addSuffix: true }),
-        likes: 0,
-        comments: 0,
-        commentsData: []
     };
-    setUserPosts(prevPosts => [newPost, ...prevPosts]);
-    toast({ title: "Post Created!", description: "Your new post has been added." });
-    setActiveTab('account');
-  }, [user, toast, setActiveTab]);
+
+    try {
+        const response = await fetch('/api/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(postData),
+        });
+
+        if (!response.ok) {
+            const errorResult = await response.json();
+            throw new Error(errorResult.error || 'Failed to create post.');
+        }
+
+        toast({ title: "Post Created!", description: "Your new post has been added." });
+        await fetchUserPosts(user.id); // Refresh posts from server
+        setActiveTab('account');
+
+    } catch (error) {
+        console.error("Error creating post:", error);
+        toast({ title: "Post Failed", description: error instanceof Error ? error.message : "Could not create your post.", variant: "destructive" });
+    }
+  }, [user, toast, setActiveTab, fetchUserPosts]);
+
 
   const handleViewPostDetail = useCallback((post: FeedItem | ProfilePost) => {
     setSelectedPostForDetail(post);
@@ -636,9 +666,6 @@ export default function AppRoot() {
     const updatedMoments = [newMoment, ...userMoments];
     setUserMoments(updatedMoments);
     
-    // This part would ideally be part of the context update logic, but for now we mimic it
-    // setUserData(prevUserData => prevUserData ? ({ ...prevUserData, moments: updatedMoments }) : null);
-
     toast({ title: "Moment Posted!", description: "Your new moment has been added." });
     setShowCreateMomentDialog(false);
   }, [user, userMoments, toast]);
@@ -1189,6 +1216,10 @@ export default function AppRoot() {
       return <SplashScreen onDismiss={() => setShowSplashScreen(false)} />;
     }
 
+    if (authLoading) {
+      return <Loading />;
+    }
+
     switch (activeTabInternal) {
       case 'home': return <HomeScreen
                             setActiveTab={setActiveTab}
@@ -1395,7 +1426,7 @@ export default function AppRoot() {
                       />;
     }
   }, [
-    isLoggedIn, activeTabInternal, user, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments, feedItems, recommendedItems,
+    isLoggedIn, activeTabInternal, user, authLoading, showSplashScreen, businessProfilesData, isLoadingBusinessProfiles, userPosts, isLoadingPosts, userMoments, feedItems, recommendedItems,
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, selectedPostForDetail,
     bookingTargetProfile,
@@ -1417,13 +1448,12 @@ export default function AppRoot() {
     handleSelectFoodRestaurant, handleAddItemToLocalFoodCart, 
     handleSelectShoppingCategory, handleSelectShoppingProduct, handleAddItemToShoppingCart, 
     handleToggleVehicleActive, 
-    toast,
-    showSplashScreen
+    toast
   ]);
 
 
-  if (authLoading) {
-    return <Loading />;
+  if (authLoading && showSplashScreen) {
+    return <SplashScreen onDismiss={() => setShowSplashScreen(false)} />;
   }
 
   return (
