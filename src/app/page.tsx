@@ -36,7 +36,6 @@ import SplashScreen from '@/components/screens/SplashScreen'; // New Splash Scre
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
 import { feedItems as initialFeedItemsData } from '@/lib/dummy-data/feedItems';
 import { recommendedItems as initialRecommendedItemsData } from '@/lib/dummy-data/recommendedItems';
-import { dummyBusinessProfiles } from '@/lib/dummy-data/businessProfiles';
 
 
 import FoodRestaurantsScreen from '@/components/screens/food/FoodRestaurantsScreen';
@@ -227,19 +226,12 @@ export default function AppRoot() {
         const errorData = await response.json();
         const errorMessage = errorData.error || `Failed to fetch profiles: ${response.statusText}`;
         console.error("API error fetching business profiles:", errorMessage);
-
-        if (errorMessage.includes('Database service not available')) {
-          toast({
-            title: "Using Local Data",
-            description: "Could not connect to the database. Showing sample business profiles instead. To see live data, please configure your Firebase Admin SDK credentials in your environment variables.",
-            variant: "default",
-            duration: 9000,
-          });
-          setBusinessProfilesData(dummyBusinessProfiles);
-        } else {
-          toast({ title: "Error Loading Profiles", description: errorMessage, variant: "destructive" });
-          setBusinessProfilesData([]);
-        }
+        toast({
+          title: "Error Loading Profiles",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        setBusinessProfilesData([]);
       }
     } catch (error) {
       console.error("Network error fetching business profiles:", error);
