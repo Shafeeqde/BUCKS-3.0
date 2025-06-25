@@ -32,7 +32,8 @@ import CreatePostScreen from '@/components/screens/CreatePostScreen';
 import DetailedPostScreen from '@/components/screens/DetailedPostScreen';
 import MomentViewerScreen from '@/components/moments/MomentViewerScreen';
 import ServiceBookingDialog from '@/components/services/ServiceBookingDialog';
-import SplashScreen from '@/components/screens/SplashScreen'; // New Splash Screen
+import SplashScreen from '@/components/screens/SplashScreen';
+import Loading from '@/app/loading'; // Import the main loading component
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
 import { feedItems as initialFeedItemsData } from '@/lib/dummy-data/feedItems';
 import { recommendedItems as initialRecommendedItemsData } from '@/lib/dummy-data/recommendedItems';
@@ -64,7 +65,8 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from 'date-fns';
 import { useCart } from '@/context/CartContext';
 import { auth } from '@/lib/firebase/client';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
+import { useAuth } from '@/context/AuthContext';
 
 
 const newBusinessProfileTemplate: Omit<UserBusinessProfile, 'id'> = {
@@ -123,17 +125,13 @@ const genericOtherUserMoments: UserMoment[] = [
 
 export default function AppRoot() {
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const { addToCart: globalAddToCart } = useCart(); 
-  const [isClient, setIsClient] = useState(false);
   const [showSplashScreen, setShowSplashScreen] = useState(true);
 
   const [activeTabInternal, setActiveTabInternal] = useState<TabName>('home');
   const [authScreen, setAuthScreen] = useState<'login' | 'registration'>('login');
   const [showSideMenu, setShowSideMenu] = useState(false);
-
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<UserDataForSideMenu | null>(null);
 
   const [businessProfilesData, setBusinessProfilesData] = useState<UserBusinessProfile[]>([]);
   const [isLoadingBusinessProfiles, setIsLoadingBusinessProfiles] = useState(false);
@@ -182,32 +180,17 @@ export default function AppRoot() {
   const [showChatDetailScreen, setShowChatDetailScreen] = useState(false);
   const [currentChatContext, setCurrentChatContext] = useState<CurrentChatContext | null>(null);
 
+  const isLoggedIn = !!user;
 
   useEffect(() => {
-    setIsClient(true);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in
-        setIsLoggedIn(true);
-        const avatarAiHint = 'user avatar';
-        setUserData({
-          id: user.uid,
-          name: user.displayName || 'Bucks User',
-          email: user.email || '',
-          avatarUrl: user.photoURL || `https://source.unsplash.com/random/48x48/?${avatarAiHint.split(' ').join(',')}`,
-          avatarAiHint: avatarAiHint,
-          moments: [],
-        });
+    // This effect now reacts to the user state from the context
+    if (user) {
         setActiveTabInternal('home');
-        toast({ title: "Login Successful", description: `Welcome back, ${user.displayName || 'User'}!` });
-      } else {
-        // User is signed out
-        handleLogout(false); // Call logout without showing toast again
-      }
-    });
+    } else {
+        setActiveTabInternal('account'); // Show login screen
+    }
+  }, [user]);
 
-    return () => unsubscribe(); // Cleanup subscription on unmount
-  }, [toast]);
 
   const fetchBusinessProfiles = useCallback(async () => {
     if (!isLoggedIn) {
@@ -221,7 +204,6 @@ export default function AppRoot() {
       const response = await fetch('/api/business-profiles');
       
       if (!response.ok) {
-        // Handle all non-successful responses directly without throwing an error
         const errorData = await response.json().catch(() => ({ error: 'Could not parse error response from server.' }));
         const errorMessage = errorData.error || `Failed to fetch profiles: ${response.statusText}`;
         
@@ -234,17 +216,15 @@ export default function AppRoot() {
           duration: 10000,
         });
         
-        setBusinessProfilesData(dummyBusinessProfiles); // Fallback to dummy data
+        setBusinessProfilesData(dummyBusinessProfiles);
         
       } else {
-        // This block runs only if the response was successful
         const profiles: UserBusinessProfile[] = await response.json();
         setBusinessProfilesData(profiles);
         console.log("Business profiles loaded from API.");
       }
 
     } catch (error) {
-      // This will now only catch network errors (e.g., server is down)
       console.error("Network error fetching business profiles:", error);
       toast({
         title: "Network Error",
@@ -268,7 +248,6 @@ export default function AppRoot() {
   }, [isLoggedIn, fetchBusinessProfiles]);
 
   const handleSaveBusinessProfile = useCallback(async (profileData: UserBusinessProfile) => {
-    // A profile is new if it doesn't have an ID from the database yet.
     const isNew = !profileData.id || profileData.id.startsWith('bp-local-');
     const url = isNew ? '/api/business-profiles' : `/api/business-profiles/${profileData.id}`;
     const method = isNew ? 'POST' : 'PUT';
@@ -291,7 +270,7 @@ export default function AppRoot() {
         title: isNew ? "Profile Created" : "Profile Updated",
         description: `"${result.name || profileData.name}" has been saved successfully.`,
       });
-      await fetchBusinessProfiles(); // Refetch the list to show the latest data.
+      await fetchBusinessProfiles();
     } catch (error) {
        console.error("Error saving business profile:", error);
        toast({ title: "Save Failed", description: error instanceof Error ? error.message : "An unknown error occurred.", variant: "destructive" });
@@ -312,7 +291,7 @@ export default function AppRoot() {
         throw new Error(result.error || "Failed to delete profile.");
       }
       toast({ title: "Profile Deleted", description: "The business profile has been deleted.", variant: "destructive" });
-      await fetchBusinessProfiles(); // Refetch to update the list.
+      await fetchBusinessProfiles();
     } catch (error) {
       console.error("Error deleting business profile:", error);
       toast({ title: "Deletion Failed", description: error instanceof Error ? error.message : "An unknown error occurred.", variant: "destructive" });
@@ -345,7 +324,6 @@ export default function AppRoot() {
         description: `Profile is now ${newStatus ? 'active' : 'inactive'}.`,
       });
 
-      // Simulation Logic
       setIsBusinessActiveSim(newStatus);
       if (newStatus) {
         setIsTaxiDriverOnlineSim(false);
@@ -359,19 +337,17 @@ export default function AppRoot() {
         toast({ title: "Business Now Inactive", description: "You will no longer receive product orders." });
       }
       
-      // Optionally, refetch in the background to ensure full consistency
       fetchBusinessProfiles();
 
     } catch (error) {
       console.error("Error toggling profile status:", error);
       toast({ title: "Update Failed", description: error instanceof Error ? error.message : "Could not update status.", variant: "destructive" });
-      await fetchBusinessProfiles(); // Revert UI on failure
+      await fetchBusinessProfiles();
     }
   }, [toast, fetchBusinessProfiles, activityDetails]);
 
 
   const handleToggleVehicleActive = useCallback((vehicle: UserVehicle, newStatus: boolean) => {
-      // In a real app, you'd probably prevent multiple vehicles from being active.
       const lowerType = vehicle.vehicleType.toLowerCase();
       if (lowerType.includes('car') || lowerType.includes('auto')) {
           setIsTaxiDriverOnlineSim(newStatus);
@@ -402,12 +378,10 @@ export default function AppRoot() {
   const handleLogout = useCallback(async (showToast = true) => {
     try {
       await signOut(auth);
-      // The onAuthStateChanged listener will handle state updates
       if (showToast) {
         toast({ title: "Logged Out", description: "You have been successfully logged out." });
       }
-      setIsLoggedIn(false);
-      setUserData(null);
+      // Reset all local component state on logout
       setActiveTabInternal('home');
       setShowSideMenu(false);
       setIsFabVisible(false);
@@ -497,14 +471,14 @@ export default function AppRoot() {
   }, [setActiveTab]);
 
   const handleSelectIndividualProfile = useCallback((profileId: string) => {
-    if (userData && profileId === userData.id) { 
+    if (user && profileId === user.id) { 
         setActiveTab('account');
     } else if (profileId) { 
         setSelectedIndividualProfileId(profileId);
         setActiveTab('individual-profile');
     }
     setShowSideMenu(false);
-  }, [userData, setActiveTab]);
+  }, [user, setActiveTab]);
 
 
   const handleSelectBusinessProfile = useCallback((profileId: string | number) => {
@@ -569,16 +543,16 @@ export default function AppRoot() {
   }, [setActiveTab]);
   
   const handlePostSubmit = useCallback((content: string, media?: MediaAttachment) => {
-    if (!userData) {
+    if (!user) {
         toast({ title: "Not Logged In", description: "You must be logged in to create a post.", variant: "destructive" });
         return;
     }
     const newPost: ProfilePost = {
         id: `post-${Date.now()}`,
-        user: userData.name,
-        userId: userData.id,
-        userImage: userData.avatarUrl,
-        userImageAiHint: userData.avatarAiHint,
+        user: user.name,
+        userId: user.id,
+        userImage: user.avatarUrl,
+        userImageAiHint: user.avatarAiHint,
         content: content,
         media: media,
         timestamp: formatDistanceToNow(new Date(), { addSuffix: true }),
@@ -589,7 +563,7 @@ export default function AppRoot() {
     setUserPosts(prevPosts => [newPost, ...prevPosts]);
     toast({ title: "Post Created!", description: "Your new post has been added." });
     setActiveTab('account');
-  }, [userData, toast, setActiveTab]);
+  }, [user, toast, setActiveTab]);
 
   const handleViewPostDetail = useCallback((post: FeedItem | ProfilePost) => {
     setSelectedPostForDetail(post);
@@ -597,15 +571,15 @@ export default function AppRoot() {
   }, [setActiveTab]);
 
   const handlePostCommentOnDetail = useCallback((postId: string | number, commentText: string) => {
-    if (!userData) {
+    if (!user) {
       toast({ title: "Error", description: "You must be logged in to comment."});
       return;
     }
     const newComment: Comment = {
       id: `comment-${Date.now()}`,
-      user: userData.name,
-      userAvatar: userData.avatarUrl,
-      userAvatarAiHint: userData.avatarAiHint,
+      user: user.name,
+      userAvatar: user.avatarUrl,
+      userAvatarAiHint: user.avatarAiHint,
       text: commentText,
       timestamp: formatDistanceToNow(new Date(), { addSuffix: true })
     };
@@ -644,11 +618,11 @@ export default function AppRoot() {
     }
 
     toast({ title: "Comment Posted", description: "Your comment has been added." });
-  }, [userData, toast, selectedPostForDetail]);
+  }, [user, toast, selectedPostForDetail]);
 
 
   const handleCreateMoment = useCallback((imageUrl: string, caption?: string, aiHint?: string) => {
-    if (!userData) {
+    if (!user) {
       toast({ title: "Not Logged In", description: "You must be logged in to create a moment.", variant: "destructive" });
       return;
     }
@@ -661,29 +635,32 @@ export default function AppRoot() {
     };
     const updatedMoments = [newMoment, ...userMoments];
     setUserMoments(updatedMoments);
-    setUserData(prevUserData => prevUserData ? ({ ...prevUserData, moments: updatedMoments }) : null);
+    
+    // This part would ideally be part of the context update logic, but for now we mimic it
+    // setUserData(prevUserData => prevUserData ? ({ ...prevUserData, moments: updatedMoments }) : null);
+
     toast({ title: "Moment Posted!", description: "Your new moment has been added." });
     setShowCreateMomentDialog(false);
-  }, [userData, userMoments, toast]);
+  }, [user, userMoments, toast]);
 
   const handleAddMomentFromAccount = useCallback(() => {
     setShowCreateMomentDialog(true);
   }, []);
 
   const handleViewUserMomentsFromAccount = useCallback(() => {
-    if (userData) {
+    if (user) {
         setViewingMomentOwnerDetails({
-            name: userData.name,
-            avatarUrl: userData.avatarUrl,
-            avatarAiHint: userData.avatarAiHint,
-            profileId: userData.id
+            name: user.name,
+            avatarUrl: user.avatarUrl,
+            avatarAiHint: user.avatarAiHint,
+            profileId: user.id
         });
         setMomentsToDisplayInViewer(userMoments);
         setShowMomentViewer(true);
     } else {
       toast({ title: "Error", description: "User data not available." });
     }
-  }, [toast, userData, userMoments]);
+  }, [toast, user, userMoments]);
 
   const handleViewUserMoments = useCallback((profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => {
     let ownerDetails: ViewingMomentOwnerDetails | null = null;
@@ -699,19 +676,19 @@ export default function AppRoot() {
              const businessProfileUser = businessProfilesData.find(bp => bp.id === profileId);
              if (businessProfileUser) {
                  ownerDetails = { name: businessProfileUser.name, avatarUrl: businessProfileUser.logo, avatarAiHint: businessProfileUser.logoAiHint || 'business logo', profileId };
-             } else if (userData && profileId === userData.id) {
-                 ownerDetails = { name: userData.name, avatarUrl: userData.avatarUrl, avatarAiHint: userData.avatarAiHint || defaultAvatarAiHint, profileId: userData.id };
+             } else if (user && profileId === user.id) {
+                 ownerDetails = { name: user.name, avatarUrl: user.avatarUrl, avatarAiHint: user.avatarAiHint || defaultAvatarAiHint, profileId: user.id };
              } else {
                 ownerDetails = { name: `User ${profileId.substring(0,5)}...`, avatarUrl: `https://source.unsplash.com/random/48x48/?${defaultAvatarAiHint.split(' ').join(',')}`, avatarAiHint: defaultAvatarAiHint, profileId };
              }
         }
-    } else if (userData) {
-        ownerDetails = { name: userData.name, avatarUrl: userData.avatarUrl, avatarAiHint: userData.avatarAiHint || defaultAvatarAiHint, profileId: userData.id };
+    } else if (user) {
+        ownerDetails = { name: user.name, avatarUrl: user.avatarUrl, avatarAiHint: user.avatarAiHint || defaultAvatarAiHint, profileId: user.id };
     }
 
     if (ownerDetails) {
         setViewingMomentOwnerDetails(ownerDetails);
-        if (ownerDetails.profileId === userData?.id) {
+        if (ownerDetails.profileId === user?.id) {
             setMomentsToDisplayInViewer(userMoments);
         } else {
             const otherUserDisplayMoments = genericOtherUserMoments.map(m => ({
@@ -725,7 +702,7 @@ export default function AppRoot() {
     } else {
         toast({ title: "Please Log In", description: "Log in to view or create moments." });
     }
-  }, [userData, userMoments, toast, initialCategoriesData, businessProfilesData]);
+  }, [user, userMoments, toast, initialCategoriesData, businessProfilesData]);
 
 
   const handleNavigateToOwnerProfileFromMomentViewer = useCallback(() => {
@@ -856,7 +833,6 @@ export default function AppRoot() {
   
    useEffect(() => {
     if (isLoggedIn && (isTaxiDriverOnlineSim || isDeliveryDriverOnlineSim || isBusinessActiveSim || activityDetails)) {
-        // Exclude FAB on account screen to avoid overlap with create FAB
         if (activeTabInternal !== 'account') {
           setIsFabVisible(true);
         } else {
@@ -877,16 +853,13 @@ export default function AppRoot() {
     const currentStatus = activityDetails?.status;
 
     if (currentType === 'driver_status' && currentStatus === 'driver_online_idle') {
-        // Keep details
     } else if (currentType === 'product_order_notification' && currentStatus === 'new_product_order') {
-        // Keep details
     } else if (
         (currentType === 'request' || currentType === 'ride' || currentType === 'delivery_request' || currentType === 'delivery_task' || currentType === 'product_order_notification') &&
         currentStatus !== 'ride_completed' && currentStatus !== 'ride_cancelled' &&
         currentStatus !== 'delivery_completed' && currentStatus !== 'delivery_cancelled' &&
         currentStatus !== 'product_order_completed' && currentStatus !== 'product_order_cancelled' && currentStatus !== 'product_order_rejected'
     ) {
-        // Keep if ongoing
     } else {
         if (isTaxiDriverOnlineSim) setActivityDetails({ type: 'driver_status', status: 'driver_online_idle' });
         else if (isDeliveryDriverOnlineSim) setActivityDetails({ type: 'driver_status', status: 'driver_online_idle', vehicleType: 'Bike (Delivery)' });
@@ -1172,13 +1145,13 @@ export default function AppRoot() {
   }, [globalAddToCart]);
 
   const handleOpenChatDetail = useCallback((messageItem: MessageItem) => {
-    if (!userData) {
+    if (!user) {
       toast({ title: "Error", description: "User data not available for chat.", variant: "destructive" });
       return;
     }
     const mockMessages: ChatMessage[] = [
       { id: `msg-${Date.now() - 2000}`, text: messageItem.content, timestamp: messageItem.timestamp, isSender: false, avatar: messageItem.senderImage, avatarAiHint: messageItem.senderImageAiHint },
-      { id: `msg-${Date.now() - 1000}`, text: "Okay, I see. Thanks for letting me know!", timestamp: "1 min ago", isSender: true, avatar: userData.avatarUrl, avatarAiHint: userData.avatarAiHint },
+      { id: `msg-${Date.now() - 1000}`, text: "Okay, I see. Thanks for letting me know!", timestamp: "1 min ago", isSender: true, avatar: user.avatarUrl, avatarAiHint: user.avatarAiHint },
       { id: `msg-${Date.now()}`, text: "No problem! Glad I could help.", timestamp: "Just now", isSender: false, avatar: messageItem.senderImage, avatarAiHint: messageItem.senderImageAiHint },
     ];
 
@@ -1191,29 +1164,27 @@ export default function AppRoot() {
     });
     setShowMessagesNotifications(false);
     setShowChatDetailScreen(true);
-  }, [userData, toast]);
+  }, [user, toast]);
 
   const handleSendMessageInChatDetail = useCallback((text: string) => {
-    if (!currentChatContext || !userData) return;
+    if (!currentChatContext || !user) return;
 
     const newMessage: ChatMessage = {
       id: `msg-sent-${Date.now()}`,
       text: text,
       timestamp: "Just now",
       isSender: true,
-      avatar: userData.avatarUrl,
-      avatarAiHint: userData.avatarAiHint,
+      avatar: user.avatarUrl,
+      avatarAiHint: user.avatarAiHint,
     };
 
     setCurrentChatContext(prev => prev ? {
       ...prev,
       messages: [...prev.messages, newMessage]
     } : null);
-  }, [currentChatContext, userData]);
+  }, [currentChatContext, user]);
 
   const renderScreenContent = useCallback(() => {
-    if (!isClient) return null;
-
     if (showSplashScreen) {
       return <SplashScreen onDismiss={() => setShowSplashScreen(false)} />;
     }
@@ -1249,7 +1220,7 @@ export default function AppRoot() {
       case 'account':
         if (isLoggedIn) {
           return <AccountScreen
-                   userData={userData}
+                   userData={user}
                    setActiveTab={setActiveTab}
                    userPosts={userPosts}
                    userMoments={userMoments}
@@ -1272,13 +1243,13 @@ export default function AppRoot() {
             <DetailedPostScreen
               post={selectedPostForDetail}
               onPostComment={(commentText) => handlePostCommentOnDetail(selectedPostForDetail.id, commentText)}
-              onBack={() => setActiveTab( (selectedPostForDetail as ProfilePost).userId === userData?.id ? 'account' : 'feeds')}
+              onBack={() => setActiveTab( (selectedPostForDetail as ProfilePost).userId === user?.id ? 'account' : 'feeds')}
             />
           );
         }
         return <p className="p-4 text-center text-muted-foreground">Loading post details...</p>;
-      case 'digital-id-card': return <DigitalIdCardScreen userData={userData} setActiveTab={setActiveTab} />;
-      case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={setActiveTab} userData={userData} />;
+      case 'digital-id-card': return <DigitalIdCardScreen userData={user} setActiveTab={setActiveTab} />;
+      case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={setActiveTab} userData={user} />;
       case 'user-skillsets': return (
                             <UserSkillsetsScreen
                                 setActiveTab={setActiveTab}
@@ -1325,10 +1296,10 @@ export default function AppRoot() {
         if (selectedIndividualProfileId) {
              return <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={setActiveTab} />;
         }
-        if (userData && !selectedIndividualProfileId) { 
+        if (user && !selectedIndividualProfileId) { 
              setActiveTab('account');
              return <AccountScreen
-                        userData={userData}
+                        userData={user}
                         setActiveTab={setActiveTab}
                         userPosts={userPosts}
                         userMoments={userMoments}
@@ -1424,14 +1395,14 @@ export default function AppRoot() {
                       />;
     }
   }, [
-    isClient, isLoggedIn, activeTabInternal, userData, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments, feedItems, recommendedItems,
+    isLoggedIn, activeTabInternal, user, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments, feedItems, recommendedItems,
     selectedBusinessProfileId, businessProfileToManageId,
     selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, selectedPostForDetail,
     bookingTargetProfile,
     restaurantsData, selectedRestaurantId, 
     productCategoriesData, productsData, selectedShoppingCategoryId, selectedProductId, 
     isTaxiDriverOnlineSim, isDeliveryDriverOnlineSim, isBusinessActiveSim, 
-    authScreen, // Dependency for re-rendering when auth screen changes
+    authScreen,
     handleLogout,
     setActiveTab,
     handleSelectBusinessProfile, handleManageBusinessProfile, handleBackFromBusinessDetail, handleBackFromManageBusinessProfile,
@@ -1451,12 +1422,8 @@ export default function AppRoot() {
   ]);
 
 
-  if (!isClient) {
-    return (
-      <div className="flex flex-col h-screen bg-background items-center justify-center">
-        <p className="text-lg text-muted-foreground">Loading App...</p>
-      </div>
-    );
+  if (authLoading) {
+    return <Loading />;
   }
 
   return (
@@ -1481,7 +1448,7 @@ export default function AppRoot() {
           onSelectBusinessProfile={(id) => handleSelectBusinessProfile(String(id))}
           selectedBusinessProfileId={selectedBusinessProfileId?.toString() ?? null}
           onLogout={handleLogout}
-          userData={userData}
+          userData={user}
         />
       )}
 
@@ -1493,7 +1460,7 @@ export default function AppRoot() {
         <BottomNavigation activeTab={activeTabInternal} setActiveTab={setActiveTab} />
       )}
 
-      {isClient && isLoggedIn && isFabVisible && (
+      {isLoggedIn && isFabVisible && (
         <FloatingActionButton
             onClick={handleFabClick}
             activityType={
@@ -1515,7 +1482,7 @@ export default function AppRoot() {
         />
       )}
 
-      {isClient && isLoggedIn && isActiveActivityViewVisible && (
+      {isLoggedIn && isActiveActivityViewVisible && (
         <ActiveActivityView
           isVisible={isActiveActivityViewVisible}
           onClose={handleCloseActivityView}
@@ -1549,14 +1516,14 @@ export default function AppRoot() {
         />
       )}
 
-      {isClient && showMessagesNotifications && (
+      {showMessagesNotifications && (
         <MessagesNotificationsScreen
           onClose={() => setShowMessagesNotifications(false)}
           onOpenChatDetail={handleOpenChatDetail}
         />
       )}
 
-      {isClient && isLoggedIn && showChatDetailScreen && currentChatContext && (
+      {isLoggedIn && showChatDetailScreen && currentChatContext && (
         <ChatDetailScreen
           isOpen={showChatDetailScreen}
           onClose={() => {
@@ -1565,8 +1532,8 @@ export default function AppRoot() {
           }}
           chatContext={currentChatContext}
           onSendMessage={handleSendMessageInChatDetail}
-          currentUserAvatar={userData?.avatarUrl}
-          currentUserAvatarAiHint={userData?.avatarAiHint}
+          currentUserAvatar={user?.avatarUrl}
+          currentUserAvatarAiHint={user?.avatarAiHint}
         />
       )}
 
@@ -1575,14 +1542,14 @@ export default function AppRoot() {
           isOpen={showCreateMomentDialog}
           onClose={() => setShowCreateMomentDialog(false)}
           moments={[]}
-          ownerName={userData?.name}
-          ownerAvatarUrl={userData?.avatarUrl}
-          ownerAvatarAiHint={userData?.avatarAiHint}
+          ownerName={user?.name}
+          ownerAvatarUrl={user?.avatarUrl}
+          ownerAvatarAiHint={user?.avatarAiHint}
           onViewOwnerProfile={() => setActiveTab('account')}
         />
       )}
 
-      {isClient && isLoggedIn && showMomentViewer && viewingMomentOwnerDetails && (
+      {isLoggedIn && showMomentViewer && viewingMomentOwnerDetails && (
         <MomentViewerScreen
           isOpen={showMomentViewer}
           onClose={() => { setShowMomentViewer(false); setViewingMomentOwnerDetails(null); }}
@@ -1594,7 +1561,7 @@ export default function AppRoot() {
         />
       )}
 
-      {isClient && isLoggedIn && showServiceBookingDialog && bookingTargetProfile && (
+      {isLoggedIn && showServiceBookingDialog && bookingTargetProfile && (
         <ServiceBookingDialog
           isOpen={showServiceBookingDialog}
           onClose={() => {
