@@ -6,10 +6,17 @@ let db: admin.firestore.Firestore | undefined = undefined;
 
 if (!admin.apps.length) {
   try {
+    // A more robust way to handle the private key, which can be tricky with environment variables
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY
+      // The key might be wrapped in quotes, so we remove them
+      ?.replace(/^"|"$/g, '')
+      // The key contains newlines, which need to be un-escaped
+      ?.replace(/\\n/g, '\n');
+
     const serviceAccount = {
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      privateKey: privateKey,
     };
 
     if (serviceAccount.projectId && serviceAccount.clientEmail && serviceAccount.privateKey) {
@@ -36,4 +43,3 @@ if (!admin.apps.length) {
 }
 
 export { db };
-    
