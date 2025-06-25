@@ -1,9 +1,39 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Default: Deny all access to prevent accidental exposure.
     match /{document=**} {
       allow read, write: if false;
+    }
+
+    // Allow authenticated users to read public-facing data.
+    // Writes are blocked and must go through the backend API.
+    match /business_profiles/{profileId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    match /professional_profiles/{userId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    match /skillset_profiles/{profileId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Allow authenticated users to read posts.
+    // Writes (creating, liking, commenting) must go through the backend API.
+    match /posts/{postId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    
+    // The legacy "profiles" collection should be locked down completely from the client.
+    match /profiles/{userId} {
+        allow read, write: if false;
     }
   }
 }
