@@ -36,6 +36,7 @@ import SplashScreen from '@/components/screens/SplashScreen'; // New Splash Scre
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
 import { feedItems as initialFeedItemsData } from '@/lib/dummy-data/feedItems';
 import { recommendedItems as initialRecommendedItemsData } from '@/lib/dummy-data/recommendedItems';
+import { dummyBusinessProfiles } from '@/lib/dummy-data/businessProfiles';
 
 
 import FoodRestaurantsScreen from '@/components/screens/food/FoodRestaurantsScreen';
@@ -218,29 +219,40 @@ export default function AppRoot() {
     console.log("Fetching business profiles from API...");
     try {
       const response = await fetch('/api/business-profiles');
-      if (response.ok) {
+      
+      if (!response.ok) {
+        // Handle all non-successful responses directly without throwing an error
+        const errorData = await response.json().catch(() => ({ error: 'Could not parse error response from server.' }));
+        const errorMessage = errorData.error || `Failed to fetch profiles: ${response.statusText}`;
+        
+        console.warn(`Could not load profiles from backend: ${errorMessage}`);
+        
+        toast({
+          title: "Displaying Sample Data",
+          description: "Could not connect to the database. Please check your backend configuration and server logs for more details.",
+          variant: "default",
+          duration: 10000,
+        });
+        
+        setBusinessProfilesData(dummyBusinessProfiles); // Fallback to dummy data
+        
+      } else {
+        // This block runs only if the response was successful
         const profiles: UserBusinessProfile[] = await response.json();
         setBusinessProfilesData(profiles);
         console.log("Business profiles loaded from API.");
-      } else {
-        const errorData = await response.json();
-        const errorMessage = errorData.error || `Failed to fetch profiles: ${response.statusText}`;
-        console.error("API error fetching business profiles:", errorMessage);
-        toast({
-          title: "Error Loading Profiles",
-          description: errorMessage,
-          variant: "destructive",
-        });
-        setBusinessProfilesData([]);
       }
+
     } catch (error) {
+      // This will now only catch network errors (e.g., server is down)
       console.error("Network error fetching business profiles:", error);
-      let detailedErrorMessage = "Could not load business profiles due to a network issue.";
-      if (error instanceof Error) {
-          detailedErrorMessage = error.message;
-      }
-      toast({ title: "Error Loading Profiles", description: detailedErrorMessage, variant: "destructive" });
-      setBusinessProfilesData([]);
+      toast({
+        title: "Network Error",
+        description: "Could not connect to the server. Displaying local sample data.",
+        variant: "destructive",
+        duration: 10000,
+      });
+      setBusinessProfilesData(dummyBusinessProfiles);
     } finally {
       setIsLoadingBusinessProfiles(false);
     }
