@@ -223,7 +223,6 @@ export default function AppRoot() {
       return;
     }
     setIsLoadingBusinessProfiles(true);
-    console.log("Fetching business profiles from API...");
     try {
       const response = await fetch('/api/business-profiles');
       
@@ -231,13 +230,13 @@ export default function AppRoot() {
         const errorData = await response.json().catch(() => ({ error: 'Could not parse error response from server.' }));
         const errorMessage = errorData.error || `Failed to fetch profiles: ${response.statusText}`;
         
-        console.error("API error fetching business profiles:", errorMessage);
+        console.warn("API error fetching business profiles:", errorMessage);
         
         toast({
-          title: "Displaying Sample Data",
-          description: "Could not connect to the database. Please check backend configuration.",
+          title: "Using Sample Data (Action Required)",
+          description: "Could not connect to the database. This is likely due to an issue with your FIREBASE_PRIVATE_KEY format in the .env file. Please check the server logs for details.",
           variant: "default",
-          duration: 10000,
+          duration: 15000,
         });
         
         setBusinessProfilesData(dummyBusinessProfiles);
