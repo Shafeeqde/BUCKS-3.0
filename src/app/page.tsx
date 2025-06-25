@@ -36,6 +36,7 @@ import SplashScreen from '@/components/screens/SplashScreen'; // New Splash Scre
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
 import { feedItems as initialFeedItemsData } from '@/lib/dummy-data/feedItems';
 import { recommendedItems as initialRecommendedItemsData } from '@/lib/dummy-data/recommendedItems';
+import { dummyBusinessProfiles } from '@/lib/dummy-data/businessProfiles';
 
 
 import FoodRestaurantsScreen from '@/components/screens/food/FoodRestaurantsScreen';
@@ -207,8 +208,20 @@ export default function AppRoot() {
       if (error instanceof Error) {
         detailedErrorMessage = error.message;
       }
-      toast({ title: "Error Loading Profiles", description: detailedErrorMessage, variant: "destructive" });
-      setBusinessProfilesData([]); // Clear data on error
+      
+      // Check for specific server configuration error
+      if (detailedErrorMessage.includes('Database service not available')) {
+          toast({
+              title: "Using Local Data",
+              description: "Could not connect to the database. Showing sample business profiles instead. To see live data, please configure your Firebase Admin SDK credentials in your environment variables.",
+              variant: "default",
+              duration: 9000,
+          });
+          setBusinessProfilesData(dummyBusinessProfiles); // Fallback to dummy data
+      } else {
+          toast({ title: "Error Loading Profiles", description: detailedErrorMessage, variant: "destructive" });
+          setBusinessProfilesData([]); // Clear data on other errors
+      }
     } finally {
       setIsLoadingBusinessProfiles(false);
     }
