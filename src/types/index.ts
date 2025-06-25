@@ -128,6 +128,10 @@ export interface GeneralQueryOutput {
   answer: string;
   locations?: LocationResult[];
   queryType: 'general' | 'location_search';
+  suggestedAction?: {
+    label: string;
+    targetTab: string;
+  }
 }
 
 export interface VehicleOption {
@@ -482,6 +486,7 @@ export interface SkillsetSpecificFeedItem {
 
 export interface SkillsetProfileData {
   id: string;
+  userId: string; // The ID of the main user who owns this profile
   skillName: string;
   skillLevel?: string;
   skillDescription?: string;

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { PlusCircleIcon, PencilSquareIcon, RocketLaunchIcon, MagnifyingGlassIcon, TrashIcon } from '@heroicons/react/24/outline';
-import type { TabName, SkillsetProfileSummary } from '@/types';
+import type { TabName, SkillsetProfileSummary, UserDataForSideMenu } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
 import {
@@ -21,58 +21,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useAuth } from '@/context/AuthContext';
+
 
 interface UserSkillsetsScreenProps {
   setActiveTab: (tab: TabName) => void;
   onManageSkillsetProfile: (skillsetProfileId: string) => void;
 }
 
-const simulateFetchSkillsetProfiles = async (): Promise<SkillsetProfileSummary[]> => {
-  console.log('Simulating fetching user skillset profiles...');
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const mockProfiles: SkillsetProfileSummary[] = [
-        { id: 'plumbing-profile-johndoe-123', skillName: 'Plumbing Services', skillLevel: 'Certified Professional', isActive: true, portfolioItemCount: 3, averageRating: 4.9 },
-        { id: 'graphic-design-profile-johndoe-456', skillName: 'Graphic Design', skillLevel: 'Advanced', isActive: true, portfolioItemCount: 10, averageRating: 4.7 },
-        { id: 'react-dev-profile-johndoe-789', skillName: 'React Development', skillLevel: 'Expert', isActive: false, portfolioItemCount: 5 },
-        { id: 'jenson-interior-stylist-123', skillName: 'Interior Home Styling by Jenson', skillLevel: 'Lead Stylist', isActive: true, portfolioItemCount: 8, averageRating: 4.8 },
-      ];
-      console.log('Simulated user skillset profiles fetched:', mockProfiles);
-      resolve(mockProfiles);
-    }, 1000);
-  });
-};
-
-const simulateCreateSkillsetProfile = async (skillName: string): Promise<SkillsetProfileSummary> => {
-  console.log('Simulating creating skillset profile for:', skillName);
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newProfile: SkillsetProfileSummary = {
-        id: `skill-profile-${Date.now()}`,
-        skillName: skillName,
-        skillLevel: 'Beginner',
-        isActive: false,
-        portfolioItemCount: 0,
-      };
-      console.log('Simulated skillset profile created:', newProfile);
-      resolve(newProfile);
-    }, 1000);
-  });
-};
-
-const simulateToggleSkillsetProfileStatus = async (profileId: string, newStatus: boolean): Promise<boolean> => {
-  console.log(`Simulating toggling status for ${profileId} to ${newStatus}`);
-  return new Promise(resolve => setTimeout(() => resolve(true), 500));
-};
-
-const simulateDeleteSkillsetProfile = async (profileId: string): Promise<boolean> => {
-  console.log(`Simulating deleting profile ${profileId}`);
-  return new Promise(resolve => setTimeout(() => resolve(true), 500));
-};
-
-
 const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab, onManageSkillsetProfile }) => {
   const { toast } = useToast();
+  const { user } = useAuth(); // Get user from AuthContext
 
   const [newSkillsetName, setNewSkillsetName] = useState('');
   const [skillsetProfiles, setSkillsetProfiles] = useState<SkillsetProfileSummary[]>([]);
@@ -84,14 +43,18 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
   const [skillsetToDeleteName, setSkillsetToDeleteName] = useState<string | null>(null);
 
 
-  useEffect(() => {
-    fetchUserSkillsetProfiles();
-  }, []);
-
   const fetchUserSkillsetProfiles = async () => {
+    if (!user) {
+      setLoadingProfiles(false);
+      return;
+    }
     setLoadingProfiles(true);
     try {
-      const data = await simulateFetchSkillsetProfiles();
+      const response = await fetch(`/api/skillset-profiles?userId=${user.id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch skillset profiles.');
+      }
+      const data = await response.json();
       setSkillsetProfiles(data);
     } catch (error) {
       console.error('Error fetching skillset profiles:', error);
@@ -101,14 +64,39 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
     }
   };
 
+  useEffect(() => {
+    fetchUserSkillsetProfiles();
+  }, [user]);
+
+
   const handleCreateNewProfile = async () => {
     if (!newSkillsetName.trim()) {
       toast({ title: "Missing Name", description: "Please enter a name for the new skillset profile.", variant: "destructive" });
       return;
     }
+    if (!user) {
+        toast({ title: "Not Logged In", description: "You must be logged in to create a profile.", variant: "destructive"});
+        return;
+    }
     setCreatingProfile(true);
     try {
-      const newProfile = await simulateCreateSkillsetProfile(newSkillsetName);
+      const response = await fetch('/api/skillset-profiles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            skillName: newSkillsetName, 
+            userId: user.id,
+            userName: user.name,
+            userAvatarUrl: user.avatarUrl,
+            userAvatarAiHint: user.avatarAiHint,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create profile.');
+      }
+
+      const newProfile = await response.json();
       setSkillsetProfiles(prev => [...prev, newProfile]);
       toast({ title: "Profile Created", description: `Skillset profile "${newProfile.skillName}" created. You can now manage its details.` });
       setNewSkillsetName('');
@@ -122,12 +110,21 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
   };
 
   const handleToggleActive = async (profileId: string, currentStatus: boolean) => {
-    const success = await simulateToggleSkillsetProfileStatus(profileId, !currentStatus);
-    if (success) {
-      setSkillsetProfiles(prev => prev.map(p => p.id === profileId ? { ...p, isActive: !currentStatus } : p));
-      toast({ title: "Status Updated", description: `Profile status changed to ${!currentStatus ? 'Active' : 'Inactive'}.` });
-    } else {
-      toast({ title: 'Update Failed', description: 'Could not update profile status.', variant: 'destructive' });
+    try {
+        const response = await fetch(`/api/skillset-profiles/${profileId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isActive: !currentStatus }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update status.');
+        }
+
+        setSkillsetProfiles(prev => prev.map(p => p.id === profileId ? { ...p, isActive: !currentStatus } : p));
+        toast({ title: "Status Updated", description: `Profile status changed to ${!currentStatus ? 'Active' : 'Inactive'}.` });
+    } catch (error) {
+         toast({ title: 'Update Failed', description: 'Could not update profile status.', variant: 'destructive' });
     }
   };
 
@@ -138,14 +135,20 @@ const UserSkillsetsScreen: React.FC<UserSkillsetsScreenProps> = ({ setActiveTab,
 
   const executeDeleteProfile = async () => {
     if (!skillsetToDeleteId || !skillsetToDeleteName) return;
-
-    const success = await simulateDeleteSkillsetProfile(skillsetToDeleteId);
-    if (success) {
-      setSkillsetProfiles(prev => prev.filter(p => p.id !== skillsetToDeleteId));
-      toast({ title: "Profile Deleted", description: `Skillset profile "${skillsetToDeleteName}" has been deleted.`, variant: "destructive" });
-    } else {
-      toast({ title: 'Deletion Failed', description: 'Could not delete profile.', variant: 'destructive' });
+    
+    try {
+        const response = await fetch(`/api/skillset-profiles/${skillsetToDeleteId}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) {
+            throw new Error('Failed to delete profile.');
+        }
+        setSkillsetProfiles(prev => prev.filter(p => p.id !== skillsetToDeleteId));
+        toast({ title: "Profile Deleted", description: `Skillset profile "${skillsetToDeleteName}" has been deleted.`, variant: "destructive" });
+    } catch (error) {
+        toast({ title: 'Deletion Failed', description: 'Could not delete profile.', variant: 'destructive' });
     }
+    
     setSkillsetToDeleteId(null);
     setSkillsetToDeleteName(null);
   };
