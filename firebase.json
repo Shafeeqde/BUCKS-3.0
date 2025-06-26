@@ -8,8 +8,8 @@
     "source": "dataconnect"
   },
   "firestore": {
-    "database": "bucks",
-    "location": "asia-south2",
+    "database": "(default)",
+    "location": "asia-south1",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
@@ -36,6 +36,17 @@
         "functions"
       ],
       "alwaysDeployFromSource": true
+    },
+    {
+      "backendId": "bucks",
+      "rootDir": "/",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "functions"
+      ]
     }
   ],
   "functions": [
@@ -54,6 +65,28 @@
         "*.local"
       ],
       "runtime": "python313"
+    },
+    {
+      "source": "buckd",
+      "codebase": "buckd",
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    },
+    {
+      "source": "bucks30",
+      "codebase": "bucks30",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
     }
   ]
 }
