@@ -3,7 +3,6 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { CartProvider } from '@/context/CartContext';
 import { AuthProvider } from '@/context/AuthContext'; // Import AuthProvider
 
 export const metadata: Metadata = {
@@ -25,12 +24,10 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased" suppressHydrationWarning={true}>
         <AuthProvider>
-          <CartProvider>
-            <TooltipProvider>
-              {children}
-            </TooltipProvider>
-            <Toaster />
-          </CartProvider>
+          <TooltipProvider>
+            {children}
+          </TooltipProvider>
+          <Toaster />
         </AuthProvider>
       </body>
     </html>

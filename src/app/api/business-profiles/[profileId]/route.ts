@@ -6,8 +6,11 @@ import type { UserBusinessProfile } from '@/types';
 const PROFILES_COLLECTION = 'business_profiles';
 
 // GET /api/business-profiles/[profileId] - Fetch a specific business profile
-export async function GET(request: NextRequest, context: { params: { profileId: string } }) {
-  const { profileId } = context.params;
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { profileId: string } }
+) {
+  const { profileId } = params;
   try {
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
@@ -39,8 +42,11 @@ export async function GET(request: NextRequest, context: { params: { profileId: 
 }
 
 // PUT /api/business-profiles/[profileId] - Update a specific business profile
-export async function PUT(request: NextRequest, context: { params: { profileId: string } }) {
-  const { profileId } = context.params;
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { profileId: string } }
+) {
+  const { profileId } = params;
   try {
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
@@ -52,10 +58,14 @@ export async function PUT(request: NextRequest, context: { params: { profileId: 
     }
 
     const body = await request.json();
-    const { id, ...updateData } = body as Partial<UserBusinessProfile>;
+    const { id, ...updateData } = body as Partial<UserBusinessProfile> & { name_lowercase?: string };
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: 'No update data provided' }, { status: 400 });
+    }
+
+    if (updateData.name) {
+      updateData.name_lowercase = updateData.name.toLowerCase();
     }
     
     const docRef = db.collection(PROFILES_COLLECTION).doc(profileId);
@@ -81,8 +91,11 @@ export async function PUT(request: NextRequest, context: { params: { profileId: 
 }
 
 // DELETE /api/business-profiles/[profileId] - Delete a specific business profile
-export async function DELETE(request: NextRequest, context: { params: { profileId: string } }) {
-  const { profileId } = context.params;
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { profileId: string } }
+) {
+  const { profileId } = params;
   try {
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
@@ -114,5 +127,3 @@ export async function DELETE(request: NextRequest, context: { params: { profileI
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
-    
-    

@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 }
 
 
-// GET /api/posts?userId=... - List all posts for a user
+// GET /api/posts?userId=... - List all posts for a user, or all posts if no userId
 export async function GET(request: NextRequest) {
   try {
     if (!db) {
@@ -60,14 +60,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
 
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID query parameter is required' }, { status: 400 });
+    let query: admin.firestore.Query = db.collection(POSTS_COLLECTION);
+
+    if (userId) {
+      query = query.where('userId', '==', userId);
     }
 
-    const snapshot = await db.collection(POSTS_COLLECTION)
-                           .where('userId', '==', userId)
-                           .orderBy('timestamp', 'desc')
-                           .get();
+    const snapshot = await query.orderBy('timestamp', 'desc').limit(50).get();
     
     if (snapshot.empty) {
       return NextResponse.json([], { status: 200 });
@@ -82,7 +81,6 @@ export async function GET(request: NextRequest) {
         user: data.user,
         userImage: data.userImage,
         userImageAiHint: data.userImageAiHint,
-        // Convert Firestore Timestamp to ISO string for the client
         timestamp: data.timestamp?.toDate?.().toISOString() || new Date().toISOString(),
         content: data.content,
         media: data.media,

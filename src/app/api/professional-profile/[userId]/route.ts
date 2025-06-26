@@ -6,8 +6,11 @@ import type { OverallProfessionalProfileData } from '@/types';
 const PROFILES_COLLECTION = 'professional_profiles';
 
 // GET /api/professional-profile/[userId] - Fetch a specific professional profile
-export async function GET(request: NextRequest, context: { params: { userId: string } }) {
-  const { userId } = context.params;
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { userId: string } }
+) {
+  const { userId } = params;
   try {
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
@@ -39,8 +42,11 @@ export async function GET(request: NextRequest, context: { params: { userId: str
 }
 
 // PUT /api/professional-profile/[userId] - Create or update a specific professional profile
-export async function PUT(request: NextRequest, context: { params: { userId: string } }) {
-  const { userId } = context.params;
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { userId: string } }
+) {
+  const { userId } = params;
   try {
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
@@ -52,21 +58,22 @@ export async function PUT(request: NextRequest, context: { params: { userId: str
     }
 
     const body = await request.json();
-    // Exclude id and userId from the update data to prevent them from being overwritten if they are in the body.
-    const { id, userId: bodyUserId, ...updateData } = body as Partial<OverallProfessionalProfileData>;
+    const { id, userId: bodyUserId, ...updateData } = body as Partial<OverallProfessionalProfileData> & { name_lowercase?: string };
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: 'No update data provided' }, { status: 400 });
     }
+
+    if (updateData.name) {
+      updateData.name_lowercase = updateData.name.toLowerCase();
+    }
     
     const docRef = db.collection(PROFILES_COLLECTION).doc(userId);
     
-    // Using set with merge:true will create the document if it doesn't exist, or update it if it does.
     await docRef.set(updateData, { merge: true });
 
     console.log(`Professional profile created/updated for user ID: ${userId}`);
 
-    // Fetch the newly updated/created document to return the full object
     const updatedDocSnap = await docRef.get();
     const updatedProfile = { id: updatedDocSnap.id, ...updatedDocSnap.data() };
 

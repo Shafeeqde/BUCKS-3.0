@@ -11,208 +11,188 @@ import { TruckIcon, PlusCircleIcon, PencilSquareIcon, TrashIcon } from '@heroico
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, UserVehicle } from '@/types';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
-const simulateFetchVehicles = async (): Promise<UserVehicle[]> => {
-  console.log('Simulating fetching user vehicles...');
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const mockVehicles: UserVehicle[] = [
-        { id: 'v1', vehicleType: 'Car (Sedan)', licensePlate: 'ABC-123', isActive: false },
-        { id: 'v2', vehicleType: 'Bike', licensePlate: 'XYZ-789', isActive: false },
-        { id: 'v3', vehicleType: 'Auto Rickshaw', licensePlate: 'PQR-456', isActive: false },
-      ];
-      resolve(mockVehicles);
-    }, 750);
-  });
-};
-
-const simulateAddVehicle = async (vehicleData: Pick<UserVehicle, 'vehicleType' | 'licensePlate'>): Promise<UserVehicle> => {
-  console.log('Simulating adding vehicle:', vehicleData);
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newVehicle: UserVehicle = {
-        id: `v${Date.now()}`,
-        ...vehicleData,
-        isActive: false, 
-      };
-      resolve(newVehicle);
-    }, 500);
-  });
-};
-
-interface UserVehiclesScreenProps {
-  setActiveTab: (tab: TabName) => void;
-  onToggleVehicleActive: (vehicle: UserVehicle, newStatus: boolean) => void;
-}
-
-const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ setActiveTab, onToggleVehicleActive }) => {
+const UserVehiclesScreen: React.FC = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const [vehicleType, setVehicleType] = useState('');
   const [licensePlate, setLicensePlate] = useState('');
 
   const [vehicles, setVehicles] = useState<UserVehicle[]>([]);
   const [loadingVehicles, setLoadingVehicles] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false); 
-
-  useEffect(() => {
-    fetchUserVehicles();
-  }, []);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [vehicleToDelete, setVehicleToDelete] = useState<UserVehicle | null>(null);
 
   const fetchUserVehicles = async () => {
+    if (!user) {
+      setLoadingVehicles(false);
+      return;
+    }
     setLoadingVehicles(true);
     try {
-      const data = await simulateFetchVehicles();
+      const response = await fetch(`/api/users/${user.id}/vehicles`);
+      if (!response.ok) throw new Error('Failed to fetch vehicles.');
+      const data = await response.json();
       setVehicles(data);
     } catch (error) {
       console.error('Error fetching vehicles:', error);
-      toast({
-        title: 'Error Fetching Vehicles',
-        description: 'Could not load your vehicles. Please try again.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Could not load your vehicles.', variant: 'destructive' });
     } finally {
       setLoadingVehicles(false);
     }
   };
 
+  useEffect(() => {
+    fetchUserVehicles();
+  }, [user]);
+
   const handleAddVehicle = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!vehicleType.trim() || !licensePlate.trim()) {
-      toast({
-        title: 'Missing Information',
-        description: 'Please enter vehicle type and license plate.',
-        variant: 'destructive',
-      });
+    if (!vehicleType.trim() || !licensePlate.trim() || !user) {
+      toast({ title: 'Missing Information', description: 'Please fill all fields and be logged in.', variant: 'destructive' });
       return;
     }
     setIsSubmitting(true);
     try {
-      const newVehicle = await simulateAddVehicle({ vehicleType, licensePlate });
-      setVehicles(prevVehicles => [...prevVehicles, newVehicle]);
-      toast({
-        title: 'Vehicle Added',
-        description: `${newVehicle.vehicleType} (${newVehicle.licensePlate}) added successfully.`,
+      const response = await fetch(`/api/users/${user.id}/vehicles`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vehicleType, licensePlate }),
       });
+      if (!response.ok) throw new Error('Failed to add vehicle.');
+      const newVehicle = await response.json();
+      setVehicles(prev => [...prev, newVehicle]);
+      toast({ title: 'Vehicle Added', description: `${newVehicle.vehicleType} (${newVehicle.licensePlate}) added.` });
       setVehicleType('');
       setLicensePlate('');
     } catch (error) {
       console.error('Error adding vehicle:', error);
-      toast({
-        title: 'Error Adding Vehicle',
-        description: 'Could not add your vehicle. Please try again.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Could not add your vehicle.', variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleToggleActive = async (vehicle: UserVehicle) => {
+    if (!user) return;
     const newStatus = !vehicle.isActive;
-    // Visually update immediately for better UX
+    
+    // Optimistic UI update
     setVehicles(prevVehicles =>
-      prevVehicles.map(v =>
-        v.id === vehicle.id ? { ...v, isActive: newStatus } : v
-      )
+      prevVehicles.map(v => (v.id === vehicle.id ? { ...v, isActive: newStatus } : v))
     );
-    // Call the handler passed from the parent component
-    onToggleVehicleActive(vehicle, newStatus);
+
+    try {
+      const response = await fetch(`/api/users/${user.id}/vehicles/${vehicle.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: newStatus }),
+      });
+      if (!response.ok) throw new Error('Failed to update status.');
+      toast({ title: 'Status Updated', description: `${vehicle.vehicleType} is now ${newStatus ? 'Online' : 'Offline'}.` });
+    } catch (error) {
+      // Revert optimistic update on failure
+      setVehicles(prevVehicles =>
+        prevVehicles.map(v => (v.id === vehicle.id ? { ...v, isActive: !newStatus } : v))
+      );
+      toast({ title: 'Error', description: 'Failed to update vehicle status.', variant: 'destructive' });
+    }
   };
-  
+
+  const handleDeleteVehicle = async () => {
+    if (!vehicleToDelete || !user) return;
+    try {
+      const response = await fetch(`/api/users/${user.id}/vehicles/${vehicleToDelete.id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Failed to delete vehicle.');
+      setVehicles(prev => prev.filter(v => v.id !== vehicleToDelete.id));
+      toast({ title: 'Vehicle Deleted', description: `${vehicleToDelete.vehicleType} removed successfully.`, variant: 'destructive' });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Could not delete the vehicle.', variant: 'destructive' });
+    } finally {
+      setVehicleToDelete(null);
+    }
+  };
+
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 h-full overflow-y-auto custom-scrollbar">
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-2xl font-headline flex items-center">
-            <TruckIcon className="mr-2 h-6 w-6 text-primary" /> My Vehicles
-          </CardTitle>
-          <CardDescription>Manage your vehicles for providing services. Activate a vehicle to go online.</CardDescription>
-        </CardHeader>
+    <>
+      <div className="max-w-4xl mx-auto p-4 sm:p-6 h-full overflow-y-auto custom-scrollbar">
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-2xl font-headline flex items-center">
+              <TruckIcon className="mr-2 h-6 w-6 text-primary" /> My Vehicles
+            </CardTitle>
+            <CardDescription>Manage your vehicles for providing services. Activate a vehicle to go online.</CardDescription>
+          </CardHeader>
 
-        <CardContent className="border-t pt-6">
-          <form onSubmit={handleAddVehicle} className="space-y-6 bg-card p-4 sm:p-6 rounded-lg shadow-md border mb-8">
-            <h3 className="text-lg font-semibold text-foreground">Add New Vehicle</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="vehicleType">Vehicle Type <span className="text-destructive">*</span></Label>
-                <Input 
-                  id="vehicleType" 
-                  value={vehicleType} 
-                  onChange={(e) => setVehicleType(e.target.value)} 
-                  placeholder="e.g., Car, Bike, Auto Rickshaw" 
-                  required 
-                />
+          <CardContent className="border-t pt-6">
+            <form onSubmit={handleAddVehicle} className="space-y-6 bg-card p-4 sm:p-6 rounded-lg shadow-md border mb-8">
+              <h3 className="text-lg font-semibold text-foreground">Add New Vehicle</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="vehicleType">Vehicle Type <span className="text-destructive">*</span></Label>
+                  <Input id="vehicleType" value={vehicleType} onChange={(e) => setVehicleType(e.target.value)} placeholder="e.g., Car, Bike, Auto Rickshaw" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="licensePlate">License Plate <span className="text-destructive">*</span></Label>
+                  <Input id="licensePlate" value={licensePlate} onChange={(e) => setLicensePlate(e.target.value)} placeholder="e.g., ABC-1234" required />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="licensePlate">License Plate <span className="text-destructive">*</span></Label>
-                <Input 
-                  id="licensePlate" 
-                  value={licensePlate} 
-                  onChange={(e) => setLicensePlate(e.target.value)} 
-                  placeholder="e.g., ABC-1234" 
-                  required 
-                />
-              </div>
+              <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
+                {isSubmitting ? <span className="mr-2 h-4 w-4 animate-spin border-2 border-primary-foreground border-t-transparent rounded-full"></span> : <PlusCircleIcon className="mr-2 h-4 w-4" />}
+                {isSubmitting ? 'Adding...' : 'Add Vehicle'}
+              </Button>
+            </form>
+
+            <div>
+              <h3 className="text-xl font-semibold text-foreground mb-4">Your Registered Vehicles</h3>
+              {loadingVehicles ? (
+                <div className="flex justify-center items-center py-10 min-h-[200px]"><span className="h-8 w-8 animate-spin border-4 border-primary border-t-transparent rounded-full"></span></div>
+              ) : vehicles.length === 0 ? (
+                <div className="text-center py-10 min-h-[200px]"><p className="text-muted-foreground">No vehicles registered yet.</p></div>
+              ) : (
+                <div className="space-y-4">
+                  {vehicles.map((vehicle) => (
+                    <Card key={vehicle.id} className={cn("transition-all", !vehicle.isActive && "bg-muted/30")}>
+                      <CardHeader className="pb-3">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                          <div>
+                            <CardTitle className="text-lg">{vehicle.vehicleType}</CardTitle>
+                            <CardDescription>License Plate: {vehicle.licensePlate}</CardDescription>
+                          </div>
+                          <div className="flex items-center space-x-3 mt-2 sm:mt-0">
+                            <Label htmlFor={`status-${vehicle.id}`} className="text-sm text-muted-foreground whitespace-nowrap">{vehicle.isActive ? 'Online' : 'Offline'}</Label>
+                            <Switch id={`status-${vehicle.id}`} checked={vehicle.isActive} onCheckedChange={() => handleToggleActive(vehicle)} />
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardFooter className="flex justify-end space-x-2 pt-4 border-t">
+                        <Button variant="ghost" size="sm" onClick={() => toast({ title: "Edit Clicked (Not Implemented)" })}><PencilSquareIcon className="mr-1 h-4 w-4" /> Edit</Button>
+                        <Button variant="destructive" size="sm" onClick={() => setVehicleToDelete(vehicle)}><TrashIcon className="mr-1 h-4 w-4" /> Delete</Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
-            <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
-              {isSubmitting ? <span className="mr-2 h-4 w-4 animate-spin border-2 border-primary-foreground border-t-transparent rounded-full"></span> : <PlusCircleIcon className="mr-2 h-4 w-4" />}
-              {isSubmitting ? 'Adding...' : 'Add Vehicle'}
-            </Button>
-          </form>
-
-          <div>
-            <h3 className="text-xl font-semibold text-foreground mb-4">Your Registered Vehicles</h3>
-            {loadingVehicles ? (
-              <div className="flex flex-col justify-center items-center py-10 min-h-[200px]">
-                <span className="h-8 w-8 animate-spin border-4 border-primary border-t-transparent rounded-full"></span>
-                <p className="ml-2 mt-2 text-muted-foreground">Loading your vehicles...</p>
-              </div>
-            ) : vehicles.length === 0 ? (
-              <div className="text-center py-10 min-h-[200px] flex flex-col items-center justify-center">
-                <TruckIcon className="h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-lg text-muted-foreground">No vehicles registered yet.</p>
-                <p className="text-sm text-muted-foreground">Add your first vehicle using the form above to get started.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {vehicles.map((vehicle) => (
-                  <Card key={vehicle.id} className={cn("transition-all", !vehicle.isActive && "bg-muted/30")}>
-                    <CardHeader className="pb-3">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                        <div>
-                           <CardTitle className="text-lg">{vehicle.vehicleType}</CardTitle>
-                           <CardDescription>License Plate: {vehicle.licensePlate}</CardDescription>
-                        </div>
-                        <div className="flex items-center space-x-3 mt-2 sm:mt-0">
-                            <Label htmlFor={`status-${vehicle.id}`} className="text-sm text-muted-foreground whitespace-nowrap">
-                                {vehicle.isActive ? 'Online' : 'Offline'}
-                            </Label>
-                            <Switch
-                                id={`status-${vehicle.id}`}
-                                checked={vehicle.isActive}
-                                onCheckedChange={() => handleToggleActive(vehicle)}
-                                aria-label={vehicle.isActive ? `Deactivate ${vehicle.vehicleType}` : `Activate ${vehicle.vehicleType}`}
-                            />
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardFooter className="flex justify-end space-x-2 pt-4 border-t">
-                      <Button variant="ghost" size="sm" onClick={() => toast({title: "Edit Clicked (Not Implemented)", description: `Edit vehicle ${vehicle.licensePlate}`})}>
-                        <PencilSquareIcon className="mr-1 h-4 w-4" /> Edit
-                      </Button>
-                      <Button variant="destructive" size="sm" onClick={() => toast({title: "Delete Clicked (Not Implemented)", description: `Delete vehicle ${vehicle.licensePlate}`, variant: "destructive"})}>
-                        <TrashIcon className="mr-1 h-4 w-4" /> Delete
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+      <AlertDialog open={!!vehicleToDelete} onOpenChange={(open) => !open && setVehicleToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>This action will permanently delete the vehicle: {vehicleToDelete?.vehicleType} ({vehicleToDelete?.licensePlate}).</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setVehicleToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteVehicle} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 

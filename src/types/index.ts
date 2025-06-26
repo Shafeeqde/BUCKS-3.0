@@ -11,7 +11,6 @@ export type TabName =
   | 'registration'
   | 'home'
   | 'feeds'
-  | 'recommended' // Reinstated
   | 'menu'
   | 'account'
   | 'professional-profile'
@@ -30,16 +29,7 @@ export type TabName =
   | 'digital-id-card'
   | 'create-post'
   | 'detailed-post'
-  | 'service-booking'
-  // Food Ordering Tabs
-  | 'food-restaurants'
-  | 'food-restaurant-detail'
-  // Shopping Tabs
-  | 'shopping-categories'
-  | 'shopping-products-list'
-  | 'shopping-product-detail'
-  // Unified Cart
-  | 'unified-cart';
+  | 'service-booking';
 
 
 export interface Category {
@@ -72,7 +62,7 @@ export interface Comment {
 }
 
 export interface FeedItem {
-  id: number;
+  id: number | string; // Allow string for Firestore IDs
   type: 'post' | 'job' | 'ad' | 'recommended';
   user: string;
   userImage: string;
@@ -80,14 +70,12 @@ export interface FeedItem {
   timestamp: string;
   content: string;
   media?: MediaAttachment;
-  postImage?: string; // For older structure, try to consolidate into media
-  postImageAiHint?: string;
   comments: number;
   recommendations: number;
   notRecommendations: number;
   profileId?: string;
-  showCommentBox?: boolean; // UI state, might not be ideal here
-  currentComment?: string; // UI state
+  showCommentBox?: boolean;
+  currentComment?: string;
   commentsData?: Comment[];
   recommendedBy?: {
     name: string;
@@ -116,7 +104,7 @@ export interface Service {
   icon: HeroIconType;
   locked: boolean;
   dataAiHint?: string;
-  targetTab?: TabName; // Optional: to directly navigate to a specific tab
+  targetTab?: TabName;
 }
 
 export interface LocationResult {
@@ -155,8 +143,8 @@ export interface UserProfile {
 
 export interface UserVehicle {
   id: string;
-  vehicleType: string; // e.g., "Car (Sedan)", "Bike", "Auto Rickshaw"
-  vehicleCategory?: 'car' | 'bike' | 'auto'; // More specific category for logic
+  userId: string;
+  vehicleType: string;
   licensePlate: string;
   isActive: boolean;
 }
@@ -218,12 +206,13 @@ export type BusinessType = 'products' | 'services' | 'products_and_services';
 export interface UserBusinessProfile {
   id: string;
   name: string;
+  name_lowercase?: string;
   logo?: string;
   logoAiHint?: string;
   coverPhoto?: string;
   coverPhotoAiHint?: string;
   bio: string;
-  businessType?: BusinessType; // Make optional for easier partial updates initially
+  businessType?: BusinessType;
   website?: string;
   phone?: string;
   email?: string;
@@ -251,9 +240,9 @@ export interface BusinessProductCardItem {
   name: string;
   imageUrl?: string;
   imageAiHint?: string;
-  price: string; // Final price for display
-  discountPrice?: string; // Original price if discounted
-  discountPercentage?: string; // Optional discount string
+  price: string;
+  discountPrice?: string;
+  discountPercentage?: string;
 }
 
 export interface BusinessProfileCardData {
@@ -301,34 +290,30 @@ export interface NotificationItem {
 }
 
 export type ActivityType =
-  | 'ride' // Rider is on a ride, Driver is on a ride
-  | 'request' // Driver receives a ride request
-  | 'driver_status' // Driver is online/offline, not on a ride
-  | 'delivery_request' // Delivery driver receives a request
-  | 'delivery_task' // Delivery driver accepted a task and is in progress
-  | 'product_order_notification'; // Business owner receives a product order
+  | 'ride'
+  | 'request'
+  | 'driver_status'
+  | 'delivery_request'
+  | 'delivery_task'
+  | 'product_order_notification';
 
 export type ActivityStatus =
-  // Ride statuses
   | 'looking_for_driver'
   | 'driver_assigned'
-  | 'en_route_to_pickup' // Driver going to rider
+  | 'en_route_to_pickup'
   | 'arrived_at_pickup'
-  | 'ride_in_progress' // Rider and Driver on the way to destination
+  | 'ride_in_progress'
   | 'ride_completed'
   | 'ride_cancelled'
-  // Driver statuses
   | 'driver_online_idle'
   | 'driver_offline'
-  // Delivery statuses for driver
   | 'delivery_pending_acceptance'
   | 'delivery_accepted_en_route_pickup'
   | 'delivery_arrived_at_pickup'
   | 'delivery_picked_up_en_route_dropoff'
-  | 'delivery_arrived_at_dropoff' // Optional intermediate
+  | 'delivery_arrived_at_dropoff'
   | 'delivery_completed'
   | 'delivery_cancelled'
-  // Product Order statuses
   | 'new_product_order'
   | 'product_order_accepted'
   | 'product_order_rejected'
@@ -342,37 +327,26 @@ export type ActivityStatus =
 export interface ActivityDetails {
     type?: ActivityType;
     status?: ActivityStatus;
-    
-    // Common for ride & delivery
     pickup?: string;
     dropoff?: string;
-
-    // Ride specific
-    driverName?: string; // Rider's view
-    riderName?: string;  // Driver's view (for request & active ride)
-    vehicle?: string;    // Rider's view
-    fare?: string;       // Driver's view (for request & active ride)
-    distance?: string;   // Driver's view (for request)
-    vehicleType?: string;// Driver's view (for request)
-
-    // Delivery specific (for request and active task)
+    driverName?: string;
+    riderName?: string;
+    vehicle?: string;
+    fare?: string;
+    distance?: string;
+    vehicleType?: string;
     itemName?: string;
     itemDescription?: string;
     estimatedPayment?: string;
     recipientName?: string;
     recipientPhone?: string;
-
-    // Product Order specific
     orderId?: string;
-    businessName?: string; // Name of the business receiving the order
+    businessName?: string;
     productName?: string;
     quantity?: number;
     customerName?: string;
-    customerAddress?: string; // For product delivery
+    customerAddress?: string;
     totalAmount?: string;
-
-
-    // For user placing a delivery (not implemented yet, but for future)
     deliveryPartnerName?: string; 
     deliveryVehicleInfo?: string; 
 } | null;
@@ -413,6 +387,7 @@ export interface OverallProfessionalProfileData {
     id: string;
     userId: string;
     name?: string;
+    name_lowercase?: string;
     professionalTitle?: string;
     avatarUrl?: string;
     avatarAiHint?: string;
@@ -486,7 +461,7 @@ export interface SkillsetSpecificFeedItem {
 
 export interface SkillsetProfileData {
   id: string;
-  userId: string; // The ID of the main user who owns this profile
+  userId: string;
   skillName: string;
   skillLevel?: string;
   skillDescription?: string;
@@ -531,20 +506,19 @@ export interface UserMoment {
 export interface UserDataForSideMenu {
   id: string;
   name: string;
-  email: string; // This is the User ID
+  email: string;
   avatarUrl?: string;
   avatarAiHint?: string;
   moments?: UserMoment[];
 }
 
-// --- Service Booking Types ---
 export interface ServiceBookingRequest {
   professionalId: string;
   professionalName: string;
   skillName: string;
   serviceDescription: string;
-  requestedDate?: string; // ISO string or formatted
-  requestedTime?: string; // e.g., "10:00 AM", "Afternoon"
+  requestedDate?: string;
+  requestedTime?: string;
 }
 
 export type BookingStatus = 'Pending' | 'Confirmed' | 'Cancelled' | 'Completed';
@@ -556,74 +530,10 @@ export interface ActiveBooking {
   skillName: string;
   serviceDescription: string;
   status: BookingStatus;
-  bookingDate: string; // Could be a combination of requestedDate and requestedTime
-  createdAt: string; // ISO string
-}
-// --- End Service Booking Types ---
-
-// --- Food Ordering Types ---
-export interface MenuItem {
-  id: string;
-  name: string;
-  description?: string;
-  price: number;
-  category: string;
-  imageUrl?: string;
-  imageAiHint?: string;
-  isVegetarian?: boolean;
-  isSpicy?: boolean;
+  bookingDate: string;
+  createdAt: string;
 }
 
-export interface Restaurant {
-  id: string;
-  name: string;
-  cuisine: string;
-  rating: number;
-  deliveryTime: string;
-  priceRange: string; // e.g., "$", "$$", "$$$"
-  imageUrl?: string;
-  imageAiHint?: string;
-  address?: string;
-  menu: MenuItem[];
-}
-// --- End Food Ordering Types ---
-
-// --- E-commerce (Shopping) Types ---
-export interface ProductCategory {
-  id: string;
-  name: string;
-  imageUrl?: string;
-  imageAiHint?: string;
-  description?: string;
-}
-
-export interface ProductListing {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  categoryIds: string[]; // To link product to one or more categories
-  imageUrl?: string;
-  imageAiHint?: string;
-  brand?: string;
-  rating?: number;
-  reviewCount?: number;
-  stock?: number;
-  tags?: string[];
-  variants?: {
-    id: string; // e.g., 'color', 'size'
-    name: string; // e.g., 'Color', 'Size'
-    options: {
-      value: string; // e.g., 'Red', 'Large'
-      imageUrl?: string; // For color swatches
-      additionalPrice?: number; // If this option changes the price
-    }[];
-  }[];
-}
-// --- End E-commerce (Shopping) Types ---
-
-// --- Chat & Messaging Types ---
 export interface ChatMessage {
   id: string;
   text: string;
@@ -632,4 +542,3 @@ export interface ChatMessage {
   avatar?: string;
   avatarAiHint?: string;
 }
-// --- End Chat & Messaging Types ---
