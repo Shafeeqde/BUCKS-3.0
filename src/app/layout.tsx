@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from '@/context/AuthContext'; // Import AuthProvider
+import { CartProvider } from '@/context/CartContext'; // Import CartProvider
 
 export const metadata: Metadata = {
   title: 'Bucks',
@@ -24,10 +25,12 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased" suppressHydrationWarning={true}>
         <AuthProvider>
-          <TooltipProvider>
-            {children}
-          </TooltipProvider>
-          <Toaster />
+          <CartProvider>
+            <TooltipProvider>
+              {children}
+            </TooltipProvider>
+            <Toaster />
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>
