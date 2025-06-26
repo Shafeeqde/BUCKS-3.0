@@ -1,5 +1,4 @@
 
-
 import type { ForwardRefExoticComponent, RefAttributes, SVGProps } from 'react'; // For Heroicons
 
 // Used by Heroicons
@@ -129,8 +128,6 @@ export interface VehicleOption {
   dataAiHint?: string;
   priceRange: string;
   estimatedETA: string;
-  minRide?: string;
-  pricePerKm?: string;
 }
 
 export interface UserProfile {
@@ -321,7 +318,6 @@ export type ActivityStatus =
   | 'product_order_rejected'
   | 'product_order_processing'
   | 'product_order_ready_for_pickup'
-  ...
   | 'product_order_out_for_delivery'
   | 'product_order_completed'
   | 'product_order_cancelled';
@@ -544,79 +540,4 @@ export interface ChatMessage {
   isSender: boolean;
   avatar?: string;
   avatarAiHint?: string;
-}
-
-export interface ProductCategory {
-  id: string;
-  name: string;
-  imageUrl?: string;
-  imageAiHint?: string;
-  description?: string;
-}
-
-export interface ProductListing {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  categoryIds: string[];
-  imageUrl?: string;
-  imageAiHint?: string;
-  brand?: string;
-  rating?: number;
-  reviewCount?: number;
-  stock?: number;
-  tags?: string[];
-  variants?: {
-    id: string;
-    name: string;
-    options: { value: string }[];
-  }[];
-}
-
-export interface FoodCartItem {
-  menuItemId: string;
-  name: string;
-  price: number;
-  quantity: number;
-  restaurantId: string;
-  restaurantName: string;
-  imageUrl?: string;
-  imageAiHint?: string;
-}
-
-export interface ShoppingCartItem {
-    productId: string;
-    name: string;
-    price: number;
-    quantity: number;
-    variantInfo?: string;
-    imageUrl?: string;
-    imageAiHint?: string;
-}
-
-export interface Restaurant {
-  id: string;
-  name: string;
-  cuisine: string;
-  rating: number;
-  deliveryTime: string;
-  priceRange: string;
-  imageUrl?: string;
-  imageAiHint?: string;
-  address?: string;
-  menu: MenuItem[];
-}
-
-export interface MenuItem {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  description?: string;
-  imageUrl?: string;
-  imageAiHint?: string;
-  isVegetarian?: boolean;
-  isSpicy?: boolean;
 }

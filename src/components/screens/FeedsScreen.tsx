@@ -12,15 +12,11 @@ import { Card } from '@/components/ui/card';
 
 interface FeedsScreenProps {
   onViewUserProfile?: (profileId: string) => void;
-  onAddMomentClick: () => void;
-  onViewUserMomentsClick: (profileId?: string, userName?: string, userAvatarUrl?: string, userAvatarAiHint?: string) => void;
   onViewPostDetail: (post: FeedItemType) => void;
 }
 
 const FeedsScreen: React.FC<FeedsScreenProps> = ({ 
   onViewUserProfile,
-  onAddMomentClick,
-  onViewUserMomentsClick,
   onViewPostDetail,
 }) => {
   const [categories, setCategories] = useState<Category[]>(initialCategoriesData);
@@ -73,9 +69,9 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
     if (!category) return;
 
     if (category.id === 'moments-0' && category.type === 'moments') {
-      onAddMomentClick();
+       toast({ title: "Feature Coming Soon", description: "Moments/Stories are under development." });
     } else if (category.profileId) { 
-      onViewUserMomentsClick(category.profileId, category.name, category.image, category.dataAiHint);
+      toast({ title: "Feature Coming Soon", description: "Viewing user moments is under development." });
       setCategories(prevCategories => 
         prevCategories.map(cat => 
           cat.id === categoryId ? { ...cat, viewed: true } : cat
@@ -126,7 +122,7 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
                 item={item}
                 onInteraction={(id, type) => handleInteraction(String(id), type)}
                 onViewUserProfile={onViewUserProfile} 
-                onViewUserMoments={onViewUserMomentsClick}
+                onViewUserMoments={() => handleCategoryClick(`cat-${item.profileId}`)}
                 onViewDetail={() => onViewPostDetail(item)}
               />
             ))

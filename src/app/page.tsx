@@ -8,7 +8,7 @@ import LoginScreen from '@/components/screens/LoginScreen';
 import RegistrationScreen from '@/components/screens/RegistrationScreen';
 import HomeScreen from '@/components/home/HomeScreen';
 import FeedsScreen from '@/components/screens/FeedsScreen';
-import ServicesScreen from '@/components/screens/ServicesScreen';
+import ServicesScreen from '@/components/screens/services/ServicesScreen';
 import AccountScreen from '@/components/screens/AccountScreen';
 import DigitalIdCardScreen from '@/components/screens/DigitalIdCardScreen';
 import ProfessionalProfileScreen from '@/components/screens/ProfessionalProfileScreen';
@@ -31,10 +31,12 @@ import MomentViewerScreen from '@/components/moments/MomentViewerScreen';
 import ServiceBookingDialog from '@/components/services/ServiceBookingDialog';
 import SplashScreen from '@/components/screens/SplashScreen';
 import Loading from '@/app/loading';
+import FloatingActionButton from '@/components/ui/FloatingActionButton';
+import ActiveActivityView from '@/components/activity/ActiveActivityView';
 import type {
     TabName, UserBusinessProfile, BusinessJob,
     ProfilePost, MediaAttachment, UserMoment, Comment,
-    ServiceBookingRequest, ActiveBooking, ChatMessage, UserVehicle
+    ServiceBookingRequest, ActiveBooking, ChatMessage, UserVehicle, ActivityDetails
 } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from 'date-fns';
@@ -44,7 +46,6 @@ import { useAuth } from '@/context/AuthContext';
 const newBusinessProfileTemplate: Omit<UserBusinessProfile, 'id'> = {
   name: '',
   bio: '',
-  businessType: 'products_and_services',
   logo: '',
   logoAiHint: 'business logo',
   coverPhoto: '',
@@ -89,10 +90,7 @@ interface CurrentChatContext {
   originalMessageId: string | number;
 }
 
-const genericOtherUserMoments: UserMoment[] = [
-  { id: 'other-moment-generic-1', imageUrl: 'https://placehold.co/1080x1920.png', aiHint: 'abstract art', caption: 'A moment from them!', timestamp: '2h ago' },
-];
-
+type UserRole = 'rider' | 'driver' | 'business_owner';
 
 export default function AppRoot() {
   const { toast } = useToast();
@@ -117,12 +115,6 @@ export default function AppRoot() {
   const [userPosts, setUserPosts] = useState<ProfilePost[]>([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
 
-  const [userMoments, setUserMoments] = useState<UserMoment[]>([]); 
-  const [momentsToDisplayInViewer, setMomentsToDisplayInViewer] = useState<UserMoment[]>([]); 
-  const [showCreateMomentDialog, setShowCreateMomentDialog] = useState(false);
-  const [showMomentViewer, setShowMomentViewer] = useState(false);
-  const [viewingMomentOwnerDetails, setViewingMomentOwnerDetails] = useState<ViewingMomentOwnerDetails | null>(null);
-
   const [selectedPostForDetail, setSelectedPostForDetail] = useState<ProfilePost | null>(null);
 
   const [showServiceBookingDialog, setShowServiceBookingDialog] = useState(false);
@@ -132,6 +124,13 @@ export default function AppRoot() {
   const [showMessagesNotifications, setShowMessagesNotifications] = useState(false);
   const [showChatDetailScreen, setShowChatDetailScreen] = useState(false);
   const [currentChatContext, setCurrentChatContext] = useState<CurrentChatContext | null>(null);
+
+  // New state for Taxi/Activity simulation
+  const [currentUserRole, setCurrentUserRole] = useState<UserRole>('rider');
+  const [showActiveActivityView, setShowActiveActivityView] = useState(false);
+  const [activeActivityDetails, setActiveActivityDetails] = useState<ActivityDetails>(null);
+  const [hasNewRequest, setHasNewRequest] = useState(false);
+
 
   const isLoggedIn = !!user;
 
@@ -200,7 +199,7 @@ export default function AppRoot() {
     const url = isNew ? '/api/business-profiles' : `/api/business-profiles/${profileData.id}`;
     const method = isNew ? 'POST' : 'PUT';
 
-    const body = isNew ? { ...profileData, userId: user.id } : profileData;
+    const body = { ...profileData, userId: user.id };
 
     setIsLoadingBusinessProfiles(true);
     try {
@@ -274,7 +273,6 @@ export default function AppRoot() {
       setSelectedJobId(null);
       setBusinessProfilesData([]);
       setUserPosts([]);
-      setUserMoments([]);
       setSelectedPostForDetail(null);
       setShowMessagesNotifications(false);
       setShowChatDetailScreen(false);
@@ -322,13 +320,11 @@ export default function AppRoot() {
     }
   }, [user, toast, fetchUserPosts]);
 
-
-  const handlePostCommentOnDetail = useCallback((postId: string | number, commentText: string) => {
+  const handlePostCommentOnDetail = useCallback((postId: string, commentText: string) => {
     if (!user) {
       toast({ title: "Error", description: "You must be logged in to comment."});
       return;
     }
-    // This is a simulation. A real app would have a POST /api/posts/{postId}/comments endpoint.
     const newComment: Comment = {
       id: `comment-${Date.now()}`,
       user: user.name,
@@ -337,36 +333,104 @@ export default function AppRoot() {
       text: commentText,
       timestamp: formatDistanceToNow(new Date(), { addSuffix: true })
     };
-
     setUserPosts(prevPosts => prevPosts.map(post => {
       if (post.id === postId) {
-        return { ...post, comments: (post.comments || 0) + 1, commentsData: [...(post.commentsData || []), newComment] };
+        const updatedComments = Array.isArray(post.commentsData) ? [...post.commentsData, newComment] : [newComment];
+        return { ...post, comments: updatedComments.length, commentsData: updatedComments };
       }
       return post;
     }));
-
     if (selectedPostForDetail && selectedPostForDetail.id === postId) {
-        setSelectedPostForDetail(prev => prev ? { ...prev, comments: (prev.comments || 0) + 1, commentsData: [...(prev.commentsData || []), newComment] } : null);
+        setSelectedPostForDetail(prev => {
+            if (!prev) return null;
+            const updatedComments = Array.isArray(prev.commentsData) ? [...prev.commentsData, newComment] : [newComment];
+            return { ...prev, comments: updatedComments.length, commentsData: updatedComments };
+        });
     }
     toast({ title: "Comment Posted", description: "Your comment has been added." });
   }, [user, toast, selectedPostForDetail]);
 
-  const handleOpenChatDetail = useCallback((messageItem: MessageItem) => {
-    if (!user) return;
-    const mockMessages: ChatMessage[] = [
-      { id: `msg-${Date.now() - 2000}`, text: messageItem.content, timestamp: messageItem.timestamp, isSender: false, avatar: messageItem.senderImage, avatarAiHint: messageItem.senderImageAiHint },
-      { id: `msg-${Date.now() - 1000}`, text: "Okay, I see. Thanks!", timestamp: "1 min ago", isSender: true, avatar: user.avatarUrl, avatarAiHint: user.avatarAiHint },
-    ];
-    setCurrentChatContext({ senderName: messageItem.sender, senderAvatar: messageItem.senderImage, senderAvatarAiHint: messageItem.senderImageAiHint, messages: mockMessages, originalMessageId: messageItem.id });
-    setShowMessagesNotifications(false);
-    setShowChatDetailScreen(true);
-  }, [user]);
+  // --- Taxi/Activity Simulation Logic ---
+  const handleRequestRide = (rideDetails: { pickup: string; dropoff: string; vehicleId: string; }) => {
+    setCurrentUserRole('rider');
+    setActiveActivityDetails({
+        type: 'ride',
+        status: 'looking_for_driver',
+        pickup: rideDetails.pickup,
+        dropoff: rideDetails.dropoff,
+    });
+    setShowActiveActivityView(true);
+    toast({ title: "Ride Requested", description: "Looking for drivers near you..." });
 
-  const handleSendMessageInChatDetail = useCallback((text: string) => {
-    if (!currentChatContext || !user) return;
-    const newMessage: ChatMessage = { id: `msg-sent-${Date.now()}`, text: text, timestamp: "Just now", isSender: true, avatar: user.avatarUrl, avatarAiHint: user.avatarAiHint };
-    setCurrentChatContext(prev => prev ? { ...prev, messages: [...prev.messages, newMessage] } : null);
-  }, [currentChatContext, user]);
+    // Simulate finding a driver
+    setTimeout(() => {
+        setHasNewRequest(true); // Notify potential drivers
+        toast({ title: "Driver Alert", description: "A new ride request is available for drivers." });
+    }, 3000);
+  };
+
+  const handleAcceptRequest = () => {
+    setHasNewRequest(false);
+    setActiveActivityDetails({
+      ...activeActivityDetails,
+      type: 'ride',
+      status: 'en_route_to_pickup',
+      driverName: 'Raju Kumar', // Mock driver
+      vehicle: 'KA 01 AB 1234 (Swift)',
+    });
+    toast({ title: "Ride Accepted!", description: "Your driver is on the way." });
+  };
+
+  const handleDriverArrived = () => {
+    setActiveActivityDetails(prev => prev ? {...prev, status: 'arrived_at_pickup'} : null);
+    toast({ title: "Driver Arrived", description: "Your driver has arrived at the pickup location." });
+  };
+  
+  const handleStartRide = () => {
+    setActiveActivityDetails(prev => prev ? {...prev, status: 'ride_in_progress'} : null);
+    toast({ title: "Ride Started", description: "Your ride is now in progress." });
+  };
+
+  const handleEndRide = () => {
+    setActiveActivityDetails(prev => prev ? {...prev, status: 'ride_completed'} : null);
+    toast({ title: "Ride Completed", description: "Thank you for riding with us!" });
+    // setTimeout(() => setShowActiveActivityView(false), 3000);
+  };
+
+  const handleCancelRide = () => {
+    setActiveActivityDetails(prev => prev ? {...prev, status: 'ride_cancelled'} : null);
+    toast({ title: "Ride Cancelled", variant: "destructive" });
+    // setTimeout(() => setShowActiveActivityView(false), 3000);
+  };
+  
+  const handleGoOnline = () => {
+    setCurrentUserRole('driver');
+    setActiveActivityDetails({ type: 'driver_status', status: 'driver_online_idle' });
+    setShowActiveActivityView(true);
+    toast({ title: "You are Online", description: "You will now receive ride requests." });
+  };
+
+  const handleGoOffline = () => {
+    setActiveActivityDetails(null);
+    setShowActiveActivityView(false);
+    toast({ title: "You are Offline" });
+  };
+
+  const openActivityView = () => {
+      if(currentUserRole === 'driver' && hasNewRequest) {
+          setActiveActivityDetails({
+              type: 'request',
+              status: undefined,
+              riderName: 'Priya Sharma',
+              pickup: 'Koramangala 4th Block',
+              dropoff: 'Indiranagar 100 Feet Road',
+              fare: '₹180-220',
+              distance: '8 km',
+              vehicleType: 'Car (Mini)',
+          });
+      }
+      setShowActiveActivityView(true);
+  }
 
   const renderScreenContent = useCallback(() => {
     if (showSplashScreen) return <SplashScreen onDismiss={() => setShowSplashScreen(false)} />;
@@ -380,9 +444,9 @@ export default function AppRoot() {
 
     switch (activeTabInternal) {
       case 'home': return <HomeScreen setActiveTab={handleTabSelection} onSelectBusinessProfile={(id) => { setSelectedBusinessProfileId(String(id)); handleTabSelection('business-detail'); }} onSelectIndividualProfile={(id) => { setSelectedIndividualProfileId(id); handleTabSelection('individual-profile'); }} onAddToCart={() => toast({ title: "Feature Coming Soon", description: "Shopping cart functionality is under development." })} />;
-      case 'feeds': return <FeedsScreen onViewUserProfile={(id) => { setSelectedIndividualProfileId(id); handleTabSelection('individual-profile'); }} onAddMomentClick={() => setShowCreateMomentDialog(true)} onViewUserMomentsClick={() => {}} onViewPostDetail={(post) => { setSelectedPostForDetail(post); handleTabSelection('detailed-post'); }} />;
-      case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} />;
-      case 'account': return <AccountScreen userData={user} setActiveTab={handleTabSelection} userPosts={userPosts} userMoments={userMoments} onAddMomentClick={() => setShowCreateMomentDialog(true)} onViewUserMomentsClick={() => {}} onViewPostDetail={(post) => { setSelectedPostForDetail(post); handleTabSelection('detailed-post'); }} onCreatePost={() => handleTabSelection('create-post')} />;
+      case 'feeds': return <FeedsScreen onViewUserProfile={(id) => { setSelectedIndividualProfileId(id); handleTabSelection('individual-profile'); }} onViewPostDetail={(post) => { setSelectedPostForDetail(post); handleTabSelection('detailed-post'); }} />;
+      case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRequestRide} />;
+      case 'account': return <AccountScreen userData={user} setActiveTab={handleTabSelection} userPosts={userPosts} onAddMomentClick={() => {}} onViewUserMomentsClick={() => {}} onViewPostDetail={(post) => { setSelectedPostForDetail(post); handleTabSelection('detailed-post'); }} onCreatePost={() => handleTabSelection('create-post')} />;
       case 'create-post': return <CreatePostScreen onPost={handlePostSubmit} onCancel={() => handleTabSelection(userPosts.length > 0 ? 'account' : 'feeds')} />;
       case 'detailed-post': return selectedPostForDetail ? <DetailedPostScreen post={selectedPostForDetail} onPostComment={(commentText) => handlePostCommentOnDetail(selectedPostForDetail.id, commentText)} onBack={() => handleTabSelection((selectedPostForDetail as ProfilePost).userId === user?.id ? 'account' : 'feeds')} /> : <p>Loading post...</p>;
       case 'digital-id-card': return <DigitalIdCardScreen userData={user} setActiveTab={handleTabSelection} />;
@@ -391,7 +455,7 @@ export default function AppRoot() {
       case 'vehicles': return <UserVehiclesScreen />;
       case 'business-profiles': return <UserBusinessProfilesScreen businessProfiles={businessProfilesData} onSelectProfile={(id) => { setSelectedBusinessProfileId(id); handleTabSelection('business-detail'); }} onManageProfile={(id) => { setBusinessProfileToManageId(id); handleTabSelection('manage-business-profile'); }} onDeleteProfile={handleDeleteBusinessProfile} onToggleProfileActive={handleToggleBusinessProfileActive} isLoading={isLoadingBusinessProfiles} />;
       case 'business-detail': return <UserBusinessProfileDetailScreen profile={businessProfilesData.find(p => p.id === selectedBusinessProfileId)} onBack={() => handleTabSelection('business-profiles')} />;
-      case 'manage-business-profile': const profileDataToManage = businessProfileToManageId === 'new' ? { ...newBusinessProfileTemplate } : businessProfilesData.find(p => p.id === businessProfileToManageId); return profileDataToManage ? <BusinessProfileManagementScreen key={businessProfileToManageId} initialProfileData={profileDataToManage} onSave={handleSaveBusinessProfile} onBack={() => handleTabSelection('business-profiles')} /> : <p>Loading...</p>;
+      case 'manage-business-profile': const profileDataToManage = businessProfileToManageId === 'new' ? { ...newBusinessProfileTemplate } : businessProfilesData.find(p => p.id === businessProfileToManageId); return profileDataToManage ? <BusinessProfileManagementScreen initialProfileData={profileDataToManage} onSave={handleSaveBusinessProfile} onBack={() => handleTabSelection('business-profiles')} /> : <p>Loading...</p>;
       case 'individual-profile': return selectedIndividualProfileId ? <IndividualProfileScreen profileId={selectedIndividualProfileId} setActiveTab={handleTabSelection} /> : <p>No profile selected.</p>;
       case 'skillset-profile': return selectedSkillsetProfileId ? <SkillsetProfileScreen skillsetProfileId={selectedSkillsetProfileId} setActiveTab={handleTabSelection} onBookService={(profileId, profName, skill) => { setBookingTargetProfile({ id: profileId, name: profName, skillName: skill }); setShowServiceBookingDialog(true); }} /> : <p>No skillset selected.</p>;
       case 'manage-skillset-profile': return skillsetProfileToManageId ? <SkillsetProfileManagementScreen skillsetProfileId={skillsetProfileToManageId} setActiveTab={handleTabSelection} onBack={() => handleTabSelection('user-skillsets')} /> : <p>Loading...</p>;
@@ -401,7 +465,7 @@ export default function AppRoot() {
       case 'service-booking': return <p>Service booking form would appear here.</p>;
       default: return <HomeScreen setActiveTab={handleTabSelection} onSelectBusinessProfile={(id) => { setSelectedBusinessProfileId(String(id)); handleTabSelection('business-detail'); }} onSelectIndividualProfile={(id) => { setSelectedIndividualProfileId(id); handleTabSelection('individual-profile'); }} onAddToCart={() => toast({ title: "Feature Coming Soon" })} />;
     }
-  }, [isLoggedIn, activeTabInternal, user, authLoading, showSplashScreen, businessProfilesData, isLoadingBusinessProfiles, userPosts, userMoments, authScreen, handleTabSelection, handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive, handlePostSubmit, handlePostCommentOnDetail, selectedPostForDetail, selectedBusinessProfileId, businessProfileToManageId, selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId]);
+  }, [isLoggedIn, activeTabInternal, user, authLoading, showSplashScreen, businessProfilesData, isLoadingBusinessProfiles, userPosts, authScreen, handleTabSelection, handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive, handlePostSubmit, handlePostCommentOnDetail, selectedPostForDetail, selectedBusinessProfileId, businessProfileToManageId, selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId]);
 
   if (authLoading && showSplashScreen) return <SplashScreen onDismiss={() => setShowSplashScreen(false)} />;
 
@@ -417,9 +481,30 @@ export default function AppRoot() {
       {!showSplashScreen && !['detailed-post', 'create-post', 'manage-business-profile', 'manage-skillset-profile'].includes(activeTabInternal) && (
         <BottomNavigation activeTab={activeTabInternal} setActiveTab={handleTabSelection} />
       )}
-      {showMessagesNotifications && <MessagesNotificationsScreen onClose={() => setShowMessagesNotifications(false)} onOpenChatDetail={handleOpenChatDetail} />}
-      {isLoggedIn && showChatDetailScreen && currentChatContext && <ChatDetailScreen isOpen={showChatDetailScreen} onClose={() => { setShowChatDetailScreen(false); setCurrentChatContext(null); }} chatContext={currentChatContext} onSendMessage={handleSendMessageInChatDetail} currentUserAvatar={user?.avatarUrl} currentUserAvatarAiHint={user?.avatarAiHint} />}
-      {isLoggedIn && showServiceBookingDialog && bookingTargetProfile && <ServiceBookingDialog isOpen={showServiceBookingDialog} onClose={() => setShowServiceBookingDialog(false)} professionalId={bookingTargetProfile.id} professionalName={bookingTargetProfile.name} skillName={bookingTargetProfile.skillName} onSubmit={(req) => { setActiveBookings(prev => [...prev, { ...req, id: `booking-${Date.now()}`, status: 'Pending', createdAt: new Date().toISOString(), bookingDate: `${req.requestedDate}, ${req.requestedTime}` }]); setShowServiceBookingDialog(false); toast({ title: "Booking Request Sent!"}); }} />}
+      
+      {isLoggedIn && currentUserRole === 'driver' && (
+        <FloatingActionButton
+          onClick={openActivityView}
+          activityType={activeActivityDetails?.type === 'driver_status' ? 'taxi' : undefined}
+          tooltipText={hasNewRequest ? 'New Ride Request!' : (activeActivityDetails ? 'View Current Activity' : 'Go Online')}
+          className={hasNewRequest ? 'animate-bounce bg-green-500' : ''}
+        />
+      )}
+
+      {isLoggedIn && showActiveActivityView && (
+        <ActiveActivityView
+          isVisible={showActiveActivityView}
+          onClose={() => setShowActiveActivityView(false)}
+          userRole={currentUserRole}
+          activeActivityDetails={activeActivityDetails}
+          onAcceptRequest={handleAcceptRequest}
+          onArrivedAtPickup={handleDriverArrived}
+          onStartRide={handleStartRide}
+          onEndRide={handleEndRide}
+          onCancelRide={handleCancelRide}
+          onGoOffline={handleGoOffline}
+        />
+      )}
     </div>
   );
 }

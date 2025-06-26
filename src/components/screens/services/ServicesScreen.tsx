@@ -18,16 +18,16 @@ import {
   TicketIcon,
   BuildingLibraryIcon, 
 } from '@heroicons/react/24/outline'; 
-import { Button } from '../ui/button';
-import { ScrollArea } from '../ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 const initialServicesData: Service[] = [
     { id: 'taxi', name: 'Taxi', icon: TruckIcon, locked: false, dataAiHint: "car taxi ride", targetTab: 'menu' },
     { id: 'jobs', name: 'Jobs', icon: BriefcaseIcon, locked: false, dataAiHint: "briefcase work", targetTab: 'job-board' },
-    { id: 'restaurants', name: 'Restaurants', icon: BuildingStorefrontIcon, locked: false, dataAiHint: "utensils restaurant", targetTab: 'food-restaurants' },
-    { id: 'shops', name: 'Shops', icon: ShoppingBagIcon, locked: false, dataAiHint: "shopping bag", targetTab: 'shopping-categories' },
+    { id: 'restaurants', name: 'Restaurants', icon: BuildingStorefrontIcon, locked: true, dataAiHint: "utensils restaurant", targetTab: 'food-restaurants' },
+    { id: 'shops', name: 'Shops', icon: ShoppingBagIcon, locked: true, dataAiHint: "shopping bag", targetTab: 'shopping-categories' },
     { id: 'pay', name: 'Pay', icon: CreditCardIcon, locked: true, dataAiHint: "credit card" },
     { id: 'tickets', name: 'Tickets', icon: TicketIcon, locked: true, dataAiHint: "ticket movie" },
     { id: 'delivery', name: 'Delivery', icon: TruckIcon, locked: true, dataAiHint: "truck delivery" },
@@ -97,7 +97,6 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
     }
 
     setIsRequestingRide(true);
-    console.log('Booking ride:', { pickupLocation, dropoffLocation, vehicleId: selectedVehicle.id });
     
     await new Promise(resolve => setTimeout(resolve, 500)); 
 
@@ -116,7 +115,7 @@ const ServicesScreen: React.FC<ServicesScreenProps> = ({ setActiveTab, onRequest
   
   return (
     <ScrollArea className="h-full custom-scrollbar bg-background">
-      <main className="p-4"> {/* Added p-4 for consistent padding */}
+      <main className="p-4">
         <div className="flex items-center mb-6">
           {isTaxiBookingActive && (
             <Button variant="ghost" size="icon" onClick={() => setIsTaxiBookingActive(false)} className="mr-2 text-muted-foreground hover:text-primary">

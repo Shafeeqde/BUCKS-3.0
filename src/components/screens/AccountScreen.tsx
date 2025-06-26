@@ -19,22 +19,20 @@ interface AccountScreenProps {
   userData: UserDataForSideMenu | null;
   setActiveTab: (tab: TabName) => void;
   userPosts: ProfilePost[];
-  userMoments: UserMoment[];
-  onAddMomentClick: () => void;
-  onViewUserMomentsClick: () => void;
   onViewPostDetail: (post: ProfilePost | FeedItem) => void;
   onCreatePost: () => void;
+  onAddMomentClick: () => void; // Keep for consistency
+  onViewUserMomentsClick: () => void; // Keep for consistency
 }
 
 const AccountScreen: React.FC<AccountScreenProps> = ({ 
   userData, 
   setActiveTab, 
   userPosts, 
-  userMoments, 
-  onAddMomentClick, 
-  onViewUserMomentsClick,
   onViewPostDetail,
   onCreatePost,
+  onAddMomentClick,
+  onViewUserMomentsClick
 }) => {
   const { toast } = useToast();
 
@@ -52,7 +50,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
     setActiveTab('professional-profile');
   };
 
-  const hasMoments = userMoments && userMoments.length > 0;
+  const hasMoments = userData.moments && userData.moments.length > 0;
 
   return (
     <div className="h-full w-full relative">
@@ -64,7 +62,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
                 <div className="relative">
                   <button
                     type="button"
-                    onClick={hasMoments ? onViewUserMomentsClick : onAddMomentClick}
+                    onClick={() => toast({ title: "Feature coming soon!"})}
                     className={cn(
                       "rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-card",
                       "transition-transform hover:scale-105 active:scale-95"
@@ -84,7 +82,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
                   {!hasMoments && (
                     <button
                       type="button"
-                      onClick={onAddMomentClick}
+                      onClick={() => toast({ title: "Feature coming soon!"})}
                       className="absolute -bottom-1 -right-1 h-7 w-7 sm:h-8 sm:w-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-transform hover:scale-110 active:scale-90"
                       aria-label="Add new moment"
                     >
