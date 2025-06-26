@@ -1,5 +1,4 @@
 
-
 import type { ForwardRefExoticComponent, RefAttributes, SVGProps } from 'react'; // For Heroicons
 
 // Used by Heroicons
@@ -12,6 +11,7 @@ export type TabName =
   | 'home'
   | 'feeds'
   | 'menu'
+  | 'recommended' // Added recommended
   | 'account'
   | 'professional-profile'
   | 'vehicles'
@@ -29,7 +29,14 @@ export type TabName =
   | 'digital-id-card'
   | 'create-post'
   | 'detailed-post'
-  | 'service-booking';
+  | 'service-booking'
+  | 'food-restaurants'
+  | 'food-restaurant-detail'
+  | 'food-cart'
+  | 'shopping-categories'
+  | 'shopping-products'
+  | 'shopping-product-detail'
+  | 'shopping-cart';
 
 
 export interface Category {
@@ -164,8 +171,8 @@ export interface BusinessProduct {
 }
 
 export interface BusinessJob {
-  id: string;
-  businessId: string;
+  id: string | number;
+  businessId: string | number;
   businessName: string;
   businessLogoUrl?: string;
   title: string;
@@ -440,6 +447,7 @@ export interface PublicProfileData {
     website?: string;
     location?: string;
   };
+  moments?: UserMoment[];
 }
 
 
@@ -555,6 +563,79 @@ export interface ChatMessage {
   avatarAiHint?: string;
 }
 
-    
+// FOOD & SHOPPING
+export interface FoodCartItem {
+  menuItemId: string;
+  restaurantId: string;
+  restaurantName: string;
+  name: string;
+  price: number;
+  quantity: number;
+  imageUrl?: string;
+  imageAiHint?: string;
+}
 
-    
+export interface ShoppingCartItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  variantInfo?: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+}
+
+
+export interface MenuItem {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  description?: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+  isVegetarian?: boolean;
+  isSpicy?: boolean;
+}
+
+export interface Restaurant {
+  id: string;
+  name: string;
+  cuisine: string;
+  rating: number;
+  deliveryTime: string;
+  priceRange: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+  address?: string;
+  menu: MenuItem[];
+}
+
+export interface ProductCategory {
+  id: string;
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+}
+
+export interface ProductListing {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  categoryIds: string[];
+  imageUrl?: string;
+  imageAiHint?: string;
+  brand?: string;
+  rating?: number;
+  reviewCount?: number;
+  stock?: number;
+  tags?: string[];
+  variants?: {
+    id: string;
+    name: string; // e.g., "Color", "Size"
+    options: { value: string; label?: string }[];
+  }[];
+}

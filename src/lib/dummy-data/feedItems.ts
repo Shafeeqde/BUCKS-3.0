@@ -24,9 +24,7 @@ export const feedItems: FeedItem[] = [
     timestamp: '2 hours ago',
     content: 'Thrilled to be part of the Mikado.biz team! Working on some exciting projects. #MikadoLife #UXJobs',
     comments: 6, recommendations: 28, notRecommendations: 0,
-    commentsData: [
-      { id: 'c-ds-1', user: 'Subhesh P.', userAvatar: 'https://source.unsplash.com/random/32x32/?man,team,lead', userAvatarAiHint: 'man team lead', text: 'Welcome aboard, Deepthi! Glad to have you.', timestamp: '1h ago' },
-    ]
+    commentsData: []
   },
   {
     id: 3, type: 'post', user: 'Shoby C Chummar', userImage: 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYW58ZW58MHx8fHwxNzUwMDk2NzcxfDA&ixlib=rb-4.1.0&q=80&w=1080', userImageAiHint: 'man founder creative studio', profileId: 'shoby-c-profile',
@@ -34,33 +32,6 @@ export const feedItems: FeedItem[] = [
     content: 'Reflecting on Mikado.biz\'s journey and excited for what the future holds. Grateful for our amazing team and clients! #Entrepreneurship #MikadoStory',
     media: { type: 'image', url: 'https://images.unsplash.com/photo-1542744173-05336fcc7ad4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxidXNpbmVzcyUyMGdyb3d0aHxlbnwwfHx8fDE3NTAxNzEzNDJ8MA&ixlib=rb-4.1.0&q=80&w=1080', aiHint: 'business growth chart' },
     comments: 20, recommendations: 75, notRecommendations: 3,
-    commentsData: [
-        { id: 'c-scc-1', user: 'Diju K.', userAvatar: 'https://source.unsplash.com/random/32x32/?man,ceo', userAvatarAiHint: 'man ceo', text: 'Well said, Shoby! To many more milestones.', timestamp: '10h ago' }
-    ]
-  },
-  {
-    id: 4, type: 'ad', user: 'Creative Cloud', userImage: 'https://source.unsplash.com/random/40x40/?adobe,logo', userImageAiHint: 'adobe logo', profileId: 'adobe-creative-cloud-profile',
-    media: { type: 'image', url: 'https://images.unsplash.com/photo-1623079478319-945f25f0a97b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMnx8U2Nvb3RlcnxlbnwwfHx8fDE3NTAxNTI0NDZ8MA&ixlib=rb-4.1.0&q=80&w=1080', aiHint: 'scooter advertisement' },
-    content: 'TVS Ntorq 125 Price : Check On-Road & Ex-Showroom Prices of All Variants -',
-    timestamp: 'Sponsored Ad', comments: 0, recommendations: 150, notRecommendations: 0,
     commentsData: []
-  },
-  {
-    id: 5, type: 'post', user: 'Anand Nanda Kumar', userImage: 'https://source.unsplash.com/random/100x100/?man,motion,graphics,artist', userImageAiHint: 'man motion graphics artist', profileId: 'anand-nk-profile',
-    timestamp: '10 hours ago',
-    content: 'Just finished a new motion graphics piece for a product showcase. So satisfying to see it all come together! #MotionGraphics #AfterEffects',
-    media: { type: 'image', url: 'https://source.unsplash.com/random/600x400/?abstract,motion,design', aiHint: 'abstract motion design' }, // Placeholder as video player not implemented
-    comments: 10, recommendations: 55, notRecommendations: 1,
-    commentsData: commonComments
-  },
-  {
-    id: 6, type: 'post', user: 'Nirmal G.', userImage: 'https://source.unsplash.com/random/100x100/?man,graphic,artist,focused', userImageAiHint: 'man graphic artist focused', profileId: 'nirmal-g-profile',
-    timestamp: '6 hours ago',
-    content: 'New logo design for a local startup. Loved working on this brand identity! #GraphicDesign #Branding',
-    media: { type: 'image', url: 'https://source.unsplash.com/random/600x400/?logo,design,mockup', aiHint: 'logo design mockup' },
-    comments: 8, recommendations: 40, notRecommendations: 0,
-    commentsData: [
-        { id: 'c-ng-1', user: 'Startup Owner', userAvatar: 'https://source.unsplash.com/random/32x32/?business,owner', userAvatarAiHint: 'business owner', text: 'Amazing work, Nirmal! We love it.', timestamp: '5h ago' }
-    ]
   },
 ];

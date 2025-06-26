@@ -32,6 +32,7 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
   onViewOwnerProfile,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(initialMomentIndex);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -41,13 +42,13 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (isOpen && moments.length > 0 && moments.length > 1) {
+    if (isOpen && !isPaused && moments.length > 0 && moments.length > 1) {
       timer = setTimeout(() => {
         goToNext();
       }, 7000); // Auto-advance after 7 seconds
     }
     return () => clearTimeout(timer);
-  }, [currentIndex, isOpen, moments.length]);
+  }, [currentIndex, isOpen, isPaused, moments.length]);
 
 
   if (!isOpen) {
@@ -58,36 +59,39 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
 
   const goToPrevious = () => {
     if (moments.length === 0) return;
-    setCurrentIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : moments.length - 1));
+    setCurrentIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : 0));
   };
 
   const goToNext = () => {
     if (moments.length === 0) return;
-    setCurrentIndex((prevIndex) => (prevIndex < moments.length - 1 ? prevIndex + 1 : 0));
+    if (currentIndex < moments.length - 1) {
+        setCurrentIndex((prevIndex) => prevIndex + 1);
+    } else {
+        onClose(); // Close viewer after the last moment
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogOverlay className="bg-black/90" /> {/* Darker overlay */}
+      <DialogOverlay className="bg-black/90" />
       <DialogContent
         className={cn(
-          "fixed z-[60] p-0 border-0 shadow-none flex flex-col", // Base resets
-          "inset-0 w-full h-full bg-black rounded-none", // Mobile: fullscreen black
-          "sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[360px] sm:max-w-[360px] sm:h-[640px] sm:max-h-[90vh] sm:rounded-2xl sm:overflow-hidden sm:shadow-2xl" // Desktop: centered card
+          "fixed z-[60] p-0 border-0 shadow-none flex flex-col",
+          "inset-0 w-full h-full bg-black rounded-none",
+          "sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[360px] sm:max-w-[360px] sm:h-[640px] sm:max-h-[90vh] sm:rounded-2xl sm:overflow-hidden sm:shadow-2xl"
         )}
         onEscapeKeyDown={onClose}
         hideCloseButton 
+        onPointerDown={() => setIsPaused(true)}
+        onPointerUp={() => setIsPaused(false)}
       >
         <DialogHeader className="sr-only">
           <DialogTitle>
             Moment Viewer: {ownerName ? `Viewing moments from ${ownerName}` : "Viewing your moments"}
           </DialogTitle>
         </DialogHeader>
-
-        {/* Inner container for moment elements, relative for positioning */}
+        
         <div className="relative w-full h-full flex flex-col overflow-hidden">
-          
-          {/* Top Section: Progress Bars & Owner Info */}
           <div className="absolute top-0 left-0 right-0 z-20 p-3">
             {moments.length > 1 && (
               <div className="flex space-x-1 mb-2">
@@ -95,10 +99,12 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
                   <div key={index} className="h-1 flex-1 rounded-full bg-white/30 overflow-hidden">
                     <div
                       className={cn(
-                        "h-full bg-white transition-all duration-300 ease-linear",
-                        index === currentIndex ? "animate-progress-bar" : (index < currentIndex ? "w-full" : "w-0")
+                        "h-full bg-white",
+                        index < currentIndex && "w-full",
+                        index > currentIndex && "w-0",
+                        index === currentIndex && (isPaused ? "w-0" : "animate-progress-bar") 
                       )}
-                      style={index === currentIndex ? { animationDuration: '7s' } : {}}
+                      style={index === currentIndex && !isPaused ? { animationPlayState: 'running', animationDuration: '7s' } : {animationPlayState: 'paused', width: index < currentIndex ? '100%' : '0%'}}
                     />
                   </div>
                 ))}
@@ -111,10 +117,6 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
                   onViewOwnerProfile && "cursor-pointer hover:opacity-80 transition-opacity"
                 )}
                 onClick={onViewOwnerProfile}
-                role={onViewOwnerProfile ? "button" : undefined}
-                tabIndex={onViewOwnerProfile ? 0 : undefined}
-                onKeyDown={onViewOwnerProfile ? (e) => e.key === 'Enter' && onViewOwnerProfile() : undefined}
-                aria-label={onViewOwnerProfile ? `View ${ownerName}'s profile` : undefined}
               >
                 <Avatar className="h-8 w-8 border-2 border-white/50">
                   <AvatarImage src={ownerAvatarUrl} alt={ownerName} data-ai-hint={ownerAvatarAiHint || "profile avatar"}/>
@@ -126,8 +128,8 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
           </div>
           <style jsx global>{`
             @keyframes progress-bar-animation {
-              0% { width: 0%; }
-              100% { width: 100%; }
+              from { width: 0%; }
+              to { width: 100%; }
             }
             .animate-progress-bar {
               animation: progress-bar-animation linear;
@@ -135,11 +137,8 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
           `}</style>
 
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
+            variant="ghost" size="icon" onClick={onClose}
             className="absolute top-3 right-3 z-30 text-white hover:bg-white/20 h-8 w-8"
-            aria-label="Close moment viewer"
           >
             <XMarkIcon className="h-5 w-5" />
           </Button>
@@ -147,17 +146,11 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
           <div className="relative flex-grow w-full h-full flex items-center justify-center">
             {currentMoment ? (
               <>
-                {currentMoment.imageUrl && (
-                  <Image
-                    src={currentMoment.imageUrl}
-                    alt={currentMoment.caption || currentMoment.aiHint || `Moment ${currentIndex + 1}`}
-                    layout="fill"
-                    objectFit="cover" 
-                    className="z-0"
-                    data-ai-hint={currentMoment.aiHint || "story moment"}
-                    priority
-                  />
-                )}
+                <Image
+                    src={currentMoment.imageUrl} alt={currentMoment.caption || 'Moment'}
+                    layout="fill" objectFit="cover" className="z-0"
+                    data-ai-hint={currentMoment.aiHint || "story moment"} priority
+                />
                 {currentMoment.caption && (
                   <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 via-black/50 to-transparent z-10">
                     <p className="text-white text-sm text-center drop-shadow-md">{currentMoment.caption}</p>
@@ -169,39 +162,20 @@ const MomentViewerScreen: React.FC<MomentViewerScreenProps> = ({
                 <InformationCircleIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
                 <p className="text-lg font-semibold">No moments to show</p>
                 {ownerName && <p className="text-sm">It looks like {ownerName} hasn&apos;t posted any moments yet.</p>}
-                {!ownerName && <p className="text-sm">Create your first moment to share!</p>}
               </div>
             )}
           </div>
 
           {moments.length > 1 && currentMoment && (
             <>
-              {/* Clickable areas for previous/next */}
-              <div
-                className="absolute left-0 top-0 bottom-0 w-1/3 z-20 cursor-pointer"
-                onClick={goToPrevious}
-                aria-label="Previous moment"
-              />
-              <div
-                className="absolute right-0 top-0 bottom-0 w-1/3 z-20 cursor-pointer"
-                onClick={goToNext}
-                aria-label="Next moment"
-              />
-
-              {/* Visible navigation buttons (optional, but good for accessibility) */}
-              <Button variant="ghost" size="icon" onClick={goToPrevious} className="absolute left-2 top-1/2 -translate-y-1/2 z-30 text-white hover:bg-white/20 opacity-50 hover:opacity-100 sm:opacity-100">
-                  <ChevronLeftIcon className="h-6 w-6"/>
-              </Button>
-              <Button variant="ghost" size="icon" onClick={goToNext} className="absolute right-2 top-1/2 -translate-y-1/2 z-30 text-white hover:bg-white/20 opacity-50 hover:opacity-100 sm:opacity-100">
-                  <ChevronRightIcon className="h-6 w-6"/>
-              </Button>
+              <Button variant="ghost" size="icon" onClick={goToPrevious} className="absolute left-2 top-1/2 -translate-y-1/2 z-30 text-white hover:bg-white/20 opacity-50 hover:opacity-100 sm:opacity-100"><ChevronLeftIcon className="h-6 w-6"/></Button>
+              <Button variant="ghost" size="icon" onClick={goToNext} className="absolute right-2 top-1/2 -translate-y-1/2 z-30 text-white hover:bg-white/20 opacity-50 hover:opacity-100 sm:opacity-100"><ChevronRightIcon className="h-6 w-6"/></Button>
             </>
           )}
-        </div> {/* End of inner container */}
+        </div>
       </DialogContent>
     </Dialog>
   );
 };
 
 export default MomentViewerScreen;
-        

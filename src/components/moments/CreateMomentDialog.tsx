@@ -41,7 +41,7 @@ const CreateMomentDialog: React.FC<CreateMomentDialogProps> = ({ isOpen, onClose
     setImageUrl('');
     setAiHint('');
     setCaption('');
-    // onClose(); // Already handled by DialogClose or page.tsx state change
+    onClose(); 
   };
 
   return (
