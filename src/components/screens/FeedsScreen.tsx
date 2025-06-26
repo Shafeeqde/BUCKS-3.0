@@ -8,6 +8,7 @@ import type { Category, FeedItem as FeedItemType, ProfilePost } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
 import { Skeleton } from '../ui/skeleton';
+import { Card } from '@/components/ui/card';
 
 interface FeedsScreenProps {
   onViewUserProfile?: (profileId: string) => void;
