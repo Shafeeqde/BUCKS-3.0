@@ -2,7 +2,12 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['firebase-admin'],
+  serverExternalPackages: [
+    'firebase-admin',
+    '@opentelemetry/sdk-node',
+    '@opentelemetry/exporter-jaeger',
+    'handlebars',
+  ],
   typescript: {
     ignoreBuildErrors: false,
   },
