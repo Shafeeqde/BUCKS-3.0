@@ -6,9 +6,9 @@ import type { UserBusinessProfile } from '@/types';
 const PROFILES_COLLECTION = 'business_profiles';
 
 // GET /api/business-profiles/[profileId] - Fetch a specific business profile
-export async function GET(request: NextRequest, { params }: { params: { profileId: string } }) {
+export async function GET(request: NextRequest, context: { params: { profileId: string } }) {
+  const { profileId } = context.params;
   try {
-    const { profileId } = params;
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
     }
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest, { params }: { params: { profileI
     return NextResponse.json(profile, { status: 200 });
 
   } catch (error) {
-    console.error(`Error fetching business profile ${params.profileId}:`, error);
+    console.error(`Error fetching business profile ${profileId}:`, error);
     let errorMessage = 'Failed to fetch business profile.';
     if (error instanceof Error) {
         errorMessage = error.message;
@@ -39,9 +39,9 @@ export async function GET(request: NextRequest, { params }: { params: { profileI
 }
 
 // PUT /api/business-profiles/[profileId] - Update a specific business profile
-export async function PUT(request: NextRequest, { params }: { params: { profileId: string } }) {
+export async function PUT(request: NextRequest, context: { params: { profileId: string } }) {
+  const { profileId } = context.params;
   try {
-    const { profileId } = params;
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
     }
@@ -71,7 +71,7 @@ export async function PUT(request: NextRequest, { params }: { params: { profileI
     return NextResponse.json({ message: 'Business profile updated successfully', id: profileId }, { status: 200 });
 
   } catch (error) {
-    console.error(`Error updating business profile ${params.profileId}:`, error);
+    console.error(`Error updating business profile ${profileId}:`, error);
     let errorMessage = 'Failed to update business profile.';
     if (error instanceof Error) {
         errorMessage = error.message;
@@ -81,9 +81,9 @@ export async function PUT(request: NextRequest, { params }: { params: { profileI
 }
 
 // DELETE /api/business-profiles/[profileId] - Delete a specific business profile
-export async function DELETE(request: NextRequest, { params }: { params: { profileId: string } }) {
+export async function DELETE(request: NextRequest, context: { params: { profileId: string } }) {
+  const { profileId } = context.params;
   try {
-    const { profileId } = params;
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
     }
@@ -106,7 +106,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { profi
     return NextResponse.json({ message: 'Business profile deleted successfully' }, { status: 200 });
 
   } catch (error) {
-    console.error(`Error deleting business profile ${params.profileId}:`, error);
+    console.error(`Error deleting business profile ${profileId}:`, error);
     let errorMessage = 'Failed to delete business profile.';
     if (error instanceof Error) {
         errorMessage = error.message;

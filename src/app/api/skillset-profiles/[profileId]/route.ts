@@ -6,9 +6,9 @@ import type { SkillsetProfileData } from '@/types';
 const COLLECTION_NAME = 'skillset_profiles';
 
 // GET a specific skillset profile
-export async function GET(request: NextRequest, { params }: { params: { profileId: string } }) {
+export async function GET(request: NextRequest, context: { params: { profileId: string } }) {
+    const { profileId } = context.params;
     try {
-        const { profileId } = params;
         if (!profileId) {
             return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
         }
@@ -28,16 +28,16 @@ export async function GET(request: NextRequest, { params }: { params: { profileI
         return NextResponse.json(profile, { status: 200 });
 
     } catch (error) {
-        console.error(`Error fetching skillset profile ${params.profileId}:`, error);
+        console.error(`Error fetching skillset profile ${profileId}:`, error);
         return NextResponse.json({ error: 'Failed to fetch skillset profile.' }, { status: 500 });
     }
 }
 
 
 // PUT /api/skillset-profiles/[profileId] - Update a specific profile
-export async function PUT(request: NextRequest, { params }: { params: { profileId: string } }) {
+export async function PUT(request: NextRequest, context: { params: { profileId: string } }) {
+  const { profileId } = context.params;
   try {
-    const { profileId } = params;
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
     }
@@ -57,7 +57,7 @@ export async function PUT(request: NextRequest, { params }: { params: { profileI
     return NextResponse.json({ message: 'Profile updated successfully' }, { status: 200 });
 
   } catch (error) {
-    console.error(`Error updating skillset profile ${params.profileId}:`, error);
+    console.error(`Error updating skillset profile ${profileId}:`, error);
     let errorMessage = 'Failed to update skillset profile.';
     if (error instanceof Error) {
         errorMessage = error.message;
@@ -67,9 +67,9 @@ export async function PUT(request: NextRequest, { params }: { params: { profileI
 }
 
 // DELETE /api/skillset-profiles/[profileId] - Delete a specific profile
-export async function DELETE(request: NextRequest, { params }: { params: { profileId: string } }) {
+export async function DELETE(request: NextRequest, context: { params: { profileId: string } }) {
+  const { profileId } = context.params;
   try {
-    const { profileId } = params;
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
     }
@@ -84,7 +84,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { profi
     return NextResponse.json({ message: 'Profile deleted successfully' }, { status: 200 });
 
   } catch (error) {
-    console.error(`Error deleting skillset profile ${params.profileId}:`, error);
+    console.error(`Error deleting skillset profile ${profileId}:`, error);
     let errorMessage = 'Failed to delete skillset profile.';
     if (error instanceof Error) {
         errorMessage = error.message;

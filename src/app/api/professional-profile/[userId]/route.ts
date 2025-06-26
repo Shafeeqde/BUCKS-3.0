@@ -6,9 +6,9 @@ import type { OverallProfessionalProfileData } from '@/types';
 const PROFILES_COLLECTION = 'professional_profiles';
 
 // GET /api/professional-profile/[userId] - Fetch a specific professional profile
-export async function GET(request: NextRequest, { params }: { params: { userId: string } }) {
+export async function GET(request: NextRequest, context: { params: { userId: string } }) {
+  const { userId } = context.params;
   try {
-    const { userId } = params;
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
     return NextResponse.json(profile, { status: 200 });
 
   } catch (error) {
-    console.error(`Error fetching professional profile for user ${params.userId}:`, error);
+    console.error(`Error fetching professional profile for user ${userId}:`, error);
     let errorMessage = 'Failed to fetch professional profile.';
     if (error instanceof Error) {
         errorMessage = error.message;
@@ -39,9 +39,9 @@ export async function GET(request: NextRequest, { params }: { params: { userId: 
 }
 
 // PUT /api/professional-profile/[userId] - Create or update a specific professional profile
-export async function PUT(request: NextRequest, { params }: { params: { userId: string } }) {
+export async function PUT(request: NextRequest, context: { params: { userId: string } }) {
+  const { userId } = context.params;
   try {
-    const { userId } = params;
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
@@ -73,7 +73,7 @@ export async function PUT(request: NextRequest, { params }: { params: { userId: 
     return NextResponse.json(updatedProfile, { status: 200 });
 
   } catch (error) {
-    console.error(`Error updating professional profile for user ${params.userId}:`, error);
+    console.error(`Error updating professional profile for user ${userId}:`, error);
     let errorMessage = 'Failed to update professional profile.';
     if (error instanceof Error) {
         errorMessage = error.message;
