@@ -22,10 +22,14 @@ export async function PUT(
 
     const body = await request.json();
     // Exclude IDs to prevent modification
-    const { id, userId: bodyUserId, ...updateData } = body as Partial<UserVehicle>;
+    const { id, userId: bodyUserId, ...updateData } = body as Partial<UserVehicle> & { licensePlate_lowercase?: string };
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: 'No update data provided' }, { status: 400 });
+    }
+    
+    if (updateData.licensePlate) {
+      updateData.licensePlate_lowercase = updateData.licensePlate.toLowerCase();
     }
     
     const docRef = db.collection(VEHICLES_COLLECTION).doc(vehicleId);

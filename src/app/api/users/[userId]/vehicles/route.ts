@@ -27,6 +27,7 @@ export async function POST(
       userId,
       vehicleType,
       licensePlate,
+      licensePlate_lowercase: licensePlate.toLowerCase(),
       isActive: false, // Always default to inactive
     };
 

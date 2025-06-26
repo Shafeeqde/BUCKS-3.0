@@ -1,7 +1,7 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase/admin';
-import type { UserBusinessProfile, OverallProfessionalProfileData } from '@/types';
+import type { UserBusinessProfile, OverallProfessionalProfileData, UserVehicle } from '@/types';
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,57 +16,67 @@ export async function GET(request: NextRequest) {
       return NextResponse.json([], { status: 200 });
     }
 
-    const searchResults: any[] = [];
     const limit = 5; // Limit results from each collection
-
-    // To perform case-insensitive "contains" search, we check for a range.
     const endQuery = query.replace(/.$/, c => String.fromCharCode(c.charCodeAt(0) + 1));
 
-
-    // --- Search Business Profiles ---
-    const businessProfilesRef = db.collection('business_profiles');
-    // Query by name
-    const businessNameQuery = businessProfilesRef
+    // --- Search Promises ---
+    const businessPromise = db.collection('business_profiles')
       .where('name_lowercase', '>=', query)
       .where('name_lowercase', '<', endQuery)
-      .limit(limit);
-    
-    // We can add more queries for other fields if needed, but Firestore is limited.
-    // A single query cannot have range filters on different fields.
-    // For a real-world app, a dedicated search service like Algolia or Elasticsearch is recommended.
-    
-    const [businessNameSnapshot] = await Promise.all([
-        businessNameQuery.get(),
+      .limit(limit)
+      .get();
+
+    const professionalPromise = db.collection('professional_profiles')
+      .where('name_lowercase', '>=', query)
+      .where('name_lowercase', '<', endQuery)
+      .limit(limit)
+      .get();
+      
+    const vehiclePromise = db.collection('vehicles')
+        .where('licensePlate_lowercase', '>=', query)
+        .where('licensePlate_lowercase', '<', endQuery)
+        .limit(limit)
+        .get();
+
+    // --- Execute Searches in Parallel ---
+    const [
+        businessSnapshot, 
+        professionalSnapshot,
+        vehicleSnapshot
+    ] = await Promise.all([
+        businessPromise, 
+        professionalPromise,
+        vehiclePromise
     ]);
 
-    const foundIds = new Set<string>();
+    const searchResults: any[] = [];
+    const foundIds = new Set<string>(); // To prevent duplicates if we search more fields later
 
-    businessNameSnapshot.forEach(doc => {
+    businessSnapshot.forEach(doc => {
       if (!foundIds.has(doc.id)) {
           searchResults.push({ type: 'business', data: { id: doc.id, ...doc.data() } as UserBusinessProfile });
           foundIds.add(doc.id);
       }
     });
 
-    // --- Search Professional Profiles ---
-    const professionalProfilesRef = db.collection('professional_profiles');
-     const professionalNameQuery = professionalProfilesRef
-      .where('name_lowercase', '>=', query)
-      .where('name_lowercase', '<', endQuery)
-      .limit(limit);
-      
-    const [professionalNameSnapshot] = await Promise.all([
-        professionalNameQuery.get()
-    ]);
-
-    professionalNameSnapshot.forEach(doc => {
+    professionalSnapshot.forEach(doc => {
         if (!foundIds.has(doc.id)) {
             searchResults.push({ type: 'individual', data: { id: doc.id, ...doc.data() } as OverallProfessionalProfileData });
             foundIds.add(doc.id);
         }
     });
     
-    // Simple shuffle to mix results
+    vehicleSnapshot.forEach(doc => {
+        if (!foundIds.has(doc.id)) {
+            const vehicleData = { id: doc.id, ...doc.data() } as UserVehicle;
+            // Add a user-friendly name for display
+            const displayName = `${vehicleData.vehicleType} - ${vehicleData.licensePlate}`;
+            searchResults.push({ type: 'vehicle', data: { ...vehicleData, name: displayName } });
+            foundIds.add(doc.id);
+        }
+    });
+    
+    // Simple shuffle to mix results for better presentation
     searchResults.sort(() => Math.random() - 0.5);
 
     return NextResponse.json(searchResults, { status: 200 });

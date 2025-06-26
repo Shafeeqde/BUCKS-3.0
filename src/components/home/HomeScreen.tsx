@@ -2,10 +2,10 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { MagnifyingGlassIcon, MapPinIcon, XMarkIcon, ChatBubbleLeftEllipsisIcon, AdjustmentsHorizontalIcon, ArrowUpOnSquareIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, MapPinIcon, XMarkIcon, ChatBubbleLeftEllipsisIcon, AdjustmentsHorizontalIcon, ArrowUpOnSquareIcon, InformationCircleIcon, TruckIcon } from '@heroicons/react/24/outline';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import SearchSuggestions from '@/components/home/SearchSuggestions';
 import { suggestSearchTerms, type SuggestSearchTermsInput } from '@/ai/flows/suggest-search-terms';
@@ -24,7 +24,8 @@ const initialPlaceholders = [
 
 export type SearchResultItem =
   | { type: 'individual'; data: OverallProfessionalProfileData }
-  | { type: 'business'; data: UserBusinessProfile };
+  | { type: 'business'; data: UserBusinessProfile }
+  | { type: 'vehicle', data: { id: string; name: string } };
 
 interface HomeScreenProps {
   setActiveTab: (tab: TabName) => void;
@@ -187,6 +188,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
       onSelectBusinessProfile(item.data.id);
     } else if (item.type === 'individual') {
       onSelectIndividualProfile(item.data.id);
+    } else if (item.type === 'vehicle') {
+        toast({ title: `Vehicle Selected`, description: `Details for ${item.data.name} would be shown.` });
     }
   };
 
@@ -247,7 +250,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                 <h3 className="text-lg font-semibold text-foreground font-headline mb-0 flex items-center"><MagnifyingGlassIcon className="mr-2 h-5 w-5 text-primary"/>Matching Profiles & Businesses:</h3>
                 {displayedSearchResults.map((item) => {
                   if (item.type === 'business') {
-                    // Adapt UserBusinessProfile to BusinessProfileCardData
                     const businessCardData = {
                       id: item.data.id,
                       name: item.data.name,
@@ -264,12 +266,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                       <BusinessProfileCard 
                         key={item.data.id} 
                         business={businessCardData}
-                        onPress={() => handleCardPress(item)}
+                        onPress={() => handleCardPress(item as SearchResultItem)}
                         onAddToCartClick={(productId) => onAddToCart(item.data.id, productId)}
                       />
                     );
                   } else if (item.type === 'individual') {
-                     // Adapt OverallProfessionalProfileData to IndividualProfessionalCardData
                      const individualCardData = {
                       id: item.data.id,
                       name: item.data.name || 'N/A',
@@ -277,15 +278,26 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                       avatarAiHint: item.data.avatarAiHint,
                       professionalTitle: item.data.professionalTitle,
                       shortBio: item.data.professionalBio,
-                      // You might need to add logic here to derive rating, reviews from the full profile
                     };
                     return (
                       <IndividualProfessionalCard 
                         key={item.data.id} 
                         profile={individualCardData} 
-                        onPress={() => handleCardPress(item)} 
+                        onPress={() => handleCardPress(item as SearchResultItem)} 
                       />
                     );
+                  } else if (item.type === 'vehicle') {
+                      return (
+                        <Card key={item.data.id} className="shadow-lg p-4 cursor-pointer" onClick={() => handleCardPress(item as SearchResultItem)}>
+                            <CardTitle className="text-lg font-headline flex items-center">
+                                <TruckIcon className="mr-2 h-5 w-5 text-primary"/>
+                                {item.data.name}
+                            </CardTitle>
+                            <CardDescription>
+                                Vehicle found via license plate search.
+                            </CardDescription>
+                        </Card>
+                     )
                   }
                   return null;
                 })}

@@ -146,6 +146,7 @@ export interface UserVehicle {
   userId: string;
   vehicleType: string;
   licensePlate: string;
+  licensePlate_lowercase?: string;
   isActive: boolean;
 }
 
@@ -543,4 +544,79 @@ export interface ChatMessage {
   isSender: boolean;
   avatar?: string;
   avatarAiHint?: string;
+}
+
+export interface ProductCategory {
+  id: string;
+  name: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+  description?: string;
+}
+
+export interface ProductListing {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  categoryIds: string[];
+  imageUrl?: string;
+  imageAiHint?: string;
+  brand?: string;
+  rating?: number;
+  reviewCount?: number;
+  stock?: number;
+  tags?: string[];
+  variants?: {
+    id: string;
+    name: string;
+    options: { value: string }[];
+  }[];
+}
+
+export interface FoodCartItem {
+  menuItemId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  restaurantId: string;
+  restaurantName: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+}
+
+export interface ShoppingCartItem {
+    productId: string;
+    name: string;
+    price: number;
+    quantity: number;
+    variantInfo?: string;
+    imageUrl?: string;
+    imageAiHint?: string;
+}
+
+export interface Restaurant {
+  id: string;
+  name: string;
+  cuisine: string;
+  rating: number;
+  deliveryTime: string;
+  priceRange: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+  address?: string;
+  menu: MenuItem[];
+}
+
+export interface MenuItem {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  description?: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+  isVegetarian?: boolean;
+  isSpicy?: boolean;
 }
