@@ -2,19 +2,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['firebase-admin'],
-  },
-  webpack: (config, { isServer }) => {
-    // For server-side builds, tell webpack to treat 'firebase-admin' as an external package.
-    // This prevents it from being bundled, which is the source of the error.
-    if (isServer) {
-      // This is a more robust way to handle this, as config.externals might be undefined.
-      config.externals = [...(config.externals || []), 'firebase-admin'];
-    }
-    // Important: return the modified config
-    return config;
-  },
+  serverExternalPackages: ['firebase-admin'],
   typescript: {
     ignoreBuildErrors: false,
   },

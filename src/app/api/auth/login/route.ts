@@ -1,6 +1,6 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
-import { users, UserEntry } from '../register/route'; // Import users from register route
+import { users, type UserEntry } from '@/lib/auth/store'; // Import users from the new store
 
 export async function POST(request: NextRequest) {
   console.log(`[API /api/auth/login] Received POST request at ${new Date().toISOString()}`);
