@@ -1,7 +1,7 @@
 
 export const connectorConfig = {
   connector: 'default',
-  service: 'studio',
+  service: 'locality-hub-wseoy-service',
   location: 'asia-south1'
 };
 

@@ -1,11 +1,11 @@
 specVersion: "v1"
-serviceId: "studio"
+serviceId: "locality-hub-wseoy-service"
 location: "asia-south1"
 schema:
   source: "./schema"
   datasource:
     postgresql:
-      database: "postgres"
+      database: "locality-hub-wseoy-database"
       cloudSql:
         instanceId: "studio-fdc"
       # schemaValidation: "COMPATIBLE"
