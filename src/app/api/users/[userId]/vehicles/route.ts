@@ -17,16 +17,17 @@ export async function POST(
     }
 
     const body = await request.json();
-    const { vehicleType, licensePlate } = body;
+    const { vehicleType, licensePlate, listingMode } = body;
 
-    if (!userId || !vehicleType || !licensePlate) {
-      return NextResponse.json({ error: 'User ID, vehicle type, and license plate are required.' }, { status: 400 });
+    if (!userId || !vehicleType || !licensePlate || !listingMode) {
+      return NextResponse.json({ error: 'User ID, vehicle type, license plate, and listing mode are required.' }, { status: 400 });
     }
 
     const newVehicleData: Omit<UserVehicle, 'id'> = {
       userId,
       vehicleType,
       licensePlate,
+      listingMode,
       licensePlate_lowercase: licensePlate.toLowerCase(),
       isActive: false, // Always default to inactive
     };
@@ -80,3 +81,5 @@ export async function GET(
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
+
+    

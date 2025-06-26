@@ -138,6 +138,8 @@ export interface UserProfile {
   avatarUrl?: string;
 }
 
+export type VehicleListingMode = 'sell' | 'rent' | 'taxi' | 'delivery';
+
 export interface UserVehicle {
   id: string;
   userId: string;
@@ -145,6 +147,7 @@ export interface UserVehicle {
   licensePlate: string;
   licensePlate_lowercase?: string;
   isActive: boolean;
+  listingMode?: VehicleListingMode;
 }
 
 
@@ -541,3 +544,5 @@ export interface ChatMessage {
   avatar?: string;
   avatarAiHint?: string;
 }
+
+    
