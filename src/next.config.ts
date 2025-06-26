@@ -3,6 +3,14 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  serverExternalPackages: [
+    'firebase-admin',
+    '@opentelemetry/sdk-node',
+    '@opentelemetry/exporter-jaeger',
+    'handlebars',
+    '@genkit-ai/core',
+    'dotprompt',
+  ],
   typescript: {
     ignoreBuildErrors: false, 
   },
@@ -35,17 +43,13 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/v1/create-qr-code/**',
       },
-    ],
-  },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      // Ensure firebase-admin is treated as an external module
-      if (!config.externals) {
-        config.externals = [];
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+        port: '',
+        pathname: '/**',
       }
-      config.externals.push('firebase-admin');
-    }
-    return config;
+    ],
   },
 };
 
