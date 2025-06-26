@@ -205,6 +205,7 @@ export type BusinessType = 'products' | 'services' | 'products_and_services';
 
 export interface UserBusinessProfile {
   id: string;
+  userId?: string;
   name: string;
   name_lowercase?: string;
   logo?: string;
@@ -319,6 +320,7 @@ export type ActivityStatus =
   | 'product_order_rejected'
   | 'product_order_processing'
   | 'product_order_ready_for_pickup'
+  ...
   | 'product_order_out_for_delivery'
   | 'product_order_completed'
   | 'product_order_cancelled';

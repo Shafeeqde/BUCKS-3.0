@@ -16,29 +16,8 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-
-
-interface SkillsetProfileFormData {
-  id: string;
-  skillName: string;
-  skillLevel: string;
-  skillDescription?: string;
-  isActive: boolean;
-  userName: string;
-  userAvatarUrl?: string;
-  userAvatarAiHint?: string;
-  professionalTitle?: string;
-  skillSpecificBio?: string;
-  contactInfo?: {
-    phone?: string;
-    email?: string;
-    website?: string;
-    location?: string;
-  };
-  workExperienceEntries: SkillsetSpecificWorkExperience[];
-  portfolioItems: SkillsetSpecificPortfolioItem[];
-  professionalFeed: SkillsetSpecificFeedItem[];
-}
+import ImageUpload from '@/components/ui/ImageUpload';
+import { useAuth } from '@/context/AuthContext';
 
 
 interface SkillsetProfileManagementScreenProps {
@@ -47,95 +26,11 @@ interface SkillsetProfileManagementScreenProps {
   onBack: () => void;
 }
 
-const simulateFetchSkillsetProfileForManagement = async (skillsetProfileId: string): Promise<SkillsetProfileData | null> => {
-  console.log(`Simulating fetching skillset profile for management for ID: ${skillsetProfileId}`);
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      if (skillsetProfileId === 'plumbing-profile-johndoe-123') {
-        resolve({
-          id: skillsetProfileId,
-          skillName: 'Plumbing Services', skillLevel: 'Certified Professional', skillDescription: 'Providing reliable and efficient plumbing solutions.',
-          userName: 'John Doe', userAvatarUrl: 'https://source.unsplash.com/random/100x100/?man,plumber', userAvatarAiHint: 'man plumber', professionalTitle: 'Master Plumber',
-          skillSpecificBio: 'Over 10 years of experience in residential and commercial plumbing. Committed to quality workmanship and customer satisfaction.',
-          contactInfo: { phone: '+1 123 456 7890', email: 'john.doe.plumber@example.com', location: 'Local Service Area', website: 'https://plumbing.johndoe.com' },
-          workExperienceEntries: [
-            { id: 'wx-1', title: 'Lead Plumber', company: 'Local Plumbing Co.', years: '2015 - Present', description: 'Managed plumbing installations, repairs, and client consultations for residential and commercial projects.' },
-            { id: 'wx-2', title: 'Apprentice Plumber', company: 'Pro Plumb Apprenticeships', years: '2013 - 2015', description: 'Assisted senior plumbers, learned pipe fitting, fixture installation, and diagnostic techniques.' },
-          ],
-          portfolioItems: [
-            { id: 'pp1', title: 'Bathroom Renovation Project', imageUrl: 'https://source.unsplash.com/random/600x400/?modern,bathroom', imageAiHint: 'modern bathroom', description: 'Full plumbing overhaul for a luxury bathroom remodel.', link: '#' },
-            { id: 'pp2', title: 'Commercial Kitchen Installation', imageUrl: 'https://source.unsplash.com/random/600x400/?kitchen,pipes', imageAiHint: 'kitchen pipes', description: 'Designed and implemented the plumbing system for a new restaurant.', link: '#' },
-          ],
-          professionalFeed: [
-            { id: 'pf1', content: 'Tips for preventing winter pipe bursts!', timestamp: '2023-12-01', imageUrl: 'https://source.unsplash.com/random/400x200/?frozen,pipe', imageAiHint: 'frozen pipe' },
-            { id: 'pf2', content: 'Completed a major kitchen plumbing job for "The Gourmet Spot".', timestamp: '2023-11-15' },
-          ],
-          reviews: [
-            { id: 'pr1', reviewerName: 'Homeowner A', rating: 5, comment: 'Fixed my leaky faucet quickly and affordably!', date: '2023-11-01' },
-            { id: 'pr2', reviewerName: 'Business Owner B', rating: 4, comment: 'Reliable service for our office plumbing.', date: '2023-10-25' },
-          ],
-          recommendationsCount: 30, averageRating: 4.9, totalReviews: 15,
-        });
-      } else if (skillsetProfileId === 'jenson-interior-stylist-123') {
-        resolve({
-            id: skillsetProfileId, skillName: 'Interior Home Styling by Jenson', skillLevel: 'Lead Stylist & Consultant', skillDescription: 'Transforming spaces into beautiful, functional, and personalized environments.',
-            userName: 'Jenson Harris', userAvatarUrl: 'https://source.unsplash.com/random/120x120/?man,designer', userAvatarAiHint: 'man designer', professionalTitle: 'Interior Home Stylist',
-            skillSpecificBio: 'Passionate interior stylist with a keen eye for detail and a commitment to creating spaces that inspire. My approach is collaborative, ensuring your vision is at the heart of every design.',
-            contactInfo: { phone: '+1 555 0101', email: 'jenson.stylist@example.com', location: 'New York, NY & Online Consultations', website: 'https://jensoninteriors.design' },
-            workExperienceEntries: [
-                { id: 'wx-j1', title: 'Lead Interior Stylist', company: 'Chic Living Designs', years: '2018 - Present', description: 'Managed high-end residential styling projects from concept to completion.' },
-                { id: 'wx-j2', title: 'Junior Interior Designer', company: 'Urban Aesthetics Inc.', years: '2016 - 2018', description: 'Assisted in material sourcing, mood board creation, and client presentations.' },
-            ],
-            portfolioItems: [
-                { id: 'jp1', title: 'Downtown Loft Transformation', imageUrl: 'https://source.unsplash.com/random/600x400/?modern,loft', imageAiHint: 'modern loft', description: 'Complete styling of a 2-bedroom downtown loft.', link: '#' },
-                { id: 'jp2', title: 'Minimalist Scandinavian Home', imageUrl: 'https://source.unsplash.com/random/600x400/?scandinavian,design', imageAiHint: 'scandinavian design', description: 'Styled a family home with a minimalist Scandinavian aesthetic.', link: '#' },
-            ],
-            professionalFeed: [
-                { id: 'jf1', content: 'New blog post: "Top 5 Color Trends for Interiors in 2024".', timestamp: '2 days ago', imageUrl: 'https://source.unsplash.com/random/400x200/?color,swatches', imageAiHint: 'color swatches' }
-            ],
-            reviews: [{ id: 'jr1', reviewerName: 'Sarah L.', rating: 5, comment: 'Jenson understood my vision and brought it to life beautifully!', date: '2023-12-05' }],
-            recommendationsCount: 125, averageRating: 4.8, totalReviews: 88,
-        });
-      }
-      else {
-        resolve({
-            id: skillsetProfileId,
-            skillName: `New Skillset (${skillsetProfileId.substring(0,5)})`,
-            skillLevel: 'Beginner',
-            skillDescription: '',
-            userName: 'Current User',
-            userAvatarUrl: `https://source.unsplash.com/random/100x100/?person,avatar`,
-            userAvatarAiHint: 'person avatar',
-            professionalTitle: '',
-            skillSpecificBio: '',
-            contactInfo: { phone: '', email: '', location: '', website: '' },
-            workExperienceEntries: [],
-            portfolioItems: [],
-            professionalFeed: [],
-            reviews: [],
-            recommendationsCount: 0,
-            averageRating: 0,
-            totalReviews: 0,
-        });
-      }
-    }, 1000);
-  });
-};
-
-const simulateUpdateSkillsetProfile = async (profileId: string, updatedData: SkillsetProfileFormData): Promise<boolean> => {
-    console.log(`Simulating updating skillset profile ${profileId} with data:`, updatedData);
-     return new Promise((resolve) => {
-        setTimeout(() => {
-            console.log('Simulated skillset profile updated successfully.');
-            resolve(true);
-        }, 1000);
-     });
-};
-
 const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenProps> = ({ setActiveTab, skillsetProfileId, onBack }) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [profileData, setProfileData] = useState<SkillsetProfileData | null>(null);
-  const [editedData, setEditedData] = useState<SkillsetProfileFormData | null>(null);
+  const [editedData, setEditedData] = useState<Partial<SkillsetProfileData> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -152,6 +47,47 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
   const [currentFeedItem, setCurrentFeedItem] = useState<Partial<SkillsetSpecificFeedItem> & { id?: string } | null>(null);
   const [feedItemToDeleteId, setFeedItemToDeleteId] = useState<string | null>(null);
 
+  const fetchProfileData = async (id: string) => {
+    setLoading(true); setError(null);
+    try {
+      const response = await fetch(`/api/skillset-profiles/${id}`);
+      if (response.status === 404) {
+          toast({ title: 'Profile Not Found', description: 'This skillset profile does not exist yet. You can create it here.', variant: 'default' });
+          // Create a new, empty profile structure for editing
+          const newProfile: SkillsetProfileData = {
+              id: id, // The ID from creation will be used, or a new one generated on save
+              skillName: 'New Skillset',
+              userId: user?.id || 'unknown',
+              userName: user?.name || 'New User',
+              skillLevel: 'Beginner',
+              isActive: false,
+              workExperienceEntries: [],
+              portfolioItems: [],
+              professionalFeed: [],
+              reviews: [],
+              recommendationsCount: 0,
+              averageRating: 0,
+              totalReviews: 0,
+          };
+          setProfileData(newProfile);
+          setEditedData(JSON.parse(JSON.stringify(newProfile)));
+          return;
+      }
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile data.');
+      }
+      const data: SkillsetProfileData = await response.json();
+      setProfileData(data);
+      setEditedData(JSON.parse(JSON.stringify(data)));
+    } catch (err: any) {
+      console.error('Error fetching skillset profile for management:', err);
+      setError("Failed to load profile for management.");
+      toast({ title: "Error", description: err.message || "Failed to load profile for management.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   useEffect(() => {
     if (skillsetProfileId) {
@@ -159,46 +95,11 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     }
   }, [skillsetProfileId]);
 
-  const fetchProfileData = async (id: string) => {
-    setLoading(true); setError(null);
-    try {
-      const data = await simulateFetchSkillsetProfileForManagement(id);
-      if (data) {
-        setProfileData(data);
-        setEditedData({
-            id: data.id,
-            skillName: data.skillName,
-            skillLevel: data.skillLevel || '',
-            skillDescription: data.skillDescription,
-            isActive: data.isActive === undefined ? (data.reviews && data.reviews.length > 0) : data.isActive,
-            userName: data.userName,
-            userAvatarUrl: data.userAvatarUrl,
-            userAvatarAiHint: data.userAvatarAiHint,
-            professionalTitle: data.professionalTitle,
-            skillSpecificBio: data.skillSpecificBio,
-            contactInfo: data.contactInfo ? { ...data.contactInfo } : { phone: '', email: '', location: '', website: '' },
-            workExperienceEntries: data.workExperienceEntries ? [...data.workExperienceEntries.map(w => ({...w}))] : [],
-            portfolioItems: data.portfolioItems ? [...data.portfolioItems.map(p => ({...p}))] : [],
-            professionalFeed: data.professionalFeed ? [...data.professionalFeed.map(f => ({...f}))] : [],
-        });
-      } else {
-        setError("Skillset profile not found for management.");
-        toast({ title: "Error", description: "Skillset profile not found.", variant: "destructive" });
-      }
-    } catch (err) {
-      console.error('Error fetching skillset profile for management:', err);
-      setError("Failed to load profile for management.");
-      toast({ title: "Error", description: "Failed to load profile for management.", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleInputChange = (field: keyof SkillsetProfileFormData, value: any) => {
+  const handleInputChange = (field: keyof SkillsetProfileData, value: any) => {
     setEditedData(prev => prev ? { ...prev, [field]: value } : null);
   };
 
-  const handleContactInfoChange = (field: keyof NonNullable<SkillsetProfileFormData['contactInfo']>, value: string) => {
+  const handleContactInfoChange = (field: keyof NonNullable<SkillsetProfileData['contactInfo']>, value: string) => {
     setEditedData(prev => prev ? {
       ...prev,
       contactInfo: { ...(prev.contactInfo || {}), [field]: value }
@@ -227,11 +128,11 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     }
     if (!editedData) return;
 
+    let updatedEntries;
     if (currentWorkExperience.id) {
-      const updatedEntries = editedData.workExperienceEntries.map(exp =>
+       updatedEntries = (editedData.workExperienceEntries || []).map(exp =>
         exp.id === currentWorkExperience!.id ? { ...exp, ...currentWorkExperience } as SkillsetSpecificWorkExperience : exp
       );
-      setEditedData({ ...editedData, workExperienceEntries: updatedEntries });
     } else {
       const newEntry: SkillsetSpecificWorkExperience = {
         id: `wx-${Date.now()}`,
@@ -240,11 +141,11 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
         years: currentWorkExperience.years,
         description: currentWorkExperience.description || '',
       };
-      setEditedData({ ...editedData, workExperienceEntries: [...editedData.workExperienceEntries, newEntry] });
+      updatedEntries = [...(editedData.workExperienceEntries || []), newEntry];
     }
+    setEditedData({ ...editedData, workExperienceEntries: updatedEntries });
     setShowWorkExperienceDialog(false);
     setCurrentWorkExperience(null);
-    toast({ title: "Work Experience Saved", description: "Your work experience has been updated locally." });
   };
 
   const confirmDeleteWorkExperience = (id: string) => {
@@ -253,7 +154,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
 
   const executeDeleteWorkExperience = () => {
     if (!editedData || !workExperienceToDeleteId) return;
-    const updatedEntries = editedData.workExperienceEntries.filter(exp => exp.id !== workExperienceToDeleteId);
+    const updatedEntries = (editedData.workExperienceEntries || []).filter(exp => exp.id !== workExperienceToDeleteId);
     setEditedData({ ...editedData, workExperienceEntries: updatedEntries });
     setWorkExperienceToDeleteId(null);
     toast({ title: "Work Experience Deleted", variant: "destructive" });
@@ -280,27 +181,27 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
         return;
     }
     if (!editedData) return;
+    let updatedItems;
 
     if (currentPortfolioItem.id) {
-        const updatedItems = editedData.portfolioItems.map(item =>
+        updatedItems = (editedData.portfolioItems || []).map(item =>
             item.id === currentPortfolioItem!.id ? { ...item, ...currentPortfolioItem } as SkillsetSpecificPortfolioItem : item
         );
-        setEditedData({ ...editedData, portfolioItems: updatedItems });
     } else {
         const newItem: SkillsetSpecificPortfolioItem = {
             id: `pi-${Date.now()}`,
             title: currentPortfolioItem.title,
             description: currentPortfolioItem.description || '',
-            imageUrl: currentPortfolioItem.imageUrl || `https://source.unsplash.com/random/600x400/?${(currentPortfolioItem.imageAiHint || 'project work').split(' ').join(',')}`,
-            imageAiHint: currentPortfolioItem.imageAiHint || '',
-            videoUrl: currentPortfolioItem.videoUrl || '',
-            link: currentPortfolioItem.link || '',
+            imageUrl: currentPortfolioItem.imageUrl || undefined,
+            imageAiHint: currentPortfolioItem.imageAiHint || undefined,
+            videoUrl: currentPortfolioItem.videoUrl || undefined,
+            link: currentPortfolioItem.link || undefined,
         };
-        setEditedData({ ...editedData, portfolioItems: [...editedData.portfolioItems, newItem] });
+        updatedItems = [...(editedData.portfolioItems || []), newItem];
     }
+    setEditedData({ ...editedData, portfolioItems: updatedItems });
     setShowPortfolioItemDialog(false);
     setCurrentPortfolioItem(null);
-    toast({ title: "Portfolio Item Saved", description: "Your portfolio item has been updated locally." });
   };
 
   const confirmDeletePortfolioItem = (id: string) => {
@@ -309,7 +210,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
 
   const executeDeletePortfolioItem = () => {
     if (!editedData || !portfolioItemToDeleteId) return;
-    const updatedItems = editedData.portfolioItems.filter(item => item.id !== portfolioItemToDeleteId);
+    const updatedItems = (editedData.portfolioItems || []).filter(item => item.id !== portfolioItemToDeleteId);
     setEditedData({ ...editedData, portfolioItems: updatedItems });
     setPortfolioItemToDeleteId(null);
     toast({ title: "Portfolio Item Deleted", variant: "destructive" });
@@ -336,26 +237,26 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
         return;
     }
     if (!editedData) return;
+    let updatedItems;
 
     if (currentFeedItem.id) {
-        const updatedItems = editedData.professionalFeed.map(item =>
+        updatedItems = (editedData.professionalFeed || []).map(item =>
             item.id === currentFeedItem!.id ? { ...item, ...currentFeedItem } as SkillsetSpecificFeedItem : item
         );
-        setEditedData({ ...editedData, professionalFeed: updatedItems });
     } else {
         const newItem: SkillsetSpecificFeedItem = {
             id: `feed-${Date.now()}`,
             content: currentFeedItem.content,
-            imageUrl: currentFeedItem.imageUrl || `https://source.unsplash.com/random/400x200/?${(currentFeedItem.imageAiHint || 'update post').split(' ').join(',')}`,
-            imageAiHint: currentFeedItem.imageAiHint || '',
-            videoUrl: currentFeedItem.videoUrl || '',
+            imageUrl: currentFeedItem.imageUrl || undefined,
+            imageAiHint: currentFeedItem.imageAiHint || undefined,
+            videoUrl: currentFeedItem.videoUrl || undefined,
             timestamp: currentFeedItem.timestamp || new Date().toLocaleDateString(),
         };
-        setEditedData({ ...editedData, professionalFeed: [...editedData.professionalFeed, newItem] });
+        updatedItems = [...(editedData.professionalFeed || []), newItem];
     }
+    setEditedData({ ...editedData, professionalFeed: updatedItems });
     setShowFeedItemDialog(false);
     setCurrentFeedItem(null);
-    toast({ title: "Feed Post Saved", description: "Your feed post has been updated locally." });
   };
 
   const confirmDeleteFeedItem = (id: string) => {
@@ -364,7 +265,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
 
   const executeDeleteFeedItem = () => {
     if (!editedData || !feedItemToDeleteId) return;
-    const updatedItems = editedData.professionalFeed.filter(item => item.id !== feedItemToDeleteId);
+    const updatedItems = (editedData.professionalFeed || []).filter(item => item.id !== feedItemToDeleteId);
     setEditedData({ ...editedData, professionalFeed: updatedItems });
     setFeedItemToDeleteId(null);
     toast({ title: "Feed Post Deleted", variant: "destructive" });
@@ -375,36 +276,25 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     if (!editedData) return;
     setIsSaving(true);
     try {
-      const success = await simulateUpdateSkillsetProfile(editedData.id, editedData);
-      if (success) {
-        setProfileData(prev => {
-            if (!prev) return null;
-            const updatedProfileData: SkillsetProfileData = {
-                ...prev,
-                id: editedData.id,
-                skillName: editedData.skillName,
-                skillLevel: editedData.skillLevel,
-                skillDescription: editedData.skillDescription,
-                isActive: editedData.isActive,
-                userName: editedData.userName,
-                userAvatarUrl: editedData.userAvatarUrl,
-                userAvatarAiHint: editedData.userAvatarAiHint,
-                professionalTitle: editedData.professionalTitle,
-                skillSpecificBio: editedData.skillSpecificBio,
-                contactInfo: editedData.contactInfo ? { ...editedData.contactInfo } : undefined,
-                workExperienceEntries: [...editedData.workExperienceEntries.map(w => ({...w}))],
-                portfolioItems: [...editedData.portfolioItems.map(p => ({...p}))],
-                professionalFeed: [...editedData.professionalFeed.map(f => ({...f}))],
-            };
-            return updatedProfileData;
-        });
-        toast({ title: "Profile Saved", description: `Skillset profile "${editedData.skillName}" updated successfully.` });
-      } else {
-        toast({ title: "Save Failed", description: "Could not update skillset profile.", variant: "destructive" });
+       const response = await fetch(`/api/skillset-profiles/${skillsetProfileId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editedData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update profile.");
       }
-    } catch (err) {
+
+      const updatedProfile = await response.json();
+      setProfileData(updatedProfile);
+      setEditedData(JSON.parse(JSON.stringify(updatedProfile)));
+      toast({ title: "Profile Saved", description: `Skillset profile "${editedData.skillName}" updated successfully.` });
+      onBack();
+    } catch (err: any) {
       console.error("Error saving profile:", err);
-      toast({ title: "Save Error", description: "An unexpected error occurred.", variant: "destructive" });
+      toast({ title: "Save Error", description: err.message || "An unexpected error occurred.", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -429,7 +319,7 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
     return <div className="p-4 text-center text-muted-foreground">Profile data unavailable for management.</div>;
   }
 
-  const hasChanges = JSON.stringify(profileData) !== JSON.stringify({...profileData, ...editedData, isActive: profileData.isActive === editedData.isActive ? profileData.isActive : editedData.isActive });
+  const hasChanges = JSON.stringify(profileData) !== JSON.stringify(editedData);
 
   return (
     <ScrollArea className="h-full bg-background">
@@ -500,9 +390,9 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                     </Button>
                 </CardHeader>
                 <CardContent>
-                    {editedData.workExperienceEntries && editedData.workExperienceEntries.length > 0 ? (
+                    {(editedData.workExperienceEntries || []).length > 0 ? (
                     <ul className="space-y-4">
-                        {editedData.workExperienceEntries.map((exp) => (
+                        {(editedData.workExperienceEntries || []).map((exp) => (
                         <li key={exp.id} className="p-4 border rounded-md hover:shadow-sm bg-muted/30">
                             <div className="flex justify-between items-start">
                                 <div>
@@ -536,9 +426,9 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                     </Button>
                 </CardHeader>
                 <CardContent>
-                    {editedData.portfolioItems && editedData.portfolioItems.length > 0 ? (
+                    {(editedData.portfolioItems || []).length > 0 ? (
                     <ul className="space-y-4">
-                        {editedData.portfolioItems.map((item) => (
+                        {(editedData.portfolioItems || []).map((item) => (
                         <li key={item.id} className="p-4 border rounded-md hover:shadow-sm bg-muted/30">
                             <div className="flex justify-between items-start">
                                 <div className="flex-grow mr-2">
@@ -579,9 +469,9 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
               </Button>
             </CardHeader>
             <CardContent>
-              {editedData.professionalFeed && editedData.professionalFeed.length > 0 ? (
+              {(editedData.professionalFeed || []).length > 0 ? (
                 <ul className="space-y-4">
-                  {editedData.professionalFeed.map((item) => (
+                  {(editedData.professionalFeed || []).map((item) => (
                     <li key={item.id} className="p-4 border rounded-md hover:shadow-sm bg-muted/30">
                       <div className="flex justify-between items-start">
                         <div className="flex-grow mr-2">
@@ -696,14 +586,11 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                       <Label htmlFor="pi-description" className="text-right">Description</Label>
                       <Textarea id="pi-description" name="description" value={currentPortfolioItem?.description || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="Describe the project or item." />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="pi-imageUrl" className="text-right">Image URL</Label>
-                      <Input id="pi-imageUrl" name="imageUrl" value={currentPortfolioItem?.imageUrl || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="https://source.unsplash.com/random/600x400/"/>
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="pi-imageAiHint" className="text-right">Image AI Hint</Label>
-                      <Input id="pi-imageAiHint" name="imageAiHint" value={currentPortfolioItem?.imageAiHint || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="e.g., modern kitchen"/>
-                  </div>
+                   <ImageUpload
+                        label="Image"
+                        initialImageUrl={currentPortfolioItem?.imageUrl}
+                        onUploadComplete={(url) => setCurrentPortfolioItem(prev => prev ? { ...prev, imageUrl: url } : null)}
+                    />
                   <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="pi-videoUrl" className="text-right">Video URL</Label>
                       <Input id="pi-videoUrl" name="videoUrl" value={currentPortfolioItem?.videoUrl || ''} onChange={handlePortfolioItemDialogChange} className="col-span-3" placeholder="https://youtube.com/watch?v=..."/>
@@ -752,14 +639,11 @@ const SkillsetProfileManagementScreen: React.FC<SkillsetProfileManagementScreenP
                       <Label htmlFor="feed-content" className="text-right pt-2">Content <span className="text-destructive">*</span></Label>
                       <Textarea id="feed-content" name="content" value={currentFeedItem?.content || ''} onChange={handleFeedItemDialogChange} className="col-span-3" placeholder="What's on your mind?" rows={4} />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="feed-imageUrl" className="text-right">Image URL</Label>
-                      <Input id="feed-imageUrl" name="imageUrl" value={currentFeedItem?.imageUrl || ''} onChange={handleFeedItemDialogChange} className="col-span-3" placeholder="https://source.unsplash.com/random/400x200/"/>
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="feed-imageAiHint" className="text-right">Image AI Hint</Label>
-                      <Input id="feed-imageAiHint" name="imageAiHint" value={currentFeedItem?.imageAiHint || ''} onChange={handleFeedItemDialogChange} className="col-span-3" placeholder="e.g., work in progress"/>
-                  </div>
+                  <ImageUpload
+                    label="Image"
+                    initialImageUrl={currentFeedItem?.imageUrl}
+                    onUploadComplete={(url) => setCurrentFeedItem(prev => prev ? { ...prev, imageUrl: url } : null)}
+                  />
                    <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="feed-timestamp" className="text-right">Timestamp</Label>
                       <Input id="feed-timestamp" name="timestamp" value={currentFeedItem?.timestamp || ''} onChange={handleFeedItemDialogChange} className="col-span-3" placeholder="e.g., Just now, 2 hours ago, Jan 15"/>

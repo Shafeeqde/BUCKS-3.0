@@ -14,13 +14,18 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, bio, ...otherData } = body as Partial<UserBusinessProfile>;
+    const { name, bio, userId, ...otherData } = body as Partial<UserBusinessProfile>;
 
     if (!name || !bio) {
       return NextResponse.json({ error: 'Name and Bio are required' }, { status: 400 });
     }
 
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID is required to create a business profile' }, { status: 400 });
+    }
+
     const newProfileData: Omit<UserBusinessProfile, 'id'> = {
+      userId,
       name,
       bio,
       name_lowercase: name.toLowerCase(),
@@ -63,15 +68,22 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET /api/business-profiles - List all business profiles
-export async function GET() {
+// GET /api/business-profiles - List all business profiles for a user
+export async function GET(request: NextRequest) {
   try {
     if (!db) {
       console.error('Firebase Admin SDK not initialized, or Firestore is unavailable. Cannot list profiles.');
       return NextResponse.json({ error: 'Server configuration error: Database service not available.' }, { status: 500 });
     }
 
-    const snapshot = await db.collection(PROFILES_COLLECTION).get();
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+
+    if (!userId) {
+        return NextResponse.json({ error: 'User ID query parameter is required' }, { status: 400 });
+    }
+
+    const snapshot = await db.collection(PROFILES_COLLECTION).where('userId', '==', userId).get();
     if (snapshot.empty) {
       return NextResponse.json([], { status: 200 });
     }

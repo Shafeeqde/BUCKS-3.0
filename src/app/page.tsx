@@ -34,7 +34,7 @@ import Loading from '@/app/loading';
 import type {
     TabName, UserBusinessProfile, BusinessJob,
     ProfilePost, MediaAttachment, UserMoment, Comment,
-    ServiceBookingRequest, ActiveBooking, ChatMessage, MessageItem, UserVehicle
+    ServiceBookingRequest, ActiveBooking, ChatMessage, UserVehicle
 } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from 'date-fns';
@@ -156,27 +156,14 @@ export default function AppRoot() {
     }
   }, [toast]);
 
-  useEffect(() => {
-    if (user) {
-        setActiveTabInternal('home');
-        fetchUserPosts(user.id);
-        fetchBusinessProfiles();
-    } else {
-        setActiveTabInternal('account');
-        setBusinessProfilesData([]);
-        setUserPosts([]);
-    }
-  }, [user, fetchUserPosts]);
-
-
-  const fetchBusinessProfiles = useCallback(async () => {
+  const fetchBusinessProfiles = useCallback(async (userId: string) => {
     if (!isLoggedIn) {
       setBusinessProfilesData([]);
       return;
     }
     setIsLoadingBusinessProfiles(true);
     try {
-      const response = await fetch('/api/business-profiles');
+      const response = await fetch(`/api/business-profiles?userId=${userId}`);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Could not parse error response from server.' }));
         throw new Error(errorData.error || `Failed to fetch profiles: ${response.statusText}`);
@@ -191,48 +178,69 @@ export default function AppRoot() {
     }
   }, [toast, isLoggedIn]);
 
+  useEffect(() => {
+    if (user) {
+        setActiveTabInternal('home');
+        fetchUserPosts(user.id);
+        fetchBusinessProfiles(user.id);
+    } else {
+        setActiveTabInternal('account');
+        setBusinessProfilesData([]);
+        setUserPosts([]);
+    }
+  }, [user, fetchUserPosts, fetchBusinessProfiles]);
+
+
   const handleSaveBusinessProfile = useCallback(async (profileData: UserBusinessProfile) => {
+    if (!user) {
+        toast({ title: "Not Logged In", description: "You must be logged in to save a profile.", variant: "destructive" });
+        return;
+    }
     const isNew = !profileData.id || profileData.id.startsWith('bp-local-');
     const url = isNew ? '/api/business-profiles' : `/api/business-profiles/${profileData.id}`;
     const method = isNew ? 'POST' : 'PUT';
+
+    const body = isNew ? { ...profileData, userId: user.id } : profileData;
 
     setIsLoadingBusinessProfiles(true);
     try {
       const response = await fetch(url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(profileData),
+        body: JSON.stringify(body),
       });
 
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || `Failed to ${isNew ? 'create' : 'update'} profile.`);
       
       toast({ title: isNew ? "Profile Created" : "Profile Updated", description: `"${result.name || profileData.name}" has been saved successfully.` });
-      await fetchBusinessProfiles();
+      await fetchBusinessProfiles(user.id);
     } catch (error) {
        console.error("Error saving business profile:", error);
        toast({ title: "Save Failed", description: error instanceof Error ? error.message : "An unknown error occurred.", variant: "destructive" });
     } finally {
         setIsLoadingBusinessProfiles(false);
     }
-  }, [toast, fetchBusinessProfiles]);
+  }, [user, toast, fetchBusinessProfiles]);
 
   const handleDeleteBusinessProfile = useCallback(async (profileId: string) => {
+    if (!user) return;
     setIsLoadingBusinessProfiles(true);
     try {
       const response = await fetch(`/api/business-profiles/${profileId}`, { method: 'DELETE' });
       if (!response.ok) throw new Error((await response.json()).error || "Failed to delete profile.");
       toast({ title: "Profile Deleted", description: "The business profile has been deleted.", variant: "destructive" });
-      await fetchBusinessProfiles();
+      await fetchBusinessProfiles(user.id);
     } catch (error) {
       console.error("Error deleting business profile:", error);
       toast({ title: "Deletion Failed", description: error instanceof Error ? error.message : "An unknown error occurred.", variant: "destructive" });
     } finally {
         setIsLoadingBusinessProfiles(false);
     }
-  }, [toast, fetchBusinessProfiles]);
+  }, [user, toast, fetchBusinessProfiles]);
 
   const handleToggleBusinessProfileActive = useCallback(async (profileId: string, newStatus: boolean) => {
+    if (!user) return;
     try {
       const response = await fetch(`/api/business-profiles/${profileId}`, {
         method: 'PUT',
@@ -241,13 +249,13 @@ export default function AppRoot() {
       });
       if (!response.ok) throw new Error((await response.json()).error || "Failed to update profile status.");
       toast({ title: "Status Updated", description: `Profile is now ${newStatus ? 'active' : 'inactive'}.` });
-      await fetchBusinessProfiles();
+      await fetchBusinessProfiles(user.id);
     } catch (error) {
       console.error("Error toggling profile status:", error);
       toast({ title: "Update Failed", description: error instanceof Error ? error.message : "Could not update status.", variant: "destructive" });
-      await fetchBusinessProfiles();
+      await fetchBusinessProfiles(user.id);
     }
-  }, [toast, fetchBusinessProfiles]);
+  }, [user, toast, fetchBusinessProfiles]);
 
   const handleLogout = useCallback(async (showToast = true) => {
     try {
@@ -291,9 +299,9 @@ export default function AppRoot() {
         setSelectedPostForDetail(null);
         setBookingTargetProfile(null);
     }
-    if (tab === 'business-profiles' && isLoggedIn) fetchBusinessProfiles();
+    if (tab === 'business-profiles' && user) fetchBusinessProfiles(user.id);
     if (tab === 'home') setSelectedPostForDetail(null);
-  }, [fetchBusinessProfiles, isLoggedIn]);
+  }, [user, fetchBusinessProfiles]);
 
   const handlePostSubmit = useCallback(async (content: string, media?: MediaAttachment) => {
     if (!user) {

@@ -245,11 +245,50 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
             {!isLoadingSearchResults && displayedSearchResults.length > 0 && (
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-foreground font-headline mb-0 flex items-center"><MagnifyingGlassIcon className="mr-2 h-5 w-5 text-primary"/>Matching Profiles & Businesses:</h3>
-                {displayedSearchResults.map((item) => (
-                  item.type === 'business'
-                    ? <BusinessProfileCard key={item.data.id} business={item.data} onPress={() => handleCardPress(item)} onAddToCartClick={(productId) => onAddToCart(item.data.id, productId)} />
-                    : <IndividualProfessionalCard key={item.data.id} profile={item.data} onPress={() => handleCardPress(item)} />
-                ))}
+                {displayedSearchResults.map((item) => {
+                  if (item.type === 'business') {
+                    // Adapt UserBusinessProfile to BusinessProfileCardData
+                    const businessCardData = {
+                      id: item.data.id,
+                      name: item.data.name,
+                      logoUrl: item.data.logo,
+                      logoAiHint: item.data.logoAiHint,
+                      briefInfo: item.data.location,
+                      tagline: item.data.bio,
+                      averageRating: item.data.averageRating,
+                      totalReviews: item.data.totalReviews,
+                      products: item.data.products,
+                      phone: item.data.phone,
+                    };
+                    return (
+                      <BusinessProfileCard 
+                        key={item.data.id} 
+                        business={businessCardData}
+                        onPress={() => handleCardPress(item)}
+                        onAddToCartClick={(productId) => onAddToCart(item.data.id, productId)}
+                      />
+                    );
+                  } else if (item.type === 'individual') {
+                     // Adapt OverallProfessionalProfileData to IndividualProfessionalCardData
+                     const individualCardData = {
+                      id: item.data.id,
+                      name: item.data.name || 'N/A',
+                      avatarUrl: item.data.avatarUrl,
+                      avatarAiHint: item.data.avatarAiHint,
+                      professionalTitle: item.data.professionalTitle,
+                      shortBio: item.data.professionalBio,
+                      // You might need to add logic here to derive rating, reviews from the full profile
+                    };
+                    return (
+                      <IndividualProfessionalCard 
+                        key={item.data.id} 
+                        profile={individualCardData} 
+                        onPress={() => handleCardPress(item)} 
+                      />
+                    );
+                  }
+                  return null;
+                })}
               </div>
             )}
 
