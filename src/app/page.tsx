@@ -9,6 +9,7 @@ import RegistrationScreen from '@/components/screens/RegistrationScreen';
 import HomeScreen from '@/components/home/HomeScreen';
 import FeedsScreen from '@/components/screens/FeedsScreen';
 import ServicesScreen from '@/components/screens/services/ServicesScreen';
+import RecommendedScreen from '@/components/screens/RecommendedScreen';
 import AccountScreen from '@/components/screens/AccountScreen';
 import DigitalIdCardScreen from '@/components/screens/DigitalIdCardScreen';
 import ProfessionalProfileScreen from '@/components/screens/ProfessionalProfileScreen';
@@ -36,11 +37,12 @@ import ActiveActivityView from '@/components/activity/ActiveActivityView';
 import type {
     TabName, UserBusinessProfile, BusinessJob,
     ProfilePost, MediaAttachment, UserMoment, Comment,
-    ServiceBookingRequest, ActiveBooking, ChatMessage, UserVehicle, ActivityDetails
+    ServiceBookingRequest, ActiveBooking, ChatMessage, UserVehicle, ActivityDetails, FeedItem
 } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from 'date-fns';
 import { useAuth } from '@/context/AuthContext';
+import { individualProfiles } from '@/lib/dummy-data/individualProfiles';
 
 
 const newBusinessProfileTemplate: Omit<UserBusinessProfile, 'id'> = {
@@ -130,6 +132,9 @@ export default function AppRoot() {
   const [activeActivityDetails, setActiveActivityDetails] = useState<ActivityDetails>(null);
   const [hasNewRequest, setHasNewRequest] = useState(false);
   const [onlineVehicle, setOnlineVehicle] = useState<UserVehicle | null>(null);
+
+  const [showMomentViewer, setShowMomentViewer] = useState(false);
+  const [viewingMomentOwner, setViewingMomentOwner] = useState<ViewingMomentOwnerDetails | null>(null);
 
   const isLoggedIn = !!user;
 
@@ -458,8 +463,9 @@ export default function AppRoot() {
     switch (activeTabInternal) {
       case 'home': return <HomeScreen setActiveTab={handleTabSelection} onSelectBusinessProfile={(id) => { setSelectedBusinessProfileId(String(id)); handleTabSelection('business-detail'); }} onSelectIndividualProfile={(id) => { setSelectedIndividualProfileId(id); handleTabSelection('individual-profile'); }} onAddToCart={() => toast({ title: "Feature Coming Soon", description: "Shopping cart functionality is under development." })} />;
       case 'feeds': return <FeedsScreen onViewUserProfile={(id) => { setSelectedIndividualProfileId(id); handleTabSelection('individual-profile'); }} onViewPostDetail={(post) => { setSelectedPostForDetail(post); handleTabSelection('detailed-post'); }} />;
+      case 'recommended': return <RecommendedScreen onViewPostDetail={(post: FeedItem) => { setSelectedPostForDetail(post as ProfilePost); handleTabSelection('detailed-post'); }} onViewUserProfile={(id) => { setSelectedIndividualProfileId(id); handleTabSelection('individual-profile'); }} onViewUserMoments={(profileId, userName, userAvatarUrl, userAvatarAiHint) => { setViewingMomentOwner({ profileId: profileId || '', name: userName || '', avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint }); setShowMomentViewer(true); }} />;
       case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRequestRide} />;
-      case 'account': return <AccountScreen userData={user} setActiveTab={handleTabSelection} userPosts={userPosts} onAddMomentClick={() => {}} onViewUserMomentsClick={() => {}} onViewPostDetail={(post) => { setSelectedPostForDetail(post); handleTabSelection('detailed-post'); }} onCreatePost={() => handleTabSelection('create-post')} />;
+      case 'account': return <AccountScreen userData={user} setActiveTab={handleTabSelection} userPosts={userPosts} onViewPostDetail={(post) => { setSelectedPostForDetail(post); handleTabSelection('detailed-post'); }} onCreatePost={() => handleTabSelection('create-post')} />;
       case 'create-post': return <CreatePostScreen onPost={handlePostSubmit} onCancel={() => handleTabSelection(userPosts.length > 0 ? 'account' : 'feeds')} />;
       case 'detailed-post': return selectedPostForDetail ? <DetailedPostScreen post={selectedPostForDetail} onPostComment={(commentText) => handlePostCommentOnDetail(selectedPostForDetail.id, commentText)} onBack={() => handleTabSelection((selectedPostForDetail as ProfilePost).userId === user?.id ? 'account' : 'feeds')} /> : <p>Loading post...</p>;
       case 'digital-id-card': return <DigitalIdCardScreen userData={user} setActiveTab={handleTabSelection} />;
@@ -478,7 +484,7 @@ export default function AppRoot() {
       case 'service-booking': return <p>Service booking form would appear here.</p>;
       default: return <HomeScreen setActiveTab={handleTabSelection} onSelectBusinessProfile={(id) => { setSelectedBusinessProfileId(String(id)); handleTabSelection('business-detail'); }} onSelectIndividualProfile={(id) => { setSelectedIndividualProfileId(id); handleTabSelection('individual-profile'); }} onAddToCart={() => toast({ title: "Feature Coming Soon" })} />;
     }
-  }, [isLoggedIn, activeTabInternal, user, authLoading, showSplashScreen, businessProfilesData, isLoadingBusinessProfiles, userPosts, authScreen, handleTabSelection, handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive, handlePostSubmit, handlePostCommentOnDetail, selectedPostForDetail, selectedBusinessProfileId, businessProfileToManageId, selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, onlineVehicle, handleGoOnlineWithVehicle, handleGoOffline]);
+  }, [isLoggedIn, activeTabInternal, user, authLoading, showSplashScreen, businessProfilesData, isLoadingBusinessProfiles, userPosts, authScreen, handleTabSelection, handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive, handlePostSubmit, handlePostCommentOnDetail, selectedPostForDetail, selectedBusinessProfileId, businessProfileToManageId, selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, onlineVehicle, handleGoOnlineWithVehicle, handleGoOffline, handleRequestRide, showMomentViewer, setShowMomentViewer, setViewingMomentOwner]);
 
   if (authLoading && showSplashScreen) return <SplashScreen onDismiss={() => setShowSplashScreen(false)} />;
 
@@ -518,8 +524,16 @@ export default function AppRoot() {
           onGoOffline={handleGoOffline}
         />
       )}
+      
+      <MomentViewerScreen
+          isOpen={showMomentViewer}
+          onClose={() => { setShowMomentViewer(false); setViewingMomentOwner(null); }}
+          moments={viewingMomentOwner?.profileId ? (individualProfiles.find(p => p.id === viewingMomentOwner.profileId)?.moments || []) : user?.moments || []}
+          ownerName={viewingMomentOwner?.name}
+          ownerAvatarUrl={viewingMomentOwner?.avatarUrl}
+          ownerAvatarAiHint={viewingMomentOwner?.avatarAiHint}
+          onViewOwnerProfile={viewingMomentOwner?.profileId ? () => { setSelectedIndividualProfileId(viewingMomentOwner.profileId); setShowMomentViewer(false); handleTabSelection('individual-profile'); } : undefined}
+      />
     </div>
   );
 }
-
-    
