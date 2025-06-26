@@ -15,6 +15,7 @@ import { UserCircleIcon, BriefcaseIcon, LinkIcon as LinkIconOutline, PlusCircleI
 import { useToast } from "@/hooks/use-toast";
 import type { TabName, UserDataForSideMenu, OverallProfessionalProfileData, WorkExperienceEntry, EducationEntry, LicenseCertificationEntry } from '@/types';
 import { cn } from '@/lib/utils';
+import ImageUpload from '@/components/ui/ImageUpload';
 
 
 const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ setActiveTab, userData }) => {
@@ -60,7 +61,6 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
       const response = await fetch(`/api/professional-profile/${userId}`);
       if (!response.ok) {
         if (response.status === 404) {
-            // Profile doesn't exist, create a new blank one
             const newProfile: OverallProfessionalProfileData = {
                 id: userId,
                 userId: userId,
@@ -303,7 +303,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
         <div className="p-4 text-center">
             <p className="text-destructive mb-4">{error || "Profile data unavailable."}</p>
             <Button 
-                onClick={() => fetchProfileData(userData?.id || 'dummy-user-id-123')} 
+                onClick={() => fetchProfileData(userData?.id || '')} 
                 variant="outline"
                 disabled={!userData?.id}
             >
@@ -317,43 +317,19 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
     <ScrollArea className="h-full bg-muted/20">
       <div className="max-w-5xl mx-auto">
         <Card className="mb-6 shadow-none border-0 rounded-none sm:rounded-b-lg overflow-hidden">
-          <div className="relative h-48 sm:h-60 bg-muted group">
-            {editedData.coverPhotoUrl ? (
-              <Image src={editedData.coverPhotoUrl} alt="Cover photo" layout="fill" objectFit="cover" data-ai-hint={editedData.coverPhotoAiHint || "professional background"} />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-primary/10 to-secondary/10">
-                <CameraIcon className="h-16 w-16 text-muted-foreground/50" />
-              </div>
-            )}
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="absolute top-3 right-3 bg-background/70 hover:bg-background text-xs z-10 h-8 w-8"
-              onClick={() => toast({ title: "Edit Cover Photo", description: "Image upload functionality will be available soon."})}
-              aria-label="Edit cover photo"
-            >
-              <PencilSquareIcon className="h-4 w-4" />
-            </Button>
-          </div>
+           <ImageUpload
+              label="Cover Photo"
+              initialImageUrl={editedData.coverPhotoUrl}
+              onUploadComplete={(url) => handleInputChange('coverPhotoUrl', url)}
+            />
           <CardContent className="p-4 sm:p-6 relative">
             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-16 sm:-mt-20">
               <div className="relative h-28 w-28 sm:h-36 sm:w-36 rounded-full border-4 border-background bg-card shadow-lg flex-shrink-0 z-10 group">
-                {editedData.avatarUrl ? (
-                  <Image src={editedData.avatarUrl} alt={editedData.name || userData?.name || 'User Avatar'} layout="fill" objectFit="cover" className="rounded-full" data-ai-hint={editedData.avatarAiHint || "professional person"}/>
-                ) : (
-                  <div className="w-full h-full rounded-full bg-muted flex items-center justify-center">
-                    <UserCircleIcon className="h-16 w-16 text-muted-foreground" />
-                  </div>
-                )}
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="absolute bottom-1 right-1 h-8 w-8 rounded-full bg-background/80 hover:bg-background text-xs z-20"
-                  onClick={() => toast({ title: "Edit Avatar", description: "Image upload functionality will be available soon."})}
-                  aria-label="Edit avatar"
-                >
-                  <PencilSquareIcon className="h-4 w-4" />
-                </Button>
+                <ImageUpload
+                    label="Avatar"
+                    initialImageUrl={editedData.avatarUrl}
+                    onUploadComplete={(url) => handleInputChange('avatarUrl', url)}
+                />
               </div>
               <div className="flex-grow mt-4 sm:mt-0 text-center sm:text-left">
                 <Input 

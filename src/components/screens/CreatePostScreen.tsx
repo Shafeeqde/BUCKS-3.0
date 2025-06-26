@@ -13,74 +13,18 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { ArrowLeftIcon, PaperAirplaneIcon, PhotoIcon, VideoCameraIcon, DocumentPlusIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { useToast } from "@/hooks/use-toast";
 import type { MediaAttachment } from '@/types';
+import ImageUpload from '@/components/ui/ImageUpload';
 
 interface CreatePostScreenProps {
   onPost: (content: string, media?: MediaAttachment) => void;
   onCancel: () => void;
 }
 
-type MediaDialogType = 'image' | 'video' | 'document' | null;
-
 const CreatePostScreen: React.FC<CreatePostScreenProps> = ({ onPost, onCancel }) => {
   const { toast } = useToast();
   const [postContent, setPostContent] = useState('');
   const [isPosting, setIsPosting] = useState(false);
   const [attachedMedia, setAttachedMedia] = useState<MediaAttachment | null>(null);
-
-  const [showMediaDialog, setShowMediaDialog] = useState(false);
-  const [currentDialogType, setCurrentDialogType] = useState<MediaDialogType>(null);
-  const [mediaUrl, setMediaUrl] = useState('');
-  const [mediaAiHint, setMediaAiHint] = useState('');
-  const [mediaThumbnailUrl, setMediaThumbnailUrl] = useState('');
-  const [mediaFileName, setMediaFileName] = useState('');
-
-
-  const handleOpenMediaDialog = (type: MediaDialogType) => {
-    setCurrentDialogType(type);
-    setMediaUrl('');
-    setMediaAiHint('');
-    setMediaThumbnailUrl('');
-    setMediaFileName('');
-    setShowMediaDialog(true);
-  };
-
-  const handleAttachMedia = () => {
-    if (!currentDialogType) return;
-
-    let newMedia: MediaAttachment | null = null;
-    switch (currentDialogType) {
-      case 'image':
-        if (!mediaUrl) {
-          toast({ title: "Image URL Required", variant: "destructive" });
-          return;
-        }
-        newMedia = { type: 'image', url: mediaUrl, aiHint: mediaAiHint || undefined };
-        break;
-      case 'video':
-        if (!mediaUrl) {
-          toast({ title: "Video URL Required", variant: "destructive" });
-          return;
-        }
-        newMedia = { type: 'video', url: mediaUrl, thumbnailUrl: mediaThumbnailUrl || undefined };
-        break;
-      case 'document':
-         if (!mediaUrl) {
-          toast({ title: "Document URL/Link Required", variant: "destructive" });
-          return;
-        }
-        newMedia = { type: 'document', url: mediaUrl, fileName: mediaFileName || 'Attached Document' };
-        break;
-    }
-
-    if (newMedia) {
-      setAttachedMedia(newMedia);
-    }
-    setShowMediaDialog(false);
-  };
-  
-  const removeAttachedMedia = () => {
-    setAttachedMedia(null);
-  };
 
   const handlePostSubmit = async () => {
     if (!postContent.trim() && !attachedMedia) {
@@ -93,79 +37,23 @@ const CreatePostScreen: React.FC<CreatePostScreenProps> = ({ onPost, onCancel })
     }
 
     setIsPosting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     onPost(postContent, attachedMedia || undefined); 
     
     setIsPosting(false);
     setPostContent('');
     setAttachedMedia(null);
-    // Navigation back to account screen is handled by the onPost callback in page.tsx
   };
-
-  const renderMediaDialogContent = () => {
-    switch (currentDialogType) {
-      case 'image':
-        return (
-          <>
-            <DialogHeader>
-              <DialogTitle>Add Image</DialogTitle>
-              <DialogDescription>Enter the URL for your image and an optional AI hint.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-1">
-                <Label htmlFor="imageUrl">Image URL</Label>
-                <Input id="imageUrl" value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} placeholder="https://example.com/image.png" />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="imageAiHint">AI Hint (for image search)</Label>
-                <Input id="imageAiHint" value={mediaAiHint} onChange={(e) => setMediaAiHint(e.target.value)} placeholder="e.g., 'sunset over mountains'" />
-              </div>
-            </div>
-          </>
-        );
-      case 'video':
-        return (
-          <>
-            <DialogHeader>
-              <DialogTitle>Add Video</DialogTitle>
-              <DialogDescription>Enter the URL for your video and an optional thumbnail URL.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-1">
-                <Label htmlFor="videoUrl">Video URL</Label>
-                <Input id="videoUrl" value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} placeholder="https://youtube.com/watch?v=..." />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="videoThumbnailUrl">Thumbnail URL (Optional)</Label>
-                <Input id="videoThumbnailUrl" value={mediaThumbnailUrl} onChange={(e) => setMediaThumbnailUrl(e.target.value)} placeholder="https://example.com/thumbnail.png" />
-              </div>
-            </div>
-          </>
-        );
-      case 'document':
-        return (
-          <>
-            <DialogHeader>
-              <DialogTitle>Add Document</DialogTitle>
-              <DialogDescription>Enter a URL/link to your document and an optional file name.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-               <div className="space-y-1">
-                <Label htmlFor="docUrl">Document URL/Link</Label>
-                <Input id="docUrl" value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} placeholder="https://example.com/document.pdf" />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="docFileName">File Name (Optional)</Label>
-                <Input id="docFileName" value={mediaFileName} onChange={(e) => setMediaFileName(e.target.value)} placeholder="e.g., 'Project Proposal.pdf'" />
-              </div>
-            </div>
-          </>
-        );
-      default:
-        return null;
+  
+  const handleMediaUploadComplete = (url: string) => {
+    if(url) {
+      setAttachedMedia({ type: 'image', url });
+    } else {
+      setAttachedMedia(null);
     }
   };
+
 
   return (
     <div className="flex flex-col h-full p-4 bg-muted/30">
@@ -193,48 +81,15 @@ const CreatePostScreen: React.FC<CreatePostScreenProps> = ({ onPost, onCancel })
               disabled={isPosting}
             />
           </div>
-          {attachedMedia && (
-            <div className="mt-3 p-3 border rounded-md bg-muted/50 relative">
-              <p className="text-sm font-medium text-foreground mb-2">Attached Media:</p>
-              {attachedMedia.type === 'image' && (
-                <Image src={attachedMedia.url} alt={attachedMedia.aiHint || 'Attached image'} width={100} height={100} className="rounded-md border object-cover" data-ai-hint={attachedMedia.aiHint || "post image"}/>
-              )}
-              {attachedMedia.type === 'video' && (
-                <div className="w-24 h-24 bg-black rounded-md flex items-center justify-center relative">
-                  {attachedMedia.thumbnailUrl ? (
-                    <Image src={attachedMedia.thumbnailUrl} alt="Video thumbnail" fill objectFit="cover" className="rounded-md" data-ai-hint="video thumbnail"/>
-                  ) : (
-                    <VideoCameraIcon className="h-10 w-10 text-white" />
-                  )}
-                   <VideoCameraIcon className="absolute h-6 w-6 text-white opacity-80" />
-                </div>
-              )}
-              {attachedMedia.type === 'document' && (
-                <div className="flex items-center space-x-2 p-2 bg-background rounded-md border">
-                  <DocumentPlusIcon className="h-8 w-8 text-primary" />
-                  <span className="text-sm text-foreground truncate">{attachedMedia.fileName || attachedMedia.url}</span>
-                </div>
-              )}
-              <Button variant="ghost" size="icon" onClick={removeAttachedMedia} className="absolute top-1 right-1 h-6 w-6 text-destructive hover:bg-destructive/10" aria-label="Remove media">
-                <XCircleIcon className="h-5 w-5"/>
-              </Button>
-            </div>
-          )}
+          
+          <ImageUpload
+            label="Attach an Image"
+            onUploadComplete={handleMediaUploadComplete}
+            initialImageUrl={attachedMedia?.type === 'image' ? attachedMedia.url : null}
+          />
+         
         </CardContent>
-        <CardFooter className="border-t pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" disabled={isPosting || !!attachedMedia}>
-                <PhotoIcon className="mr-2 h-4 w-4" /> Add Media
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={() => handleOpenMediaDialog('image')}><PhotoIcon className="mr-2 h-4 w-4"/>Add Image</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleOpenMediaDialog('video')}><VideoCameraIcon className="mr-2 h-4 w-4"/>Add Video</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleOpenMediaDialog('document')}><DocumentPlusIcon className="mr-2 h-4 w-4"/>Add Document</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
+        <CardFooter className="border-t pt-4 flex flex-col sm:flex-row justify-end items-center gap-3">
           <Button 
             onClick={handlePostSubmit} 
             disabled={isPosting || (!postContent.trim() && !attachedMedia)}
@@ -252,20 +107,6 @@ const CreatePostScreen: React.FC<CreatePostScreenProps> = ({ onPost, onCancel })
           </Button>
         </CardFooter>
       </Card>
-
-      <Dialog open={showMediaDialog} onOpenChange={setShowMediaDialog}>
-        <DialogContent>
-          {renderMediaDialogContent()}
-          {currentDialogType && (
-            <DialogFooter>
-                <DialogClose asChild>
-                    <Button type="button" variant="outline">Cancel</Button>
-                </DialogClose>
-                <Button type="button" onClick={handleAttachMedia}>Attach Media</Button>
-            </DialogFooter>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

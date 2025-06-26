@@ -15,9 +15,10 @@ import type { UserBusinessProfile, BusinessProduct, BusinessService } from '@/ty
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import ImageUpload from '@/components/ui/ImageUpload';
 
 interface BusinessProfileManagementScreenProps {
-  initialProfileData: Partial<UserBusinessProfile> | null; // Can be partial for new, or full for edit
+  initialProfileData: Partial<UserBusinessProfile> | null;
   onSave: (profileData: UserBusinessProfile) => void;
   onBack: () => void;
 }
@@ -25,7 +26,7 @@ interface BusinessProfileManagementScreenProps {
 const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenProps> = ({ initialProfileData, onSave, onBack }) => {
   const { toast } = useToast();
   const [editedData, setEditedData] = useState<Partial<UserBusinessProfile>>({});
-  const [originalSnapshot, setOriginalSnapshot] = useState<string>(''); // For change detection
+  const [originalSnapshot, setOriginalSnapshot] = useState<string>('');
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -41,8 +42,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
 
   useEffect(() => {
     if (initialProfileData) {
-      const dataToEdit = JSON.parse(JSON.stringify(initialProfileData)); // Deep copy
-       // Ensure arrays are initialized if not present in partial data (for new profiles)
+      const dataToEdit = JSON.parse(JSON.stringify(initialProfileData));
       dataToEdit.products = dataToEdit.products || [];
       dataToEdit.services = dataToEdit.services || [];
       dataToEdit.jobs = dataToEdit.jobs || [];
@@ -68,9 +68,8 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
     }
     setIsSaving(true);
 
-    // Ensure all arrays are present even if empty, and other defaults
     const profileToSave: UserBusinessProfile = {
-      id: editedData.id || `bp-local-${Date.now()}`, // Assign new ID if it's a new profile
+      id: editedData.id || `bp-local-${Date.now()}`,
       name: editedData.name!,
       bio: editedData.bio!,
       logo: editedData.logo || '',
@@ -87,7 +86,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
       feed: (editedData.feed || []).map(f => ({ ...f, id: f.id || `feed-local-${Date.now()}` })),
       products: (editedData.products || []).map(p => ({ ...p, id: p.id || `prod-local-${Date.now()}` })),
       services: (editedData.services || []).map(s => ({ ...s, id: s.id || `serv-local-${Date.now()}` })),
-      jobs: (editedData.jobs || []).map(j => ({ ...j, id: j.id || `job-local-${Date.now()}`, businessId: editedData.id || `bp-local-${Date.now()}`, businessName: editedData.name! })), // Add businessId and name
+      jobs: (editedData.jobs || []).map(j => ({ ...j, id: j.id || `job-local-${Date.now()}`, businessId: editedData.id || `bp-local-${Date.now()}`, businessName: editedData.name! })),
       reviews: (editedData.reviews || []).map(r => ({ ...r, id: r.id || `rev-local-${Date.now()}`})),
       averageRating: editedData.averageRating || 0,
       totalReviews: editedData.totalReviews || 0,
@@ -96,8 +95,7 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
       documentUrl: editedData.documentUrl || '',
     };
 
-    onSave(profileToSave); // Call the save handler from page.tsx
-    // Toasting is handled in page.tsx after state update
+    onSave(profileToSave);
     setIsSaving(false);
     onBack();
   };
@@ -281,10 +279,16 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
             <Card>
               <CardHeader><CardTitle className="flex items-center"><PhotoIcon className="mr-2 h-5 w-5 text-primary"/>Visuals</CardTitle></CardHeader>
               <CardContent className="space-y-4">
-                <div><Label htmlFor="logoUrl">Logo URL</Label><Input id="logoUrl" value={editedData.logo || ''} onChange={(e) => handleInputChange('logo', e.target.value)} placeholder="https://link.to/logo.png"/></div>
-                <div><Label htmlFor="logoAiHint">Logo AI Hint</Label><Input id="logoAiHint" value={editedData.logoAiHint || ''} onChange={(e) => handleInputChange('logoAiHint', e.target.value)} placeholder="e.g., modern cafe logo"/></div>
-                <div><Label htmlFor="coverPhotoUrl">Cover Photo URL</Label><Input id="coverPhotoUrl" value={editedData.coverPhoto || ''} onChange={(e) => handleInputChange('coverPhoto', e.target.value)} placeholder="https://link.to/cover.jpg"/></div>
-                <div><Label htmlFor="coverPhotoAiHint">Cover Photo AI Hint</Label><Input id="coverPhotoAiHint" value={editedData.coverPhotoAiHint || ''} onChange={(e) => handleInputChange('coverPhotoAiHint', e.target.value)} placeholder="e.g., bustling cafe interior"/></div>
+                 <ImageUpload
+                  label="Logo"
+                  initialImageUrl={editedData.logo}
+                  onUploadComplete={(url) => handleInputChange('logo', url)}
+                />
+                 <ImageUpload
+                  label="Cover Photo"
+                  initialImageUrl={editedData.coverPhoto}
+                  onUploadComplete={(url) => handleInputChange('coverPhoto', url)}
+                />
               </CardContent>
             </Card>
 
@@ -425,14 +429,11 @@ const BusinessProfileManagementScreen: React.FC<BusinessProfileManagementScreenP
                             Calculated Discount: {Math.round(((parseFloat(currentProduct.price) - parseFloat(currentProduct.discountPrice)) / parseFloat(currentProduct.price)) * 100)}%
                         </div>
                      )}
-                    <div className="space-y-1.5">
-                        <Label htmlFor="prod-imageUrl">Image URL</Label>
-                        <Input id="prod-imageUrl" name="imageUrl" value={currentProduct?.imageUrl || ''} onChange={handleProductDialogChange} placeholder="https://example.com/image.png"/>
-                    </div>
-                    <div className="space-y-1.5">
-                        <Label htmlFor="prod-imageAiHint">Image AI Hint</Label>
-                        <Input id="prod-imageAiHint" name="imageAiHint" value={currentProduct?.imageAiHint || ''} onChange={handleProductDialogChange} placeholder="e.g., spicy chicken biryani"/>
-                    </div>
+                     <ImageUpload
+                        label="Product Image"
+                        initialImageUrl={currentProduct?.imageUrl}
+                        onUploadComplete={(url) => setCurrentProduct(prev => prev ? { ...prev, imageUrl: url } : null)}
+                     />
                 </div>
             </ScrollArea>
             <DialogFooter>
