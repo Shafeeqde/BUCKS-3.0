@@ -64,9 +64,7 @@ import type {
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from 'date-fns';
 import { useCart } from '@/context/CartContext';
-import { signOut } from 'firebase/auth';
 import { useAuth } from '@/context/AuthContext';
-import { auth } from '@/lib/firebase/client';
 
 
 const newBusinessProfileTemplate: Omit<UserBusinessProfile, 'id'> = {
@@ -125,7 +123,7 @@ const genericOtherUserMoments: UserMoment[] = [
 
 export default function AppRoot() {
   const { toast } = useToast();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const { addToCart: globalAddToCart } = useCart(); 
   const [showSplashScreen, setShowSplashScreen] = useState(true);
 
@@ -188,8 +186,19 @@ export default function AppRoot() {
     try {
         const response = await fetch(`/api/posts?userId=${userId}`);
         if (!response.ok) {
-            console.error("Failed to fetch user posts");
-            toast({ title: "Error", description: "Could not load your posts.", variant: "destructive"});
+            const errorData = await response.json().catch(() => ({ error: 'Could not parse error response.' }));
+            console.error("Failed to fetch user posts:", errorData.error);
+            // Check for the specific server config error message
+            if (errorData.error && typeof errorData.error === 'string' && errorData.error.includes('Database not available')) {
+                 toast({ 
+                    title: "Action Required: Backend Not Connected", 
+                    description: "Posts could not be loaded because the server can't connect to the database. Please check your FIREBASE_PRIVATE_KEY format in the .env file.",
+                    variant: "destructive",
+                    duration: 10000 
+                });
+            } else {
+                toast({ title: "Error", description: `Could not load your posts. (${errorData.error || 'Unknown API error'})`, variant: "destructive"});
+            }
             setUserPosts([]);
         } else {
             const posts: ProfilePost[] = await response.json();
@@ -204,13 +213,12 @@ export default function AppRoot() {
   }, [toast]);
 
   useEffect(() => {
-    // This effect now reacts to the user state from the context
     if (user) {
         setActiveTabInternal('home');
         fetchUserPosts(user.id);
         fetchBusinessProfiles();
     } else {
-        setActiveTabInternal('account'); // Show login screen
+        setActiveTabInternal('account');
         setBusinessProfilesData([]);
         setUserPosts([]);
     }
@@ -235,7 +243,7 @@ export default function AppRoot() {
         toast({
           title: "Using Sample Data (Action Required)",
           description: "Could not connect to the database. This is likely due to an issue with your FIREBASE_PRIVATE_KEY format in the .env file. Please check the server logs for details.",
-          variant: "default",
+          variant: "destructive",
           duration: 15000,
         });
         
@@ -391,7 +399,7 @@ export default function AppRoot() {
 
   const handleLogout = useCallback(async (showToast = true) => {
     try {
-      await signOut(auth);
+      await logout();
       if (showToast) {
         toast({ title: "Logged Out", description: "You have been successfully logged out." });
       }
@@ -431,7 +439,7 @@ export default function AppRoot() {
       console.error("Logout Error", error);
       toast({ title: "Logout Failed", description: "Could not log you out. Please try again.", variant: "destructive" });
     }
-  }, [toast]);
+  }, [logout, toast]);
 
   const handleTabSelection = useCallback((tab: TabName) => {
     setActiveTabInternal(tab);
