@@ -1,0 +1,17 @@
+--- a/node_modules/ajv/package.json
++++ b/node_modules/ajv/package.json
+@@ -8,7 +8,13 @@
+   "main": "dist/ajv.js",
+   "types": "dist/ajv.d.ts",
+   "exports": {
+-    ".": "./dist/ajv.js"
++    ".": "./dist/ajv.js",
++    "./dist/core": "./dist/core.js",
++    "./dist/compile": "./dist/compile/index.js",
++    "./dist/compile/codegen": "./dist/compile/codegen.js",
++    "./dist/compile/util": "./dist/compile/util.js",
++    "./dist/compile/names": "./dist/compile/names.js",
++    "./dist/vocabularies/code": "./dist/vocabularies/code.js"
+   },
+   "files": [
+     "dist"

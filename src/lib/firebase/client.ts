@@ -1,4 +1,3 @@
-
 'use client';
 
 import { initializeApp, getApps, getApp, type FirebaseOptions, type FirebaseApp } from 'firebase/app';
@@ -13,33 +12,23 @@ const firebaseConfig: FirebaseOptions = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// A function to initialize the Firebase app, but only on the client side.
-function initializeClientApp() {
-  // If we're on the server, don't initialize, as window is not available.
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  // If the app is already initialized, return it.
-  if (getApps().length > 0) {
-    return getApp();
-  }
-
-  // If the API key is missing, log a warning and don't initialize.
+// Initialize Firebase App
+let app: FirebaseApp;
+if (getApps().length === 0) {
   if (!firebaseConfig.apiKey) {
-    console.error("Firebase API key is missing. Please check your environment variables (NEXT_PUBLIC_FIREBASE_API_KEY).");
-    return null;
+    console.error("Firebase API key is missing. Please check your NEXT_PUBLIC_FIREBASE_API_KEY environment variable.");
+    // Assign a dummy app object to prevent crashes, auth will also be a dummy object.
+    app = {} as FirebaseApp; 
+  } else {
+    app = initializeApp(firebaseConfig);
   }
-
-  // Initialize the app.
-  return initializeApp(firebaseConfig);
+} else {
+  app = getApp();
 }
 
-// Get the app instance. This will be null on the server.
-const app = initializeClientApp();
-
-// Get the auth instance. This will be a dummy object on the server to prevent crashes on import.
-// On the client, it will be the real auth instance.
-const auth = app ? getAuth(app) : ({} as Auth);
+// Initialize and export Firebase services
+// We check if the app object is valid before trying to get Auth from it.
+// If it's a dummy object, auth will be a dummy object too.
+const auth: Auth = app.name ? getAuth(app) : {} as Auth;
 
 export { app, auth };
