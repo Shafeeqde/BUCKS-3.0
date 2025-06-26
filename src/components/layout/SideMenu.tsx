@@ -155,4 +155,3 @@ const SideMenu: React.FC<SideMenuProps> = ({
 };
 
 export default SideMenu;
-    
