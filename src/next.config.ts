@@ -3,14 +3,11 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  experimental: {
-    serverComponentsExternalPackages: ['firebase-admin'],
-  },
   typescript: {
-    ignoreBuildErrors: false, // Changed to false for stricter builds
+    ignoreBuildErrors: false, 
   },
   eslint: {
-    ignoreDuringBuilds: false, // Changed to false for stricter builds
+    ignoreDuringBuilds: false, 
   },
   images: {
     remotePatterns: [
@@ -39,6 +36,16 @@ const nextConfig: NextConfig = {
         pathname: '/v1/create-qr-code/**',
       },
     ],
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // Ensure firebase-admin is treated as an external module
+      if (!config.externals) {
+        config.externals = [];
+      }
+      config.externals.push('firebase-admin');
+    }
+    return config;
   },
 };
 

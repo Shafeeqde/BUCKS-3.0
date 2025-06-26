@@ -5,12 +5,8 @@ import type { SkillsetProfileData } from '@/types';
 
 const COLLECTION_NAME = 'skillset_profiles';
 
-interface RouteParams {
-  profileId: string;
-}
-
 // GET a specific skillset profile
-export async function GET(request: NextRequest, { params }: { params: RouteParams }) {
+export async function GET(request: NextRequest, { params }: { params: { profileId: string } }) {
     try {
         const { profileId } = params;
         if (!profileId) {
@@ -39,7 +35,7 @@ export async function GET(request: NextRequest, { params }: { params: RouteParam
 
 
 // PUT /api/skillset-profiles/[profileId] - Update a specific profile
-export async function PUT(request: NextRequest, { params }: { params: RouteParams }) {
+export async function PUT(request: NextRequest, { params }: { params: { profileId: string } }) {
   try {
     const { profileId } = params;
     if (!profileId) {
@@ -71,7 +67,7 @@ export async function PUT(request: NextRequest, { params }: { params: RouteParam
 }
 
 // DELETE /api/skillset-profiles/[profileId] - Delete a specific profile
-export async function DELETE(request: NextRequest, { params }: { params: RouteParams }) {
+export async function DELETE(request: NextRequest, { params }: { params: { profileId: string } }) {
   try {
     const { profileId } = params;
     if (!profileId) {

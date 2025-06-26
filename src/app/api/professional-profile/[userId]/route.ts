@@ -5,12 +5,8 @@ import type { OverallProfessionalProfileData } from '@/types';
 
 const PROFILES_COLLECTION = 'professional_profiles';
 
-interface RouteParams {
-  userId: string;
-}
-
 // GET /api/professional-profile/[userId] - Fetch a specific professional profile
-export async function GET(request: NextRequest, { params }: { params: RouteParams }) {
+export async function GET(request: NextRequest, { params }: { params: { userId: string } }) {
   try {
     const { userId } = params;
     if (!userId) {
@@ -43,7 +39,7 @@ export async function GET(request: NextRequest, { params }: { params: RouteParam
 }
 
 // PUT /api/professional-profile/[userId] - Create or update a specific professional profile
-export async function PUT(request: NextRequest, { params }: { params: RouteParams }) {
+export async function PUT(request: NextRequest, { params }: { params: { userId: string } }) {
   try {
     const { userId } = params;
     if (!userId) {

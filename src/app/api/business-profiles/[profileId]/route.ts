@@ -5,13 +5,8 @@ import type { UserBusinessProfile } from '@/types';
 
 const PROFILES_COLLECTION = 'business_profiles';
 
-// Define the type for the route parameters directly
-interface RouteParams {
-  profileId: string;
-}
-
 // GET /api/business-profiles/[profileId] - Fetch a specific business profile
-export async function GET(request: NextRequest, { params }: { params: RouteParams }) {
+export async function GET(request: NextRequest, { params }: { params: { profileId: string } }) {
   try {
     const { profileId } = params;
     if (!profileId) {
@@ -44,7 +39,7 @@ export async function GET(request: NextRequest, { params }: { params: RouteParam
 }
 
 // PUT /api/business-profiles/[profileId] - Update a specific business profile
-export async function PUT(request: NextRequest, { params }: { params: RouteParams }) {
+export async function PUT(request: NextRequest, { params }: { params: { profileId: string } }) {
   try {
     const { profileId } = params;
     if (!profileId) {
@@ -86,7 +81,7 @@ export async function PUT(request: NextRequest, { params }: { params: RouteParam
 }
 
 // DELETE /api/business-profiles/[profileId] - Delete a specific business profile
-export async function DELETE(request: NextRequest, { params }: { params: RouteParams }) {
+export async function DELETE(request: NextRequest, { params }: { params: { profileId: string } }) {
   try {
     const { profileId } = params;
     if (!profileId) {
