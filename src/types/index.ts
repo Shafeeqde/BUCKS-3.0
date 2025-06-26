@@ -1,4 +1,5 @@
 
+
 import type { ForwardRefExoticComponent, RefAttributes, SVGProps } from 'react'; // For Heroicons
 
 // Used by Heroicons
@@ -329,19 +330,28 @@ export type ActivityStatus =
 export interface ActivityDetails {
     type?: ActivityType;
     status?: ActivityStatus;
+    // Ride details
     pickup?: string;
     dropoff?: string;
     driverName?: string;
     riderName?: string;
-    vehicle?: string;
     fare?: string;
     distance?: string;
-    vehicleType?: string;
+    
+    // Unified vehicle info
+    vehicleId?: string;
+    vehicleType?: string; // e.g. "Car (Mini)" or "Car"
+    licensePlate?: string; // e.g. "KA 01 AB 1234"
+    vehicleInfo?: string; // Full string, e.g. "Swift - KA 01 AB 1234"
+
+    // Delivery details
     itemName?: string;
     itemDescription?: string;
     estimatedPayment?: string;
     recipientName?: string;
     recipientPhone?: string;
+
+    // Product order details
     orderId?: string;
     businessName?: string;
     productName?: string;
@@ -544,5 +554,7 @@ export interface ChatMessage {
   avatar?: string;
   avatarAiHint?: string;
 }
+
+    
 
     

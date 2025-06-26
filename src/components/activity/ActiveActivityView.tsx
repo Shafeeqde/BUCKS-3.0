@@ -92,7 +92,7 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
             <UserIcon className="h-6 w-6 text-primary mr-3 shrink-0 mt-0.5" />
             <div className="flex-1">
               <InfoRow label="Driver" value={activeActivityDetails.driverName} />
-              <InfoRow label="Vehicle" value={activeActivityDetails.vehicle} />
+              <InfoRow label="Vehicle" value={activeActivityDetails.vehicleInfo} />
             </div>
           </div>
         </DetailSection>
@@ -313,9 +313,10 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
     <>
       <DetailSection title="Driver Status">
           <InfoRow label="Current Status" value={activeActivityDetails?.status || "Online"} icon={TruckIcon}/>
-          <InfoRow label="Mode" value={activeActivityDetails?.vehicleType === 'Bike (Delivery)' ? 'Delivery Services' : 'Taxi Services'} />
+          <InfoRow label="Vehicle" value={activeActivityDetails?.vehicleType} />
+          <InfoRow label="License Plate" value={activeActivityDetails?.licensePlate} />
           <p className="text-sm text-muted-foreground mt-2">
-              You are currently online and available for {activeActivityDetails?.vehicleType === 'Bike (Delivery)' ? 'delivery' : 'ride'} requests.
+              You are currently online and available for ride requests.
           </p>
       </DetailSection>
        <div className="bg-muted h-40 flex justify-center items-center my-3 rounded-md text-muted-foreground text-xs">
@@ -437,3 +438,5 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
 };
 
 export default ActiveActivityView;
+
+    

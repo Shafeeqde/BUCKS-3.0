@@ -125,12 +125,11 @@ export default function AppRoot() {
   const [showChatDetailScreen, setShowChatDetailScreen] = useState(false);
   const [currentChatContext, setCurrentChatContext] = useState<CurrentChatContext | null>(null);
 
-  // New state for Taxi/Activity simulation
   const [currentUserRole, setCurrentUserRole] = useState<UserRole>('rider');
   const [showActiveActivityView, setShowActiveActivityView] = useState(false);
   const [activeActivityDetails, setActiveActivityDetails] = useState<ActivityDetails>(null);
   const [hasNewRequest, setHasNewRequest] = useState(false);
-
+  const [onlineVehicle, setOnlineVehicle] = useState<UserVehicle | null>(null);
 
   const isLoggedIn = !!user;
 
@@ -350,7 +349,6 @@ export default function AppRoot() {
     toast({ title: "Comment Posted", description: "Your comment has been added." });
   }, [user, toast, selectedPostForDetail]);
 
-  // --- Taxi/Activity Simulation Logic ---
   const handleRequestRide = (rideDetails: { pickup: string; dropoff: string; vehicleId: string; }) => {
     setCurrentUserRole('rider');
     setActiveActivityDetails({
@@ -362,57 +360,72 @@ export default function AppRoot() {
     setShowActiveActivityView(true);
     toast({ title: "Ride Requested", description: "Looking for drivers near you..." });
 
-    // Simulate finding a driver
     setTimeout(() => {
-        setHasNewRequest(true); // Notify potential drivers
+        setHasNewRequest(true); 
         toast({ title: "Driver Alert", description: "A new ride request is available for drivers." });
     }, 3000);
   };
 
   const handleAcceptRequest = () => {
+    if (!onlineVehicle) {
+        toast({ title: "Error", description: "Cannot accept ride without an active vehicle.", variant: "destructive" });
+        return;
+    }
     setHasNewRequest(false);
     setActiveActivityDetails({
       ...activeActivityDetails,
       type: 'ride',
       status: 'en_route_to_pickup',
-      driverName: 'Raju Kumar', // Mock driver
-      vehicle: 'KA 01 AB 1234 (Swift)',
+      driverName: user?.name || 'Your Driver',
+      vehicleInfo: `${onlineVehicle.vehicleType} - ${onlineVehicle.licensePlate}`,
+      vehicleId: onlineVehicle.id,
+      licensePlate: onlineVehicle.licensePlate,
     });
-    toast({ title: "Ride Accepted!", description: "Your driver is on the way." });
+    toast({ title: "Ride Accepted!", description: "You are on the way to the pickup." });
   };
 
   const handleDriverArrived = () => {
     setActiveActivityDetails(prev => prev ? {...prev, status: 'arrived_at_pickup'} : null);
-    toast({ title: "Driver Arrived", description: "Your driver has arrived at the pickup location." });
+    toast({ title: "Driver Arrived", description: "You have arrived at the pickup location." });
   };
   
   const handleStartRide = () => {
     setActiveActivityDetails(prev => prev ? {...prev, status: 'ride_in_progress'} : null);
-    toast({ title: "Ride Started", description: "Your ride is now in progress." });
+    toast({ title: "Ride Started", description: "The ride is now in progress." });
   };
 
   const handleEndRide = () => {
     setActiveActivityDetails(prev => prev ? {...prev, status: 'ride_completed'} : null);
-    toast({ title: "Ride Completed", description: "Thank you for riding with us!" });
-    // setTimeout(() => setShowActiveActivityView(false), 3000);
+    toast({ title: "Ride Completed", description: "Thank you for your service!" });
   };
 
   const handleCancelRide = () => {
     setActiveActivityDetails(prev => prev ? {...prev, status: 'ride_cancelled'} : null);
     toast({ title: "Ride Cancelled", variant: "destructive" });
-    // setTimeout(() => setShowActiveActivityView(false), 3000);
   };
   
-  const handleGoOnline = () => {
+  const handleGoOnlineWithVehicle = (vehicle: UserVehicle) => {
+    if (vehicle.listingMode !== 'taxi') {
+        toast({ title: "Invalid Vehicle", description: "Only vehicles listed for taxi service can go online.", variant: "destructive"});
+        return;
+    }
     setCurrentUserRole('driver');
-    setActiveActivityDetails({ type: 'driver_status', status: 'driver_online_idle' });
-    setShowActiveActivityView(true);
-    toast({ title: "You are Online", description: "You will now receive ride requests." });
+    setOnlineVehicle(vehicle);
+    setActiveActivityDetails({ 
+        type: 'driver_status', 
+        status: 'driver_online_idle',
+        vehicleId: vehicle.id,
+        vehicleType: vehicle.vehicleType,
+        licensePlate: vehicle.licensePlate,
+    });
+    toast({ title: "You are Online", description: `Ready for rides with ${vehicle.vehicleType} (${vehicle.licensePlate}).` });
   };
 
   const handleGoOffline = () => {
+    setOnlineVehicle(null);
     setActiveActivityDetails(null);
     setShowActiveActivityView(false);
+    setCurrentUserRole('rider'); // Revert to default role
     toast({ title: "You are Offline" });
   };
 
@@ -452,7 +465,7 @@ export default function AppRoot() {
       case 'digital-id-card': return <DigitalIdCardScreen userData={user} setActiveTab={handleTabSelection} />;
       case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={handleTabSelection} userData={user} />;
       case 'user-skillsets': return <UserSkillsetsScreen setActiveTab={handleTabSelection} onManageSkillsetProfile={(id) => { setSkillsetProfileToManageId(id); handleTabSelection('manage-skillset-profile'); }} />;
-      case 'vehicles': return <UserVehiclesScreen />;
+      case 'vehicles': return <UserVehiclesScreen onGoOnline={handleGoOnlineWithVehicle} onGoOffline={handleGoOffline} onlineVehicleId={onlineVehicle?.id || null} />;
       case 'business-profiles': return <UserBusinessProfilesScreen businessProfiles={businessProfilesData} onSelectProfile={(id) => { setSelectedBusinessProfileId(id); handleTabSelection('business-detail'); }} onManageProfile={(id) => { setBusinessProfileToManageId(id); handleTabSelection('manage-business-profile'); }} onDeleteProfile={handleDeleteBusinessProfile} onToggleProfileActive={handleToggleBusinessProfileActive} isLoading={isLoadingBusinessProfiles} />;
       case 'business-detail': return <UserBusinessProfileDetailScreen profile={businessProfilesData.find(p => p.id === selectedBusinessProfileId)} onBack={() => handleTabSelection('business-profiles')} />;
       case 'manage-business-profile': const profileDataToManage = businessProfileToManageId === 'new' ? { ...newBusinessProfileTemplate } : businessProfilesData.find(p => p.id === businessProfileToManageId); return profileDataToManage ? <BusinessProfileManagementScreen initialProfileData={profileDataToManage} onSave={handleSaveBusinessProfile} onBack={() => handleTabSelection('business-profiles')} /> : <p>Loading...</p>;
@@ -465,7 +478,7 @@ export default function AppRoot() {
       case 'service-booking': return <p>Service booking form would appear here.</p>;
       default: return <HomeScreen setActiveTab={handleTabSelection} onSelectBusinessProfile={(id) => { setSelectedBusinessProfileId(String(id)); handleTabSelection('business-detail'); }} onSelectIndividualProfile={(id) => { setSelectedIndividualProfileId(id); handleTabSelection('individual-profile'); }} onAddToCart={() => toast({ title: "Feature Coming Soon" })} />;
     }
-  }, [isLoggedIn, activeTabInternal, user, authLoading, showSplashScreen, businessProfilesData, isLoadingBusinessProfiles, userPosts, authScreen, handleTabSelection, handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive, handlePostSubmit, handlePostCommentOnDetail, selectedPostForDetail, selectedBusinessProfileId, businessProfileToManageId, selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId]);
+  }, [isLoggedIn, activeTabInternal, user, authLoading, showSplashScreen, businessProfilesData, isLoadingBusinessProfiles, userPosts, authScreen, handleTabSelection, handleSaveBusinessProfile, handleDeleteBusinessProfile, handleToggleBusinessProfileActive, handlePostSubmit, handlePostCommentOnDetail, selectedPostForDetail, selectedBusinessProfileId, businessProfileToManageId, selectedIndividualProfileId, selectedSkillsetProfileId, skillsetProfileToManageId, selectedJobId, onlineVehicle, handleGoOnlineWithVehicle, handleGoOffline]);
 
   if (authLoading && showSplashScreen) return <SplashScreen onDismiss={() => setShowSplashScreen(false)} />;
 
@@ -482,11 +495,11 @@ export default function AppRoot() {
         <BottomNavigation activeTab={activeTabInternal} setActiveTab={handleTabSelection} />
       )}
       
-      {isLoggedIn && currentUserRole === 'driver' && (
+      {isLoggedIn && onlineVehicle && (
         <FloatingActionButton
           onClick={openActivityView}
-          activityType={activeActivityDetails?.type === 'driver_status' ? 'taxi' : undefined}
-          tooltipText={hasNewRequest ? 'New Ride Request!' : (activeActivityDetails ? 'View Current Activity' : 'Go Online')}
+          activityType='taxi'
+          tooltipText={hasNewRequest ? 'New Ride Request!' : (activeActivityDetails ? 'View Current Activity' : 'You are Online')}
           className={hasNewRequest ? 'animate-bounce bg-green-500' : ''}
         />
       )}
@@ -508,3 +521,5 @@ export default function AppRoot() {
     </div>
   );
 }
+
+    

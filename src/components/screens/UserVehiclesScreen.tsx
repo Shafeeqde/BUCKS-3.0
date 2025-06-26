@@ -6,18 +6,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
 import { TruckIcon, PlusCircleIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useToast } from "@/hooks/use-toast";
-import type { TabName, UserVehicle, VehicleListingMode } from '@/types';
+import type { UserVehicle, VehicleListingMode } from '@/types';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 
+interface UserVehiclesScreenProps {
+    onGoOnline: (vehicle: UserVehicle) => void;
+    onGoOffline: () => void;
+    onlineVehicleId: string | null;
+}
 
-const UserVehiclesScreen: React.FC = () => {
+const UserVehiclesScreen: React.FC<UserVehiclesScreenProps> = ({ onGoOnline, onGoOffline, onlineVehicleId }) => {
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -108,32 +112,6 @@ const UserVehiclesScreen: React.FC = () => {
     }
   };
 
-  const handleToggleActive = async (vehicle: UserVehicle) => {
-    if (!user) return;
-    const newStatus = !vehicle.isActive;
-    
-    // Optimistic UI update
-    setVehicles(prevVehicles =>
-      prevVehicles.map(v => (v.id === vehicle.id ? { ...v, isActive: newStatus } : v))
-    );
-
-    try {
-      const response = await fetch(`/api/users/${user.id}/vehicles/${vehicle.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: newStatus }),
-      });
-      if (!response.ok) throw new Error('Failed to update status.');
-      toast({ title: 'Status Updated', description: `${vehicle.vehicleType} is now ${newStatus ? 'Online' : 'Offline'}.` });
-    } catch (error) {
-      // Revert optimistic update on failure
-      setVehicles(prevVehicles =>
-        prevVehicles.map(v => (v.id === vehicle.id ? { ...v, isActive: !newStatus } : v))
-      );
-      toast({ title: 'Error', description: 'Failed to update vehicle status.', variant: 'destructive' });
-    }
-  };
-
   const handleDeleteVehicle = async () => {
     if (!vehicleToDelete || !user) return;
     try {
@@ -199,27 +177,38 @@ const UserVehiclesScreen: React.FC = () => {
                 <div className="text-center py-10 min-h-[200px]"><p className="text-muted-foreground">No vehicles registered yet.</p></div>
               ) : (
                 <div className="space-y-4">
-                  {vehicles.map((vehicle) => (
-                    <Card key={vehicle.id} className={cn("transition-all", !vehicle.isActive && "bg-muted/30")}>
-                      <CardHeader className="pb-3">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                          <div>
-                            <CardTitle className="text-lg">{vehicle.vehicleType}</CardTitle>
-                            <CardDescription>License Plate: {vehicle.licensePlate}</CardDescription>
-                          </div>
-                          <div className="flex items-center space-x-3 mt-2 sm:mt-0">
-                             {vehicle.listingMode && <Badge variant="secondary">{modeLabels[vehicle.listingMode]}</Badge>}
-                            <Label htmlFor={`status-${vehicle.id}`} className="text-sm text-muted-foreground whitespace-nowrap">{vehicle.isActive ? 'Online' : 'Offline'}</Label>
-                            <Switch id={`status-${vehicle.id}`} checked={vehicle.isActive} onCheckedChange={() => handleToggleActive(vehicle)} />
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardFooter className="flex justify-end space-x-2 pt-4 border-t">
-                        <Button variant="ghost" size="sm" onClick={() => toast({ title: "Edit Clicked (Not Implemented)" })}><PencilSquareIcon className="mr-1 h-4 w-4" /> Edit</Button>
-                        <Button variant="destructive" size="sm" onClick={() => setVehicleToDelete(vehicle)}><TrashIcon className="mr-1 h-4 w-4" /> Delete</Button>
-                      </CardFooter>
-                    </Card>
-                  ))}
+                  {vehicles.map((vehicle) => {
+                    const isOnlineWithThisVehicle = vehicle.id === onlineVehicleId;
+                    return (
+                        <Card key={vehicle.id} className={cn("transition-all", isOnlineWithThisVehicle ? "border-primary ring-2 ring-primary/20" : "")}>
+                          <CardHeader className="pb-3">
+                              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                <div>
+                                    <CardTitle className="text-lg">{vehicle.vehicleType}</CardTitle>
+                                    <CardDescription>License Plate: {vehicle.licensePlate}</CardDescription>
+                                </div>
+                                <div className="flex items-center space-x-3 mt-2 sm:mt-0">
+                                    {vehicle.listingMode && <Badge variant="secondary">{modeLabels[vehicle.listingMode]}</Badge>}
+                                    {isOnlineWithThisVehicle && <Badge variant="default" className="bg-green-500 hover:bg-green-500">Online</Badge>}
+                                </div>
+                              </div>
+                          </CardHeader>
+                          <CardFooter className="flex justify-end space-x-2 pt-4 border-t">
+                            {vehicle.listingMode === 'taxi' && (
+                                isOnlineWithThisVehicle ? (
+                                    <Button variant="destructive" onClick={onGoOffline}>Go Offline</Button>
+                                ) : (
+                                    <Button variant="default" onClick={() => onGoOnline(vehicle)} disabled={!!onlineVehicleId}>
+                                        Go Online
+                                    </Button>
+                                )
+                            )}
+                            <Button variant="ghost" size="sm" onClick={() => toast({ title: "Edit Clicked (Not Implemented)" })}><PencilSquareIcon className="mr-1 h-4 w-4" /> Edit</Button>
+                            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setVehicleToDelete(vehicle)}><TrashIcon className="mr-1 h-4 w-4" /> Delete</Button>
+                          </CardFooter>
+                        </Card>
+                    );
+                  })}
                 </div>
               )}
             </div>
