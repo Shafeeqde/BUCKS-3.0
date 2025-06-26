@@ -2,12 +2,14 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    serverComponentsExternalPackages: ['firebase-admin'],
+  },
   typescript: {
-    ignoreBuildErrors: false, // Changed to false for stricter builds
+    ignoreBuildErrors: false,
   },
   eslint: {
-    ignoreDuringBuilds: false, // Changed to false for stricter builds
+    ignoreDuringBuilds: false,
   },
   images: {
     remotePatterns: [
@@ -21,18 +23,22 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'source.unsplash.com',
         port: '',
-        pathname: '/**', // This will cover /random/ and direct paths
+        pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com', // Added this line
+        hostname: 'images.unsplash.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.qrserver.com',
+        port: '',
+        pathname: '/v1/create-qr-code/**',
       },
     ],
   },
 };
 
 export default nextConfig;
-
-    
