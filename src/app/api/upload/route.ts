@@ -10,11 +10,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Storage service is not available.' }, { status: 500 });
     }
     
-    const bucketName = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET;
-    if (!bucketName) {
-        console.error('Firebase Storage bucket name is not configured in environment variables.');
-        return NextResponse.json({ error: 'Storage bucket configuration is missing.' }, { status: 500 });
-    }
+    // Get the default bucket that was configured during Admin SDK initialization.
+    const bucket = storage.bucket();
 
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
@@ -33,7 +30,6 @@ export async function POST(request: NextRequest) {
     const uniqueFilename = `${uuidv4()}-${file.name.replace(/\s/g, '_')}`;
     const destination = `uploads/${uniqueFilename}`;
 
-    const bucket = storage.bucket(bucketName);
     const fileUpload = bucket.file(destination);
 
     await fileUpload.save(buffer, {
