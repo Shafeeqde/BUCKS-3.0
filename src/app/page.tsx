@@ -96,7 +96,7 @@ type UserRole = 'rider' | 'driver' | 'business_owner';
 
 export default function AppRoot() {
   const { toast } = useToast();
-  const { user, loading: authLoading, logout } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   
   const [showSplashScreen, setShowSplashScreen] = useState(true);
   const [activeTabInternal, setActiveTabInternal] = useState<TabName>('home');
@@ -117,7 +117,7 @@ export default function AppRoot() {
   const [userPosts, setUserPosts] = useState<ProfilePost[]>([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
 
-  const [selectedPostForDetail, setSelectedPostForDetail] = useState<ProfilePost | null>(null);
+  const [selectedPostForDetail, setSelectedPostForDetail] = useState<ProfilePost | FeedItem | null>(null);
 
   const [showServiceBookingDialog, setShowServiceBookingDialog] = useState(false);
   const [bookingTargetProfile, setBookingTargetProfile] = useState<BookingTargetProfile | null>(null);
@@ -129,7 +129,7 @@ export default function AppRoot() {
 
   const [currentUserRole, setCurrentUserRole] = useState<UserRole>('rider');
   const [showActiveActivityView, setShowActiveActivityView] = useState(false);
-  const [activeActivityDetails, setActiveActivityDetails] = useState<ActivityDetails>(null);
+  const [activeActivityDetails, setActiveActivityDetails] = useState<ActivityDetails | null>(null);
   const [hasNewRequest, setHasNewRequest] = useState(false);
   const [onlineVehicle, setOnlineVehicle] = useState<UserVehicle | null>(null);
 
@@ -260,6 +260,7 @@ export default function AppRoot() {
     }
   }, [user, toast, fetchBusinessProfiles]);
 
+  /*
   const handleLogout = useCallback(async (showToast = true) => {
     try {
       await logout();
@@ -285,6 +286,7 @@ export default function AppRoot() {
       toast({ title: "Logout Failed", description: "Could not log you out. Please try again.", variant: "destructive" });
     }
   }, [logout, toast]);
+  */
 
   const handleTabSelection = useCallback((tab: TabName) => {
     setActiveTabInternal(tab);
@@ -463,11 +465,19 @@ export default function AppRoot() {
     switch (activeTabInternal) {
       case 'home': return <HomeScreen setActiveTab={handleTabSelection} onSelectBusinessProfile={(id) => { setSelectedBusinessProfileId(String(id)); handleTabSelection('business-detail'); }} onSelectIndividualProfile={(id) => { setSelectedIndividualProfileId(id); handleTabSelection('individual-profile'); }} onAddToCart={() => toast({ title: "Feature Coming Soon", description: "Shopping cart functionality is under development." })} />;
       case 'feeds': return <FeedsScreen onViewUserProfile={(id) => { setSelectedIndividualProfileId(id); handleTabSelection('individual-profile'); }} onViewPostDetail={(post) => { setSelectedPostForDetail(post); handleTabSelection('detailed-post'); }} />;
-      case 'recommended': return <RecommendedScreen onViewPostDetail={(post: FeedItem) => { setSelectedPostForDetail(post as ProfilePost); handleTabSelection('detailed-post'); }} onViewUserProfile={(id) => { setSelectedIndividualProfileId(id); handleTabSelection('individual-profile'); }} onViewUserMoments={(profileId, userName, userAvatarUrl, userAvatarAiHint) => { setViewingMomentOwner({ profileId: profileId || '', name: userName || '', avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint }); setShowMomentViewer(true); }} />;
+      case 'recommended': return <RecommendedScreen onViewPostDetail={(post: FeedItem) => { setSelectedPostForDetail(post); handleTabSelection('detailed-post'); }} onViewUserProfile={(id) => { setSelectedIndividualProfileId(id); handleTabSelection('individual-profile'); }} onViewUserMoments={(profileId, userName, userAvatarUrl, userAvatarAiHint) => { setViewingMomentOwner({ profileId: profileId || '', name: userName || '', avatarUrl: userAvatarUrl, avatarAiHint: userAvatarAiHint }); setShowMomentViewer(true); }} />;
       case 'menu': return <ServicesScreen setActiveTab={handleTabSelection} onRequestRide={handleRequestRide} />;
-      case 'account': return <AccountScreen userData={user} setActiveTab={handleTabSelection} userPosts={userPosts} onViewPostDetail={(post) => { setSelectedPostForDetail(post); handleTabSelection('detailed-post'); }} onCreatePost={() => handleTabSelection('create-post')} />;
+      case 'account': return <AccountScreen
+  userData={user}
+  setActiveTab={handleTabSelection}
+  userPosts={userPosts}
+  onViewPostDetail={(post) => { setSelectedPostForDetail(post); handleTabSelection('detailed-post'); }}
+  onCreatePost={() => handleTabSelection('create-post')}
+  onAddMomentClick={() => {}}
+  onViewUserMomentsClick={() => {}}
+/>;
       case 'create-post': return <CreatePostScreen onPost={handlePostSubmit} onCancel={() => handleTabSelection(userPosts.length > 0 ? 'account' : 'feeds')} />;
-      case 'detailed-post': return selectedPostForDetail ? <DetailedPostScreen post={selectedPostForDetail} onPostComment={(commentText) => handlePostCommentOnDetail(selectedPostForDetail.id, commentText)} onBack={() => handleTabSelection((selectedPostForDetail as ProfilePost).userId === user?.id ? 'account' : 'feeds')} /> : <p>Loading post...</p>;
+      case 'detailed-post': return selectedPostForDetail ? <DetailedPostScreen post={selectedPostForDetail} onPostComment={(commentText) => handlePostCommentOnDetail(String(selectedPostForDetail.id), commentText)} onBack={() => handleTabSelection((selectedPostForDetail as ProfilePost).userId === user?.id ? 'account' : 'feeds')} /> : <p>Loading post...</p>;
       case 'digital-id-card': return <DigitalIdCardScreen userData={user} setActiveTab={handleTabSelection} />;
       case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={handleTabSelection} userData={user} />;
       case 'user-skillsets': return <UserSkillsetsScreen setActiveTab={handleTabSelection} onManageSkillsetProfile={(id) => { setSkillsetProfileToManageId(id); handleTabSelection('manage-skillset-profile'); }} />;
@@ -494,7 +504,7 @@ export default function AppRoot() {
         <Header isLoggedIn={isLoggedIn} onMenuClick={() => setShowSideMenu(true)} onMessagesClick={() => setShowMessagesNotifications(true)} onCartClick={() => toast({ title: "Feature Coming Soon"})} unreadCount={isLoggedIn ? 5 : 0} />
       )}
       {isLoggedIn && user && (
-        <SideMenu isOpen={showSideMenu} onClose={() => setShowSideMenu(false)} activeTab={activeTabInternal} setActiveTab={handleTabSelection} businessProfiles={businessProfilesData} onSelectBusinessProfile={(id) => { setSelectedBusinessProfileId(String(id)); handleTabSelection('business-detail'); }} selectedBusinessProfileId={selectedBusinessProfileId} onLogout={handleLogout} userData={user} />
+        <SideMenu isOpen={showSideMenu} onClose={() => setShowSideMenu(false)} activeTab={activeTabInternal} setActiveTab={handleTabSelection} businessProfiles={businessProfilesData} onSelectBusinessProfile={(id) => { setSelectedBusinessProfileId(String(id)); handleTabSelection('business-detail'); }} selectedBusinessProfileId={selectedBusinessProfileId} userData={user} onLogout={() => {}} />
       )}
       <div className="flex-grow overflow-hidden relative p-0">{renderScreenContent()}</div>
       {!showSplashScreen && !['detailed-post', 'create-post', 'manage-business-profile', 'manage-skillset-profile'].includes(activeTabInternal) && (

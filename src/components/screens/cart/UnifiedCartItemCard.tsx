@@ -15,16 +15,12 @@ interface UnifiedCartItemCardProps {
 }
 
 const UnifiedCartItemCard: React.FC<UnifiedCartItemCardProps> = ({ item }) => {
-  const { updateCartItemQuantity, removeCartItem } = useCart();
-
+  // Cart context does not currently provide updateCartItemQuantity or removeCartItem
+  // Placeholder for future cart functionality
   const handleQuantityChange = (delta: number) => {
-    const newQuantity = item.quantity + delta;
-    if (newQuantity >= 1) {
-      updateCartItemQuantity(item.id, item.businessId, newQuantity);
-    } else if (newQuantity === 0) {
-      removeCartItem(item.id, item.businessId);
-    }
+    // Feature Coming Soon: Quantity change logic will be implemented when cart context is ready
   };
+
 
   return (
     <Card className="shadow-sm">
@@ -54,7 +50,7 @@ const UnifiedCartItemCard: React.FC<UnifiedCartItemCardProps> = ({ item }) => {
           <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => handleQuantityChange(1)}>
             <PlusIcon className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => removeCartItem(item.id, item.businessId)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" disabled title="Remove from cart (coming soon)">
             <TrashIcon className="h-4 w-4" />
           </Button>
         </div>

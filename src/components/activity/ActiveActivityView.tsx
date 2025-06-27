@@ -11,7 +11,7 @@ interface ActiveActivityViewProps {
   isVisible: boolean;
   onClose: () => void;
   userRole: 'rider' | 'driver' | 'business_owner' | null;
-  activeActivityDetails: ActivityDetails; 
+  activeActivityDetails: ActivityDetails | null; 
   // Ride actions
   onAcceptRequest?: () => void;
   onRejectRequest?: () => void;
@@ -39,7 +39,6 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
   onClose,
   userRole,
   activeActivityDetails,
-  // Ride props
   onAcceptRequest,
   onRejectRequest,
   onArrivedAtPickup,
@@ -48,20 +47,16 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
   onCancelRide,
   onContactDriver,
   onGoOffline,
-  // Delivery props
   onAcceptDelivery,
   onRejectDelivery,
   onArrivedAtDeliveryPickup,
   onItemPickedUp,
   onArrivedAtDeliveryDropoff,
   onCompleteDelivery,
-  // Product Order props
   onAcceptProductOrder,
   onRejectProductOrder,
 }) => {
-  if (!isVisible) {
-    return null;
-  }
+  if (!activeActivityDetails || !isVisible) return null;
 
   const InfoRow: React.FC<{ label: string; value?: string | null | number, icon?: React.ElementType }> = ({ label, value, icon: Icon }) => (
     <div className="flex items-start py-2">
@@ -424,13 +419,26 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
 
 
           {!activeActivityDetails && (
-            <p className="text-sm text-muted-foreground text-center py-10">No active activity details to display.</p>
+            <p className="text-sm text-muted-foreground text-center py-10">
+              No active activity details to display.
+            </p>
           )}
-           {(userRole === 'rider' && activeActivityDetails?.type !== 'ride') && 
-             (userRole === 'driver' && activeActivityDetails?.type !== 'request' && activeActivityDetails?.type !== 'ride' && activeActivityDetails?.type !== 'driver_status' && activeActivityDetails?.type !== 'delivery_request' && activeActivityDetails?.type !== 'delivery_task') && 
-             (userRole === 'business_owner' && activeActivityDetails?.type !== 'product_order_notification') && (
-            <p className="text-sm text-muted-foreground text-center py-10">Loading activity details...</p>
+          {(
+            (userRole === 'rider' && activeActivityDetails?.type !== 'ride') ||
+            (userRole === 'driver' &&
+              activeActivityDetails?.type !== 'request' &&
+              activeActivityDetails?.type !== 'ride' &&
+              activeActivityDetails?.type !== 'driver_status' &&
+              activeActivityDetails?.type !== 'delivery_request' &&
+              activeActivityDetails?.type !== 'delivery_task') ||
+            (userRole === 'business_owner' &&
+              activeActivityDetails?.type !== 'product_order_notification')
+          ) && (
+            <p className="text-sm text-muted-foreground text-center py-10">
+              Loading activity details...
+            </p>
           )}
+
         </div>
       </div>
     </div>
@@ -438,5 +446,3 @@ const ActiveActivityView: React.FC<ActiveActivityViewProps> = ({
 };
 
 export default ActiveActivityView;
-
-    

@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         id: docRef.id,
         skillName: newProfileData.skillName,
         skillLevel: newProfileData.skillLevel,
-        isActive: newProfileData.isActive,
+        isActive: newProfileData.isActive ?? false,
         portfolioItemCount: 0,
         averageRating: 0,
     };

@@ -144,7 +144,7 @@ const FeedCard: React.FC<FeedCardProps> = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  onClick={() => onInteraction(item.id, 'recommend')}
+                  onClick={() => onInteraction(Number(item.id), 'recommend')}
                   className="flex items-center text-green-600 hover:text-green-700 focus:outline-none p-1 rounded-md hover:bg-green-500/10"
                   aria-label="Recommend this post"
                 >
@@ -157,7 +157,7 @@ const FeedCard: React.FC<FeedCardProps> = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  onClick={() => onInteraction(item.id, 'notRecommend')}
+                  onClick={() => onInteraction(Number(item.id), 'notRecommend')}
                   className="flex items-center text-red-600 hover:text-red-700 focus:outline-none p-1 rounded-md hover:bg-red-500/10"
                   aria-label="Not interested in this post"
                 >

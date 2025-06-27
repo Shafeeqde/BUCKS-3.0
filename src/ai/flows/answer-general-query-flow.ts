@@ -85,7 +85,7 @@ const answerGeneralQueryFlow = ai.defineFlow(
     inputSchema: GeneralQueryInputSchema,
     outputSchema: GeneralQueryOutputSchema,
   },
-  async (input) => {
+  async (input): Promise<GeneralQueryOutput> => {
     try {
       const { output } = await prompt(input);
       if (!output) {
@@ -93,19 +93,32 @@ const answerGeneralQueryFlow = ai.defineFlow(
         return {
           answer: "Sorry, I encountered an issue processing your query. The AI model did not return a response.",
           queryType: "general",
+          locations: undefined,
+          suggestedAction: undefined,
         };
       }
-      return output;
+      // Validate output strictly matches the schema
+      const parsed = GeneralQueryOutputSchema.safeParse(output);
+      if (!parsed.success) {
+        console.error('answerGeneralQueryFlow: Output from prompt did not match schema:', parsed.error);
+        return {
+          answer: "Sorry, I encountered an issue processing your query. The AI model returned an unexpected response.",
+          queryType: "general",
+          locations: undefined,
+          suggestedAction: undefined,
+        };
+      }
+      return parsed.data;
     } catch (e: any) {
       console.error('Error in answerGeneralQueryFlow calling prompt:', e);
       return {
         answer: `Sorry, I couldn't process your request due to an error: ${e.message || 'Unknown error'}. Please try again.`,
-        queryType: "general", // ✅ exact match
+        queryType: "general",
         suggestedAction: {
           label: "Try again",
-          targetTab: "home", // Use a valid value from your app
+          targetTab: "home",
         },
-        locations: undefined, // optional
+        locations: undefined,
       };
        // Cast to ensure type correctness
     }
