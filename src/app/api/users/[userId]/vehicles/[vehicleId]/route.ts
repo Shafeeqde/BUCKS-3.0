@@ -8,9 +8,9 @@ const VEHICLES_COLLECTION = 'vehicles';
 // PUT /api/users/[userId]/vehicles/[vehicleId] - Update a specific vehicle
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { userId: string; vehicleId: string } }
+  { params }: { params: Promise<{ userId: string; vehicleId: string }> }
 ) {
-  const { userId, vehicleId } = params;
+  const { userId, vehicleId } = await params;
   try {
     if (!userId || !vehicleId) {
       return NextResponse.json({ error: 'User ID and Vehicle ID are required' }, { status: 400 });
@@ -56,9 +56,9 @@ export async function PUT(
 // DELETE /api/users/[userId]/vehicles/[vehicleId] - Delete a specific vehicle
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { userId: string; vehicleId: string } }
+  { params }: { params: Promise<{ userId: string; vehicleId: string }> }
 ) {
-  const { vehicleId } = params;
+  const { vehicleId } = await params;
   try {
     if (!vehicleId) {
       return NextResponse.json({ error: 'Vehicle ID is required' }, { status: 400 });

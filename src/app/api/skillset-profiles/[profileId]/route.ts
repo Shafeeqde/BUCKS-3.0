@@ -6,8 +6,8 @@ import type { SkillsetProfileData } from '@/types';
 const COLLECTION_NAME = 'skillset_profiles';
 
 // GET a specific skillset profile
-export async function GET(request: NextRequest, context: { params: { profileId: string } }) {
-    const { profileId } = context.params;
+export async function GET(request: NextRequest, context: { params: Promise <{ profileId: string }> }) {
+    const { profileId } = await context.params;
     try {
         if (!profileId) {
             return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
@@ -35,8 +35,8 @@ export async function GET(request: NextRequest, context: { params: { profileId: 
 
 
 // PUT /api/skillset-profiles/[profileId] - Update a specific profile
-export async function PUT(request: NextRequest, context: { params: { profileId: string } }) {
-  const { profileId } = context.params;
+export async function PUT(request: NextRequest, context: { params:  Promise <{ profileId: string }> }) {
+  const { profileId } = await context.params;
   try {
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
@@ -67,8 +67,8 @@ export async function PUT(request: NextRequest, context: { params: { profileId: 
 }
 
 // DELETE /api/skillset-profiles/[profileId] - Delete a specific profile
-export async function DELETE(request: NextRequest, context: { params: { profileId: string } }) {
-  const { profileId } = context.params;
+export async function DELETE(request: NextRequest, context: { params: Promise <{ profileId: string }> }) {
+  const { profileId } = await context.params;
   try {
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });

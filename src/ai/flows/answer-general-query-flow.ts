@@ -100,8 +100,14 @@ const answerGeneralQueryFlow = ai.defineFlow(
       console.error('Error in answerGeneralQueryFlow calling prompt:', e);
       return {
         answer: `Sorry, I couldn't process your request due to an error: ${e.message || 'Unknown error'}. Please try again.`,
-        queryType: "general",
+        queryType: "general", // ✅ exact match
+        suggestedAction: {
+          label: "Try again",
+          targetTab: "home", // Use a valid value from your app
+        },
+        locations: undefined, // optional
       };
+       // Cast to ensure type correctness
     }
   }
 );

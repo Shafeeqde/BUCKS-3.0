@@ -8,9 +8,9 @@ const PROFILES_COLLECTION = 'professional_profiles';
 // GET /api/professional-profile/[userId] - Fetch a specific professional profile
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
-  const { userId } = params;
+  const { userId } = await params;
   try {
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
@@ -44,9 +44,9 @@ export async function GET(
 // PUT /api/professional-profile/[userId] - Create or update a specific professional profile
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
-  const { userId } = params;
+  const { userId } = await params;
   try {
     if (!userId) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });

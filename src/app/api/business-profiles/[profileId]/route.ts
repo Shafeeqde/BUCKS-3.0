@@ -8,9 +8,9 @@ const PROFILES_COLLECTION = 'business_profiles';
 // GET /api/business-profiles/[profileId] - Fetch a specific business profile
 export async function GET(
   request: NextRequest,
-  { params }: { params: { profileId: string } }
+  { params }: { params: Promise<{ profileId: string }> }
 ) {
-  const { profileId } = params;
+  const { profileId } = await params;
   try {
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
@@ -44,9 +44,9 @@ export async function GET(
 // PUT /api/business-profiles/[profileId] - Update a specific business profile
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { profileId: string } }
+  { params }: { params: Promise<{ profileId: string }> }
 ) {
-  const { profileId } = params;
+  const { profileId } = await params;
   try {
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
@@ -93,9 +93,9 @@ export async function PUT(
 // DELETE /api/business-profiles/[profileId] - Delete a specific business profile
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { profileId: string } }
+  { params }: { params: Promise<{ profileId: string }> }
 ) {
-  const { profileId } = params;
+  const { profileId } = await params;
   try {
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
