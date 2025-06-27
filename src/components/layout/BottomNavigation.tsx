@@ -12,8 +12,8 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, setActiv
   const navItems = [
     { tabName: 'home' as TabName, label: 'Home', Icon: HomeIcon },
     { tabName: 'feeds' as TabName, label: 'Feeds', Icon: NewspaperIcon },
-    { tabName: 'recommended' as TabName, label: 'For You', Icon: StarIcon },
     { tabName: 'menu' as TabName, label: 'Services', Icon: Squares2X2Icon },
+    { tabName: 'recommended' as TabName, label: 'For You', Icon: StarIcon },
     { tabName: 'account' as TabName, label: 'Account', Icon: UserIcon }, 
   ];
 
