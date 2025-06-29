@@ -1,129 +1,38 @@
-
 import { type NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/firebase/admin';
-import type { UserBusinessProfile } from '@/types';
-
-const PROFILES_COLLECTION = 'business_profiles';
+import * as businessProfileSupabase from './supabase';
 
 // GET /api/business-profiles/[profileId] - Fetch a specific business profile
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ profileId: string }> }
-) {
-  const { profileId } = await params;
+export async function GET(request: NextRequest, context: { params: Promise<{ profileId: string }> }) {
+  const params = await context.params;
   try {
-    if (!profileId) {
-      return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
-    }
-
-    if (!db) {
-      console.error('Firebase Admin SDK not initialized or Firestore unavailable. Cannot access Firestore.');
-      return NextResponse.json({ error: 'Server configuration error, unable to fetch profile.' }, { status: 500 });
-    }
-
-    const docRef = db.collection(PROFILES_COLLECTION).doc(profileId);
-    const docSnap = await docRef.get();
-
-    if (!docSnap.exists) {
-      return NextResponse.json({ error: 'Business profile not found' }, { status: 404 });
-    }
-
-    const profile = { id: docSnap.id, ...docSnap.data() } as UserBusinessProfile;
-    return NextResponse.json(profile, { status: 200 });
-
+    const response = await businessProfileSupabase.GET(request, { params });
+    return response;
   } catch (error) {
-    console.error(`Error fetching business profile ${profileId}:`, error);
-    let errorMessage = 'Failed to fetch business profile.';
-    if (error instanceof Error) {
-        errorMessage = error.message;
-    }
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Error fetching business profile:', error);
+    return NextResponse.json({ error: 'Failed to fetch business profile.' }, { status: 500 });
   }
 }
 
 // PUT /api/business-profiles/[profileId] - Update a specific business profile
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ profileId: string }> }
-) {
-  const { profileId } = await params;
+export async function PUT(request: NextRequest, context: { params: Promise<{ profileId: string }> }) {
+  const params = await context.params;
   try {
-    if (!profileId) {
-      return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
-    }
-    
-    if (!db) {
-      console.error('Firebase Admin SDK not initialized or Firestore unavailable. Cannot access Firestore.');
-      return NextResponse.json({ error: 'Server configuration error, unable to update profile.' }, { status: 500 });
-    }
-
-    const body = await request.json();
-    const { id, ...updateData } = body as Partial<UserBusinessProfile> & { name_lowercase?: string };
-
-    if (Object.keys(updateData).length === 0) {
-      return NextResponse.json({ error: 'No update data provided' }, { status: 400 });
-    }
-
-    if (updateData.name) {
-      updateData.name_lowercase = updateData.name.toLowerCase();
-    }
-    
-    const docRef = db.collection(PROFILES_COLLECTION).doc(profileId);
-    const docSnap = await docRef.get();
-
-    if (!docSnap.exists) {
-      return NextResponse.json({ error: 'Business profile not found' }, { status: 404 });
-    }
-    
-    await docRef.update(updateData);
-
-    console.log(`Business profile updated for ID: ${profileId}`);
-    return NextResponse.json({ message: 'Business profile updated successfully', id: profileId }, { status: 200 });
-
+    const response = await businessProfileSupabase.PUT(request, { params });
+    return response;
   } catch (error) {
-    console.error(`Error updating business profile ${profileId}:`, error);
-    let errorMessage = 'Failed to update business profile.';
-    if (error instanceof Error) {
-        errorMessage = error.message;
-    }
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Error updating business profile:', error);
+    return NextResponse.json({ error: 'Failed to update business profile.' }, { status: 500 });
   }
 }
 
 // DELETE /api/business-profiles/[profileId] - Delete a specific business profile
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ profileId: string }> }
-) {
-  const { profileId } = await params;
+export async function DELETE(request: NextRequest, context: { params: Promise<{ profileId: string }> }) {
+  const params = await context.params;
   try {
-    if (!profileId) {
-      return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
-    }
-
-    if (!db) {
-      console.error('Firebase Admin SDK not initialized or Firestore unavailable. Cannot access Firestore.');
-      return NextResponse.json({ error: 'Server configuration error, unable to delete profile.' }, { status: 500 });
-    }
-
-    const docRef = db.collection(PROFILES_COLLECTION).doc(profileId);
-    const docSnap = await docRef.get();
-
-    if (!docSnap.exists) {
-      return NextResponse.json({ error: 'Business profile not found' }, { status: 404 });
-    }
-
-    await docRef.delete();
-
-    console.log(`Business profile deleted for ID: ${profileId}`);
-    return NextResponse.json({ message: 'Business profile deleted successfully' }, { status: 200 });
-
+    const response = await businessProfileSupabase.DELETE(request, { params });
+    return response;
   } catch (error) {
-    console.error(`Error deleting business profile ${profileId}:`, error);
-    let errorMessage = 'Failed to delete business profile.';
-    if (error instanceof Error) {
-        errorMessage = error.message;
-    }
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    console.error('Error deleting business profile:', error);
+    return NextResponse.json({ error: 'Failed to delete business profile.' }, { status: 500 });
   }
 }

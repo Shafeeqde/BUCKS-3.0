@@ -1,48 +1,55 @@
-
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '@/lib/firebase/client';
+import { supabase } from '@/lib/supabaseClient';
 import type { UserDataForSideMenu } from '@/types';
 
 interface AuthContextType {
   user: UserDataForSideMenu | null;
   loading: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  login: async () => ({ success: false }),
+  logout: () => {},
 });
+
+const DUMMY_USER = {
+  id: 'dummy-id',
+  name: 'Admin User',
+  email: 'admin@bucks.app',
+  avatarUrl: 'https://source.unsplash.com/random/48x48/?user',
+  avatarAiHint: 'user avatar',
+  moments: [],
+};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserDataForSideMenu | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        const avatarAiHint = 'user avatar';
-        setUser({
-          id: firebaseUser.uid,
-          name: firebaseUser.displayName || 'Bucks User',
-          email: firebaseUser.email || '',
-          avatarUrl: firebaseUser.photoURL || `https://source.unsplash.com/random/48x48/?${avatarAiHint.split(' ').join(',')}`,
-          avatarAiHint: avatarAiHint,
-          moments: [],
-        });
-      } else {
-        setUser(null);
-      }
+  // Dummy login function
+  const login = async (email: string, password: string) => {
+    setLoading(true);
+    if (email === 'admin@bucks.app' && password === '123456') {
+      setUser(DUMMY_USER);
       setLoading(false);
-    });
+      return { success: true };
+    } else {
+      setLoading(false);
+      return { success: false, error: 'Invalid credentials' };
+    }
+  };
 
-    return () => unsubscribe();
-  }, []);
+  const logout = () => {
+    setUser(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

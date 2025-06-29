@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from 'react';
@@ -7,8 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
-import { auth } from '@/lib/firebase/client';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useAuth } from '@/context/AuthContext';
 
 interface LoginScreenProps {
   onSwitchToRegister: () => void;
@@ -16,8 +14,9 @@ interface LoginScreenProps {
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onSwitchToRegister }) => {
   const { toast } = useToast();
-  const [email, setEmail] = useState('testuser@example.com'); // Pre-filled for demo
-  const [password, setPassword] = useState('password123'); // Pre-filled for demo
+  const { login, loading } = useAuth();
+  const [email, setEmail] = useState('admin@bucks.app');
+  const [password, setPassword] = useState('123456');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
@@ -30,35 +29,16 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onSwitchToRegister }) => {
       return;
     }
     setIsLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // onAuthStateChanged in page.tsx will handle the rest
-    } catch (error: any) {
-      console.error("Firebase Login error:", error);
-      let errorMessage = "An unknown error occurred.";
-      switch (error.code) {
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-        case 'auth/invalid-credential':
-          errorMessage = 'Invalid email or password. Please try again.';
-          break;
-        case 'auth/invalid-email':
-          errorMessage = 'The email address is not valid.';
-          break;
-        case 'auth/too-many-requests':
-           errorMessage = 'Access to this account has been temporarily disabled due to many failed login attempts.';
-           break;
-        default:
-          errorMessage = 'Could not sign in. Please check your network connection.';
-      }
+    const result = await login(email, password);
+    setIsLoading(false);
+    if (!result.success) {
       toast({
         title: "Login Failed",
-        description: errorMessage,
+        description: result.error || "Invalid credentials.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
+    // onAuthStateChanged in page.tsx will handle the rest
   };
 
   return (

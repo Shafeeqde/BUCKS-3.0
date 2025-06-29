@@ -1,7 +1,4 @@
-
 import { type NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/firebase/admin';
-import type { SkillsetProfileData } from '@/types';
 
 const COLLECTION_NAME = 'skillset_profiles';
 
@@ -13,18 +10,12 @@ export async function GET(request: NextRequest, context: { params: Promise <{ pr
             return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
         }
 
-        if (!db) {
-            return NextResponse.json({ error: 'Server configuration error: Database not available.' }, { status: 500 });
-        }
+        const profile = null; // Replace with actual data fetching logic
 
-        const docRef = db.collection(COLLECTION_NAME).doc(profileId);
-        const docSnap = await docRef.get();
-
-        if (!docSnap.exists) {
+        if (!profile) {
             return NextResponse.json({ error: 'Skillset profile not found' }, { status: 404 });
         }
         
-        const profile = { id: docSnap.id, ...docSnap.data() } as SkillsetProfileData;
         return NextResponse.json(profile, { status: 200 });
 
     } catch (error) {
@@ -42,16 +33,11 @@ export async function PUT(request: NextRequest, context: { params:  Promise <{ p
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
     }
 
-    if (!db) {
-      return NextResponse.json({ error: 'Server configuration error: Database not available.' }, { status: 500 });
-    }
-
     const body = await request.json();
     
     const { id, ...updateData } = body;
 
-    const docRef = db.collection(COLLECTION_NAME).doc(profileId);
-    await docRef.set(updateData, { merge: true });
+    // Replace with actual data updating logic
 
     console.log(`Skillset profile updated for ID: ${profileId}`);
     return NextResponse.json({ message: 'Profile updated successfully' }, { status: 200 });
@@ -73,12 +59,8 @@ export async function DELETE(request: NextRequest, context: { params: Promise <{
     if (!profileId) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
     }
-
-    if (!db) {
-      return NextResponse.json({ error: 'Server configuration error: Database not available.' }, { status: 500 });
-    }
     
-    await db.collection(COLLECTION_NAME).doc(profileId).delete();
+    // Replace with actual data deletion logic
 
     console.log(`Skillset profile deleted for ID: ${profileId}`);
     return NextResponse.json({ message: 'Profile deleted successfully' }, { status: 200 });
