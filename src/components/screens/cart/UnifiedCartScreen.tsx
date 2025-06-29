@@ -20,7 +20,7 @@ const UnifiedCartScreen: React.FC<UnifiedCartScreenProps> = ({
   onBack,
   setActiveTab,
 }) => {
-  const { cart, getCartItemCount, clearCartForBusiness } = useCart();
+  const { cart, getCartItemCount } = useCart();
   const { toast } = useToast();
 
   const groupedCart = cart.reduce((acc, item) => {
@@ -46,7 +46,7 @@ const UnifiedCartScreen: React.FC<UnifiedCartScreenProps> = ({
       description: "Simulating checkout process. Items for this business would be processed.",
     });
     // In a real app, this would trigger an order process for this specific business
-    clearCartForBusiness(businessId); // Clear items for this business after mock checkout
+    // Feature Coming Soon: Clear items for this business after mock checkout
     // Optionally, navigate away or show an order confirmation
     if (getCartItemCount() === 0) { // If that was the last business in cart
         setActiveTab('home');

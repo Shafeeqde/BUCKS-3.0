@@ -39,6 +39,8 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
           type: 'post',
           recommendations: p.likes || 0,
           notRecommendations: 0, // No backend field for this yet
+          userImage: p.userImage ?? '', // Ensure userImage is always a string
+          content: p.content ?? '', // Ensure content is always a string
         }));
 
         setFeedItems(formattedFeedItems);

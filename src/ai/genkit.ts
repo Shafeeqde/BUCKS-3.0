@@ -1,9 +1,9 @@
 
-import {genkit, type GenkitPlugin, type ModelReference} from 'genkit';
+import {genkit} from 'genkit';
 import {googleAI, gemini20Flash} from '@genkit-ai/googleai';
 
-const pluginsList: GenkitPlugin[] = [];
-export let defaultGenkitModel: ModelReference<any> | undefined = undefined;
+const pluginsList: any[] = []; // GenkitPlugin type not exported, using any[]
+export let defaultGenkitModel: any = undefined; // ModelReference type not exported, using any
 
 if (process.env.GOOGLE_GENAI_API_KEY) {
   pluginsList.push(googleAI());

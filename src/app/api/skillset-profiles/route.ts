@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import * as skillsetSupabase from './supabase';
+import { POST, GET } from './supabase';
 
 
 // POST /api/skillset-profiles - Create a new skillset profile
 export async function POST(request: NextRequest) {
-  try {
-    const response = await skillsetSupabase.POST(request);
+  try 
+    const response = await POST(request);
     return response;
   } catch (error) {
     console.error('Error in POST /api/skillset-profiles:', error);
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 // GET /api/skillset-profiles?userId=... - List all skillset profiles for a user
 export async function GET(request: NextRequest) {
   try {
-    const response = await skillsetSupabase.GET(request);
+    const response = await GET(request);
     return response;
   } catch (error) {
     console.error('Error in GET /api/skillset-profiles:', error);

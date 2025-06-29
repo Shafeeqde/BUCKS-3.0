@@ -118,7 +118,13 @@ const DetailedPostScreen: React.FC<DetailedPostScreenProps> = ({ post, onPostCom
           <CardFooter className="border-t pt-4 flex flex-col gap-4">
             <div className="flex justify-around w-full text-muted-foreground">
               <Button variant="ghost" size="sm" className="flex-1 text-sm">
-                <HandThumbUpIcon className="mr-1.5 h-5 w-5" /> Like ({post.likes ?? ('recommendations' in post ? post.recommendations : 0)})
+                <HandThumbUpIcon className="mr-1.5 h-5 w-5" /> Like ({
+  'likes' in post
+    ? post.likes
+    : 'recommendations' in post
+      ? post.recommendations
+      : 0
+})
               </Button>
               <Button variant="ghost" size="sm" className="flex-1 text-sm text-primary font-semibold">
                 <ChatBubbleOvalLeftEllipsisIcon className="mr-1.5 h-5 w-5" /> Comment ({post.commentsData?.length ?? post.comments ?? 0})
