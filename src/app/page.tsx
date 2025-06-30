@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState, useEffect, useCallback } from 'react';
 import Header from '@/components/layout/Header';
@@ -13,6 +12,7 @@ import RecommendedScreen from '@/components/screens/RecommendedScreen';
 import AccountScreen from '@/components/screens/AccountScreen';
 import DigitalIdCardScreen from '@/components/screens/DigitalIdCardScreen';
 import ProfessionalProfileScreen from '@/components/screens/ProfessionalProfileScreen';
+import PersonalProfileScreen from '@/components/screens/personal/PersonalProfileScreen';
 import UserSkillsetsScreen from '@/components/screens/UserSkillsetsScreen';
 import UserVehiclesScreen from '@/components/screens/UserVehiclesScreen';
 import UserBusinessProfilesScreen from '@/components/screens/UserBusinessProfilesScreen';
@@ -480,6 +480,7 @@ export default function AppRoot() {
       case 'detailed-post': return selectedPostForDetail ? <DetailedPostScreen post={selectedPostForDetail} onPostComment={(commentText) => handlePostCommentOnDetail(String(selectedPostForDetail.id), commentText)} onBack={() => handleTabSelection((selectedPostForDetail as ProfilePost).userId === user?.id ? 'account' : 'feeds')} /> : <p>Loading post...</p>;
       case 'digital-id-card': return <DigitalIdCardScreen userData={user} setActiveTab={handleTabSelection} />;
       case 'professional-profile': return <ProfessionalProfileScreen setActiveTab={handleTabSelection} userData={user} />;
+      case 'personal-profile': return <PersonalProfileScreen userId={user?.id} />;
       case 'user-skillsets': return <UserSkillsetsScreen setActiveTab={handleTabSelection} onManageSkillsetProfile={(id) => { setSkillsetProfileToManageId(id); handleTabSelection('manage-skillset-profile'); }} />;
       case 'vehicles': return <UserVehiclesScreen onGoOnline={handleGoOnlineWithVehicle} onGoOffline={handleGoOffline} onlineVehicleId={onlineVehicle?.id || null} />;
       case 'business-profiles': return <UserBusinessProfilesScreen businessProfiles={businessProfilesData} onSelectProfile={(id) => { setSelectedBusinessProfileId(id); handleTabSelection('business-detail'); }} onManageProfile={(id) => { setBusinessProfileToManageId(id); handleTabSelection('manage-business-profile'); }} onDeleteProfile={handleDeleteBusinessProfile} onToggleProfileActive={handleToggleBusinessProfileActive} isLoading={isLoadingBusinessProfiles} />;

@@ -1,4 +1,3 @@
-
 import type { ForwardRefExoticComponent, RefAttributes, SVGProps } from 'react'; // For Heroicons
 
 // Used by Heroicons
@@ -36,7 +35,8 @@ export type TabName =
   | 'shopping-categories'
   | 'shopping-products'
   | 'shopping-product-detail'
-  | 'shopping-cart';
+  | 'shopping-cart'
+  | 'personal-profile'; // Added personal-profile
 
 
 export interface Category {
@@ -368,8 +368,29 @@ export interface ActivityDetails {
     totalAmount?: string;
     deliveryPartnerName?: string; 
     deliveryVehicleInfo?: string; 
-} | null;
+}
 
+export interface OverallProfessionalProfileData {
+  id: string;
+  userId: string;
+  name?: string;
+  name_lowercase?: string;
+  professionalTitle?: string;
+  avatarUrl?: string;
+  avatarAiHint?: string;
+  coverPhotoUrl?: string;
+  coverPhotoAiHint?: string;
+  professionalBio?: string;
+  areasOfExpertise: string[];
+  externalProfileLinks: {
+    id: string;
+    platform: string;
+    url: string;
+  }[];
+  workExperience: WorkExperienceEntry[];
+  education: EducationEntry[];
+  licensesCertifications: LicenseCertificationEntry[];
+}
 
 export interface WorkExperienceEntry {
     id: string;
@@ -380,6 +401,8 @@ export interface WorkExperienceEntry {
     startDate?: string;
     endDate?: string;
     description?: string;
+    media?: MediaAttachment[];
+    privacy?: 'public' | 'connections' | 'private';
 }
 
 export interface EducationEntry {
@@ -390,6 +413,8 @@ export interface EducationEntry {
     startDate?: string;
     endDate?: string;
     description?: string;
+    media?: MediaAttachment[];
+    privacy?: 'public' | 'connections' | 'private';
 }
 
 export interface LicenseCertificationEntry {
@@ -400,84 +425,9 @@ export interface LicenseCertificationEntry {
     expirationDate?: string;
     credentialId?: string;
     credentialUrl?: string;
+    media?: MediaAttachment[];
+    privacy?: 'public' | 'connections' | 'private';
 }
-
-export interface OverallProfessionalProfileData {
-    id: string;
-    userId: string;
-    name?: string;
-    name_lowercase?: string;
-    professionalTitle?: string;
-    avatarUrl?: string;
-    avatarAiHint?: string;
-    coverPhotoUrl?: string;
-    coverPhotoAiHint?: string;
-    professionalBio?: string;
-    areasOfExpertise: string[];
-    externalProfileLinks: {
-        id: string;
-        platform: string;
-        url: string;
-    }[];
-    workExperience: WorkExperienceEntry[];
-    education: EducationEntry[];
-    licensesCertifications: LicenseCertificationEntry[];
-}
-
-export interface PublicProfileData {
-  id: string;
-  name: string;
-  avatarUrl?: string;
-  avatarAiHint?: string;
-  professionalTitle?: string;
-  bio?: string;
-  posts: {
-    id: string;
-    content: string;
-    timestamp: string;
-    imageUrl?: string;
-    imageAiHint?: string;
-    likes: number;
-    comments: number;
-  }[];
-  followers?: number;
-  following?: number;
-  contactInfo?: {
-    email?: string;
-    website?: string;
-    location?: string;
-  };
-  moments?: UserMoment[];
-}
-
-
-export interface SkillsetSpecificWorkExperience {
-  id: string;
-  title: string;
-  company: string;
-  years: string;
-  description?: string;
-}
-
-export interface SkillsetSpecificPortfolioItem {
-  id:string;
-  title: string;
-  imageUrl?: string;
-  imageAiHint?: string;
-  videoUrl?: string;
-  description?: string;
-  link?: string;
-}
-
-export interface SkillsetSpecificFeedItem {
-  id: string;
-  content: string;
-  imageUrl?: string;
-  imageAiHint?: string;
-  videoUrl?: string;
-  timestamp: string;
-}
-
 
 export interface SkillsetProfileData {
   id: string;
@@ -515,21 +465,39 @@ export interface SkillsetProfileSummary {
   averageRating?: number;
 }
 
+export interface SkillsetSpecificWorkExperience {
+  id: string;
+  title: string;
+  company: string;
+  years: string;
+  description?: string;
+}
+
+export interface SkillsetSpecificPortfolioItem {
+  id:string;
+  title: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+  videoUrl?: string;
+  description?: string;
+  link?: string;
+}
+
+export interface SkillsetSpecificFeedItem {
+  id: string;
+  content: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+  videoUrl?: string;
+  timestamp: string;
+}
+
 export interface UserMoment {
   id: string;
   imageUrl: string;
   aiHint?: string;
   caption?: string;
   timestamp: string;
-}
-
-export interface UserDataForSideMenu {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl?: string;
-  avatarAiHint?: string;
-  moments?: UserMoment[];
 }
 
 export interface ServiceBookingRequest {
@@ -563,7 +531,6 @@ export interface ChatMessage {
   avatarAiHint?: string;
 }
 
-// FOOD & SHOPPING
 export interface FoodCartItem {
   menuItemId: string;
   restaurantId: string;
@@ -574,17 +541,6 @@ export interface FoodCartItem {
   imageUrl?: string;
   imageAiHint?: string;
 }
-
-export interface ShoppingCartItem {
-  productId: string;
-  name: string;
-  price: number;
-  quantity: number;
-  variantInfo?: string;
-  imageUrl?: string;
-  imageAiHint?: string;
-}
-
 
 export interface MenuItem {
   id: string;
@@ -609,6 +565,41 @@ export interface Restaurant {
   imageAiHint?: string;
   address?: string;
   menu: MenuItem[];
+}
+
+export interface UserDataForSideMenu {
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl?: string;
+  avatarAiHint?: string;
+  moments?: UserMoment[];
+}
+
+export interface PublicProfileData {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  avatarAiHint?: string;
+  professionalTitle?: string;
+  bio?: string;
+  posts: {
+    id: string;
+    content: string;
+    timestamp: string;
+    imageUrl?: string;
+    imageAiHint?: string;
+    likes: number;
+    comments: number;
+  }[];
+  followers?: number;
+  following?: number;
+  contactInfo?: {
+    email?: string;
+    website?: string;
+    location?: string;
+  };
+  moments?: UserMoment[];
 }
 
 export interface ProductCategory {
@@ -638,4 +629,61 @@ export interface ProductListing {
     name: string; // e.g., "Color", "Size"
     options: { value: string; label?: string }[];
   }[];
+}
+
+export interface ShoppingCartItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  variantInfo?: string;
+  imageUrl?: string;
+  imageAiHint?: string;
+}
+
+// --- Personal Profile Types ---
+
+export interface PersonalPost {
+  id: string;
+  userId: string;
+  content: string;
+  createdAt: string;
+  updatedAt?: string;
+  media?: MediaAttachment[];
+  tags?: PersonalTag[];
+  privacy: 'public' | 'connections' | 'private';
+  recommendationsCount: number;
+  commentsCount: number;
+  comments?: PersonalComment[];
+}
+
+export interface PersonalTag {
+  id: string;
+  postId: string;
+  taggedUserId: string;
+  taggedGroupId?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdBy: string;
+  createdAt: string;
+  approvedAt?: string;
+}
+
+export interface PersonalRecommendation {
+  id: string;
+  postId: string;
+  userId: string;
+  type: 'upvote' | 'downvote';
+  createdAt: string;
+}
+
+export interface PersonalComment {
+  id: string;
+  postId: string;
+  userId: string;
+  parentCommentId?: string;
+  content: string;
+  createdAt: string;
+  updatedAt?: string;
+  // For threaded comments
+  replies?: PersonalComment[];
 }

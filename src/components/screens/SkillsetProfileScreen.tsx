@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -27,6 +26,10 @@ import { useToast } from "@/hooks/use-toast";
 import type { TabName, SkillsetProfileData } from '@/types';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import ProfileSectionList from '@/components/profile/ProfileSectionList';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 interface SkillsetProfileScreenProps {
   setActiveTab: (tab: TabName) => void;
@@ -41,6 +44,7 @@ const simulateFetchSkillsetProfile = async (profileId: string): Promise<Skillset
       if (profileId === 'plumbing-profile-johndoe-123') {
         const mockProfileData: SkillsetProfileData = {
           id: profileId,
+          userId: 'user-johndoe-123', // <-- Added userId for type safety
           skillName: 'Plumbing Services',
           skillLevel: 'Certified Professional',
           skillDescription: 'Providing reliable and efficient plumbing solutions for residential and commercial properties. Specializing in repairs, installations, and maintenance.',
@@ -80,6 +84,7 @@ const simulateFetchSkillsetProfile = async (profileId: string): Promise<Skillset
       } else if (profileId === 'jenson-interior-stylist-123') {
         const mockProfileData: SkillsetProfileData = {
           id: profileId,
+          userId: 'user-jenson-123', // <-- Added userId for type safety
           skillName: 'Interior Home Styling',
           skillLevel: 'Lead Stylist & Consultant',
           skillDescription: 'Transforming spaces into beautiful, functional, and personalized environments. Specializing in modern, minimalist, and eclectic styles.',
@@ -146,6 +151,9 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
   const [profileData, setProfileData] = useState<SkillsetProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showWorkDialog, setShowWorkDialog] = useState(false);
+  const [currentWork, setCurrentWork] = useState<any>(null);
+  const [workToDelete, setWorkToDelete] = useState<any>(null);
 
   useEffect(() => {
     if (skillsetProfileId) {
@@ -175,6 +183,58 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
       setLoading(false);
     }
   };
+
+  const openAddWorkDialog = () => { setCurrentWork({}); setShowWorkDialog(true); };
+  const openEditWorkDialog = (exp: any) => { setCurrentWork({ ...exp }); setShowWorkDialog(true); };
+  const handleWorkDialogChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setCurrentWork((prev: any) => ({ ...prev, [name]: value }));
+  };
+  const handleSaveWork = () => {
+    if (!currentWork?.title || !currentWork?.company) {
+      toast({ title: "Missing Fields", description: "Title and Company are required.", variant: "destructive" });
+      return;
+    }
+    if (!profileData) return;
+    let updated = [...(profileData.workExperienceEntries || [])];
+    if (currentWork.id) {
+      updated = updated.map((exp: any) => exp.id === currentWork.id ? { ...currentWork } : exp);
+    } else {
+      updated.push({ ...currentWork, id: `work-${Date.now()}` });
+    }
+    setProfileData({ ...profileData, workExperienceEntries: updated });
+    setShowWorkDialog(false);
+    setCurrentWork(null);
+    toast({ title: "Experience Saved", description: "Updated locally." });
+  };
+  const handleDeleteWork = () => {
+    if (!workToDelete || !profileData) return;
+    const updated = (profileData.workExperienceEntries || []).filter((exp: any) => exp.id !== workToDelete.id);
+    setProfileData({ ...profileData, workExperienceEntries: updated });
+    setWorkToDelete(null);
+    toast({ title: "Experience Deleted", variant: "destructive" });
+  };
+
+  const workDialogFields = (
+    <div className="grid gap-4 py-4 pr-1">
+      <div className="space-y-1.5">
+        <Label htmlFor="work-title">Title <span className="text-destructive">*</span></Label>
+        <Input id="work-title" name="title" value={currentWork?.title || ''} onChange={handleWorkDialogChange} />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="work-company">Company <span className="text-destructive">*</span></Label>
+        <Input id="work-company" name="company" value={currentWork?.company || ''} onChange={handleWorkDialogChange} />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="work-years">Years</Label>
+        <Input id="work-years" name="years" value={currentWork?.years || ''} onChange={handleWorkDialogChange} />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="work-description">Description</Label>
+        <Textarea id="work-description" name="description" value={currentWork?.description || ''} onChange={handleWorkDialogChange} rows={3}/>
+      </div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -301,22 +361,31 @@ const SkillsetProfileScreen: React.FC<SkillsetProfileScreenProps> = ({ setActive
           </div>
 
           <div className="md:col-span-2 space-y-6">
-            {profileData.workExperienceEntries && profileData.workExperienceEntries.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl flex items-center"><BriefcaseIcon className="mr-2 h-5 w-5 text-primary" />Relevant Experience</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                   {profileData.workExperienceEntries.map(exp => (
-                       <div key={exp.id} className="pb-3 border-b last:border-b-0">
-                           <h4 className="font-semibold text-foreground">{exp.title}</h4>
-                           <p className="text-sm text-muted-foreground">{exp.company} ({exp.years})</p>
-                           {exp.description && <p className="text-xs text-muted-foreground mt-1">{exp.description}</p>}
-                       </div>
-                   ))}
-                </CardContent>
-              </Card>
-            )}
+            <ProfileSectionList
+              title="Relevant Experience"
+              items={profileData.workExperienceEntries || []}
+              renderItem={(exp, onEdit, onDelete) => (
+                <div>
+                  <h4 className="font-semibold text-foreground">{exp.title}</h4>
+                  <p className="text-sm text-muted-foreground">{exp.company} ({exp.years})</p>
+                  {exp.description && <p className="text-xs text-muted-foreground mt-1">{exp.description}</p>}
+                </div>
+              )}
+              dialogTitle={currentWork?.id ? 'Edit Experience' : 'Add Experience'}
+              dialogFields={workDialogFields}
+              onAdd={openAddWorkDialog}
+              onEdit={openEditWorkDialog}
+              onDelete={setWorkToDelete}
+              onDialogSave={handleSaveWork}
+              onDialogCancel={() => { setShowWorkDialog(false); setCurrentWork(null); }}
+              showDialog={showWorkDialog}
+              setShowDialog={setShowWorkDialog}
+              showDeleteDialog={!!workToDelete}
+              setShowDeleteDialog={(open) => !open && setWorkToDelete(null)}
+              itemToDelete={workToDelete}
+              emptyText="No experience added yet."
+              addButtonText="Add Experience"
+            />
 
             {profileData.portfolioItems && profileData.portfolioItems.length > 0 && (
               <Card>

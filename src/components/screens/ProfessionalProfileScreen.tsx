@@ -1,7 +1,6 @@
-
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -16,13 +15,14 @@ import { useToast } from "@/hooks/use-toast";
 import type { TabName, UserDataForSideMenu, OverallProfessionalProfileData, WorkExperienceEntry, EducationEntry, LicenseCertificationEntry } from '@/types';
 import { cn } from '@/lib/utils';
 import ImageUpload from '@/components/ui/ImageUpload';
+import ProfileSectionList from '@/components/profile/ProfileSectionList';
 
 
 const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ setActiveTab, userData }) => {
   const { toast } = useToast();
 
   const [profileData, setProfileData] = useState<OverallProfessionalProfileData | null>(null);
-  const [editedData, setEditedData] = useState<Partial<OverallProfessionalProfileData>>({});
+  const [editedData, setEditedData] = useState<Partial<OverallProfessionalProfileData> | null>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -42,6 +42,10 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
   const [showLicenseDialog, setShowLicenseDialog] = useState(false);
   const [currentLicense, setCurrentLicense] = useState<Partial<LicenseCertificationEntry> & { id?: string } | null>(null);
   const [licenseToDelete, setLicenseToDelete] = useState<LicenseCertificationEntry | null>(null);
+
+  const workMediaInputRef = useRef<HTMLInputElement>(null);
+  const eduMediaInputRef = useRef<HTMLInputElement>(null);
+  const licMediaInputRef = useRef<HTMLInputElement>(null);
 
 
   useEffect(() => {
@@ -313,6 +317,178 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
     );
   }
 
+  const renderWorkExperienceItem = (
+    exp: WorkExperienceEntry,
+    onEdit: () => void,
+    onDelete: () => void
+  ) => (
+    <div className="flex justify-between items-start">
+      <div>
+        <h4 className="font-semibold text-foreground">{exp.title}</h4>
+        <p className="text-sm text-muted-foreground">{exp.company} &bull; {exp.employmentType}</p>
+        <p className="text-xs text-muted-foreground">{exp.startDate} - {exp.endDate || 'Present'} &bull; {exp.location}</p>
+        {exp.description && <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{exp.description}</p>}
+      </div>
+      <div className="flex-shrink-0 space-x-1">
+        <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}><PencilSquareIcon className="h-4 w-4"/></Button>
+        <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" onClick={onDelete}><TrashIcon className="h-4 w-4"/></Button>
+      </div>
+    </div>
+  );
+
+  const workExperienceDialogFields = (
+    <ScrollArea className="max-h-[70vh] pr-5 -mr-2"><div className="grid gap-4 py-4 pr-1">
+      <div className="space-y-1.5">
+        <Label htmlFor="exp-title">Title <span className="text-destructive">*</span></Label>
+        <Input id="exp-title" name="title" value={currentWorkExperience?.title || ''} onChange={handleWorkExperienceDialogChange} />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="exp-company">Company <span className="text-destructive">*</span></Label>
+        <Input id="exp-company" name="company" value={currentWorkExperience?.company || ''} onChange={handleWorkExperienceDialogChange} />
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="exp-employmentType">Employment Type</Label>
+        <Input id="exp-employmentType" name="employmentType" value={currentWorkExperience?.employmentType || ''} onChange={handleWorkExperienceDialogChange} placeholder="e.g., Full-time, Contract"/>
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="exp-location">Location</Label>
+        <Input id="exp-location" name="location" value={currentWorkExperience?.location || ''} onChange={handleWorkExperienceDialogChange} placeholder="e.g., City, State or Remote"/>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="exp-startDate">Start Date (YYYY-MM)</Label>
+          <Input id="exp-startDate" name="startDate" type="month" value={currentWorkExperience?.startDate || ''} onChange={handleWorkExperienceDialogChange} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="exp-endDate">End Date (YYYY-MM or Present)</Label>
+          <Input id="exp-endDate" name="endDate" type="text" value={currentWorkExperience?.endDate || ''} onChange={handleWorkExperienceDialogChange} placeholder="YYYY-MM or Present"/>
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="exp-description">Description</Label>
+        <Textarea id="exp-description" name="description" value={currentWorkExperience?.description || ''} onChange={handleWorkExperienceDialogChange} placeholder="Describe your responsibilities and achievements..." rows={4}/>
+      </div>
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium">Attach Media</label>
+        <input ref={workMediaInputRef} type="file" multiple accept="image/*,application/pdf" onChange={handleWorkMediaChange} />
+        {currentWorkExperience?.media && Array.isArray(currentWorkExperience.media) && currentWorkExperience.media.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-1">
+            {currentWorkExperience.media.map((file: any, i: number) => (
+              <span key={i} className="text-xs bg-muted px-2 py-1 rounded">{file.name}</span>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium">Privacy</label>
+        <select className="w-full border rounded px-2 py-1 text-xs" value={currentWorkExperience?.privacy || 'public'} onChange={handleWorkPrivacyChange}>
+          <option value="public">Public</option>
+          <option value="private">Private</option>
+        </select>
+      </div>
+    </div></ScrollArea>
+  );
+
+  const renderEducationItem = (
+    edu: EducationEntry,
+    onEdit: () => void,
+    onDelete: () => void
+  ) => (
+    <div className="flex justify-between items-start">
+      <div>
+        <h4 className="font-semibold text-foreground">{edu.institution}</h4>
+        <p className="text-sm text-muted-foreground">{edu.degree}, {edu.fieldOfStudy}</p>
+        <p className="text-xs text-muted-foreground">{edu.startDate} - {edu.endDate}</p>
+        {edu.description && <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{edu.description}</p>}
+      </div>
+      <div className="flex-shrink-0 space-x-1">
+        <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}><PencilSquareIcon className="h-4 w-4"/></Button>
+        <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" onClick={onDelete}><TrashIcon className="h-4 w-4"/></Button>
+      </div>
+    </div>
+  );
+
+  const educationDialogFields = (
+    <ScrollArea className="max-h-[70vh] pr-5 -mr-2"><div className="grid gap-4 py-4 pr-1">
+      <div className="space-y-1.5"><Label htmlFor="edu-institution">Institution <span className="text-destructive">*</span></Label><Input id="edu-institution" name="institution" value={currentEducation?.institution || ''} onChange={handleEducationDialogChange} /></div>
+      <div className="space-y-1.5"><Label htmlFor="edu-degree">Degree</Label><Input id="edu-degree" name="degree" value={currentEducation?.degree || ''} onChange={handleEducationDialogChange} /></div>
+      <div className="space-y-1.5"><Label htmlFor="edu-fieldOfStudy">Field of Study</Label><Input id="edu-fieldOfStudy" name="fieldOfStudy" value={currentEducation?.fieldOfStudy || ''} onChange={handleEducationDialogChange} /></div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5"><Label htmlFor="edu-startDate">Start Date (YYYY-MM)</Label><Input id="edu-startDate" name="startDate" type="month" value={currentEducation?.startDate || ''} onChange={handleEducationDialogChange} /></div>
+        <div className="space-y-1.5"><Label htmlFor="edu-endDate">End Date (YYYY-MM)</Label><Input id="edu-endDate" name="endDate" type="month" value={currentEducation?.endDate || ''} onChange={handleEducationDialogChange} /></div>
+      </div>
+      <div className="space-y-1.5"><Label htmlFor="edu-description">Description/Notes</Label><Textarea id="edu-description" name="description" value={currentEducation?.description || ''} onChange={handleEducationDialogChange} rows={3}/></div>
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium">Attach Media</label>
+        <input ref={eduMediaInputRef} type="file" multiple accept="image/*,application/pdf" onChange={handleEduMediaChange} />
+        {currentEducation?.media && Array.isArray(currentEducation.media) && currentEducation.media.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-1">
+            {currentEducation.media.map((file: any, i: number) => (
+              <span key={i} className="text-xs bg-muted px-2 py-1 rounded">{file.name}</span>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium">Privacy</label>
+        <select className="w-full border rounded px-2 py-1 text-xs" value={currentEducation?.privacy || 'public'} onChange={handleEduPrivacyChange}>
+          <option value="public">Public</option>
+          <option value="private">Private</option>
+        </select>
+      </div>
+    </div></ScrollArea>
+  );
+
+  const renderLicenseItem = (
+    cert: LicenseCertificationEntry,
+    onEdit: () => void,
+    onDelete: () => void
+  ) => (
+    <div className="flex justify-between items-start">
+      <div>
+        <h4 className="font-semibold text-foreground">{cert.name}</h4>
+        <p className="text-sm text-muted-foreground">{cert.issuingOrganization}</p>
+        <p className="text-xs text-muted-foreground">Issued: {cert.issueDate} {cert.expirationDate ? `| Expires: ${cert.expirationDate}` : ''}</p>
+        {cert.credentialUrl && cert.credentialUrl !== '#' && <a href={cert.credentialUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center mt-1"><ArrowTopRightOnSquareIcon className="h-3 w-3 mr-1"/>Show Credential</a>}
+      </div>
+      <div className="flex-shrink-0 space-x-1">
+        <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={onEdit}><PencilSquareIcon className="h-4 w-4"/></Button>
+        <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" onClick={onDelete}><TrashIcon className="h-4 w-4"/></Button>
+      </div>
+    </div>
+  );
+
+  const licenseDialogFields = (
+    <ScrollArea className="max-h-[70vh] pr-5 -mr-2"><div className="grid gap-4 py-4 pr-1">
+      <div className="space-y-1.5"><Label htmlFor="lic-name">Name <span className="text-destructive">*</span></Label><Input id="lic-name" name="name" value={currentLicense?.name || ''} onChange={handleLicenseDialogChange} /></div>
+      <div className="space-y-1.5"><Label htmlFor="lic-issuingOrganization">Issuing Organization</Label><Input id="lic-issuingOrganization" name="issuingOrganization" value={currentLicense?.issuingOrganization || ''} onChange={handleLicenseDialogChange} /></div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5"><Label htmlFor="lic-issueDate">Issue Date</Label><Input id="lic-issueDate" name="issueDate" type="date" value={currentLicense?.issueDate || ''} onChange={handleLicenseDialogChange} /></div>
+        <div className="space-y-1.5"><Label htmlFor="lic-expirationDate">Expiration Date (Optional)</Label><Input id="lic-expirationDate" name="expirationDate" type="date" value={currentLicense?.expirationDate || ''} onChange={handleLicenseDialogChange} /></div>
+      </div>
+      <div className="space-y-1.5"><Label htmlFor="lic-credentialId">Credential ID</Label><Input id="lic-credentialId" name="credentialId" value={currentLicense?.credentialId || ''} onChange={handleLicenseDialogChange} /></div>
+      <div className="space-y-1.5"><Label htmlFor="lic-credentialUrl">Credential URL</Label><Input id="lic-credentialUrl" name="credentialUrl" type="url" value={currentLicense?.credentialUrl || ''} onChange={handleLicenseDialogChange} placeholder="https://example.com/credential"/></div>
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium">Attach Media</label>
+        <input ref={licMediaInputRef} type="file" multiple accept="image/*,application/pdf" onChange={handleLicMediaChange} />
+        {currentLicense?.media && Array.isArray(currentLicense.media) && currentLicense.media.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-1">
+            {currentLicense.media.map((file: any, i: number) => (
+              <span key={i} className="text-xs bg-muted px-2 py-1 rounded">{file.name}</span>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="space-y-1.5">
+        <label className="block text-xs font-medium">Privacy</label>
+        <select className="w-full border rounded px-2 py-1 text-xs" value={currentLicense?.privacy || 'public'} onChange={handleLicPrivacyChange}>
+          <option value="public">Public</option>
+          <option value="private">Private</option>
+        </select>
+      </div>
+    </div></ScrollArea>
+  );
+
   return (
     <ScrollArea className="h-full bg-muted/20">
       <div className="max-w-5xl mx-auto">
@@ -425,83 +601,68 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
           </div>
 
           <div className="md:col-span-2 space-y-6">
-            <Card>
-                <CardHeader className="flex flex-row justify-between items-center">
-                    <CardTitle className="text-lg flex items-center"><BriefcaseIcon className="mr-2 h-5 w-5 text-primary"/>Experience</CardTitle>
-                    <Button type="button" variant="outline" size="sm" onClick={openAddWorkExperienceDialog}><PlusCircleIcon className="mr-1.5 h-4 w-4"/>Add Experience</Button>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {(editedData.workExperience || []).length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No work experience added yet.</p>}
-                    {(editedData.workExperience || []).map(exp => (
-                        <div key={exp.id} className="p-3 rounded-md border bg-muted/30">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h4 className="font-semibold text-foreground">{exp.title}</h4>
-                                    <p className="text-sm text-muted-foreground">{exp.company} &bull; {exp.employmentType}</p>
-                                    <p className="text-xs text-muted-foreground">{exp.startDate} - {exp.endDate || 'Present'} &bull; {exp.location}</p>
-                                    {exp.description && <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{exp.description}</p>}
-                                </div>
-                                <div className="flex-shrink-0 space-x-1">
-                                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditWorkExperienceDialog(exp)}><PencilSquareIcon className="h-4 w-4"/></Button>
-                                    <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" onClick={() => setWorkExperienceToDelete(exp)}><TrashIcon className="h-4 w-4"/></Button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
+            <ProfileSectionList
+              title="Experience"
+              items={editedData.workExperience || []}
+              renderItem={renderWorkExperienceItem}
+              dialogTitle={currentWorkExperience?.id ? 'Edit Work Experience' : 'Add Work Experience'}
+              dialogDescription="Provide details about your role and responsibilities."
+              dialogFields={workExperienceDialogFields}
+              onAdd={openAddWorkExperienceDialog}
+              onEdit={openEditWorkExperienceDialog}
+              onDelete={(item) => setWorkExperienceToDelete(item)}
+              onDialogSave={handleSaveWorkExperience}
+              onDialogCancel={() => { setShowWorkExperienceDialog(false); setCurrentWorkExperience(null); }}
+              showDialog={showWorkExperienceDialog}
+              setShowDialog={setShowWorkExperienceDialog}
+              showDeleteDialog={!!workExperienceToDelete}
+              setShowDeleteDialog={(open) => !open && setWorkExperienceToDelete(null)}
+              itemToDelete={workExperienceToDelete}
+              emptyText="No work experience added yet."
+              addButtonText="Add Experience"
+            />
 
-             <Card>
-                <CardHeader className="flex flex-row justify-between items-center">
-                    <CardTitle className="text-lg flex items-center"><BookOpenIcon className="mr-2 h-5 w-5 text-primary"/>Education</CardTitle>
-                    <Button type="button" variant="outline" size="sm" onClick={openAddEducationDialog}><PlusCircleIcon className="mr-1.5 h-4 w-4"/>Add Education</Button>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                     {(editedData.education || []).length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No education details added yet.</p>}
-                    {(editedData.education || []).map(edu => (
-                        <div key={edu.id} className="p-3 rounded-md border bg-muted/30">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h4 className="font-semibold text-foreground">{edu.institution}</h4>
-                                    <p className="text-sm text-muted-foreground">{edu.degree}, {edu.fieldOfStudy}</p>
-                                    <p className="text-xs text-muted-foreground">{edu.startDate} - {edu.endDate}</p>
-                                    {edu.description && <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line">{edu.description}</p>}
-                                </div>
-                                <div className="flex-shrink-0 space-x-1">
-                                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditEducationDialog(edu)}><PencilSquareIcon className="h-4 w-4"/></Button>
-                                    <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" onClick={() => setEducationToDelete(edu)}><TrashIcon className="h-4 w-4"/></Button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
+             <ProfileSectionList
+                title="Education"
+                items={editedData.education || []}
+                renderItem={renderEducationItem}
+                dialogTitle={currentEducation?.id ? 'Edit Education' : 'Add Education'}
+                dialogDescription="Add your educational qualifications."
+                dialogFields={educationDialogFields}
+                onAdd={openAddEducationDialog}
+                onEdit={openEditEducationDialog}
+                onDelete={(item) => setEducationToDelete(item)}
+                onDialogSave={handleSaveEducation}
+                onDialogCancel={() => { setShowEducationDialog(false); setCurrentEducation(null); }}
+                showDialog={showEducationDialog}
+                setShowDialog={setShowEducationDialog}
+                showDeleteDialog={!!educationToDelete}
+                setShowDeleteDialog={(open) => !open && setEducationToDelete(null)}
+                itemToDelete={educationToDelete}
+                emptyText="No education details added yet."
+                addButtonText="Add Education"
+              />
 
-             <Card>
-                <CardHeader className="flex flex-row justify-between items-center">
-                    <CardTitle className="text-lg flex items-center"><TrophyIcon className="mr-2 h-5 w-5 text-primary"/>Licenses & Certifications</CardTitle>
-                    <Button type="button" variant="outline" size="sm" onClick={openAddLicenseDialog}><PlusCircleIcon className="mr-1.5 h-4 w-4"/>Add Certification</Button>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                     {(editedData.licensesCertifications || []).length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No licenses or certifications added yet.</p>}
-                    {(editedData.licensesCertifications || []).map(cert => (
-                         <div key={cert.id} className="p-3 rounded-md border bg-muted/30">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h4 className="font-semibold text-foreground">{cert.name}</h4>
-                                    <p className="text-sm text-muted-foreground">{cert.issuingOrganization}</p>
-                                    <p className="text-xs text-muted-foreground">Issued: {cert.issueDate} {cert.expirationDate ? `| Expires: ${cert.expirationDate}` : ''}</p>
-                                    {cert.credentialUrl && cert.credentialUrl !== '#' && <a href={cert.credentialUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center mt-1"><ArrowTopRightOnSquareIcon className="h-3 w-3 mr-1"/>Show Credential</a>}
-                                </div>
-                                <div className="flex-shrink-0 space-x-1">
-                                    <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditLicenseDialog(cert)}><PencilSquareIcon className="h-4 w-4"/></Button>
-                                    <Button type="button" variant="ghost" size="icon" className="text-destructive hover:text-destructive h-7 w-7" onClick={() => setLicenseToDelete(cert)}><TrashIcon className="h-4 w-4"/></Button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
+             <ProfileSectionList
+                title="Licenses & Certifications"
+                items={editedData.licensesCertifications || []}
+                renderItem={renderLicenseItem}
+                dialogTitle={currentLicense?.id ? 'Edit License/Certification' : 'Add License/Certification'}
+                dialogDescription="Add your professional licenses or certifications."
+                dialogFields={licenseDialogFields}
+                onAdd={openAddLicenseDialog}
+                onEdit={openEditLicenseDialog}
+                onDelete={(item) => setLicenseToDelete(item)}
+                onDialogSave={handleSaveLicense}
+                onDialogCancel={() => { setShowLicenseDialog(false); setCurrentLicense(null); }}
+                showDialog={showLicenseDialog}
+                setShowDialog={setShowLicenseDialog}
+                showDeleteDialog={!!licenseToDelete}
+                setShowDeleteDialog={(open) => !open && setLicenseToDelete(null)}
+                itemToDelete={licenseToDelete}
+                emptyText="No licenses or certifications added yet."
+                addButtonText="Add Certification"
+              />
           </div>
         </div>
         <CardFooter className="p-4 sm:px-0 mt-8 pt-6 border-t">
@@ -520,38 +681,7 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
                 <DialogTitle>{currentWorkExperience?.id ? 'Edit' : 'Add'} Work Experience</DialogTitle>
                 <DialogDescription>Provide details about your role and responsibilities.</DialogDescription>
             </DialogHeader>
-            <ScrollArea className="max-h-[70vh] pr-5 -mr-2"><div className="grid gap-4 py-4 pr-1">
-                <div className="space-y-1.5">
-                    <Label htmlFor="exp-title">Title <span className="text-destructive">*</span></Label>
-                    <Input id="exp-title" name="title" value={currentWorkExperience?.title || ''} onChange={handleWorkExperienceDialogChange} />
-                </div>
-                <div className="space-y-1.5">
-                    <Label htmlFor="exp-company">Company <span className="text-destructive">*</span></Label>
-                    <Input id="exp-company" name="company" value={currentWorkExperience?.company || ''} onChange={handleWorkExperienceDialogChange} />
-                </div>
-                <div className="space-y-1.5">
-                    <Label htmlFor="exp-employmentType">Employment Type</Label>
-                    <Input id="exp-employmentType" name="employmentType" value={currentWorkExperience?.employmentType || ''} onChange={handleWorkExperienceDialogChange} placeholder="e.g., Full-time, Contract"/>
-                </div>
-                <div className="space-y-1.5">
-                    <Label htmlFor="exp-location">Location</Label>
-                    <Input id="exp-location" name="location" value={currentWorkExperience?.location || ''} onChange={handleWorkExperienceDialogChange} placeholder="e.g., City, State or Remote"/>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                        <Label htmlFor="exp-startDate">Start Date (YYYY-MM)</Label>
-                        <Input id="exp-startDate" name="startDate" type="month" value={currentWorkExperience?.startDate || ''} onChange={handleWorkExperienceDialogChange} />
-                    </div>
-                    <div className="space-y-1.5">
-                        <Label htmlFor="exp-endDate">End Date (YYYY-MM or Present)</Label>
-                        <Input id="exp-endDate" name="endDate" type="text" value={currentWorkExperience?.endDate || ''} onChange={handleWorkExperienceDialogChange} placeholder="YYYY-MM or Present"/>
-                    </div>
-                </div>
-                <div className="space-y-1.5">
-                    <Label htmlFor="exp-description">Description</Label>
-                    <Textarea id="exp-description" name="description" value={currentWorkExperience?.description || ''} onChange={handleWorkExperienceDialogChange} placeholder="Describe your responsibilities and achievements..." rows={4}/>
-                </div>
-            </div></ScrollArea>
+            {workExperienceDialogFields}
             <DialogFooter>
                 <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
                 <Button type="button" onClick={handleSaveWorkExperience}>Save Experience</Button>
@@ -569,67 +699,9 @@ const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ s
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <Dialog open={showEducationDialog} onOpenChange={setShowEducationDialog}>
-        <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-                <DialogTitle>{currentEducation?.id ? 'Edit' : 'Add'} Education</DialogTitle>
-                <DialogDescription>Add your educational qualifications.</DialogDescription>
-            </DialogHeader>
-            <ScrollArea className="max-h-[70vh] pr-5 -mr-2"><div className="grid gap-4 py-4 pr-1">
-                <div className="space-y-1.5"><Label htmlFor="edu-institution">Institution <span className="text-destructive">*</span></Label><Input id="edu-institution" name="institution" value={currentEducation?.institution || ''} onChange={handleEducationDialogChange} /></div>
-                <div className="space-y-1.5"><Label htmlFor="edu-degree">Degree</Label><Input id="edu-degree" name="degree" value={currentEducation?.degree || ''} onChange={handleEducationDialogChange} /></div>
-                <div className="space-y-1.5"><Label htmlFor="edu-fieldOfStudy">Field of Study</Label><Input id="edu-fieldOfStudy" name="fieldOfStudy" value={currentEducation?.fieldOfStudy || ''} onChange={handleEducationDialogChange} /></div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5"><Label htmlFor="edu-startDate">Start Date (YYYY-MM)</Label><Input id="edu-startDate" name="startDate" type="month" value={currentEducation?.startDate || ''} onChange={handleEducationDialogChange} /></div>
-                    <div className="space-y-1.5"><Label htmlFor="edu-endDate">End Date (YYYY-MM)</Label><Input id="edu-endDate" name="endDate" type="month" value={currentEducation?.endDate || ''} onChange={handleEducationDialogChange} /></div>
-                </div>
-                <div className="space-y-1.5"><Label htmlFor="edu-description">Description/Notes</Label><Textarea id="edu-description" name="description" value={currentEducation?.description || ''} onChange={handleEducationDialogChange} rows={3}/></div>
-            </div></ScrollArea>
-            <DialogFooter>
-                <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
-                <Button type="button" onClick={handleSaveEducation}>Save Education</Button>
-            </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <AlertDialog open={!!educationToDelete} onOpenChange={(open) => !open && setEducationToDelete(null)}>
-        <AlertDialogContent>
-            <AlertDialogHeader><AlertDialogTitle>Confirm Deletion</AlertDialogTitle><AlertDialogDescription>Are you sure you want to delete this education entry: "{educationToDelete?.institution}"? This action cannot be undone.</AlertDialogDescription></AlertDialogHeader>
-            <AlertDialogFooter><AlertDialogCancel onClick={() => setEducationToDelete(null)}>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDeleteEducation} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <Dialog open={showLicenseDialog} onOpenChange={setShowLicenseDialog}>
-        <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-                <DialogTitle>{currentLicense?.id ? 'Edit' : 'Add'} License/Certification</DialogTitle>
-                <DialogDescription>Add your professional licenses or certifications.</DialogDescription>
-            </DialogHeader>
-            <ScrollArea className="max-h-[70vh] pr-5 -mr-2"><div className="grid gap-4 py-4 pr-1">
-                <div className="space-y-1.5"><Label htmlFor="lic-name">Name <span className="text-destructive">*</span></Label><Input id="lic-name" name="name" value={currentLicense?.name || ''} onChange={handleLicenseDialogChange} /></div>
-                <div className="space-y-1.5"><Label htmlFor="lic-issuingOrganization">Issuing Organization</Label><Input id="lic-issuingOrganization" name="issuingOrganization" value={currentLicense?.issuingOrganization || ''} onChange={handleLicenseDialogChange} /></div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5"><Label htmlFor="lic-issueDate">Issue Date</Label><Input id="lic-issueDate" name="issueDate" type="date" value={currentLicense?.issueDate || ''} onChange={handleLicenseDialogChange} /></div>
-                    <div className="space-y-1.5"><Label htmlFor="lic-expirationDate">Expiration Date (Optional)</Label><Input id="lic-expirationDate" name="expirationDate" type="date" value={currentLicense?.expirationDate || ''} onChange={handleLicenseDialogChange} /></div>
-                </div>
-                <div className="space-y-1.5"><Label htmlFor="lic-credentialId">Credential ID</Label><Input id="lic-credentialId" name="credentialId" value={currentLicense?.credentialId || ''} onChange={handleLicenseDialogChange} /></div>
-                <div className="space-y-1.5"><Label htmlFor="lic-credentialUrl">Credential URL</Label><Input id="lic-credentialUrl" name="credentialUrl" type="url" value={currentLicense?.credentialUrl || ''} onChange={handleLicenseDialogChange} placeholder="https://example.com/credential"/></div>
-            </div></ScrollArea>
-            <DialogFooter>
-                <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
-                <Button type="button" onClick={handleSaveLicense}>Save License/Certification</Button>
-            </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <AlertDialog open={!!licenseToDelete} onOpenChange={(open) => !open && setLicenseToDelete(null)}>
-        <AlertDialogContent>
-            <AlertDialogHeader><AlertDialogTitle>Confirm Deletion</AlertDialogTitle><AlertDialogDescription>Are you sure you want to delete this license/certification: "{licenseToDelete?.name}"? This action cannot be undone.</AlertDialogDescription></AlertDialogHeader>
-            <AlertDialogFooter><AlertDialogCancel onClick={() => setLicenseToDelete(null)}>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDeleteLicense} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
     </ScrollArea>
   );
 };
 
 export default ProfessionalProfileScreen;
+export interface ProfessionalProfileScreenProps { setActiveTab: any; userData: any; }

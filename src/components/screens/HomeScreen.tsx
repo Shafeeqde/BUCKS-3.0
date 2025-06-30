@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -236,9 +235,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
       const filtered = simulatedSearchResults.filter(item => {
         let match = false;
         if (item.type === 'individual') {
-          match = item.data.name.toLowerCase().includes(lowerQuery) ||
-                 (item.data.professionalTitle && item.data.professionalTitle.toLowerCase().includes(lowerQuery)) ||
-                 (item.data.shortBio && item.data.shortBio.toLowerCase().includes(lowerQuery));
+          match = Boolean(
+            (item.data.name && item.data.name.toLowerCase().includes(lowerQuery)) ||
+            (item.data.professionalTitle && item.data.professionalTitle.toLowerCase().includes(lowerQuery)) ||
+            (item.data.shortBio && item.data.shortBio.toLowerCase().includes(lowerQuery))
+          );
         } else if (item.type === 'business') {
           const nameMatch = item.data.name.toLowerCase().includes(lowerQuery);
           const taglineMatch = !!item.data.tagline && item.data.tagline.toLowerCase().includes(lowerQuery);
@@ -562,7 +563,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
                         key={item.data.id}
                         business={item.data}
                         onPress={() => handleBusinessCardPress(item.data.id)}
-                        onProductClick={(productId) => handleCardProductClick(item.data.id, productId)}
+                        onProductClick={(businessId: string | number, productId: string) => handleCardProductClick(businessId, productId)}
                         onAddToCartClick={(productId) => onAddToCart(item.data.id, productId)}
                         onEnquiryClick={() => handleCardEnquiryClick(item.data.id, 'business')}
                         onCallClick={() => handleCardCallClick(item.data.id, item.data.phone, 'business')}
