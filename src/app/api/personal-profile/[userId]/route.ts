@@ -3,8 +3,9 @@ import { supabase } from './supabase';
 import type { PersonalPost, PersonalTag, PersonalRecommendation, PersonalComment } from '@/types';
 
 // GET: Fetch all personal posts for a user
-export async function GET(req: NextRequest, { params }: { params: { userId: string } }) {
-  const { userId } = params;
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const userId = url.pathname.split('/').slice(-2)[0];
   const { data, error } = await supabase
     .from('personal_posts')
     .select('*')
@@ -15,8 +16,9 @@ export async function GET(req: NextRequest, { params }: { params: { userId: stri
 }
 
 // POST: Create a new personal post
-export async function POST(req: NextRequest, { params }: { params: { userId: string } }) {
-  const { userId } = params;
+export async function POST(req: NextRequest) {
+  const url = new URL(req.url);
+  const userId = url.pathname.split('/').slice(-2)[0];
   const body = await req.json();
   const post: Omit<PersonalPost, 'id' | 'createdAt' | 'updatedAt' | 'recommendationsCount' | 'commentsCount'> = body;
   const { data, error } = await supabase
@@ -29,8 +31,9 @@ export async function POST(req: NextRequest, { params }: { params: { userId: str
 }
 
 // PUT: Update a personal post
-export async function PUT(req: NextRequest, { params }: { params: { userId: string } }) {
-  const { userId } = params;
+export async function PUT(req: NextRequest) {
+  const url = new URL(req.url);
+  const userId = url.pathname.split('/').slice(-2)[0];
   const body = await req.json();
   const { id, ...updateFields } = body;
   const { data, error } = await supabase
@@ -45,8 +48,9 @@ export async function PUT(req: NextRequest, { params }: { params: { userId: stri
 }
 
 // DELETE: Delete a personal post
-export async function DELETE(req: NextRequest, { params }: { params: { userId: string } }) {
-  const { userId } = params;
+export async function DELETE(req: NextRequest) {
+  const url = new URL(req.url);
+  const userId = url.pathname.split('/').slice(-2)[0];
   const { id } = await req.json();
   const { error } = await supabase
     .from('personal_posts')

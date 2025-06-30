@@ -9,7 +9,7 @@ export async function POST(req: NextRequest, { params }: { params: { postId: str
   // Upsert recommendation
   const { data, error } = await supabase
     .from('personal_recommendations')
-    .upsert({ post_id: params.postId, user_id: userId, type }, { onConflict: ['post_id', 'user_id'] })
+    .upsert({ post_id: params.postId, user_id: userId, type }, { onConflict: 'post_id,user_id' })
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

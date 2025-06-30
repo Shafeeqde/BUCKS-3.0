@@ -19,7 +19,79 @@ import ProfileSectionList from '@/components/profile/ProfileSectionList';
 
 
 const ProfessionalProfileScreen: React.FC<ProfessionalProfileScreenProps> = ({ setActiveTab, userData }) => {
+  // Handles file input for work experience media
+  const handleWorkMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    // Convert File[] to MediaAttachment[]
+    const mediaAttachments = files.map((file) => {
+      let mediaType: 'image' | 'video' | 'document' = 'document';
+      if (file.type.startsWith('image')) mediaType = 'image';
+      else if (file.type.startsWith('video')) mediaType = 'video';
+      return {
+        type: mediaType,
+        url: URL.createObjectURL(file),
+        fileName: file.name,
+      };
+    });
+    setCurrentWorkExperience(prev => prev ? { ...prev, media: mediaAttachments } : { media: mediaAttachments });
+  };
+
   const { toast } = useToast();
+
+  // Handles file input for license/certification media
+  const handleLicMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    // Convert File[] to MediaAttachment[]
+    const mediaAttachments = files.map((file) => {
+      let mediaType: 'image' | 'video' | 'document' = 'document';
+      if (file.type.startsWith('image')) mediaType = 'image';
+      else if (file.type.startsWith('video')) mediaType = 'video';
+      return {
+        type: mediaType,
+        url: URL.createObjectURL(file),
+        fileName: file.name,
+      };
+    });
+    setCurrentLicense(prev => prev ? { ...prev, media: mediaAttachments } : { media: mediaAttachments });
+  };
+
+  // Handles file input for education media
+  const handleEduMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    const mediaAttachments = files.map((file) => {
+      let mediaType: 'image' | 'video' | 'document' = 'document';
+      if (file.type.startsWith('image')) mediaType = 'image';
+      else if (file.type.startsWith('video')) mediaType = 'video';
+      return {
+        type: mediaType,
+        url: URL.createObjectURL(file),
+        fileName: file.name,
+      };
+    });
+    setCurrentEducation(prev => prev ? { ...prev, media: mediaAttachments } : { media: mediaAttachments });
+  };
+
+  // Handles privacy change for license/certification
+  const handleLicPrivacyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value as 'public' | 'connections' | 'private';
+    setCurrentLicense(prev => prev ? { ...prev, privacy: value } : { privacy: value });
+  };
+
+  // Handles privacy change for work experience
+  const handleWorkPrivacyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value as 'public' | 'connections' | 'private';
+    setCurrentWorkExperience(prev => prev ? { ...prev, privacy: value } : { privacy: value });
+  };
+
+  // Handles privacy change for education
+  const handleEduPrivacyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value as 'public' | 'connections' | 'private';
+    setCurrentEducation(prev => prev ? { ...prev, privacy: value } : { privacy: value });
+  };
+
 
   const [profileData, setProfileData] = useState<OverallProfessionalProfileData | null>(null);
   const [editedData, setEditedData] = useState<Partial<OverallProfessionalProfileData> | null>({});

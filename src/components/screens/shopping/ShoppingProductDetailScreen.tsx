@@ -141,7 +141,7 @@ const ShoppingProductDetailScreen: React.FC<ShoppingProductDetailScreenProps> = 
                 <Input
                   id="quantity"
                   type="number"
-                  value={quantity}
+                  value={Number(quantity)}
                   onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                   className="h-8 w-12 text-center border-0 focus-visible:ring-0"
                   min="1"

@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { StrictTextInput } from "@/components/ui/text-input";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
@@ -157,11 +158,11 @@ const PersonalProfileScreen: React.FC<PersonalProfileScreenProps> = ({ userId })
     return comments.filter(c => c.parentCommentId === parentId).map(comment => (
       <div key={comment.id} className={`mb-1 pl-${2 + level * 4} border-l text-xs`}>
         <span className="font-medium">{comment.userId}</span>: {comment.content}
-        <Button size="xs" variant="ghost" className="ml-2 px-1 py-0.5 text-xs" onClick={() => setReplyInputs(prev => ({ ...prev, [comment.id]: "" }))}><ReplyIcon className="w-3 h-3 inline" /> Reply</Button>
+        <Button size="sm" variant="ghost" className="ml-2 px-1 py-0.5 text-xs" onClick={() => setReplyInputs(prev => ({ ...prev, [comment.id]: "" }))}><ReplyIcon className="w-3 h-3 inline" /> Reply</Button>
         {replyInputs[comment.id] !== undefined && (
           <div className="flex items-center gap-1 mt-1">
-            <Input size="sm" className="text-xs" value={replyInputs[comment.id] || ""} onChange={e => setReplyInputs(prev => ({ ...prev, [comment.id]: e.target.value }))} placeholder="Reply..." />
-            <Button size="xs" variant="outline" onClick={() => handleAddComment(postId, comment.id)}><SendIcon className="w-3 h-3" /></Button>
+            <StrictTextInput className="text-xs" value={replyInputs[comment.id] || ""} onChange={e => setReplyInputs(prev => ({ ...prev, [comment.id]: e.target.value }))} placeholder="Reply..." />
+            <Button size="sm" variant="outline" onClick={() => handleAddComment(postId, comment.id)}><SendIcon className="w-3 h-3" /></Button>
           </div>
         )}
         {renderComments(comments, postId, comment.id, level + 1)}
@@ -216,7 +217,7 @@ const PersonalProfileScreen: React.FC<PersonalProfileScreenProps> = ({ userId })
                   <CardTitle className="text-base">{post.content}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-xs text-muted-foreground mb-2">{new Date(post.createdAt || post.created_at).toLocaleString()}</div>
+                  <div className="text-xs text-muted-foreground mb-2">{new Date(post.createdAt).toLocaleString()}</div>
                   {/* Media */}
                   {post.media && post.media.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-2">
@@ -235,8 +236,8 @@ const PersonalProfileScreen: React.FC<PersonalProfileScreenProps> = ({ userId })
                       </Badge>
                     ))}
                     <div className="flex items-center gap-1">
-                      <Input size="sm" className="text-xs w-24" value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="Tag user..." />
-                      <Button size="xs" variant="outline" onClick={() => handleAddTag(post.id)}><TagIcon className="w-3 h-3" /></Button>
+                      <StrictTextInput className="text-xs w-24" value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="Tag user..." />
+                      <Button size="sm" variant="outline" onClick={() => handleAddTag(post.id)}><TagIcon className="w-3 h-3" /></Button>
                     </div>
                   </div>
                   {/* Recommendations */}
@@ -249,8 +250,8 @@ const PersonalProfileScreen: React.FC<PersonalProfileScreenProps> = ({ userId })
                     <div className="font-semibold text-xs mb-1 flex items-center"><MessageCircleIcon className="w-3 h-3 mr-1" /> Comments</div>
                     {renderComments(details.comments, post.id)}
                     <div className="flex items-center gap-1 mt-1">
-                      <Input size="sm" className="text-xs" value={commentInputs[post.id] || ""} onChange={e => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))} placeholder="Add a comment..." />
-                      <Button size="xs" variant="outline" onClick={() => handleAddComment(post.id)}><SendIcon className="w-3 h-3" /></Button>
+                      <StrictTextInput  className="text-xs" value={commentInputs[post.id] || ""} onChange={e => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))} placeholder="Add a comment..." />
+                      <Button size="sm" variant="outline" onClick={() => handleAddComment(post.id)}><SendIcon className="w-3 h-3" /></Button>
                     </div>
                   </div>
                   {/* Privacy */}
