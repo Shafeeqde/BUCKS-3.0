@@ -25,21 +25,23 @@ import {
 } from '@heroicons/react/24/outline';
 import type { TabName, PublicProfileData, ProfilePost } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { individualProfiles } from '@/lib/dummy-data/individualProfiles'; // Import dummy data
+// Real API fetch will be used instead of dummy data
 
 interface IndividualProfileScreenProps {
   setActiveTab: (tab: TabName) => void;
   profileId: string | null;
 }
 
-const simulateFetchPublicProfile = async (profileId: string): Promise<PublicProfileData | null> => {
-  console.log(`Simulating fetching public profile for ID: ${profileId}`);
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const profile = individualProfiles.find(p => p.id === profileId);
-      resolve(profile || null);
-    }, 500);
-  });
+const fetchPublicProfile = async (profileId: string): Promise<PublicProfileData | null> => {
+  console.log(`Fetching public profile for ID: ${profileId}`);
+  try {
+    const response = await fetch(`/api/personal-profile/${profileId}`);
+    if (!response.ok) throw new Error('Failed to fetch profile data');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    return null;
+  }
 };
 
 
@@ -63,7 +65,7 @@ const IndividualProfileScreen: React.FC<IndividualProfileScreenProps> = ({ setAc
     setLoading(true);
     setError(null);
     try {
-      const data = await simulateFetchPublicProfile(id);
+      const data = await fetchPublicProfile(id);
       if (data) {
         setProfileData(data);
       } else {

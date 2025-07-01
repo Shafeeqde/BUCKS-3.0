@@ -6,7 +6,7 @@ import CategoryItem from '@/components/feeds/CategoryItem';
 import FeedCard from '@/components/feeds/FeedCard';
 import type { Category, FeedItem as FeedItemType, ProfilePost } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
+// Real API will be used instead of dummy data
 import { Skeleton } from '../ui/skeleton';
 import { Card } from '@/components/ui/card';
 
@@ -19,7 +19,8 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
   onViewUserProfile,
   onViewPostDetail,
 }) => {
-  const [categories, setCategories] = useState<Category[]>(initialCategoriesData);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [feedItems, setFeedItems] = useState<FeedItemType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -56,7 +57,30 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
       }
     };
 
+    const fetchCategories = async () => {
+      setCategoriesLoading(true);
+      try {
+        const response = await fetch('/api/feed-categories');
+        if (!response.ok) {
+          throw new Error('Failed to fetch categories');
+        }
+        const data: Category[] = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        toast({
+          title: "Could not load categories",
+          description: "There was an issue fetching the feed categories.",
+          variant: "destructive"
+        });
+        setCategories([]); // Use empty array as fallback
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
     fetchAllPosts();
+    fetchCategories();
   }, [toast]);
 
   const handleInteraction = (id: string | number, type: 'recommend' | 'notRecommend') => {

@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabaseClient';
 
 const COLLECTION_NAME = 'skillset_profiles';
 
@@ -10,13 +11,21 @@ export async function GET(request: NextRequest, context: { params: Promise <{ pr
             return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
         }
 
-        const profile = null; // Replace with actual data fetching logic
+        const { data: profile, error } = await supabase
+    .from(COLLECTION_NAME)
+    .select('*')
+    .eq('id', profileId)
+    .single();
 
-        if (!profile) {
-            return NextResponse.json({ error: 'Skillset profile not found' }, { status: 404 });
-        }
-        
-        return NextResponse.json(profile, { status: 200 });
+if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+}
+
+if (!profile) {
+    return NextResponse.json({ error: 'Skillset profile not found' }, { status: 404 });
+}
+
+return NextResponse.json(profile, { status: 200 });
 
     } catch (error) {
         console.error(`Error fetching skillset profile ${profileId}:`, error);
@@ -37,10 +46,22 @@ export async function PUT(request: NextRequest, context: { params:  Promise <{ p
     
     const { id, ...updateData } = body;
 
-    // Replace with actual data updating logic
+    const { data, error } = await supabase
+      .from(COLLECTION_NAME)
+      .update(updateData)
+      .eq('id', profileId)
+      .select('*')
+      .single();
 
-    console.log(`Skillset profile updated for ID: ${profileId}`);
-    return NextResponse.json({ message: 'Profile updated successfully' }, { status: 200 });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (!data) {
+      return NextResponse.json({ error: 'Skillset profile not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Profile updated successfully', profile: data }, { status: 200 });
 
   } catch (error) {
     console.error(`Error updating skillset profile ${profileId}:`, error);
@@ -60,9 +81,15 @@ export async function DELETE(request: NextRequest, context: { params: Promise <{
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 });
     }
     
-    // Replace with actual data deletion logic
+    const { error } = await supabase
+      .from(COLLECTION_NAME)
+      .delete()
+      .eq('id', profileId);
 
-    console.log(`Skillset profile deleted for ID: ${profileId}`);
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
     return NextResponse.json({ message: 'Profile deleted successfully' }, { status: 200 });
 
   } catch (error) {

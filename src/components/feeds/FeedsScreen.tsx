@@ -6,7 +6,8 @@ import CategoryItem from '@/components/feeds/CategoryItem';
 import FeedCard from '@/components/feeds/FeedCard';
 import type { Category, FeedItem as FeedItemType } from '@/types';
 import { useToast } from "@/hooks/use-toast";
-import { initialCategoriesData } from '@/lib/dummy-data/feedsCategories';
+import { supabase } from '@/lib/supabaseClient';
+// Using API data instead of dummy data
 // Removed initialFeedItemsData as it's now a prop
 
 interface FeedsScreenProps {
@@ -24,9 +25,34 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
   onViewPostDetail, // Use new prop
   feedItems: initialFeedItems // Use new prop
 }) => {
-  const [categories, setCategories] = useState<Category[]>(initialCategoriesData);
-  const [feedItems, setFeedItems] = useState<FeedItemType[]>(initialFeedItems); // State now uses passed prop
   const { toast } = useToast();
+  const [feedItems, setFeedItems] = useState<FeedItemType[]>(initialFeedItems); // State now uses passed prop
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  
+  // Fetch categories from API
+  React.useEffect(() => {
+    const fetchCategories = async () => {
+      setCategoriesLoading(true);
+      try {
+        const response = await fetch('/api/feed-categories');
+        if (!response.ok) throw new Error('Failed to fetch feed categories');
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        toast({
+          title: "Could not load categories",
+          description: "There was an issue loading feed categories.",
+          variant: "destructive"
+        });
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+    
+    fetchCategories();
+  }, [toast]);
 
   // Effect to update local feedItems state if the prop changes (e.g., after a comment)
   React.useEffect(() => {
@@ -62,25 +88,67 @@ const FeedsScreen: React.FC<FeedsScreenProps> = ({
     );
   };
 
-  const handleCategoryClick = (categoryId: string) => {
+  const handleCategoryClick = async (categoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
     if (!category) return;
 
     if (category.id === 'moments-0' && category.type === 'moments') {
       onAddMomentClick();
     } else if (category.profileId) { 
-      onViewUserMomentsClick(category.profileId, category.name, category.image, category.dataAiHint);
+      // Use the profileId from Supabase category data
+      onViewUserMomentsClick(
+        category.profileId, 
+        category.name, 
+        category.image || '', // Handle possible undefined image
+        category.dataAiHint || '' // Handle possible undefined dataAiHint
+      );
+      
+      // Update the viewed status in state
       setCategories(prevCategories => 
         prevCategories.map(cat => 
           cat.id === categoryId ? { ...cat, viewed: true } : cat
         )
       );
+      
+      // Optionally update viewed status in Supabase
+      if (category.id) {
+        try {
+          const { error } = await supabase
+            .from('categories')
+            .update({ viewed: true })
+            .eq('id', category.id);
+            
+          if (error) {
+            console.error('Error updating category viewed status:', error);
+          }
+        } catch (err) {
+          console.error('Failed to update category status in Supabase:', err);
+        }
+      }
     } else {
+      // Update local state
       setCategories(prevCategories => 
         prevCategories.map(cat => 
           cat.id === categoryId ? { ...cat, viewed: true } : cat
         )
       );
+      
+      // Optionally update viewed status in Supabase
+      if (category.id) {
+        try {
+          const { error } = await supabase
+            .from('categories')
+            .update({ viewed: true })
+            .eq('id', category.id);
+            
+          if (error) {
+            console.error('Error updating category viewed status:', error);
+          }
+        } catch (err) {
+          console.error('Failed to update category status in Supabase:', err);
+        }
+      }
+      
       toast({
           title: `Viewing ${category?.name || 'Category'}`,
           description: "Content for this category would load here. (Generic category click)",

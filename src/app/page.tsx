@@ -42,7 +42,7 @@ import type {
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow, format } from 'date-fns';
 import { useAuth } from '@/context/AuthContext';
-import { individualProfiles } from '@/lib/dummy-data/individualProfiles';
+// Using real API data instead of dummy data
 
 
 const newBusinessProfileTemplate: Omit<UserBusinessProfile, 'id'> = {
@@ -539,7 +539,7 @@ export default function AppRoot() {
       <MomentViewerScreen
           isOpen={showMomentViewer}
           onClose={() => { setShowMomentViewer(false); setViewingMomentOwner(null); }}
-          moments={viewingMomentOwner?.profileId ? (individualProfiles.find(p => p.id === viewingMomentOwner.profileId)?.moments || []) : user?.moments || []}
+          moments={user?.moments || []} /* Use only logged-in user moments until API fetch is implemented */
           ownerName={viewingMomentOwner?.name}
           ownerAvatarUrl={viewingMomentOwner?.avatarUrl}
           ownerAvatarAiHint={viewingMomentOwner?.avatarAiHint}

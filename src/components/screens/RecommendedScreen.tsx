@@ -1,14 +1,14 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { MagnifyingGlassIcon, PhotoIcon, VideoCameraIcon, DocumentIcon, QueueListIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
-import { recommendedItems as initialRecommendedItems } from '@/lib/dummy-data/recommendedItems';
+// Real API will be used instead of dummy data
 import type { FeedItem } from '@/types';
 import FeedCard from '@/components/feeds/FeedCard'; // Reusing FeedCard for consistency
 
@@ -25,7 +25,26 @@ const RecommendedScreen: React.FC<RecommendedScreenProps> = ({
 }) => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [recommendedItems, setRecommendedItems] = useState(initialRecommendedItems);
+  const [recommendedItems, setRecommendedItems] = useState<FeedItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRecommendedItems = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/recommended');
+        if (!response.ok) throw new Error('Failed to fetch recommended items');
+        const data = await response.json();
+        setRecommendedItems(data);
+      } catch (error) {
+        console.error('Error fetching recommended items:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRecommendedItems();
+  }, []);
 
   const handleInteraction = (id: number, type: 'recommend' | 'notRecommend') => {
     setRecommendedItems(prevItems =>
